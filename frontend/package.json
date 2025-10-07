@@ -13,6 +13,8 @@
     "@react-oauth/google": "^0.12.2",
     "@tailwindcss/vite": "^4.1.13",
     "@tanstack/react-query": "^5.89.0",
+    "clsx": "^2.1.1",
+    "cookie-store": "^3.0.0",
     "framer-motion": "^12.23.14",
     "jotai": "^2.14.0",
     "prettier": "^3.6.2",

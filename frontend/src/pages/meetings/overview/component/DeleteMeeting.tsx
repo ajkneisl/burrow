@@ -5,6 +5,7 @@ import { useRef } from "react"
 import { deleteMeeting } from "@features/groups/api/groups.api.ts"
 import { useNavigate } from "react-router"
 import useToken from "@features/auth/api/hooks/useToken.ts"
+import Button from "@components/Button.tsx"
 
 /**
  * {@link DeleteMeeting}
@@ -45,6 +46,7 @@ export default function DeleteMeeting({ meeting }: DeleteMeetingProps) {
             toast.dismiss(confirmToastIdRef.current)
             confirmToastIdRef.current = null
         }
+
         const id = toast.custom(
             (toastObj) => (
                 <motion.div
@@ -100,11 +102,11 @@ export default function DeleteMeeting({ meeting }: DeleteMeetingProps) {
     }
 
     return (
-        <button
+        <Button
             onClick={confirmDelete}
-            className="hover:cursor-pointer inline-flex items-center justify-center rounded-xl border border-red-200 bg-red-100 px-4 py-2 text-sm font-medium text-red-800 shadow-sm transition hover:shadow-md"
+            colors="text-text border border-error/50 bg-error/60"
         >
             Delete
-        </button>
+        </Button>
     )
 }

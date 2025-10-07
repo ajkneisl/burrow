@@ -8,6 +8,7 @@ import app.burrow.groups.models.GroupMeeting
 import app.burrow.groups.models.GroupMeetingResponse
 import app.burrow.groups.models.MeetingMemberStatus
 import app.burrow.groups.models.MeetingRole
+import app.burrow.notifications.createNotification
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import kotlinx.serialization.Serializable
@@ -216,7 +217,8 @@ suspend fun leaveMeeting(user: String, meeting: String) {
                 it[Memberships.status] = MeetingMemberStatus.JOINED
             }
 
-            // TODO: in the future, send a notification that they're in
+            // notification that they've joined
+            createNotification("Joined Meeting", "You've been moved off the waitlist!", waitingUser)
         }
     }
 }

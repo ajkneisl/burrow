@@ -1,4 +1,4 @@
-import { BASE_URL } from "@api/Util.ts"
+import { BASE_URL } from "@api/util.ts"
 import type { AuthorizedUser, User } from "@features/auth/api/user.types.ts"
 
 /**

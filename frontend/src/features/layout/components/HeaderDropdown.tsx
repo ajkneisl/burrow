@@ -78,7 +78,7 @@ export default function HeaderDropdown() {
                 aria-haspopup="menu"
                 aria-expanded={open}
                 onClick={() => setOpen((s) => !s)}
-                className="inline-flex items-center justify-center rounded-md p-2 text-white hover:bg-[#5b0013] focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+                className="cursor-pointer inline-flex items-center justify-center rounded-md p-2 text-white hover:bg-[#5b0013] focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
                 whileTap={{ scale: 0.97 }}
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 600, damping: 32 }}
@@ -107,7 +107,7 @@ export default function HeaderDropdown() {
                         ref={menuRef}
                         role="menu"
                         aria-label="Overflow menu"
-                        className="absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg ring-1 ring-black/5"
+                        className="absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-xl bg-card p-1.5 shadow-lg ring-1 ring-black/5"
                         variants={menuVariants}
                         initial="hidden"
                         animate="show"
@@ -170,7 +170,7 @@ function MenuItem({ label, onSelect }: MenuItemProps) {
         <motion.button
             role="menuitem"
             onClick={onSelect}
-            className="flex w-full cursor-pointer select-none items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+            className="flex w-full cursor-pointer select-none items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-background"
             variants={itemVariants}
             whileTap={{ scale: 0.98 }}
         >

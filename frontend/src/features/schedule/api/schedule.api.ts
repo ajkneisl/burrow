@@ -1,4 +1,4 @@
-import { BASE_URL } from "@api/Util.ts"
+import { BASE_URL } from "@api/util.ts"
 import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
 
 /**

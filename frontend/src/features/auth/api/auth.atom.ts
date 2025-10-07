@@ -1,11 +1,11 @@
-import { atomWithStorage } from "jotai/utils"
-import { atom } from "jotai/index"
+import { atom } from "jotai"
 import type { User } from "./user.types.ts"
+import { atomWithCookie } from "@api/util.ts"
 
 /**
  * The authorization token for the backend.
  */
-export const authToken = atomWithStorage("auth", "")
+export const authToken = atomWithCookie("auth", "")
 
 /**
  * The user's details.

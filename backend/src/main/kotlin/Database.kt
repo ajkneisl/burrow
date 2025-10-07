@@ -5,6 +5,7 @@ import app.burrow.groups.Meetings
 import app.burrow.groups.bookmarks.Bookmarks
 import app.burrow.groups.chat.ChatMessages
 import app.burrow.groups.membership.Memberships
+import app.burrow.notifications.Notifications
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -47,6 +48,7 @@ suspend fun initDb() {
             Memberships,
             Bookmarks,
             ChatMessages,
+            Notifications,
         )
     }
 }

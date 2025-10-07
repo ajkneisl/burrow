@@ -1,7 +1,8 @@
 import Badge from "@components/Badge.tsx"
 import type { GroupMeeting } from "@features/groups/api/groups.types.ts"
 import { useNavigate } from "react-router"
-import { formatDateTime } from "@api/Util.ts"
+import { formatDateTime } from "@api/util.ts"
+import clsx from "clsx"
 
 /**
  * {@link SearchPreview}
@@ -28,28 +29,31 @@ export default function SearchPreview({ meeting, onClick }: PreviewProps) {
                 nav(`/meeting/${meeting.id}`)
                 onClick()
             }}
-            className="flex flex-row justify-between items-center w-full text-left px-3 py-2 hover:bg-gray-50"
+            className={clsx(
+                "flex flex-row justify-between items-center w-full text-left px-3 py-2",
+                "text-text bg-hero/20 hover:bg-hero/40 transition-all cursor-pointer"
+            )}
         >
             <div className="flex flex-col">
-                <div className="text-sm font-medium text-gray-900">
+                <div className="text-sm font-medium text-text">
                     {meeting.title}
                 </div>
 
-                <div className="flex flex-row flex-wrap gap-2">
+                <div className="flex flex-row flex-wrap gap-2 mt-2">
                     {meeting.tags.map((tag: string) => (
-                        <Badge key={tag}>{tag}</Badge>
+                        <Badge size="medium" key={tag}>{tag}</Badge>
                     ))}
                 </div>
             </div>
 
             <div>
-                <div className=" text-xs flex items-center gap-1 text-gray-700">
+                <div className=" text-xs flex items-center gap-1 text-text/80">
                     {/* location pin icon */}
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        className="h-4 w-4 shrink-0 text-gray-500"
+                        className="h-4 w-4 shrink-0"
                         aria-hidden="true"
                         focusable="false"
                     >
@@ -68,7 +72,7 @@ export default function SearchPreview({ meeting, onClick }: PreviewProps) {
                 </div>
 
                 <time
-                    className="text-xs text-gray-700"
+                    className="text-xs text-text/60"
                     aria-label="Time Occurring"
                 >
                     {formatDateTime(meeting.beginningTime, meeting.endTime)}

@@ -1,5 +1,71 @@
 @import "tailwindcss";
 
+
+:root {
+    --background-color: #ffffff; /* white background */
+    --primary-color: 122 0 25;   /* Minnesota maroon (Pantone 202C) */
+    --secondary-color: 255 204 0; /* Minnesota gold */
+    --card-background-color: #f9fafb; /* light surface */
+    --hero-color: #dedbd5; /* near-white neutral for hero sections */
+    --text-color: 33 33 33;      /* dark gray text */
+    --success-color: 0 128 0;    /* UMN green variant */
+    --info-color: 0 102 204;     /* rich UMN blue accent */
+    --warn-color: 255 204 0;     /* Minnesota gold (Pantone 123C) */
+    --error-color: 191 30 46;    /* deep red for errors */
+    --primary-hover-color: 230 180 0; /* muted gold hover */
+    --secondary-hover-color: 160 40 40; /* deeper maroon hover */
+    --success-hover-color: 0 150 70; /* brighter green hover */
+    --info-hover-color: 30 130 230; /* brighter blue hover */
+    --warn-hover-color: 255 210 70; /* lighter warning gold */
+    --error-hover-color: 210 60 60; /* lighter red hover */
+}
+
+[data-theme="dark"] {
+    --background-color: #1a1a1a; /* dark gray background */
+    --primary-color: 78 0 10;   /* Minnesota maroon (Pantone 202C) */
+    --secondary-color: 255 204 0; /* Minnesota gold */
+    --card-background-color: #2a2a2a; /* darker surface */
+    --hero-color: #111827; /* deep gray hero */
+    --text-color: 243 244 246;   /* near-white text */
+    --success-color: 72 187 120; /* muted green for dark mode */
+    --info-color: 100 181 246;   /* lighter blue for dark mode */
+    --warn-color: 255 215 0;     /* bright gold for dark mode */
+    --error-color: 239 83 80;    /* light red for dark mode */
+    --primary-hover-color: 230 180 0; /* muted gold hover */
+    --secondary-hover-color: 160 40 40; /* deeper maroon hover */
+    --success-hover-color: 90 200 140; /* brighter green hover */
+    --info-hover-color: 120 200 255; /* light blue hover */
+    --warn-hover-color: 255 225 90; /* brighter gold hover */
+    --error-hover-color: 250 110 110; /* softer red hover */
+
+    input[type="date"]::-webkit-calendar-picker-indicator{
+        filter: invert(100%);
+    }
+
+    input[type="time"]::-webkit-calendar-picker-indicator{
+        filter: invert(100%);
+    }
+}
+
+@theme inline {
+    --color-background:var(--background-color);
+    --color-primary: rgb(var(--primary-color));
+    --color-secondary: rgb(var(--secondary-color));
+    --color-card: var(--card-background-color);
+    --color-hero: var(--hero-color);
+    --color-text: rgb(var(--text-color));
+    --color-success: rgb(var(--success-color));
+    --color-info: rgb(var(--info-color));
+    --color-warn: rgb(var(--warn-color));
+    --color-error: rgb(var(--error-color));
+    --color-primary-hover: rgb(var(--primary-hover-color));
+    --color-secondary-hover: rgb(var(--secondary-hover-color));
+    --color-success-hover: rgb(var(--success-hover-color));
+    --color-info-hover: rgb(var(--info-hover-color));
+    --color-warn-hover: rgb(var(--warn-hover-color));
+    --color-error-hover: rgb(var(--error-hover-color));
+}
+
 /* ~ different fonts ~ */
 .slab {
     font-family: "Roboto Slab", sans-serif;

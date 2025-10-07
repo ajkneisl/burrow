@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import useToken from "@features/auth/api/hooks/useToken.ts"
-import { BASE_URL } from "@api/Util.ts"
+import { BASE_URL } from "@api/util.ts"
 import Chat from "@features/chat/components/Chat.tsx"
 import useUser from "@features/auth/api/hooks/useUser.ts"
 import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
@@ -213,10 +213,10 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
     }
 
     return (
-        <section className="rounded-2xl h-[512px] border border-gray-200 bg-white shadow-sm flex flex-col">
-            <header className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-gray-700">Chat</h3>
-                <span className="text-xs text-gray-500">
+        <section className="border border-primary/30 rounded-2xl mt-8 h-[512px] bg-card shadow-sm flex flex-col">
+            <header className="border-b border-primary/30 px-4 py-3 flex items-center justify-between">
+                <h3 className="font-semibold">Chat</h3>
+                <span className="text-xs font-semibold">
                     {status === "connecting" && "Connecting…"}
                     {status === "open" && "Live"}
                     {status === "closed" && "Disconnected"}
@@ -224,12 +224,9 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                 </span>
             </header>
 
-            <div
-                ref={listRef}
-                className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-white to-gray-50"
-            >
+            <div ref={listRef} className="flex-1 overflow-y-auto p-4 space-y-3">
                 {messages.length === 0 ? (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm ">
                         No messages yet. Start the conversation.
                     </p>
                 ) : (
@@ -249,7 +246,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                 )}
             </div>
 
-            <div className={`py-2 ${!editingId && `border-t border-gray-200`}`}>
+            <div className={`py-2 ${!editingId && `border-t border-primary/80`}`}>
                 {editingId && (
                     <div className="relative mb-2 flex flex-col items-center rounded-t-lg border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm">
                         <div className="flex items-center gap-2">

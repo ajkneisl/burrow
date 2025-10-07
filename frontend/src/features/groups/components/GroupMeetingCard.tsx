@@ -3,7 +3,7 @@ import { useNavigate } from "react-router"
 import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
 import useUser from "@features/auth/api/hooks/useUser.ts"
 import MeetingCapacityBadges from "@features/groups/components/MeetingCapacityBadges.tsx"
-import { formatDateTime } from "@api/Util.ts"
+import { formatDateTime } from "@api/util.ts"
 
 /**
  * A group card, both study and club meetings.
@@ -25,22 +25,22 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
     return (
         <article
             onClick={onClick}
-            className="group cursor-pointer w-full rounded-2xl border border-gray-200/70 bg-white/90 p-5 shadow-sm ring-1 ring-black/[0.02] transition-all hover:border-gray-300 hover:shadow-md hover:shadow-gray-200 focus-within:ring-2 focus-within:ring-blue-400/40"
+            className="group bg-card cursor-pointer w-full rounded-2xl border border-primary/20 p-5 shadow-sm ring-1 ring-primary/5 transition-all hover:border-primary/30 hover:shadow-md focus-within:ring-2 focus-within:ring-primary/40"
         >
             <div className="flex flex-col gap-4">
                 <div className="min-w-0 flex items-start justify-between gap-4">
-                    <div className="flex flex-col items-start justify-between gap-2 text-sm text-gray-600">
+                    <div className="flex flex-col items-start justify-between gap-2 text-sm text-text/70">
                         {/* title, description and timing */}
                         <div className="flex flex-col">
                             {/* title */}
-                            <h3 className="truncate text-lg font-semibold tracking-tight text-gray-900">
+                            <h3 className="truncate text-lg font-semibold tracking-tight text-text">
                                 {meeting.title}
                             </h3>
 
                             {/* timing */}
                             <div className="flex flex-row gap-2">
                                 <time
-                                    className="inline-flex items-center gap-1 rounded-full text-sm font-medium text-gray-700"
+                                    className="inline-flex items-center gap-1 rounded-full text-sm font-medium text-text/80"
                                     aria-label="Time Occurring"
                                 >
                                     {formatDateTime(
@@ -51,7 +51,7 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
                             </div>
 
                             {/* description */}
-                            <p className="mt-2 max-w-prose truncate text-sm text-gray-600">
+                            <p className="mt-2 max-w-prose truncate text-sm text-text/70">
                                 {meeting.description}
                             </p>
                         </div>
@@ -60,7 +60,7 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
                     <div className="flex shrink-0 items-start gap-2">
                         {meetingResponse?.membership?.status === "JOINED" && (
                             <span
-                                className="inline-flex items-center rounded-full bg-green-50 px-2.5 py-1 text-green-700 ring-1 ring-inset ring-green-200"
+                                className="inline-flex items-center rounded-full bg-success/10 px-2.5 py-1 text-success ring-1 ring-inset ring-success/30"
                                 title="You're a member"
                             >
                                 <span className="sr-only">Joined</span>
@@ -79,7 +79,7 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
 
                         {user !== null && meeting.owner === user.googleID && (
                             <span
-                                className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-amber-700 ring-1 ring-inset ring-amber-200"
+                                className="inline-flex items-center rounded-full bg-warn/10 px-2.5 py-1 text-warn ring-1 ring-inset ring-warn/30"
                                 title="You are the host"
                             >
                                 <span className="sr-only">Host</span>
@@ -98,7 +98,7 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
 
                         {meetingResponse.bookmarked && (
                             <span
-                                className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-blue-700 ring-1 ring-inset ring-blue-200"
+                                className="inline-flex items-center rounded-full bg-info/10 px-2.5 py-1 text-info ring-1 ring-inset ring-info/30"
                                 title="Bookmarked"
                             >
                                 <span className="sr-only">Bookmarked</span>
@@ -127,13 +127,13 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
 
                     {/* person counts */}
                     <div className="flex items-center gap-3 text-sm">
-                        <div className="flex items-center gap-1 rounded-full bg-gray-50 px-3 py-1 text-sm font-medium text-gray-700 ring-1 ring-inset ring-gray-200">
+                        <div className="flex items-center gap-1 rounded-full bg-hero px-3 py-1 text-sm font-medium text-text/80 ring-1 ring-inset ring-primary/15">
                             {/* location pin icon */}
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
                                 fill="currentColor"
-                                className="h-4 w-4 shrink-0 text-gray-500"
+                                className="h-4 w-4 shrink-0 text-text/60"
                                 aria-hidden="true"
                                 focusable="false"
                             >

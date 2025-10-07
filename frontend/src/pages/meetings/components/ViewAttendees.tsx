@@ -1,12 +1,13 @@
-import {useQuery} from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import type {
     MeetingRole,
     MeetingMembershipResponse
 } from "@features/groups/api/groups.types.ts"
-import {useParams} from "react-router"
-import {useAtom} from "jotai"
-import {authToken} from "@features/auth/api/auth.atom.ts"
-import {getAttendees} from "@features/groups/api/groups.api.ts"
+import { useParams } from "react-router"
+import { useAtom } from "jotai"
+import { authToken } from "@features/auth/api/auth.atom.ts"
+import { getAttendees } from "@features/groups/api/groups.api.ts"
+import { formatTimeAgo } from "@api/util.ts"
 
 /**
  * The color depending on the role.
@@ -35,8 +36,7 @@ function WaitlistIcon() {
             fill="currentColor"
             className="h-4 w-4 text-amber-600"
         >
-            <path
-                d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm.75 5.5a.75.75 0 0 0-1.5 0v4.25c0 .199.079.39.22.53l2.5 2.5a.75.75 0 1 0 1.06-1.06l-2.28-2.28Z"/>
+            <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm.75 5.5a.75.75 0 0 0-1.5 0v4.25c0 .199.079.39.22.53l2.5 2.5a.75.75 0 1 0 1.06-1.06l-2.28-2.28Z" />
         </svg>
     )
 }
@@ -45,10 +45,10 @@ function WaitlistIcon() {
  * View all attendees in a group.
  */
 export default function ViewAttendees() {
-    const {id} = useParams<{ id: string }>()
+    const { id } = useParams<{ id: string }>()
     const [auth] = useAtom(authToken)
 
-    const {data, isLoading, isError, error} = useQuery<
+    const { data, isLoading, isError, error } = useQuery<
         MeetingMembershipResponse[]
     >({
         queryKey: ["attendees", id],
@@ -64,7 +64,7 @@ export default function ViewAttendees() {
     })
 
     return (
-        <div className="mx-auto w-full px-4">
+        <div className="mx-auto w-full">
             {isLoading && (
                 <div className="rounded-lg border border-gray-200 bg-white p-4 text-gray-600">
                     Loading attendees…
@@ -82,29 +82,25 @@ export default function ViewAttendees() {
                     {(data ?? []).map((m) => (
                         <li
                             key={`${m.membership.meetingId}-${m.membership.userId}`}
-                            className="rounded-2xl border border-gray-200 bg-white p-4"
+                            className="rounded-2xl bg-background/60 border border-background/80 p-4"
                         >
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-sm font-semibold text-gray-900">
+                                            <span className="text-sm font-semibold">
                                                 {m.user.name}
                                             </span>
 
                                             {m.membership.status ===
                                                 "WAITLISTED" && (
-                                                    <span
-                                                        className="inline-flex items-center gap-1 text-xs font-medium text-amber-700">
-                                                    <WaitlistIcon/> Waitlisted
+                                                <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700">
+                                                    <WaitlistIcon /> Waitlisted
                                                 </span>
-                                                )}
+                                            )}
                                         </div>
-                                        <div className="text-xs text-gray-600">
-                                            Joined{" "}
-                                            {new Date(
-                                                m.membership.joinedAt
-                                            ).toLocaleString()}
+                                        <div className="text-xs text-text/50">
+                                            Joined {formatTimeAgo(m.membership.joinedAt)}
                                         </div>
                                     </div>
                                 </div>

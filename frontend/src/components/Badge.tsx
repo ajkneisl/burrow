@@ -1,9 +1,21 @@
 import type { ReactNode } from "react"
+import clsx from "clsx"
 
 /** Badge chip */
-export default function Badge({ children }: { children: ReactNode }) {
+export default function Badge({
+    children,
+    size
+}: {
+    children: ReactNode
+    size?: "medium" | "large"
+}) {
     return (
-        <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium tracking-tight text-gray-700 border-gray-200 bg-white">
+        <span
+            className={clsx(
+                "inline-flex items-center rounded-full px-2 py-0.5 font-medium tracking-tight gap-1 rounded-full bg-hero px-3 py-1 text-sm font-medium text-text/80 ring-1 ring-inset ring-primary/15",
+                size === "medium" ? "text-xs" : "text-sm"
+            )}
+        >
             {children}
         </span>
     )

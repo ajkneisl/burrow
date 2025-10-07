@@ -7,6 +7,8 @@ import { joinMeeting, leaveMeeting } from "@features/groups/api/groups.api.ts"
 import useUser from "@features/auth/api/hooks/useUser.ts"
 import { useQueryClient } from "@tanstack/react-query"
 import useToken from "@features/auth/api/hooks/useToken.ts"
+import Button from "@components/Button.tsx"
+import clsx from "clsx"
 
 type JoinMeetingProps = {
     data: GroupMeetingResponse
@@ -32,7 +34,9 @@ export default function JoinMeeting({ data }: JoinMeetingProps) {
                 meeting: {
                     ...(old.meeting ?? {}),
                     joined:
-                        status === "JOINED" ? old.meeting.joined + 1 : old.meeting.joined - 1
+                        status === "JOINED"
+                            ? old.meeting.joined + 1
+                            : old.meeting.joined - 1
                 },
                 membership: {
                     ...(old.membership ?? {}),
@@ -60,15 +64,16 @@ export default function JoinMeeting({ data }: JoinMeetingProps) {
     }
 
     return (
-        <button
+        <Button
             onClick={joinLeaveButton}
-            className={`cursor-pointer inline-flex items-center justify-center rounded-lg border px-5 py-2 text-sm font-semibold shadow-sm transition hover:shadow-md ${
+            colors={clsx(
+                "border",
                 data?.membership?.status === "JOINED"
-                    ? "text-red-800 border-red-200 bg-red-100"
-                    : "text-green-800 border-green-200 bg-green-100"
-            }`}
+                    ? "border-error bg-error/80"
+                    : "border-success bg-success/80"
+            )}
         >
             {data?.membership?.status === "JOINED" ? "Leave" : "Join"}
-        </button>
+        </Button>
     )
 }

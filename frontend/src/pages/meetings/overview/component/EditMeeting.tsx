@@ -1,6 +1,7 @@
 import type { GroupMeeting } from "@features/groups/api/groups.types.ts"
 import EditStudyGroupModal from "@features/create/components/EditStudyGroupModal.tsx"
 import { useState } from "react"
+import Button from "@components/Button.tsx"
 
 /**
  * {@link EditMeeting}
@@ -28,12 +29,12 @@ export default function EditMeeting({ meeting }: EditMeetingProps) {
                 title={`Edit: ${meeting.title}`}
             />
 
-            <button
+            <Button
                 onClick={() => setOpen(true)}
-                className="cursor-pointer inline-flex items-center justify-center rounded-xl border border-blue-200 bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800 shadow-sm transition hover:shadow-md"
+                colors="border border-secondary bg-secondary/80"
             >
                 Edit
-            </button>
+            </Button>
         </>
     )
 }

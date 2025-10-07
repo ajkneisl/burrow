@@ -3,6 +3,10 @@ import { useNavigate } from "react-router"
 import { updateUser } from "@features/auth/api/user.api.ts"
 import useToken from "@features/auth/api/hooks/useToken.ts"
 import useUser from "@features/auth/api/hooks/useUser.ts"
+import LabelledInput from "@components/LabelledInput.tsx"
+import Button from "@components/Button.tsx"
+import { useAtom } from "jotai"
+import { themeAtom } from "@api/theme.atom.ts"
 
 /**
  * User settings page.
@@ -12,6 +16,8 @@ export default function Settings() {
     const user = useUser()
 
     const nav = useNavigate()
+
+    const [, setTheme] = useAtom(themeAtom)
 
     // State for editable fields
     const [name, setName] = useState<string>("")
@@ -96,73 +102,52 @@ export default function Settings() {
                     await onSubmit()
                 }}
             >
-                {/* user's name */}
-                <div>
-                    <label
-                        htmlFor="name"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                        Name
-                    </label>
-                    <input
+                <div className="border border-primary/30 rounded-2xl bg-card/80 p-4 flex flex-col gap-4">
+                    {/* user's name */}
+                    <LabelledInput
+                        text="Name"
                         id="name"
                         type="text"
-                        className="block w-full rounded-lg border border-gray-200 bg-white p-2.5 shadow-sm focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-100"
+                        placeholder={"Your name"}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                     />
-                </div>
 
-                {/* user's email (cannot be changed) */}
-                <div>
-                    <label
-                        htmlFor="email"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                        Email
-                    </label>
-                    <input
+                    <LabelledInput
+                        text="Email"
                         id="email"
                         type="email"
-                        className="block w-full rounded-lg border border-gray-200 bg-gray-50 p-2.5 text-gray-600 shadow-sm"
                         value={user.email}
+                        remark={
+                            "This account is connected to your Google account."
+                        }
                         readOnly
                     />
-                    <p className="mt-2 text-xs text-gray-500">
-                        This account is connected to your Google account.
-                    </p>
-                </div>
 
-                {/* user's phone */}
-                <div>
-                    <label
-                        htmlFor="phoneNumber"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                        Phone Number (optional)
-                    </label>
-
-                    <input
-                        id="phoneNumber"
-                        type="tel"
-                        className="block w-full rounded-lg border border-gray-200 bg-white p-2.5 shadow-sm focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-100"
+                    {/* user's phone */}
+                    <LabelledInput
+                        text={"Phone Number (optional)"}
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
+                        id="phoneNumber"
+                        type="tel"
                     />
-                </div>
 
-                {/* save it up up up!*/}
-                <div className="pt-2 flex flex-row gap-2">
-                    <button
-                        type="submit"
-                        className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
-                    >
-                        Save
-                    </button>
+                    {/* save it up up up!*/}
+                    <div className="pt-2 flex flex-row gap-2">
+                        <Button type="submit" color={"SUCCESS"}>
+                            Save
+                        </Button>
 
-                    <button className="inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-red-700">
-                        Delete my Account
-                    </button>
+                        <Button color="ERROR">Delete my Account</Button>
+
+                        <Button
+                            color="INFO"
+                            onClick={() => setTheme((prev) => !prev)}
+                        >
+                            Change Theme
+                        </Button>
+                    </div>
                 </div>
             </form>
         </div>

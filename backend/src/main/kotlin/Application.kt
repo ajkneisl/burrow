@@ -4,10 +4,12 @@ import app.burrow.account.USER_ROUTES
 import app.burrow.account.VERIFIER
 import app.burrow.groups.GROUP_ROUTES
 import app.burrow.groups.chat.GROUP_CHAT_ROUTES
+import app.burrow.notifications.NOTIFICATION_ROUTES
+import app.burrow.notifications.createUniversalNotification
 import com.codahale.metrics.Slf4jReporter
 import dev.hayden.KHealth
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
+import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -25,10 +27,12 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.ktor.server.websocket.*
-import io.ktor.websocket.*
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
@@ -41,6 +45,7 @@ fun main() {
 fun Application.module() {
     runBlocking { initDb() }
 
+    install(SSE)
     install(WebSockets) {
         pingPeriod = 15.seconds
         timeout = 15.seconds
@@ -58,7 +63,6 @@ fun Application.module() {
             .start(10, TimeUnit.SECONDS)
     }
     install(AutoHeadResponse)
-    install(SSE)
     install(StatusPages) {
         exception<CancellationException> { _, _ -> }
 
@@ -72,15 +76,44 @@ fun Application.module() {
     }
 
     install(CORS) {
+        // Methods you'll support
         allowMethod(HttpMethod.Options)
         allowMethod(HttpMethod.Put)
         allowMethod(HttpMethod.Delete)
         allowMethod(HttpMethod.Patch)
+        allowMethod(HttpMethod.Get)
 
+        // Headers commonly used with auth + SSE
         allowHeader(HttpHeaders.Authorization)
         allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.Cookie)
+        allowHeader(HttpHeaders.SetCookie)
+        allowHeader(HttpHeaders.Origin)
+        allowHeader(HttpHeaders.Accept)
+        allowHeader(HttpHeaders.LastEventID)
 
-        anyHost()
+        // Needed for cookies/credentials (must NOT use anyHost())
+        allowCredentials = true
+
+        // Allow non-simple content types like text/event-stream
+        allowNonSimpleContentTypes = true
+
+        // Same-origin requests should be fine, too
+        allowSameOrigin = true
+
+        // Explicitly allow local dev frontends (adjust as needed)
+        allowHost("localhost:3000", schemes = listOf("http"))
+        allowHost("127.0.0.1:3000", schemes = listOf("http"))
+        allowHost("localhost:5173", schemes = listOf("http"))
+        allowHost("127.0.0.1:5173", schemes = listOf("http"))
+        allowHost("0.0.0.0:5173", schemes = listOf("http"))
+
+        // Optionally allow a single origin via env var (e.g., https://app.example.com)
+        val corsOrigin = System.getenv("CORS_ORIGIN")?.trim()?.removeSuffix("/")
+        if (!corsOrigin.isNullOrBlank()) {
+            val host = corsOrigin.removePrefix("https://").removePrefix("http://")
+            allowHost(host, schemes = listOf("http", "https"))
+        }
     }
 
     install(DefaultHeaders) { header("X-Engine", "Burrow") }
@@ -107,7 +140,9 @@ fun Application.module() {
         route("/api") {
             get { call.respondText("hey") }
 
+            route("/notifications", NOTIFICATION_ROUTES)
             authenticate("primary") { route("/groups", GROUP_ROUTES) }
+
             route("/groups/{id}", GROUP_CHAT_ROUTES)
             route("/user", USER_ROUTES)
         }

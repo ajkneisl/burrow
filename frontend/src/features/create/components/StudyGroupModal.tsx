@@ -6,6 +6,9 @@ import type {
     SubmittedGroupMeeting
 } from "../../groups/api/groups.types.ts"
 import { useQueryClient } from "@tanstack/react-query"
+import Input from "@components/Input.tsx"
+import TextArea from "@components/TextArea.tsx"
+import Button from "@components/Button.tsx"
 
 /**
  * {@link StudyGroupModal}
@@ -302,7 +305,7 @@ export default function StudyGroupModal({
                     >
                         <form
                             onSubmit={handleSubmit}
-                            className="w-full max-w-2xl rounded-2xl border border-neutral-200/70 bg-white/95 shadow-xl ring-1 ring-black/5 backdrop-blur"
+                            className="text-text w-full max-w-2xl rounded-2xl border border-background/80 bg-background shadow-xl ring-1 ring-black/5 backdrop-blur"
                         >
                             {/* errors.. uh oh! */}
                             {serverErrors.length > 0 && (
@@ -319,40 +322,45 @@ export default function StudyGroupModal({
                             )}
 
                             <header
-                              className={`flex items-center justify-between gap-4 px-6 py-5 border-b bg-gradient-to-r ${mode === "update" ? "from-blue-50 to-transparent" : "from-emerald-50 to-transparent"}`}
+                                className={`flex items-center justify-between gap-4 px-6 py-5 border-b`}
                             >
-                              <div>
-                                <h2
-                                  id={`${id}-title`}
-                                  className="text-xl font-semibold tracking-tight text-neutral-900"
-                                >
-                                  {modalTitle ?? (mode === "update" ? "Update Study Group" : "Create a Study Group")}
-                                </h2>
-                                <p
-                                  id={`${id}-desc`}
-                                  className="mt-0.5 text-sm leading-6 text-neutral-600"
-                                >
-                                  {mode === "update" ? "Modify the details below and save your changes." : "Fill details below and publish your meeting."}
-                                </p>
-                              </div>
+                                <div>
+                                    <h2
+                                        id={`${id}-title`}
+                                        className="text-xl font-semibold tracking-tight"
+                                    >
+                                        {modalTitle ??
+                                            (mode === "update"
+                                                ? "Update Study Group"
+                                                : "Create a Study Group")}
+                                    </h2>
+                                    <p
+                                        id={`${id}-desc`}
+                                        className="mt-0.5 text-sm leading-6 text-text/60"
+                                    >
+                                        {mode === "update"
+                                            ? "Modify the details below and save your changes."
+                                            : "Fill details below and publish your meeting."}
+                                    </p>
+                                </div>
 
-                              {/* header close button */}
-                              <button
-                                type="button"
-                                onClick={onClose}
-                                className="grid place-items-center h-9 w-9 rounded-full hover:bg-neutral-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
-                                aria-label="Close"
-                              >
-                                <svg
-                                  viewBox="0 0 24 24"
-                                  className="w-5 h-5"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth={2}
+                                {/* header close button */}
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    className="grid place-items-center h-9 w-9 rounded-full hover:bg-neutral-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
+                                    aria-label="Close"
                                 >
-                                  <path d="M6 6l12 12M18 6 6 18" />
-                                </svg>
-                              </button>
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        className="w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth={2}
+                                    >
+                                        <path d="M6 6l12 12M18 6 6 18" />
+                                    </svg>
+                                </button>
                             </header>
 
                             <div className="grid gap-6 px-6 py-6 md:grid-cols-2">
@@ -362,32 +370,32 @@ export default function StudyGroupModal({
                                     error={errors.title}
                                     className="min-w-0"
                                 >
-                                    <input
+                                    <Input
                                         ref={firstFieldRef}
                                         value={title}
                                         onChange={(e) =>
                                             setTitle(e.target.value)
                                         }
-                                        className={`input rounded-xl border border-neutral-300 bg-neutral-50/80 px-3 py-2 text-[15px] placeholder:text-neutral-400 shadow-inner focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition ${errors.title ? "border-red-300 focus:border-red-500 focus:ring-red-300/40" : ""}`}
+                                        error={errors.title !== undefined}
                                         placeholder="PHYS 1301W Final"
                                     />
                                 </Field>
 
                                 {/* location of the session */}
                                 <Field label="Location" error={errors.location}>
-                                    <input
+                                    <Input
                                         value={location}
                                         onChange={(e) =>
                                             setLocation(e.target.value)
                                         }
-                                        className={`input rounded-xl border border-neutral-300 bg-neutral-50/80 px-3 py-2 text-[15px] placeholder:text-neutral-400 shadow-inner focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition ${errors.location ? "border-red-300 focus:border-red-500 focus:ring-red-300/40" : ""}`}
+                                        error={errors.location !== undefined}
                                         placeholder="Hall & Room"
                                     />
                                 </Field>
 
                                 {/* capacity */}
                                 <Field label="Max Participants (optional)">
-                                    <input
+                                    <Input
                                         inputMode="numeric"
                                         pattern="[0-9]*"
                                         value={capacity}
@@ -402,7 +410,6 @@ export default function StudyGroupModal({
                                             if (!Number.isNaN(num))
                                                 setCapacity(num)
                                         }}
-                                        className="input rounded-xl border border-neutral-300 bg-neutral-50/80 px-3 py-2 text-[15px] placeholder:text-neutral-400 shadow-inner focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition"
                                         placeholder="5"
                                     />
                                 </Field>
@@ -412,12 +419,11 @@ export default function StudyGroupModal({
                                     label="Tags (comma separated)"
                                     className="min-w-0"
                                 >
-                                    <input
+                                    <Input
                                         value={tags}
                                         onChange={(e) =>
                                             setTags(e.target.value)
                                         }
-                                        className="input rounded-xl border border-neutral-300 bg-neutral-50/80 px-3 py-2 text-[15px] placeholder:text-neutral-400 shadow-inner focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition"
                                         placeholder="PHYS, FINAL, etc."
                                     />
                                 </Field>
@@ -427,12 +433,11 @@ export default function StudyGroupModal({
                                     label="Description"
                                     className="md:col-span-2 min-w-0"
                                 >
-                                    <textarea
+                                    <TextArea
                                         value={description}
                                         onChange={(e) =>
                                             setDescription(e.target.value)
                                         }
-                                        className="input w-full min-h-28 rounded-xl border border-neutral-300 bg-neutral-50/80 px-3 py-2 text-[15px] placeholder:text-neutral-400 shadow-inner focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition"
                                         placeholder="What're you studying? Who are you looking for?"
                                     />
                                 </Field>
@@ -443,13 +448,13 @@ export default function StudyGroupModal({
                                     error={errors.date}
                                     className="min-w-0"
                                 >
-                                    <input
+                                    <Input
                                         type="date"
                                         value={date}
                                         onChange={(e) =>
                                             setDate(e.target.value)
                                         }
-                                        className={`input rounded-xl border border-neutral-300 bg-neutral-50/80 px-3 py-2 text-[15px] placeholder:text-neutral-400 shadow-inner focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition ${errors.date ? "border-red-300 focus:border-red-500 focus:ring-red-300/40" : ""}`}
+                                        error={errors.date !== undefined}
                                     />
                                 </Field>
 
@@ -461,13 +466,15 @@ export default function StudyGroupModal({
                                         error={errors.startTime}
                                         className="min-w-0"
                                     >
-                                        <input
+                                        <Input
                                             type="time"
                                             value={startTime}
                                             onChange={(e) =>
                                                 setStartTime(e.target.value)
                                             }
-                                            className={`input rounded-xl border border-neutral-300 bg-neutral-50/80 px-3 py-2 text-[15px] placeholder:text-neutral-400 shadow-inner focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition ${errors.startTime ? "border-red-300 focus:border-red-500 focus:ring-red-300/40" : ""}`}
+                                            error={
+                                                errors.startTime !== undefined
+                                            }
                                         />
                                     </Field>
 
@@ -477,36 +484,29 @@ export default function StudyGroupModal({
                                         error={errors.endTime}
                                         className="min-w-0"
                                     >
-                                        <input
+                                        <Input
                                             type="time"
                                             value={endTime}
                                             onChange={(e) =>
                                                 setEndTime(e.target.value)
                                             }
-                                            className={`input rounded-xl border border-neutral-300 bg-neutral-50/80 px-3 py-2 text-[15px] placeholder:text-neutral-400 shadow-inner focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition ${errors.endTime ? "border-red-300 focus:border-red-500 focus:ring-red-300/40" : ""}`}
+                                            error={errors.endTime !== undefined}
                                         />
                                     </Field>
                                 </div>
                             </div>
 
                             {/* controls */}
-                            <footer className="flex items-center justify-end gap-3 px-6 py-4 border-t rounded-b-2xl bg-gradient-to-r from-neutral-50 to-white">
-                                <button
-                                    type="button"
-                                    onClick={onClose}
-                                    className="btn-secondary rounded-xl border border-neutral-300 bg-white/90 px-4 py-2 text-[15px] font-medium text-neutral-700 shadow-sm transition hover:bg-neutral-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30"
-                                >
+                            <footer className="flex items-center justify-end gap-3 px-6 py-4 border-t rounded-b-2xl">
+                                <Button color="ERROR" type="button" onClick={onClose}>
                                     Cancel
-                                </button>
+                                </Button>
 
-                                <button
-                                    type="submit"
-                                    className="cursor-pointer btn-primary rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-4 py-2 text-[15px] font-semibold text-white shadow-md transition hover:from-indigo-700 hover:to-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
-                                >
+                                <Button color={"SUCCESS"} type="submit">
                                     {mode === "update"
                                         ? "Save Changes"
                                         : "Create"}
-                                </button>
+                                </Button>
                             </footer>
                         </form>
                     </motion.div>
@@ -538,11 +538,13 @@ function Field({
 }) {
     return (
         <div className={className}>
-            <label className="mb-1 block text-[13px] font-medium tracking-wide text-neutral-700">
+            <label className="mb-1 block text-[13px] font-medium tracking-wide text-text/80">
                 {label}
             </label>
             {children}
-            {error && <p className="mt-1 text-xs font-medium text-red-600">{error}</p>}
+            {error && (
+                <p className="mt-1 text-xs font-medium text-red-600">{error}</p>
+            )}
         </div>
     )
 }

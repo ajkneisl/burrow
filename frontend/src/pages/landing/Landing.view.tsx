@@ -9,7 +9,8 @@ import {
     newUser,
     userDetails
 } from "@features/auth/api/auth.atom.ts"
-import { BASE_URL } from "@api/Util.ts"
+import { BASE_URL } from "@api/util.ts"
+import Card from "@components/Card.tsx"
 
 /**
  * Burrow landing page.
@@ -73,60 +74,62 @@ export default function LandingView() {
             </div>
 
             <div className="mx-auto mt-10 grid w-full max-w-5xl grid-cols-1 gap-4 px-4 md:grid-cols-3">
-                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <div className="mb-2 flex items-center gap-2 font-semibold">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            className="h-5 w-5"
-                        >
-                            <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm1 14.59L9.7 13.29a1 1 0 1 1 1.4-1.42l1.3 1.3 3.5-3.5a1 1 0 0 1 1.4 1.42Z" />
-                        </svg>
-                        Find study groups
-                    </div>
-                    <p className="text-sm text-gray-600">
-                        Search by course, topic, or club and see who’s active
-                        right now.
-                    </p>
-                </div>
+                <Card
+                    top={
+                        <div className="mb-2 flex items-center gap-2 font-semibold">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                className="h-5 w-5"
+                            >
+                                <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm1 14.59L9.7 13.29a1 1 0 1 1 1.4-1.42l1.3 1.3 3.5-3.5a1 1 0 0 1 1.4 1.42Z" />
+                            </svg>
+                            Find study groups
+                        </div>
+                    }
+                >
+                    Search by course, topic, or club and see who’s active right
+                    now.
+                </Card>
 
-                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <div className="mb-2 flex items-center gap-2 font-semibold">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            className="h-5 w-5"
-                        >
-                            <path d="M7 2h10a2 2 0 0 1 2 2v16l-7-3-7 3V4a2 2 0 0 1 2-2Z" />
-                        </svg>
-                        Smart, personal schedule
-                    </div>
-                    <p className="text-sm text-gray-600">
-                        Burrow highlights times that fit your classes and
-                        existing meetings.
-                    </p>
-                </div>
+                <Card
+                    top={
+                        <div className="mb-2 flex items-center gap-2 font-semibold">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                className="h-5 w-5"
+                            >
+                                <path d="M7 2h10a2 2 0 0 1 2 2v16l-7-3-7 3V4a2 2 0 0 1 2-2Z" />
+                            </svg>
+                            Smart, personal schedule
+                        </div>
+                    }
+                >
+                    Burrow highlights times that fit your classes and existing
+                    meetings.
+                </Card>
 
-                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <div className="mb-2 flex items-center gap-2 font-semibold">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            className="h-5 w-5"
-                        >
-                            <path d="M12 3a9 9 0 1 0 9 9 9.01 9.01 0 0 0-9-9Zm1 5h-2v5h5v-2h-3Z" />
-                        </svg>
-                        Join in seconds
-                    </div>
-
-                    <p className="text-sm text-gray-600">
-                        Use your UMN Google account to sign in and you’re ready
-                        to go.
-                    </p>
-                </div>
+                <Card
+                    top={
+                        <div className="mb-2 flex items-center gap-2 font-semibold">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                className="h-5 w-5"
+                            >
+                                <path d="M12 3a9 9 0 1 0 9 9 9.01 9.01 0 0 0-9-9Zm1 5h-2v5h5v-2h-3Z" />
+                            </svg>
+                            Join in seconds
+                        </div>
+                    }
+                >
+                    Use your UMN Google account to sign in and you’re ready to
+                    go.
+                </Card>
             </div>
 
             {/* if there's an error logging in*/}
@@ -142,7 +145,7 @@ export default function LandingView() {
             )}
 
             {/* log in area */}
-            <div className="mx-auto mt-12 flex w-full max-w-lg flex-col items-center px-4">
+            <div className="mx-auto mt-12 mb-12 flex w-full max-w-lg flex-col items-center px-4">
                 <h2 className="text-center text-xl font-semibold">
                     Sign in with your University of Minnesota account
                 </h2>
