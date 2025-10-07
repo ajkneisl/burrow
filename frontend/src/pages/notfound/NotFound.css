@@ -1,0 +1,71 @@
+/* Author: Yordanos Eshete */
+
+.fire {
+    align-content: center;
+    text-align: center;
+}
+.text{
+    font-size: 200px;
+    font-family: "Roboto Light";
+    font-optical-sizing: auto;
+    font-weight: 800;
+    font-style: normal;
+    font-position: center;
+    text-underline-position: under;
+    text-decoration: underline;
+    text-decoration-color: dimgray;
+    text-decoration-thickness: 10px;
+}
+.word{
+    font-size: 100px;
+    font-family: "Figtree", sans-serif;
+    font-style: italic;
+    font-optical-sizing: auto;
+    font-weight: 800;
+}
+.btn-wrapper{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+    box-shadow: 0 0 10px hsla(0, 0%, 0%, 0.28);
+    border-radius: 10px;
+    align-content: center;
+    align-items: center;
+    align-self: center;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.btn-wrapper:hover:before {
+    opacity: 0.2;
+    transform: scale(1.2, 1.2);
+    filter: blur(10px);
+}
+.btn-wrapper:hover {
+    color: black;
+    text-decoration: underline;
+    text-decoration-color: dimgray;
+    transform: scale(1.1, 1.1);
+    transition: all 0.2s ease-in-out;
+}
+.btn {
+    position: relative;
+    z-index: 1;
+}
+.back-btn{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-right: 10px;
+    margin-left: 10px;
+    font-family: "Figtree", sans-serif;
+    font-size: 20px;
+    text-align: center;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+}
