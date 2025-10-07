@@ -5,7 +5,7 @@ import { atomWithCookie } from "@api/util.ts"
 /**
  * The authorization token for the backend.
  */
-export const authToken = atomWithCookie("auth", "")
+export const authToken = atomWithCookie<string>("auth", "")
 
 /**
  * The user's details.

@@ -76,14 +76,12 @@ fun Application.module() {
     }
 
     install(CORS) {
-        // Methods you'll support
         allowMethod(HttpMethod.Options)
         allowMethod(HttpMethod.Put)
         allowMethod(HttpMethod.Delete)
         allowMethod(HttpMethod.Patch)
         allowMethod(HttpMethod.Get)
 
-        // Headers commonly used with auth + SSE
         allowHeader(HttpHeaders.Authorization)
         allowHeader(HttpHeaders.ContentType)
         allowHeader(HttpHeaders.Cookie)
@@ -92,28 +90,14 @@ fun Application.module() {
         allowHeader(HttpHeaders.Accept)
         allowHeader(HttpHeaders.LastEventID)
 
-        // Needed for cookies/credentials (must NOT use anyHost())
         allowCredentials = true
-
-        // Allow non-simple content types like text/event-stream
         allowNonSimpleContentTypes = true
-
-        // Same-origin requests should be fine, too
         allowSameOrigin = true
 
-        // Explicitly allow local dev frontends (adjust as needed)
-        allowHost("localhost:3000", schemes = listOf("http"))
-        allowHost("127.0.0.1:3000", schemes = listOf("http"))
         allowHost("localhost:5173", schemes = listOf("http"))
         allowHost("127.0.0.1:5173", schemes = listOf("http"))
         allowHost("0.0.0.0:5173", schemes = listOf("http"))
-
-        // Optionally allow a single origin via env var (e.g., https://app.example.com)
-        val corsOrigin = System.getenv("CORS_ORIGIN")?.trim()?.removeSuffix("/")
-        if (!corsOrigin.isNullOrBlank()) {
-            val host = corsOrigin.removePrefix("https://").removePrefix("http://")
-            allowHost(host, schemes = listOf("http", "https"))
-        }
+        allowHost("umn.app", schemes = listOf("http", "https"))
     }
 
     install(DefaultHeaders) { header("X-Engine", "Burrow") }
@@ -138,13 +122,11 @@ fun Application.module() {
         singlePageApplication { react("frontend") }
 
         route("/api") {
-            get { call.respondText("hey") }
-
             route("/notifications", NOTIFICATION_ROUTES)
-            authenticate("primary") { route("/groups", GROUP_ROUTES) }
-
             route("/groups/{id}", GROUP_CHAT_ROUTES)
             route("/user", USER_ROUTES)
+
+            authenticate("primary") { route("/groups", GROUP_ROUTES) }
         }
     }
 }

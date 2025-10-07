@@ -38,7 +38,7 @@ export default function LandingView() {
 
         const body: AuthorizedUser = await request.json()
 
-        setAuthToken(body.token)
+        await setAuthToken(body.token)
         setUser(body.user)
 
         if (body.newUser) {

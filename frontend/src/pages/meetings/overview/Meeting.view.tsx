@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router"
+import { useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { authToken } from "@features/auth/api/auth.atom.ts"
