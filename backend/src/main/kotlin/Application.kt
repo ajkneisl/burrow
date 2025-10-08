@@ -90,6 +90,8 @@ fun Application.module() {
         allowHeader(HttpHeaders.Accept)
         allowHeader(HttpHeaders.LastEventID)
 
+        anyHost()
+
         allowCredentials = true
         allowNonSimpleContentTypes = true
         allowSameOrigin = true
