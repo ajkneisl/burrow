@@ -47,7 +47,7 @@ export default function Button({
             opts?: { textOnGold?: boolean }
         ) =>
             clsx(
-                `border border-${baseVar} bg-${baseVar}/80`,
+                `border border-${baseVar} bg-${baseVar}/80 hover`,
                 hoverVar && `hover:bg-${hoverVar}`,
                 opts?.textOnGold ? "text-black" : "text-white",
                 `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-${baseVar}`
@@ -56,10 +56,8 @@ export default function Button({
         switch (color) {
             case "ERROR":
                 return make("error", "error-hover")
-
             case "WARNING":
-                // Use Minnesota gold; ensure readable dark text on gold
-                return make("warn", "warn-hover-color", {
+                return make("warn", "warn-hover", {
                     textOnGold: true
                 })
             case "INFO":
@@ -68,14 +66,13 @@ export default function Button({
                 return make("success", "success-hover")
             case "PRIMARY":
                 // PRIMARY = Maroon
-                return make("primary", "secondary-hover")
+                return make("primary", "primary-hover")
             case "SECONDARY":
                 // SECONDARY = Gold; readable dark text
-                return make("secondary", "primary-hover", {
+                return make("secondary", "secondary-hover", {
                     textOnGold: true
                 })
             default:
-                // Neutral fallback using card/text variables
                 return clsx(
                     "border border-transparent",
                     "bg-card text-text",
