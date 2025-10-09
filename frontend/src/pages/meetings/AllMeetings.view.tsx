@@ -36,19 +36,6 @@ function humanDateLabel(key: string): string {
 }
 
 /**
- * Convert a millis epoch to an input-readable number.
- *
- * @param epoch The millisecond epoch.
- */
-function epochToDateInputValue(epoch: number): string {
-    const d = new Date(epoch)
-    const y = d.getFullYear()
-    const m = String(d.getMonth() + 1).padStart(2, "0")
-    const day = String(d.getDate()).padStart(2, "0")
-    return `${y}-${m}-${day}`
-}
-
-/**
  * {@link AllMeetings}
  */
 type AllMeetingsProps = {
@@ -63,20 +50,32 @@ type AllMeetingsProps = {
 export default function AllMeetings({ type }: AllMeetingsProps) {
     const [query, setQuery] = useState("")
     const [auth] = useAtom(authToken)
-    const [selectedDate, setSelectedDate] = useState<number | undefined>(
-        () => undefined
-    )
+    const [selectedDate, setSelectedDate] = useState<string>()
 
-    const dayStart = useMemo(() => {
-        const d = new Date(selectedDate ?? new Date().getDate())
-        d.setHours(0, 0, 0, 0)
-        return d.getTime()
+    const dateEpoch = useMemo(() => {
+        if (!selectedDate) return null
+
+        const parts = selectedDate.split("-")
+        const year = parseInt(parts[0], 10)
+        const month = parseInt(parts[1], 10) - 1
+        const day = parseInt(parts[2], 10)
+
+        // don't request until reaching a real year
+        if (year < 2025) return null
+
+        return new Date(year, month, day).valueOf()
     }, [selectedDate])
 
+    const dayStart = useMemo(() => {
+        const d = new Date(dateEpoch ?? new Date().getDate())
+        d.setHours(0, 0, 0, 0)
+        return d.getTime()
+    }, [dateEpoch])
+
     const { data, isLoading, isFetching, error } = useQuery({
-        queryKey: ["meetings", type, query, selectedDate],
+        queryKey: ["meetings", type, query, dateEpoch],
         queryFn: async () =>
-            await searchMeetings(auth, type, query, selectedDate),
+            await searchMeetings(auth, type, query, dateEpoch ?? undefined),
         refetchOnWindowFocus: false
     })
 
@@ -147,21 +146,8 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
                 <div className="flex items-center gap-2">
                     <input
                         type="date"
-                        value={
-                            selectedDate
-                                ? epochToDateInputValue(selectedDate)
-                                : ""
-                        }
-                        onChange={(e) => {
-                            const parts = e.currentTarget.value.split("-")
-                            const year = parseInt(parts[0], 10)
-                            const month = parseInt(parts[1], 10) - 1
-                            const day = parseInt(parts[2], 10)
-
-                            setSelectedDate(
-                                new Date(year, month, day).valueOf()
-                            )
-                        }}
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
                         className="rounded-xl border border-primary/20 bg-card px-3 py-2 text-sm text-text shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         aria-label="Select date"
                     />
