@@ -47,7 +47,7 @@ export default function Button({
             opts?: { textOnGold?: boolean }
         ) =>
             clsx(
-                `border border-${baseVar} bg-${baseVar}/80 hover`,
+                `border border-${baseVar} bg-${baseVar}/80`,
                 hoverVar && `hover:bg-${hoverVar}`,
                 opts?.textOnGold ? "text-black" : "text-white",
                 `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-${baseVar}`

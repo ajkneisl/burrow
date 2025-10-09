@@ -47,6 +47,43 @@
     }
 }
 
+@source inline('{hover:,}bg-primary');
+@source inline('{hover:,}bg-secondary');
+@source inline('{hover:,}bg-info');
+@source inline('{hover:,}bg-error');
+@source inline('{hover:,}bg-success');
+
+/* Hover-targeted alt shades */
+@source inline('{hover:,}bg-primary-hover');
+@source inline('{hover:,}bg-secondary-hover');
+@source inline('{hover:,}bg-info-hover');
+@source inline('{hover:,}bg-error-hover');
+@source inline('{hover:,}bg-success-hover');
+
+/* Borders */
+@source inline('{hover:,}border-primary');
+@source inline('{hover:,}border-secondary');
+@source inline('{hover:,}border-info');
+@source inline('{hover:,}border-error');
+@source inline('{hover:,}border-success');
+@source inline('{hover:,}border-primary-hover');
+@source inline('{hover:,}border-secondary-hover');
+@source inline('{hover:,}border-info-hover');
+@source inline('{hover:,}border-error-hover');
+@source inline('{hover:,}border-success-hover');
+
+/* Text */
+@source inline('{hover:,}text-primary');
+@source inline('{hover:,}text-secondary');
+@source inline('{hover:,}text-info');
+@source inline('{hover:,}text-error');
+@source inline('{hover:,}text-success');
+@source inline('{hover:,}text-primary-hover');
+@source inline('{hover:,}text-secondary-hover');
+@source inline('{hover:,}text-info-hover');
+@source inline('{hover:,}text-error-hover');
+@source inline('{hover:,}text-success-hover');
+
 @theme inline {
     --color-background:var(--background-color);
     --color-primary: rgb(var(--primary-color));
