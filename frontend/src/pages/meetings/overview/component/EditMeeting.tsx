@@ -31,7 +31,7 @@ export default function EditMeeting({ meeting }: EditMeetingProps) {
 
             <Button
                 onClick={() => setOpen(true)}
-                colors="border border-secondary bg-secondary/80"
+                color={"SECONDARY"}
             >
                 Edit
             </Button>
