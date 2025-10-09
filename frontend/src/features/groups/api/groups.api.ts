@@ -4,6 +4,7 @@ import type {
     GroupMeetingResponse,
     GroupType,
     MeetingMembershipResponse,
+    MeetingRole,
     SubmittedGroupMeeting
 } from "./groups.types.ts"
 
@@ -238,4 +239,84 @@ export async function searchMeetings(
     })
 
     return await res.json()
+}
+
+/**
+ * Change the role of a user.
+ *
+ * @param auth The authorization token.
+ * @param meetingId The meeting to adjust the role in.
+ * @param userId The user to adjust the role of.
+ * @param role The new role for the user.
+ */
+export async function changeRole(
+    auth: string,
+    meetingId: string,
+    userId: string,
+    role: MeetingRole
+) {
+    await fetch(`${BASE_URL}/groups/${meetingId}/role`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth}`
+        },
+        body: JSON.stringify({
+            userId,
+            role
+        })
+    })
+}
+
+/**
+ * Change the status of a user. This is either banning or unbanning, depending on the user's current status.
+ *
+ * @param auth The authorization token.
+ * @param meetingId The ID of the meeting.
+ * @param userId The ID of the user to ban / unban.
+ */
+export async function changeStatus(
+    auth: string,
+    meetingId: string,
+    userId: string
+) {
+    await fetch(`${BASE_URL}/groups/${meetingId}/status`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth}`
+        },
+        body: JSON.stringify({
+            userId
+        })
+    })
+}
+
+/**
+ * Toggle the ban status on a member.
+ *
+ * @param auth The authorization token.
+ * @param meetingId The ID of the meeting.
+ * @param userId The ID of the user to ban / unban.
+ */
+export async function toggleBanMember(
+    auth: string,
+    meetingId: string,
+    userId: string
+): Promise<void> {
+    const res = await fetch(`${BASE_URL}/groups/${meetingId}/status`, {
+        method: "PATCH",
+        headers: {
+            Authorization: `Bearer ${auth}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            userId
+        })
+    })
+
+    if (!res.ok) {
+        const message = await res.text().catch(() => "Failed to ban member")
+        throw new Error(message || "Failed to ban member")
+    }
 }

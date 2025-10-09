@@ -1,10 +1,10 @@
 import {GroupMeetingResponse} from "@/features/meetings/api/meetings.types";
 
 export async function fetchGroups(): Promise<GroupMeetingResponse[]> {
-    const res = await fetch("https://umn.app/api/groups", {
+    const res = await fetch("http://localhost:8080/api/groups", {
         method: "GET",
         headers: {
-            Authorization: "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDI1NjgzODM4ODE3OTcxMzM1NzEiLCJpc3MiOiJhamtuIiwiYXVkIjoiYWprbiIsImV4cCI6MTc1OTg5ODE0OH0.DedBt6-k3Z5KIzjg4U2UQdkjXaEwBk-LH4NgTnbJRaf4bdG9QuYIdnxNHPN0m3_kL1EGZw9whcvuMM_Py2ftYQ",
+            Authorization: "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDI1NjgzODM4ODE3OTcxMzM1NzEiLCJpc3MiOiJhamtuIiwiYXVkIjoiYWprbiIsImV4cCI6MTc2MDAyMzc1N30.PRl1eWQoGYhvw7L1338R3RAzxpTf_p2Lx_ksv5DqdZN4zzRI8jJw3wkuEHl5_PX6mcf963RcusZ7OLAu79qOjw",
             Accept: "application/json"
         },
     })
