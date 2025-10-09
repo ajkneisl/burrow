@@ -8,6 +8,7 @@ import app.burrow.groups.membership.Membership
 import app.burrow.groups.membership.Memberships
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
+import kotlinx.datetime.toKotlinLocalDate
 import java.util.UUID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -16,6 +17,8 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.countDistinct
@@ -27,6 +30,8 @@ import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
+import java.time.Instant
+import java.time.ZoneId
 
 /**
  * A group meeting.
@@ -329,22 +334,45 @@ suspend fun getMeetings(user: String? = null, type: GroupType? = null): List<Gro
  *
  * @param query The search query. This will search through tags, title, description, location, etc..
  */
-suspend fun searchMeetings(search: String): List<GroupMeetingResponse> {
+suspend fun searchMeetings(search: String, date: Long? = null): List<GroupMeetingResponse> {
     val term = search.trim()
-    if (term.isBlank()) return emptyList()
 
     val pattern = "%" + term.lowercase().replace("%", "\\%").replace("_", "\\_") + "%"
 
     val meetings: Map<GroupMeeting, String> = query {
-        Meetings.innerJoin(Users, { Meetings.owner }, { Users.googleID })
-            .selectAll()
-            .where {
-                (Meetings.endTime greaterEq getTimeMillis()) and
+        var expr: Op<Boolean> =
+            if (date == null) {
+                // Default: only future or ongoing meetings
+                (Meetings.endTime greaterEq getTimeMillis())
+            } else {
+                val zone = ZoneId.systemDefault()
+                val localDate = Instant.ofEpochMilli(date).atZone(zone).toLocalDate()
+
+                println(localDate.toKotlinLocalDate().toString())
+
+                val startOfDayMillis = localDate.atStartOfDay(zone).toInstant().toEpochMilli()
+                val endOfDayMillis =
+                    localDate
+                        .atTime(23, 59, 59, 999_000_000)
+                        .atZone(zone)
+                        .toInstant()
+                        .toEpochMilli()
+
+                (Meetings.beginningTime greaterEq startOfDayMillis) and
+                    (Meetings.beginningTime lessEq endOfDayMillis)
+            }
+
+        if (term.trim().isNotBlank())
+            expr =
+                expr and
                     ((Meetings.title.lowerCase() like pattern) or
                         (Meetings.description.lowerCase() like pattern) or
                         (Meetings.location.lowerCase() like pattern) or
                         (Meetings.tags.lowerCase() like pattern))
-            }
+
+        Meetings.innerJoin(Users, { Meetings.owner }, { Users.googleID })
+            .selectAll()
+            .where { expr }
             .orderBy(Meetings.beginningTime, SortOrder.ASC)
             .associate { row -> GroupMeeting.fromRow(row) to row[Users.name] }
     }

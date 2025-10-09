@@ -224,13 +224,15 @@ export async function getAttendees(
  * @param auth The authorization token.
  * @param type The type of group.
  * @param query The search query.
+ * @param date The date to search for.
  */
 export async function searchMeetings(
     auth: string,
     type: GroupType | null,
-    query: string
+    query: string,
+    date?: number
 ): Promise<GroupMeetingResponse[]> {
-    const params = `?query=${encodeURIComponent(query)}&type=${type}`
+    const params = `?query=${encodeURIComponent(query)}&type=${type}&date=${date}`
 
     const res = await fetch(`${BASE_URL}/groups/search${params}`, {
         headers: {

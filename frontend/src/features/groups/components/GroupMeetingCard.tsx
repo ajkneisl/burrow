@@ -16,6 +16,7 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
 
     const user = useUser()
     const { meeting } = meetingResponse
+    const isPast = meeting.endTime < Date.now()
 
     // navigate to the club page :)
     const onClick = () => {
@@ -58,6 +59,26 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
                     </div>
 
                     <div className="flex shrink-0 items-start gap-2">
+                        {isPast && (
+                            <span
+                                className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-1 text-text/70 ring-1 ring-inset ring-text/20"
+                                title="This meeting has ended"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M12 1.75a10.25 10.25 0 1 0 10.25 10.25A10.262 10.262 0 0 0 12 1.75Zm.75 5.5h-1.5v5.25l4.5 2.625.75-1.29-3.75-2.185Z" />
+                                </svg>
+                                <span className="text-xs font-medium">
+                                    Past Meeting
+                                </span>
+                            </span>
+                        )}
                         {meetingResponse?.membership?.status === "JOINED" && (
                             <span
                                 className="inline-flex items-center rounded-full bg-success/10 px-2.5 py-1 text-success ring-1 ring-inset ring-success/30"
