@@ -2,10 +2,10 @@ package app.burrow
 
 import app.burrow.account.USER_ROUTES
 import app.burrow.account.VERIFIER
+import app.burrow.account.generateToken
 import app.burrow.groups.GROUP_ROUTES
 import app.burrow.groups.chat.GROUP_CHAT_ROUTES
 import app.burrow.notifications.NOTIFICATION_ROUTES
-import app.burrow.notifications.createUniversalNotification
 import com.codahale.metrics.Slf4jReporter
 import dev.hayden.KHealth
 import io.ktor.http.*
@@ -30,14 +30,22 @@ import io.ktor.server.websocket.*
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 
-fun main() {
+fun main(args: Array<String>) {
+    // debug stuff
+    args.forEach { arg ->
+        when {
+            arg.startsWith("--gen-token=") -> {
+                val userId = arg.removePrefix("--gen-token=")
+
+                println("Generated Token: " + generateToken(userId))
+            }
+        }
+    }
+
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
 }
@@ -90,6 +98,8 @@ fun Application.module() {
         allowHeader(HttpHeaders.Accept)
         allowHeader(HttpHeaders.LastEventID)
 
+        anyHost()
+
         allowCredentials = true
         allowNonSimpleContentTypes = true
         allowSameOrigin = true
@@ -112,7 +122,7 @@ fun Application.module() {
                 call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
             }
             validate { credential ->
-                if (credential.payload.audience.contains("ajkn")) JWTPrincipal(credential.payload)
+                if (credential.payload.audience.contains("Burrow")) JWTPrincipal(credential.payload)
                 else null
             }
         }

@@ -49,7 +49,7 @@ export default function Meeting() {
 
     if (isLoading)
         return (
-            <main className="min-h-screen bg-[var(--card-background-color)]/70 animate-pulse px-4 py-8 md:px-8">
+            <main className="min-h-screen bg-card-background/70 animate-pulse px-4 py-8 md:px-8">
                 <div className="space-y-4">
                     <div className="h-10 w-2/3 rounded-lg bg-text/10" />
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -62,7 +62,7 @@ export default function Meeting() {
 
     if (error || !data || !id)
         return (
-            <main className="min-h-screen bg-[var(--background-color)] text-[var(--text-color)] px-4 py-8 md:px-8">
+            <main className="min-h-screen bg-background text-text px-4 py-8 md:px-8">
                 <div
                     role="alert"
                     className="rounded-md border border-error/30 bg-error/10 p-4 text-sm text-error"
@@ -137,7 +137,7 @@ export default function Meeting() {
                         </div>
 
                         <div className="lg:col-span-1 space-y-6">
-                            <div className="flex flex-row justify-evenly">
+                            <div className="flex flex-row gap-2">
                                 {isOwner ? (
                                     <>
                                         <EditMeeting meeting={meeting} />
@@ -148,18 +148,18 @@ export default function Meeting() {
                                 )}
                             </div>
 
-                            {inMeeting && (
-                                <Card title={"Attendees"}>
-                                    <ViewAttendees />
-                                </Card>
-                            )}
-
                             <Card title="Description">
                                 {meeting.description ||
                                     "No description provided."}
                             </Card>
 
                             <MeetingLocation location={meeting.location} />
+
+                            {inMeeting && (
+                                <Card title={"Attendees"}>
+                                    <ViewAttendees />
+                                </Card>
+                            )}
                         </div>
                     </div>
                 </div>
