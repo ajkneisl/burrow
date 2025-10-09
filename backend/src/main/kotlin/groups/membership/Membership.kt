@@ -87,6 +87,19 @@ suspend fun getUserMeetings(user: String): List<GroupMeetingResponse> {
 }
 
 /**
+ * Get a [Membership] instance.
+ *
+ * @param userId The ID of the user.
+ * @param meetingId The ID of the meeting.
+ */
+suspend fun getMembership(userId: String, meetingId: String): Membership? = query {
+    Memberships.selectAll()
+        .where { Memberships.userId eq userId and (Memberships.meetingId eq meetingId) }
+        .firstOrNull()
+        ?.let { Membership.fromRow(it) }
+}
+
+/**
  * Unban a [user] from a [meeting]
  *
  * @param user The ID of the user to unban in the meeting.
@@ -94,16 +107,15 @@ suspend fun getUserMeetings(user: String): List<GroupMeetingResponse> {
  * @param ServerError If the user is not banned in the meeting.
  */
 suspend fun unBanUser(user: String, meeting: String) {
-    val userMembership =
-        query {
-                Memberships.selectAll().where {
-                    Memberships.userId eq
-                        user and
-                        (Memberships.meetingId eq meeting) and
-                        (Memberships.status eq MeetingMemberStatus.BANNED)
-                }
+    val userMembership = query {
+        Memberships.selectAll()
+            .where {
+                (Memberships.userId eq user) and
+                    (Memberships.meetingId eq meeting) and
+                    (Memberships.status eq MeetingMemberStatus.BANNED)
             }
             .firstOrNull()
+    }
 
     if (userMembership == null) {
         throw ServerError(400, "User has not been banned in this meeting!")
@@ -158,6 +170,31 @@ suspend fun banUser(moderator: String, user: String, meeting: String) {
             it[status] = MeetingMemberStatus.BANNED
             it[leftAt] = getTimeMillis()
         }
+    }
+}
+
+/**
+ * Change the role of a user in a meeting.
+ *
+ * @param meetingId The ID of the meeting to change the role in.
+ * @param userId The user to adjust the role of.
+ * @param role The new role.
+ */
+suspend fun changeRole(meetingId: String, userId: String, role: MeetingRole) {
+    val userMembership =
+        query {
+                Memberships.selectAll().where {
+                    Memberships.userId eq userId and (Memberships.meetingId eq meetingId)
+                }
+            }
+            .firstOrNull()
+
+    if (userMembership == null) {
+        throw ServerError(400, "User is not in this meeting!")
+    }
+
+    query {
+        Memberships.update(where = { Memberships.userId eq userId }) { it[Memberships.role] = role }
     }
 }
 
