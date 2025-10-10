@@ -19,6 +19,12 @@ export default function Header() {
             <div className="w-full px-4 md:px-6 py-3 md:py-4 flex flex-row items-center justify-between gap-4">
                 {/* logo */}
                 <div className="flex flex-row items-center gap-3">
+                    <img
+                        src="/logo.jpg"
+                        alt="Burrow Logo"
+                        className="bg-primary w-[48px] h-[48px] object-cover rounded-2xl"
+                    />
+
                     <h1
                         onClick={() => nav("/")}
                         className="transition-colors text-3xl md:text-4xl text-secondary hover:text-secondary-hover cursor-pointer font-extrabold figtree tracking-tight drop-shadow-sm underline-offset-4 hover:underline"

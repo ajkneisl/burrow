@@ -62,50 +62,50 @@ export default function DeleteMeeting({ meeting }: DeleteMeetingProps) {
                         damping: 28,
                         mass: 0.2
                     }}
-                    className="max-w-sm rounded-xl border border-gray-200 bg-white p-3 shadow-lg"
+                    className="max-w-sm rounded-xl border border-primary/20 bg-card p-6 shadow-lg"
                 >
-                    <p className="text-sm font-medium text-gray-900">
-                        Delete this meeting?
-                    </p>
+                    <div className="p-4">
+                        <p className="text-sm font-medium text-text">
+                            Delete this meeting?
+                        </p>
 
-                    <p className="mt-1 text-xs text-gray-600">
-                        This action cannot be undone.
-                    </p>
+                        <p className="mt-1 text-xs text-text/70">
+                            This action cannot be undone.
+                        </p>
+                    </div>
 
-                    <div className="mt-3 flex justify-end gap-2">
-                        <button
+                    <div className="mt-3 flex justify-evenly gap-2">
+                        <Button
                             onClick={() => {
                                 toast.dismiss(toastObj.id)
                                 confirmToastIdRef.current = null
                             }}
-                            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                            color="SECONDARY"
                         >
                             Cancel
-                        </button>
+                        </Button>
 
-                        <button
+                        <Button
                             onClick={() => {
                                 toast.dismiss(toastObj.id)
                                 confirmToastIdRef.current = null
                                 performDelete()
                             }}
-                            className="hover:cursor-pointer rounded-lg border border-red-200 bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-800 hover:bg-red-200"
+                            color={"ERROR"}
                         >
                             Delete
-                        </button>
+                        </Button>
                     </div>
                 </motion.div>
             ),
             { duration: 3000, position: "top-center" }
         )
+
         confirmToastIdRef.current = id as string
     }
 
     return (
-        <Button
-            onClick={confirmDelete}
-            colors="text-text border border-error/50 bg-error/60"
-        >
+        <Button onClick={() => confirmDelete()} color="ERROR">
             Delete
         </Button>
     )

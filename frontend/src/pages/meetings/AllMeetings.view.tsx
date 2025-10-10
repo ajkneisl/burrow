@@ -36,19 +36,6 @@ function humanDateLabel(key: string): string {
 }
 
 /**
- * Convert a millis epoch to an input-readable number.
- *
- * @param epoch The millisecond epoch.
- */
-function epochToDateInputValue(epoch: number): string {
-    const d = new Date(epoch)
-    const y = d.getFullYear()
-    const m = String(d.getMonth() + 1).padStart(2, "0")
-    const day = String(d.getDate()).padStart(2, "0")
-    return `${y}-${m}-${day}`
-}
-
-/**
  * {@link AllMeetings}
  */
 type AllMeetingsProps = {
@@ -63,11 +50,33 @@ type AllMeetingsProps = {
 export default function AllMeetings({ type }: AllMeetingsProps) {
     const [query, setQuery] = useState("")
     const [auth] = useAtom(authToken)
-    const [selectedDate, setSelectedDate] = useState<number>(() => Date.now())
+    const [selectedDate, setSelectedDate] = useState<string>()
 
-    const { data, isLoading, error } = useQuery({
-        queryKey: ["meetings", type],
-        queryFn: () => searchMeetings(auth, type, query)
+    const dateEpoch = useMemo(() => {
+        if (!selectedDate) return null
+
+        const parts = selectedDate.split("-")
+        const year = parseInt(parts[0], 10)
+        const month = parseInt(parts[1], 10) - 1
+        const day = parseInt(parts[2], 10)
+
+        // don't request until reaching a real year
+        if (year < 2025) return null
+
+        return new Date(year, month, day).valueOf()
+    }, [selectedDate])
+
+    const dayStart = useMemo(() => {
+        const d = new Date(dateEpoch ?? new Date().getDate())
+        d.setHours(0, 0, 0, 0)
+        return d.getTime()
+    }, [dateEpoch])
+
+    const { data, isLoading, isFetching, error } = useQuery({
+        queryKey: ["meetings", type, query, dateEpoch],
+        queryFn: async () =>
+            await searchMeetings(auth, type, query, dateEpoch ?? undefined),
+        refetchOnWindowFocus: false
     })
 
     const allMeetings: GroupMeetingResponse[] = useMemo(
@@ -79,7 +88,7 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
         const searchQuery = query.trim().toLowerCase()
 
         const byDate = allMeetings.filter((m) => {
-            return m.meeting.beginningTime > selectedDate
+            return m.meeting.beginningTime >= dayStart
         })
 
         return byDate
@@ -90,13 +99,13 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
                     meeting.meeting.description
                         .toLowerCase()
                         .includes(searchQuery) ||
-                    meeting.meeting.tags.filter((tag) =>
+                    meeting.meeting.tags.some((tag) =>
                         tag.toLowerCase().includes(searchQuery)
-                    ).length > 0
+                    )
                 )
             })
             .sort((a, b) => a.meeting.beginningTime - b.meeting.beginningTime)
-    }, [allMeetings, query, selectedDate])
+    }, [allMeetings, query, dayStart])
 
     const groupedByDate = useMemo(() => {
         const map = new Map<string, GroupMeetingResponse[]>()
@@ -110,10 +119,14 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
         return Array.from(map.entries()).sort(([a], [b]) => (a < b ? -1 : 1))
     }, [filtered])
 
-    if (isLoading) return <p className="p-6 text-gray-600">Loading…</p>
-
     if (error)
-        return <p className="p-6 text-red-600">Failed to load meetings.</p>
+        return (
+            <main className="mx-auto w-full max-w-4xl p-4 sm:p-6">
+                <div className="rounded-2xl border border-error/30 bg-error/10 p-4 text-error">
+                    Failed to load meetings.
+                </div>
+            </main>
+        )
 
     return (
         <main className="mx-auto w-full max-w-4xl p-4 sm:p-6">
@@ -125,7 +138,7 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Search meetings…"
-                        className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm shadow-sm focus:outline-none"
+                        className="w-full rounded-2xl border border-primary/20 bg-card px-4 py-2 text-sm text-text shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary"
                     />
                 </div>
 
@@ -133,26 +146,47 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
                 <div className="flex items-center gap-2">
                     <input
                         type="date"
-                        value={epochToDateInputValue(selectedDate)}
-                        onChange={(e) =>
-                            setSelectedDate(e.target.valueAsNumber)
-                        }
-                        className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="rounded-xl border border-primary/20 bg-card px-3 py-2 text-sm text-text shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         aria-label="Select date"
                     />
                 </div>
             </div>
 
+            {isLoading && !data ? (
+                <div className="space-y-3">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <div
+                            key={i}
+                            className="h-24 rounded-2xl bg-card shadow-sm"
+                        />
+                    ))}
+                </div>
+            ) : null}
+
+            {!isLoading && isFetching ? (
+                <div className="mb-2 text-right">
+                    <span className="inline-flex items-center gap-2 rounded-full border border-info/30 bg-info/10 px-2 py-1 text-xs text-info">
+                        Updating…
+                    </span>
+                </div>
+            ) : null}
+
             {/* search results */}
             {groupedByDate.length === 0 ? (
-                <p className="rounded-2xl border border-gray-200 bg-white p-6 text-gray-700 shadow-sm">
-                    No meetings match your filters.
-                </p>
+                <div className="rounded-2xl border border-primary/20 bg-card p-6 text-text shadow-sm">
+                    <p className="text-sm">No meetings match your filters.</p>
+                    <p className="mt-1 text-xs text-text/70">
+                        Try adjusting your search or picking a different date.
+                    </p>
+                </div>
             ) : (
                 groupedByDate.map(([dateKey, meetings]) => (
                     <section key={dateKey} className="mb-10">
-                        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+                        <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-text">
                             {humanDateLabel(dateKey)}
+                            <span className="h-px flex-1 bg-primary/20" />
                         </h2>
                         <div className="flex flex-col gap-4">
                             {meetings.map((m) => (

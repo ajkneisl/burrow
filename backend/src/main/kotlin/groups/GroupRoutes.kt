@@ -64,7 +64,9 @@ val GROUP_ROUTES: Route.() -> Unit = {
             call.request.queryParameters["query"]
                 ?: return@get call.respond(HttpStatusCode.BadRequest)
 
-        call.respond(searchMeetings(searchQuery))
+        val date = call.request.queryParameters["date"]?.toLongOrNull()
+
+        call.respond(searchMeetings(searchQuery, date))
     }
 
     // POST /groups

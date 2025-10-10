@@ -4,6 +4,7 @@ import { useNavigate } from "react-router"
 import useToken from "@features/auth/api/hooks/useToken.ts"
 import type { GroupType } from "@features/groups/api/groups.types.ts"
 import { getMeetings } from "@features/groups/api/groups.api.ts"
+import Button from "@components/Button.tsx"
 
 /**
  * A skeleton loading card.
@@ -73,6 +74,7 @@ export default function PreviewGroupMeetings({
                         <p className="mb-4 text-sm text-red-700">
                             Please try again{isFetching ? "…" : "."}
                         </p>
+
                         <button
                             onClick={() => refetch()}
                             className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-800 shadow-sm hover:shadow-md"
@@ -101,7 +103,14 @@ export default function PreviewGroupMeetings({
 
     return (
         <div>
-            <h1 className="mb-2 text-2xl mt-4 figtree">{title}</h1>
+            <div className="flex flex-row justify-between items-center">
+                <h1 className="mb-2 text-2xl mt-4 figtree">{title}</h1>
+                {data.length >= amount && (
+                    <Button className="mt-2" thin onClick={() => nav(fullPage)}>
+                        View all
+                    </Button>
+                )}
+            </div>
 
             <div className="flex flex-col gap-2 overflow-auto justify-center items-center">
                 {data.length > 0 ? (
@@ -113,14 +122,15 @@ export default function PreviewGroupMeetings({
                 )}
 
                 {/* only show the view all button when there's more meetings than can be displayed */}
-                {data.length >= amount && (
-                    <button
-                        onClick={() => nav(fullPage)}
-                        className="self-center w-1/2 cursor-pointer hover:bg-gray-300 transition-all bg-gray-200 rounded-lg px-4 py-2"
-                    >
-                        View all
-                    </button>
-                )}
+
+                {/*{data.length >= amount && (*/}
+                {/*    <button*/}
+                {/*        onClick={() => nav(fullPage)}*/}
+                {/*        className="self-center w-1/2 cursor-pointer hover:bg-gray-300 transition-all bg-gray-200 rounded-lg px-4 py-2"*/}
+                {/*    >*/}
+                {/*        View all*/}
+                {/*    </button>*/}
+                {/*)}*/}
             </div>
         </div>
     )

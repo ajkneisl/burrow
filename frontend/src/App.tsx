@@ -19,6 +19,7 @@ import { studyGroupModal } from "@features/create/api/modal.atom.ts"
 import { themeAtom } from "@api/theme.atom.ts"
 import Privacy from "@pages/legal/Privacy.view.tsx"
 import ToS from "@pages/legal/ToS.view.tsx"
+import { Toaster } from "react-hot-toast"
 
 function App() {
     // load user information & ensure logged in
@@ -64,6 +65,8 @@ function App() {
     return (
         <div className="bg-background text-text min-h-screen w-full flex flex-col bg-background-color transition-colors duration-300">
             {auth !== null && <Header />}
+
+            <Toaster />
 
             <main className="max-w-screen md:min-w-xl md:m-auto mb-8 mx-4 flex-grow">
                 <CreateStudyGroupModal
