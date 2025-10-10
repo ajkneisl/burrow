@@ -9,7 +9,7 @@ import Header from "@features/layout/Header.tsx"
 import About from "@pages/about/About.tsx"
 import useUser from "@features/auth/api/hooks/useUser.ts"
 import useToken from "@features/auth/api/hooks/useToken.ts"
-import NotFound from "@pages/notfound/NotFound.view.tsx"
+import {NotFound} from "@pages/notfound/NotFound.view.tsx"
 import { useAtom } from "jotai"
 
 import "./index.css"
