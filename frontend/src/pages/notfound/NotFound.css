@@ -58,15 +58,6 @@
     transition: all 0.2s ease-in-out;
 }
 
-.btn-modal:hover {
-    background: white;
-    color: black;
-    transform: scale(1.1, 1.1);
-    transition: all 0.2s ease-in-out;
-    outline: white;
-}
-
-
 .btn-wrapper{
     display: grid;
     place-items: center;
