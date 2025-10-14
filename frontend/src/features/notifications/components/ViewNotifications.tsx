@@ -14,6 +14,7 @@ import type { Notification } from "@features/notifications/api/notifications.typ
 import { formatTimeAgo } from "@api/util.ts"
 import Button from "@components/Button.tsx"
 import clsx from "clsx"
+import HeaderButton from "@features/layout/components/HeaderButton.tsx"
 
 /**
  * {@link Notification}
@@ -164,18 +165,24 @@ export default function ViewNotifications() {
     return (
         <div ref={wrapperRef} className={"relative inline-block text-left"}>
             {/* button */}
-            <button
+            <HeaderButton
                 ref={buttonRef}
                 type="button"
                 aria-haspopup="true"
                 aria-expanded={open}
                 onClick={() => setOpen((v) => !v)}
-                className="cursor-pointer inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-secondary focus-visible:ring-offset-transparent"
+                icon={
+                    // bell icon
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path d="M12 2a6 6 0 00-6 6v2.264c0 .72-.27 1.414-.756 1.944L3.7 14.9A1.5 1.5 0 005 17h14a1.5 1.5 0 001.3-2.1l-1.544-2.692A3 3 0 0118 10.264V8a6 6 0 00-6-6zm0 20a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                    </svg>
+                }
             >
-                <motion.span whileTap={{ scale: 0.92 }}>
-                    <BellIcon className="h-5 w-5 text-white" />
-                </motion.span>
-
                 {unreadCount > 0 && (
                     <span
                         aria-label={`${unreadCount} unread`}
@@ -184,7 +191,7 @@ export default function ViewNotifications() {
                         {unreadCount > 99 ? "99+" : unreadCount}
                     </span>
                 )}
-            </button>
+            </HeaderButton>
 
             <AnimatePresence>
                 {open && (
@@ -277,19 +284,5 @@ function EmptyState() {
                 New notifications will appear here.
             </p>
         </div>
-    )
-}
-
-function BellIcon({ className = "" }: { className?: string }) {
-    return (
-        <svg
-            className={className}
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            aria-hidden="true"
-        >
-            <path d="M12 2a6 6 0 00-6 6v2.264c0 .72-.27 1.414-.756 1.944L3.7 14.9A1.5 1.5 0 005 17h14a1.5 1.5 0 001.3-2.1l-1.544-2.692A3 3 0 0118 10.264V8a6 6 0 00-6-6zm0 20a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-        </svg>
     )
 }

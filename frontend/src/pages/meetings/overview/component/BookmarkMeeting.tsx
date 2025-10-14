@@ -4,7 +4,7 @@ import {
     deleteBookmark
 } from "@features/groups/api/groups.api.ts"
 import useToken from "@features/auth/api/hooks/useToken.ts"
-import clsx from "clsx"
+import MeetingButton from "@pages/meetings/components/MeetingButton.tsx"
 
 type BookmarkMeetingProps = {
     isBookmarked: boolean
@@ -41,14 +41,9 @@ export default function BookmarkMeeting({
     }
 
     return (
-        <button
-            className={clsx(
-                `cursor-pointer inline-flex items-center justify-center rounded-xl border bg-background p-2 text-sm font-medium shadow-sm transition hover:shadow-md`,
-                isBookmarked ? "text-secondary" : "text-text"
-            )}
-            aria-label="Bookmark"
-            title="Bookmark"
+        <MeetingButton
             onClick={bookmark}
+            className={isBookmarked ? "text-secondary" : "text-text"}
         >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -58,6 +53,6 @@ export default function BookmarkMeeting({
             >
                 <path d="M6.32 2.75A2.25 2.25 0 0 0 4.25 5v16a.75.75 0 0 0 1.2.6l6.33-4.75 6.33 4.75a.75.75 0 0 0 1.2-.6V5A2.25 2.25 0 0 0 17.68 2.75H6.32z" />
             </svg>
-        </button>
+        </MeetingButton>
     )
 }
