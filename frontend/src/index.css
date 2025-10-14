@@ -57,7 +57,7 @@ body {
         content: "";
         position: fixed;
         top: 250px;
-        left: 0;
+        left: -100px;
         width: 30%;
         height: 100%;
         background-image: url("/standing_gopher.png");
@@ -70,22 +70,22 @@ body {
         z-index: 0;
     }
 
-    body::after {
-        content: "";
-        position: fixed;
-        top: 350px;
-        right: 0;
-        width: 40%;
-        height: 100%;
-        background-image: url("/yord_gopher.png");
-        background-repeat: no-repeat;
-        background-position: right center;
-        background-size: contain;
-        filter: grayscale(100%);
-        opacity: 0.15;
-        pointer-events: none;
-        z-index: 0;
-    }
+    /*body::after {*/
+    /*    content: "";*/
+    /*    position: fixed;*/
+    /*    top: 350px;*/
+    /*    right: 0;*/
+    /*    width: 40%;*/
+    /*    height: 100%;*/
+    /*    background-image: url("/yord_gopher.png");*/
+    /*    background-repeat: no-repeat;*/
+    /*    background-position: right center;*/
+    /*    background-size: contain;*/
+    /*    filter: grayscale(100%);*/
+    /*    opacity: 0.15;*/
+    /*    pointer-events: none;*/
+    /*    z-index: 0;*/
+    /*}*/
 }
 
 .card {

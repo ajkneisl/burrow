@@ -26,7 +26,7 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
     return (
         <article
             onClick={onClick}
-            className="group bg-card cursor-pointer w-full rounded-2xl border border-primary/20 p-5 shadow-sm ring-1 ring-primary/5 transition-all hover:border-primary/30 hover:shadow-md focus-within:ring-2 focus-within:ring-primary/40"
+            className="card group bg-card cursor-pointer w-full rounded-2xl border border-primary/20 p-5 shadow-sm ring-1 ring-primary/5 transition-all hover:border-primary/30 hover:shadow-md focus-within:ring-2 focus-within:ring-primary/40"
         >
             <div className="flex flex-col gap-4">
                 <div className="min-w-0 flex items-start justify-between gap-4">
