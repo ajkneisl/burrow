@@ -63,7 +63,7 @@ function App() {
     }
 
     return (
-        <div className="bg-background text-text min-h-screen w-full flex flex-col bg-background-color transition-colors duration-300">
+        <div className="gopher-stand bg-background text-text min-h-screen w-full flex flex-col bg-background-color transition-colors duration-300">
             {auth !== null && <Header />}
 
             <Toaster />

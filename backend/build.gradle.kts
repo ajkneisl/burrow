@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 val exposed_version: String by project
 val h2_version: String by project
 val kotlin_version: String by project
@@ -10,6 +12,7 @@ plugins {
 }
 
 group = "app.burrow"
+
 version = "0.1.0"
 
 application { mainClass = "app.burrow.ApplicationKt" }
@@ -47,6 +50,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("io.ktor:ktor-server-metrics:3.3.0")
+    implementation("org.reflections:reflections:0.10.2")
 
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
@@ -57,3 +61,7 @@ repositories {
     maven("https://jitpack.io")
     maven("https://packages.confluent.io/maven/")
 }
+
+val compileKotlin: KotlinCompile by tasks
+
+compileKotlin.compilerOptions { freeCompilerArgs.set(listOf("-Xnested-type-aliases")) }

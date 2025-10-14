@@ -3,15 +3,15 @@
 
 :root {
     --background-color: #ffffff; /* white background */
-    --primary-color: 122 0 25;   /* Minnesota maroon (Pantone 202C) */
+    --primary-color: 122 0 25; /* Minnesota maroon (Pantone 202C) */
     --secondary-color: 255 204 0; /* Minnesota gold */
     --card-background-color: #f9fafb; /* light surface */
     --hero-color: #dedbd5; /* near-white neutral for hero sections */
-    --text-color: 33 33 33;      /* dark gray text */
-    --success-color: 0 128 0;    /* UMN green variant */
-    --info-color: 0 102 204;     /* rich UMN blue accent */
-    --warn-color: 255 204 0;     /* Minnesota gold (Pantone 123C) */
-    --error-color: 191 30 46;    /* deep red for errors */
+    --text-color: 33 33 33; /* dark gray text */
+    --success-color: 0 128 0; /* UMN green variant */
+    --info-color: 0 102 204; /* rich UMN blue accent */
+    --warn-color: 255 204 0; /* Minnesota gold (Pantone 123C) */
+    --error-color: 191 30 46; /* deep red for errors */
     --secondary-hover-color: 230 180 0; /* muted gold hover */
     --primary-hover-color: 160 40 40; /* deeper maroon hover */
     --success-hover-color: 0 150 70; /* brighter green hover */
@@ -22,15 +22,15 @@
 
 [data-theme="dark"] {
     --background-color: #1a1a1a; /* dark gray background */
-    --primary-color: 78 0 10;   /* Minnesota maroon (Pantone 202C) */
+    --primary-color: 78 0 10; /* Minnesota maroon (Pantone 202C) */
     --secondary-color: 255 204 0; /* Minnesota gold */
     --card-background-color: #2a2a2a; /* darker surface */
     --hero-color: #111827; /* deep gray hero */
-    --text-color: 243 244 246;   /* near-white text */
+    --text-color: 243 244 246; /* near-white text */
     --success-color: 72 187 120; /* muted green for dark mode */
-    --info-color: 100 181 246;   /* lighter blue for dark mode */
-    --warn-color: 255 215 0;     /* bright gold for dark mode */
-    --error-color: 239 83 80;    /* light red for dark mode */
+    --info-color: 100 181 246; /* lighter blue for dark mode */
+    --warn-color: 255 215 0; /* bright gold for dark mode */
+    --error-color: 239 83 80; /* light red for dark mode */
     --secondary-hover-color: 230 180 0; /* muted gold hover */
     --primary-hover-color: 160 40 40; /* deeper maroon hover */
     --success-hover-color: 90 200 140; /* brighter green hover */
@@ -38,54 +38,66 @@
     --warn-hover-color: 255 225 90; /* brighter gold hover */
     --error-hover-color: 250 110 110; /* softer red hover */
 
-    input[type="date"]::-webkit-calendar-picker-indicator{
+    input[type="date"]::-webkit-calendar-picker-indicator {
         filter: invert(100%);
     }
 
-    input[type="time"]::-webkit-calendar-picker-indicator{
+    input[type="time"]::-webkit-calendar-picker-indicator {
         filter: invert(100%);
     }
 }
 
-@source inline('{hover:,}bg-primary');
-@source inline('{hover:,}bg-secondary');
-@source inline('{hover:,}bg-info');
-@source inline('{hover:,}bg-error');
-@source inline('{hover:,}bg-success');
 
-/* Hover-targeted alt shades */
-@source inline('{hover:,}bg-primary-hover');
-@source inline('{hover:,}bg-secondary-hover');
-@source inline('{hover:,}bg-info-hover');
-@source inline('{hover:,}bg-error-hover');
-@source inline('{hover:,}bg-success-hover');
+body {
+    position: relative;
+}
 
-/* Borders */
-@source inline('{hover:,}border-primary');
-@source inline('{hover:,}border-secondary');
-@source inline('{hover:,}border-info');
-@source inline('{hover:,}border-error');
-@source inline('{hover:,}border-success');
-@source inline('{hover:,}border-primary-hover');
-@source inline('{hover:,}border-secondary-hover');
-@source inline('{hover:,}border-info-hover');
-@source inline('{hover:,}border-error-hover');
-@source inline('{hover:,}border-success-hover');
+@media (min-width: 768px) {
+    body::before {
+        content: "";
+        position: fixed;
+        top: 250px;
+        left: 0;
+        width: 30%;
+        height: 100%;
+        background-image: url("/standing_gopher.png");
+        background-repeat: no-repeat;
+        background-position: left center;
+        background-size: contain;
+        filter: grayscale(100%);
+        opacity: 0.15;
+        pointer-events: none;
+        z-index: 0;
+    }
 
-/* Text */
-@source inline('{hover:,}text-primary');
-@source inline('{hover:,}text-secondary');
-@source inline('{hover:,}text-info');
-@source inline('{hover:,}text-error');
-@source inline('{hover:,}text-success');
-@source inline('{hover:,}text-primary-hover');
-@source inline('{hover:,}text-secondary-hover');
-@source inline('{hover:,}text-info-hover');
-@source inline('{hover:,}text-error-hover');
-@source inline('{hover:,}text-success-hover');
+    body::after {
+        content: "";
+        position: fixed;
+        top: 350px;
+        right: 0;
+        width: 40%;
+        height: 100%;
+        background-image: url("/yord_gopher.png");
+        background-repeat: no-repeat;
+        background-position: right center;
+        background-size: contain;
+        filter: grayscale(100%);
+        opacity: 0.15;
+        pointer-events: none;
+        z-index: 0;
+    }
+}
+
+.card {
+    z-index: 1;
+}
+
+footer {
+    z-index: 1;
+}
 
 @theme inline {
-    --color-background:var(--background-color);
+    --color-background: var(--background-color);
     --color-primary: rgb(var(--primary-color));
     --color-secondary: rgb(var(--secondary-color));
     --color-card: var(--card-background-color);

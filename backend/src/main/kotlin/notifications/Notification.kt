@@ -1,7 +1,7 @@
 package app.burrow.notifications
 
 import app.burrow.account.Users
-import app.burrow.groups.chat.models.ChatMessage
+import app.burrow.groups.sync.chat.ChatMessage
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID

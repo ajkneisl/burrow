@@ -1,6 +1,5 @@
-package app.burrow.groups.chat.models
+package app.burrow.groups.sync.chat
 
-import app.burrow.groups.chat.ChatMessages
 import java.util.UUID
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable

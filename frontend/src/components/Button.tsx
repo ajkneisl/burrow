@@ -41,37 +41,38 @@ export default function Button({
     ...rest
 }: ButtonProps) {
     const colorStyles = useMemo(() => {
-        const make = (
-            baseVar: string,
-            hoverVar?: string,
-            opts?: { textOnGold?: boolean }
-        ) =>
+        const make = (classes: string, opts?: { textOnGold?: boolean }) =>
             clsx(
-                `border border-${baseVar} bg-${baseVar}/80`,
-                hoverVar && `hover:bg-${hoverVar}`,
+                classes,
                 opts?.textOnGold ? "text-black" : "text-white",
-                `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-${baseVar}`
+                `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`
             )
 
         switch (color) {
             case "ERROR":
-                return make("error", "error-hover")
+                return make(
+                    `focus-visible:ring-error border-error bg-error/80 hover:bg-error-hover`
+                )
             case "WARNING":
-                return make("warn", "warn-hover", {
-                    textOnGold: true
-                })
+                return make(
+                    `focus-visible:ring-warning border-warning bg-warning/80 hover:bg-warning-hover`
+                )
             case "INFO":
-                return make("info", "info-hover")
+                return make(
+                    `focus-visible:ring-info border-info bg-info/80 hover:bg-info-hover`
+                )
             case "SUCCESS":
-                return make("success", "success-hover")
+                return make(
+                    `focus-visible:ring-success border-success bg-success/80 hover:bg-success-hover`
+                )
             case "PRIMARY":
-                // PRIMARY = Maroon
-                return make("primary", "primary-hover")
+                return make(
+                    `focus-visible:ring-primary border-primary bg-primary/80 hover:bg-primary-hover`
+                )
             case "SECONDARY":
-                // SECONDARY = Gold; readable dark text
-                return make("secondary", "secondary-hover", {
-                    textOnGold: true
-                })
+                return make(
+                    `focus-visible:ring-secondary border-secondary bg-secondary/80 hover:bg-secondary-hover`
+                )
             default:
                 return clsx(
                     "border border-transparent",
@@ -81,8 +82,6 @@ export default function Button({
                 )
         }
     }, [color])
-
-    const basePadding = thin ? "py-1" : "py-2"
 
     const isDisabled = disabled || loading
 
@@ -95,7 +94,7 @@ export default function Button({
             aria-busy={loading || undefined}
             className={clsx(
                 "cursor-pointer inline-flex select-none items-center justify-center gap-1 rounded-xl px-4",
-                basePadding,
+                thin ? "py-1" : "py-2",
                 "text-sm font-medium shadow-sm transition focus-visible:shadow-md",
                 "disabled:cursor-not-allowed disabled:opacity-60",
                 colors,

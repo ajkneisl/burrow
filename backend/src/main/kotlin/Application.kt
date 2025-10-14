@@ -4,8 +4,9 @@ import app.burrow.account.USER_ROUTES
 import app.burrow.account.VERIFIER
 import app.burrow.account.generateToken
 import app.burrow.groups.GROUP_ROUTES
-import app.burrow.groups.chat.GROUP_CHAT_ROUTES
+import app.burrow.groups.sync.Sync
 import app.burrow.notifications.NOTIFICATION_ROUTES
+import com.codahale.metrics.MetricFilter
 import com.codahale.metrics.Slf4jReporter
 import dev.hayden.KHealth
 import io.ktor.http.*
@@ -63,13 +64,21 @@ fun Application.module() {
     }
 
     install(DropwizardMetrics) {
+        val logger = LoggerFactory.getLogger("BurrowMetrics")
+        // Log only Ktor call-related metrics to avoid JVM noise and giant dumps every tick
+        val onlyKtorCalls = MetricFilter { name, _ -> name.startsWith("ktor.calls") }
+
         Slf4jReporter.forRegistry(registry)
-            .outputTo(LoggerFactory.getLogger("Call Logging"))
+            .outputTo(logger)
+            .withLoggingLevel(Slf4jReporter.LoggingLevel.INFO)
+            .prefixedWith("metrics")
             .convertRatesTo(TimeUnit.SECONDS)
             .convertDurationsTo(TimeUnit.MILLISECONDS)
+            .filter(onlyKtorCalls)
             .build()
-            .start(10, TimeUnit.SECONDS)
+            .start(15, TimeUnit.SECONDS)
     }
+
     install(AutoHeadResponse)
     install(StatusPages) {
         exception<CancellationException> { _, _ -> }
@@ -133,7 +142,7 @@ fun Application.module() {
 
         route("/api") {
             route("/notifications", NOTIFICATION_ROUTES)
-            route("/groups/{id}", GROUP_CHAT_ROUTES)
+            route("/groups/{id}", Sync.SYNC_ROUTES)
             route("/user", USER_ROUTES)
 
             authenticate("primary") { route("/groups", GROUP_ROUTES) }

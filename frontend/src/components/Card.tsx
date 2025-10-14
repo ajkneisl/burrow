@@ -21,7 +21,7 @@ export default function Card(props: CardProps) {
         <section
             {...props}
             className={clsx(
-                "border border-primary/30 rounded-2xl bg-card/80 p-4 shadow-sm",
+                "card border border-primary/30 rounded-2xl bg-card p-4 shadow-sm",
                 props.className
             )}
         >

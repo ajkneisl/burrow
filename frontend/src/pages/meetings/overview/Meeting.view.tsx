@@ -1,7 +1,6 @@
 import { useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
-import { authToken } from "@features/auth/api/auth.atom.ts"
 import useUser from "@features/auth/api/hooks/useUser.ts"
 import { useMemo } from "react"
 import { getMeeting } from "@features/groups/api/groups.api.ts"
@@ -17,6 +16,11 @@ import EditMeeting from "@pages/meetings/overview/component/EditMeeting.tsx"
 import Card from "@components/Card.tsx"
 import ChatBox from "@features/chat/components/ChatBox.tsx"
 import ViewAttendees from "@pages/meetings/components/ViewAttendees.tsx"
+import Pomodoro from "@features/sync/components/Pomodoro.tsx"
+import useSync from "@features/sync/hooks/useSync.tsx"
+import { MeetingFeatures } from "@features/sync/components/MeetingFeatures.tsx"
+import useToken from "@features/auth/api/hooks/useToken.ts"
+import { blockStatus } from "@features/sync/api/sync.atom.ts"
 
 /**
  * View an individual meeting.
@@ -25,13 +29,17 @@ import ViewAttendees from "@pages/meetings/components/ViewAttendees.tsx"
 export default function Meeting() {
     const { id } = useParams<{ id: string }>()
 
-    const [auth] = useAtom(authToken)
+    const auth = useToken()
     const user = useUser()
+
+    const [blocks] = useAtom(blockStatus)
+
+    useSync(id!)
 
     const { data, isLoading, error } = useQuery({
         queryKey: [`meeting`, id],
         enabled: id !== null && auth !== null,
-        queryFn: () => (id ? getMeeting(auth, id) : null)
+        queryFn: () => (id && auth ? getMeeting(auth, id) : null)
     })
 
     const isOwner = useMemo(
@@ -133,7 +141,9 @@ export default function Meeting() {
                                 </div>
                             </div>
 
-                            {inMeeting && <ChatBox meeting={data} />}
+                            {inMeeting && blocks.includes("CHAT") && (
+                                <ChatBox meeting={data} />
+                            )}
                         </div>
 
                         <div className="lg:col-span-1 space-y-6">
@@ -142,6 +152,7 @@ export default function Meeting() {
                                     <>
                                         <EditMeeting meeting={meeting} />
                                         <DeleteMeeting meeting={meeting} />
+                                        <MeetingFeatures />
                                     </>
                                 ) : (
                                     <JoinMeeting data={data} />
@@ -160,6 +171,12 @@ export default function Meeting() {
                                     <ViewAttendees />
                                 </Card>
                             )}
+
+                            {inMeeting &&
+                                blocks.includes("POMODORO") &&
+                                data.membership && (
+                                    <Pomodoro membership={data.membership} />
+                                )}
                         </div>
                     </div>
                 </div>

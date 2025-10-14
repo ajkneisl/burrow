@@ -112,8 +112,8 @@ type CookieStoreLike = {
     delete?: (name: string) => Promise<void>
 }
 
-const CookieStoreGlobal: CookieStoreLike | undefined = (globalThis as any)
-    .CookieStore || (globalThis as any).cookieStore
+const CookieStoreGlobal: CookieStoreLike | undefined =
+    (globalThis as any).CookieStore || (globalThis as any).cookieStore
 
 async function cookieGet(name: string): Promise<string | null> {
     if (CookieStoreGlobal?.get) {
@@ -133,7 +133,11 @@ async function cookieGet(name: string): Promise<string | null> {
     return null
 }
 
-async function cookieSet(name: string, value: string, maxAgeSeconds = 60 * 60 * 24 * 365): Promise<void> {
+async function cookieSet(
+    name: string,
+    value: string,
+    maxAgeSeconds = 60 * 60 * 24 * 365
+): Promise<void> {
     if (CookieStoreGlobal?.set) {
         await CookieStoreGlobal.set(name, value)
         return
@@ -156,7 +160,9 @@ export function atomWithCookie<T extends string>(key: string, initialValue: T) {
     void (async () => {
         const existing = await cookieGet(key)
         if (existing === null) {
-            try { await cookieSet(key, initialValue) } catch {}
+            try {
+                await cookieSet(key, initialValue)
+            } catch {}
         }
     })()
 
@@ -195,8 +201,31 @@ export function atomWithCookie<T extends string>(key: string, initialValue: T) {
                 void tick()
 
                 // cleanup
-                return () => { stopped = true }
+                return () => {
+                    stopped = true
+                }
             }
         }
     )
+}
+
+/**
+ * Convert milliseconds to `mm:ss` format.
+ *
+ * @param ms The milliseconds.
+ */
+export function msToClock(ms: number) {
+    const total = Math.max(0, Math.floor(ms / 1000))
+    const mm = Math.floor(total / 60)
+        .toString()
+        .padStart(2, "0")
+    const ss = (total % 60).toString().padStart(2, "0")
+    return `${mm}:${ss}`
+}
+
+/**
+ * Clamp a number between a floor and a ceiling.
+ */
+export function clamp(n: number, min: number, max: number) {
+    return Math.min(max, Math.max(min, n))
 }

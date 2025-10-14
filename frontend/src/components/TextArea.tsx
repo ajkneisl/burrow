@@ -1,11 +1,17 @@
 import { type DetailedHTMLProps, type TextareaHTMLAttributes } from "react"
 import clsx from "clsx"
 
+/**
+ * {@see TextArea}
+ */
 type TextAreaProps = {} & DetailedHTMLProps<
     TextareaHTMLAttributes<HTMLTextAreaElement>,
     HTMLTextAreaElement
 >
 
+/**
+ * A generic TextArea.
+ */
 export default function TextArea(props: TextAreaProps) {
     return (
         <textarea
