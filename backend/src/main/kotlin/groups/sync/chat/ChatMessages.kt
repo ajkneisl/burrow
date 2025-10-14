@@ -1,4 +1,4 @@
-package app.burrow.groups.chat
+package app.burrow.groups.sync.chat
 
 import app.burrow.account.Users
 import app.burrow.groups.Meetings

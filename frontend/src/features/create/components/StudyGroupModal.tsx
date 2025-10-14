@@ -1,5 +1,4 @@
-import React, { useEffect, useId, useRef, useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
+import React, { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router"
 import type {
     GroupMeeting,
@@ -9,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import Input from "@components/Input.tsx"
 import TextArea from "@components/TextArea.tsx"
 import Button from "@components/Button.tsx"
+import Modal from "@components/Modal"
 
 /**
  * {@link StudyGroupModal}
@@ -56,9 +56,6 @@ export default function StudyGroupModal({
     const nav = useNavigate()
 
     const queryClient = useQueryClient()
-
-    const id = useId()
-    const dialogRef = useRef<HTMLDivElement>(null)
     const firstFieldRef = useRef<HTMLInputElement>(null)
 
     const [title, setTitle] = useState("")
@@ -237,282 +234,136 @@ export default function StudyGroupModal({
         ])
     }
 
-    // ensure tab focusing remains in the modal
-    useEffect(() => {
-        if (!open) return
-        const dialogElement = dialogRef.current
-
-        if (!dialogElement) return
-        const selectors =
-            'a, button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
-
-        const focusables = () =>
-            Array.from(
-                dialogElement.querySelectorAll<HTMLElement>(selectors)
-            ).filter((n) => !n.hasAttribute("disabled"))
-
-        function onKeyDown(event: KeyboardEvent) {
-            if (event.key !== "Tab") return
-
-            const nodes = focusables()
-            if (nodes.length === 0) return
-
-            const first = nodes[0]
-            const last = nodes[nodes.length - 1]
-
-            if (event.shiftKey && document.activeElement === first) {
-                last.focus()
-                event.preventDefault()
-            } else if (!event.shiftKey && document.activeElement === last) {
-                first.focus()
-                event.preventDefault()
-            }
-        }
-
-        dialogElement.addEventListener("keydown", onKeyDown as any)
-        return () =>
-            dialogElement.removeEventListener("keydown", onKeyDown as any)
-    }, [open])
-
     return (
-        <AnimatePresence>
-            {open && (
-                <div className="fixed inset-0 z-50 overflow-y-scroll">
-                    <motion.div
-                        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={onClose}
-                        aria-hidden
-                    />
-
-                    <motion.div
-                        ref={dialogRef}
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby={`${id}-title`}
-                        aria-describedby={`${id}-desc`}
-                        className="absolute inset-0 grid place-items-center p-4"
-                        initial={{ opacity: 0, scale: 0.96, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.98, y: 6 }}
-                        transition={{
-                            type: "spring",
-                            stiffness: 380,
-                            damping: 28
-                        }}
-                    >
-                        <form
-                            onSubmit={handleSubmit}
-                            className="text-text w-full max-w-2xl rounded-2xl border border-background/80 bg-background shadow-xl ring-1 ring-black/5 backdrop-blur"
-                        >
-                            {/* errors.. uh oh! */}
-                            {serverErrors.length > 0 && (
-                                <div className="mx-5 mt-4 mb-0 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">
-                                    <p className="font-medium mb-1">
-                                        Please fix the following:
-                                    </p>
-                                    <ul className="list-disc pl-5 space-y-1">
-                                        {serverErrors.map((err, i) => (
-                                            <li key={i}>{err}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-
-                            <header
-                                className={`flex items-center justify-between gap-4 px-6 py-5 border-b`}
-                            >
-                                <div>
-                                    <h2
-                                        id={`${id}-title`}
-                                        className="text-xl font-semibold tracking-tight"
-                                    >
-                                        {modalTitle ??
-                                            (mode === "update"
-                                                ? "Update Study Group"
-                                                : "Create a Study Group")}
-                                    </h2>
-                                    <p
-                                        id={`${id}-desc`}
-                                        className="mt-0.5 text-sm leading-6 text-text/60"
-                                    >
-                                        {mode === "update"
-                                            ? "Modify the details below and save your changes."
-                                            : "Fill details below and publish your meeting."}
-                                    </p>
-                                </div>
-
-                                {/* header close button */}
-                                <button
-                                    type="button"
-                                    onClick={onClose}
-                                    className="grid place-items-center h-9 w-9 rounded-full hover:bg-neutral-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
-                                    aria-label="Close"
-                                >
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        className="w-5 h-5"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth={2}
-                                    >
-                                        <path d="M6 6l12 12M18 6 6 18" />
-                                    </svg>
-                                </button>
-                            </header>
-
-                            <div className="grid gap-6 px-6 py-6 md:grid-cols-2">
-                                {/* title of the session */}
-                                <Field
-                                    label="Title"
-                                    error={errors.title}
-                                    className="min-w-0"
-                                >
-                                    <Input
-                                        ref={firstFieldRef}
-                                        value={title}
-                                        onChange={(e) =>
-                                            setTitle(e.target.value)
-                                        }
-                                        error={errors.title !== undefined}
-                                        placeholder="PHYS 1301W Final"
-                                    />
-                                </Field>
-
-                                {/* location of the session */}
-                                <Field label="Location" error={errors.location}>
-                                    <Input
-                                        value={location}
-                                        onChange={(e) =>
-                                            setLocation(e.target.value)
-                                        }
-                                        error={errors.location !== undefined}
-                                        placeholder="Hall & Room"
-                                    />
-                                </Field>
-
-                                {/* capacity */}
-                                <Field label="Max Participants (optional)">
-                                    <Input
-                                        inputMode="numeric"
-                                        pattern="[0-9]*"
-                                        value={capacity}
-                                        onChange={(e) => {
-                                            const value = e.target.value
-                                            if (value === "")
-                                                return setCapacity("")
-
-                                            const num = Number(
-                                                value.replace(/\D/g, "")
-                                            )
-                                            if (!Number.isNaN(num))
-                                                setCapacity(num)
-                                        }}
-                                        placeholder="5"
-                                    />
-                                </Field>
-
-                                {/* tags*/}
-                                <Field
-                                    label="Tags (comma separated)"
-                                    className="min-w-0"
-                                >
-                                    <Input
-                                        value={tags}
-                                        onChange={(e) =>
-                                            setTags(e.target.value)
-                                        }
-                                        placeholder="PHYS, FINAL, etc."
-                                    />
-                                </Field>
-
-                                {/* description */}
-                                <Field
-                                    label="Description"
-                                    className="md:col-span-2 min-w-0"
-                                >
-                                    <TextArea
-                                        value={description}
-                                        onChange={(e) =>
-                                            setDescription(e.target.value)
-                                        }
-                                        placeholder="What're you studying? Who are you looking for?"
-                                    />
-                                </Field>
-
-                                {/* date */}
-                                <Field
-                                    label="Date"
-                                    error={errors.date}
-                                    className="min-w-0"
-                                >
-                                    <Input
-                                        type="date"
-                                        value={date}
-                                        onChange={(e) =>
-                                            setDate(e.target.value)
-                                        }
-                                        error={errors.date !== undefined}
-                                    />
-                                </Field>
-
-                                {/* time */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                                    {/* start */}
-                                    <Field
-                                        label="Start"
-                                        error={errors.startTime}
-                                        className="min-w-0"
-                                    >
-                                        <Input
-                                            type="time"
-                                            value={startTime}
-                                            onChange={(e) =>
-                                                setStartTime(e.target.value)
-                                            }
-                                            error={
-                                                errors.startTime !== undefined
-                                            }
-                                        />
-                                    </Field>
-
-                                    {/* end */}
-                                    <Field
-                                        label="End"
-                                        error={errors.endTime}
-                                        className="min-w-0"
-                                    >
-                                        <Input
-                                            type="time"
-                                            value={endTime}
-                                            onChange={(e) =>
-                                                setEndTime(e.target.value)
-                                            }
-                                            error={errors.endTime !== undefined}
-                                        />
-                                    </Field>
-                                </div>
-                            </div>
-
-                            {/* controls */}
-                            <footer className="flex items-center justify-end gap-3 px-6 py-4 border-t rounded-b-2xl">
-                                <Button color="ERROR" type="button" onClick={onClose}>
-                                    Cancel
-                                </Button>
-
-                                <Button color={"SUCCESS"} type="submit">
-                                    {mode === "update"
-                                        ? "Save Changes"
-                                        : "Create"}
-                                </Button>
-                            </footer>
-                        </form>
-                    </motion.div>
+        <Modal
+            open={open}
+            onClose={onClose}
+            title={
+                modalTitle ??
+                (mode === "update" ? "Update Study Group" : "Create a Study Group")
+            }
+            footer={
+                <div className="flex items-center justify-end gap-3">
+                    <Button color="ERROR" type="button" onClick={onClose}>
+                        Cancel
+                    </Button>
+                    <Button color="SUCCESS" type="submit" form="study-form">
+                        {mode === "update" ? "Save Changes" : "Create"}
+                    </Button>
                 </div>
-            )}
-        </AnimatePresence>
+            }
+            widthClass="max-w-2xl"
+        >
+            <form id="study-form" onSubmit={handleSubmit}>
+                {/* errors.. uh oh! */}
+                {serverErrors.length > 0 && (
+                    <div className="mx-0 mt-0 mb-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">
+                        <p className="font-medium mb-1">Please fix the following:</p>
+                        <ul className="list-disc pl-5 space-y-1">
+                            {serverErrors.map((err, i) => (
+                                <li key={i}>{err}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
+                <p className="mt-0.5 mb-4 text-sm leading-6 text-text/60">
+                    {mode === "update"
+                        ? "Modify the details below and save your changes."
+                        : "Fill details below and publish your meeting."}
+                </p>
+
+                <div className="grid gap-6 md:grid-cols-2">
+                    {/* title of the session */}
+                    <Field label="Title" error={errors.title} className="min-w-0">
+                        <Input
+                            ref={firstFieldRef}
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            error={errors.title !== undefined}
+                            placeholder="PHYS 1301W Final"
+                        />
+                    </Field>
+
+                    {/* location of the session */}
+                    <Field label="Location" error={errors.location}>
+                        <Input
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            error={errors.location !== undefined}
+                            placeholder="Hall & Room"
+                        />
+                    </Field>
+
+                    {/* capacity */}
+                    <Field label="Max Participants (optional)">
+                        <Input
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value={capacity}
+                            onChange={(e) => {
+                                const value = e.target.value
+                                if (value === "") return setCapacity("")
+                                const num = Number(value.replace(/\D/g, ""))
+                                if (!Number.isNaN(num)) setCapacity(num)
+                            }}
+                            placeholder="5"
+                        />
+                    </Field>
+
+                    {/* tags*/}
+                    <Field label="Tags (comma separated)" className="min-w-0">
+                        <Input
+                            value={tags}
+                            onChange={(e) => setTags(e.target.value)}
+                            placeholder="PHYS, FINAL, etc."
+                        />
+                    </Field>
+
+                    {/* description */}
+                    <Field label="Description" className="md:col-span-2 min-w-0">
+                        <TextArea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="What're you studying? Who are you looking for?"
+                        />
+                    </Field>
+
+                    {/* date */}
+                    <Field label="Date" error={errors.date} className="min-w-0">
+                        <Input
+                            type="date"
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
+                            error={errors.date !== undefined}
+                        />
+                    </Field>
+
+                    {/* time */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        {/* start */}
+                        <Field label="Start" error={errors.startTime} className="min-w-0">
+                            <Input
+                                type="time"
+                                value={startTime}
+                                onChange={(e) => setStartTime(e.target.value)}
+                                error={errors.startTime !== undefined}
+                            />
+                        </Field>
+
+                        {/* end */}
+                        <Field label="End" error={errors.endTime} className="min-w-0">
+                            <Input
+                                type="time"
+                                value={endTime}
+                                onChange={(e) => setEndTime(e.target.value)}
+                                error={errors.endTime !== undefined}
+                            />
+                        </Field>
+                    </div>
+                </div>
+            </form>
+        </Modal>
     )
 }
 

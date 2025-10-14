@@ -6,10 +6,13 @@ import app.burrow.groups.bookmarks.Bookmark
 import app.burrow.groups.bookmarks.Bookmarks
 import app.burrow.groups.membership.Membership
 import app.burrow.groups.membership.Memberships
+import app.burrow.groups.sync.block.BlockStates
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
-import kotlinx.datetime.toKotlinLocalDate
+import java.time.Instant
+import java.time.ZoneId
 import java.util.UUID
+import kotlinx.datetime.toKotlinLocalDate
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Op
@@ -30,8 +33,6 @@ import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
-import java.time.Instant
-import java.time.ZoneId
 
 /**
  * A group meeting.
@@ -137,6 +138,13 @@ suspend fun createGroupMeeting(id: String, meeting: SubmittedGroupMeeting): Grou
             it[Memberships.role] = MeetingRole.HOST
             it[Memberships.status] = MeetingMemberStatus.JOINED
             it[Memberships.joinedAt] = getTimeMillis()
+        }
+
+        // by default, enable CHAT
+        BlockStates.insert {
+            it[BlockStates.meetingId] = groupMeeting.id
+            it[BlockStates.block] = "CHAT"
+            it[BlockStates.data] = "{}"
         }
     }
 

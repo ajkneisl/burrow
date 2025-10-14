@@ -1,10 +1,14 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
-import useToken from "@features/auth/api/hooks/useToken.ts"
-import { BASE_URL } from "@api/util.ts"
 import Chat from "@features/chat/components/Chat.tsx"
 import useUser from "@features/auth/api/hooks/useUser.ts"
 import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
 import type { ChatMember, ChatMessage } from "@features/chat/api/chat.types.ts"
+import {
+    type SyncIncomingEvent,
+    SyncOutgoingEvent
+} from "@features/sync/api/sync.types.ts"
+import { useAtom } from "jotai"
+import { syncStatus } from "@features/sync/api/sync.atom.ts"
 
 /**
  * {@link ChatBox}
@@ -22,17 +26,13 @@ type ChatBoxProps = {
 export default function ChatBox({ meeting }: ChatBoxProps) {
     const [messages, setMessages] = useState<ChatMessage[]>([])
     const [text, setText] = useState("")
-    const [status, setStatus] = useState<
-        "connecting" | "open" | "closed" | "error"
-    >("connecting")
+    const [status] = useAtom(syncStatus)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editingOriginal, setEditingOriginal] = useState<string>("")
     const [names, setNames] = useState<Record<string, string>>({})
 
     const listRef = useRef<HTMLDivElement | null>(null)
-    const socketRef = useRef<WebSocket | null>(null)
 
-    const auth = useToken()
     const user = useUser()
     const meetingId = meeting.meeting.id
 
@@ -44,105 +44,95 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
     }, [meeting.membership?.role])
 
     useEffect(() => {
-        if (auth === null || auth === "") return
-
-        const base = BASE_URL.replaceAll("https://", "wss://").replaceAll(
-            "http://",
-            "ws://"
+        // receive history
+        window.dispatchEvent(
+            new SyncOutgoingEvent({
+                block: "CHAT",
+                action: "RECEIVE_HISTORY",
+                data: { page: "0" }
+            })
         )
-        const ws = new WebSocket(`${base}/groups/${meetingId}/chat`)
 
-        socketRef.current = ws
+        // receive members
+        window.dispatchEvent(
+            new SyncOutgoingEvent({
+                block: "CHAT",
+                action: "RECEIVE_MEMBERS",
+                data: {}
+            })
+        )
 
-        setStatus("connecting")
+        function onState(event: Event) {
+            const payload = (event as SyncIncomingEvent).response
 
-        ws.onopen = () => {
-            setStatus("open")
+            switch (payload.type) {
+                // receive message history
+                case "HISTORY": {
+                    const messageHistory = payload.payload
+                        .messages as ChatMessage[]
 
-            ws.send(
-                JSON.stringify({
-                    action: "AUTHORIZE",
-                    token: auth
-                })
-            )
-        }
-
-        ws.onmessage = (ev) => {
-            try {
-                const payload = JSON.parse(ev.data)
-
-                switch (payload.action) {
-                    // receive message history
-                    case "HISTORY": {
-                        const messageHistory = payload.payload
-                            .messages as ChatMessage[]
-
-                        setMessages(
-                            messageHistory.sort((a, b) => a.date - b.date)
-                        )
-                        break
-                    }
-
-                    // receive member names
-                    case "MEMBERS": {
-                        const members: ChatMember[] = payload.payload
-
-                        for (let i = 0; members.length > i; i++) {
-                            const member = members[i]
-
-                            setNames((prev) => ({
-                                ...prev,
-                                [member.userId]: member.name
-                            }))
-                        }
-
-                        break
-                    }
-
-                    // incoming message
-                    case "NEW_MESSAGE":
-                        setMessages((prev) => [
-                            ...prev,
-                            payload.payload as ChatMessage
-                        ])
-                        break
-
-                    // deleted message
-                    case "MESSAGE_DELETED":
-                        setMessages((prev) =>
-                            prev.filter(
-                                (message) =>
-                                    message.messageId !==
-                                    payload.payload.messageId
-                            )
-                        )
-                        break
-
-                    // updated message
-                    case "MESSAGE_UPDATED":
-                        setMessages((prev) =>
-                            prev.map((msg) =>
-                                msg.messageId === payload.payload.messageId
-                                    ? {
-                                          ...msg,
-                                          message: payload.payload.newMessage
-                                      }
-                                    : msg
-                            )
-                        )
-                        break
+                    setMessages(messageHistory.sort((a, b) => a.date - b.date))
+                    break
                 }
-            } catch {}
+
+                // receive member names
+                case "MEMBERS": {
+                    const members: ChatMember[] = payload.payload
+
+                    for (let i = 0; members.length > i; i++) {
+                        const member = members[i]
+
+                        setNames((prev) => ({
+                            ...prev,
+                            [member.userId]: member.name
+                        }))
+                    }
+
+                    break
+                }
+
+                // incoming message
+                case "NEW_MESSAGE":
+                    setMessages((prev) => [
+                        ...prev,
+                        payload.payload as ChatMessage
+                    ])
+                    break
+
+                // deleted message
+                case "MESSAGE_DELETED":
+                    setMessages((prev) =>
+                        prev.filter(
+                            (message) =>
+                                message.messageId !== payload.payload.messageId
+                        )
+                    )
+                    break
+
+                // updated message
+                case "MESSAGE_UPDATED":
+                    setMessages((prev) =>
+                        prev.map((msg) =>
+                            msg.messageId === payload.payload.messageId
+                                ? {
+                                      ...msg,
+                                      message: payload.payload.newMessage
+                                  }
+                                : msg
+                        )
+                    )
+                    break
+            }
         }
 
-        ws.onerror = () => setStatus("error")
-        ws.onclose = () => setStatus("closed")
+        window.addEventListener("CHAT_INCOMING", onState as EventListener)
 
-        return () => {
-            ws.close()
-            socketRef.current = null
-        }
-    }, [auth, meetingId])
+        return () =>
+            window.removeEventListener(
+                "CHAT_INCOMING",
+                onState as EventListener
+            )
+    }, [meetingId])
 
     useLayoutEffect(() => {
         const el = listRef.current
@@ -152,10 +142,16 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
 
     // delete a message
     function deleteMessage(id: string) {
-        const ws = socketRef.current
-        if (!ws || ws.readyState !== WebSocket.OPEN) return
+        if (status !== "LIVE") return
 
-        ws.send(JSON.stringify({ action: "DELETE_MESSAGE", id }))
+        window.dispatchEvent(
+            new SyncOutgoingEvent({
+                block: "CHAT",
+                action: "DELETE_MESSAGE",
+                data: { id }
+            })
+        )
+
         setText("")
     }
 
@@ -175,18 +171,16 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
 
     // save an edit and send to socket
     function saveEdit() {
-        const ws = socketRef.current
-        const trimmed = text.trim()
-        if (!editingId || !ws || ws.readyState !== WebSocket.OPEN || !trimmed)
-            return
+        const contents = text.trim()
+        if (status !== "LIVE" || !contents || !editingId) return
 
-        if (editingOriginal === trimmed) cancelEdit()
+        if (editingOriginal === contents) cancelEdit()
 
-        ws.send(
-            JSON.stringify({
+        window.dispatchEvent(
+            new SyncOutgoingEvent({
+                block: "CHAT",
                 action: "EDIT_MESSAGE",
-                id: editingId,
-                contents: trimmed
+                data: { contents, id: editingId }
             })
         )
 
@@ -203,12 +197,16 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
             return
         }
 
-        const trimmed = text.trim()
-        if (!trimmed) return
-        const ws = socketRef.current
-        if (!ws || ws.readyState !== WebSocket.OPEN) return
+        const message = text.trim()
+        if (!message || status !== "LIVE") return
 
-        ws.send(JSON.stringify({ action: "CREATE_MESSAGE", message: trimmed }))
+        window.dispatchEvent(
+            new SyncOutgoingEvent({
+                block: "CHAT",
+                action: "CREATE_MESSAGE",
+                data: { message }
+            })
+        )
         setText("")
     }
 
@@ -217,10 +215,10 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
             <header className="border-b border-primary/30 px-4 py-3 flex items-center justify-between">
                 <h3 className="font-semibold">Chat</h3>
                 <span className="text-xs font-semibold">
-                    {status === "connecting" && "Connecting…"}
-                    {status === "open" && "Live"}
-                    {status === "closed" && "Disconnected"}
-                    {status === "error" && "Error"}
+                    {status === "CONNECTING" && "Connecting…"}
+                    {status === "LIVE" && "Live"}
+                    {status === "DISCONNECTED" && "Disconnected"}
+                    {status === "ERROR" && "Error"}
                 </span>
             </header>
 
@@ -246,7 +244,9 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                 )}
             </div>
 
-            <div className={`py-2 ${!editingId && `border-t border-primary/80`}`}>
+            <div
+                className={`py-2 ${!editingId && `border-t border-primary/80`}`}
+            >
                 {editingId && (
                     <div className="relative mb-2 flex flex-col items-center rounded-t-lg border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm">
                         <div className="flex items-center gap-2">
@@ -269,15 +269,19 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && send()}
-                        placeholder="Write a message…"
+                        placeholder={
+                            status === "LIVE"
+                                ? "Write a message…"
+                                : "You are disconnected."
+                        }
                         className="input input-bordered w-full text-sm"
-                        disabled={status !== "open"}
+                        disabled={status !== "LIVE"}
                     />
 
                     <button
                         onClick={send}
                         className={`cursor-pointer text-sm rounded-md px-3 py-1.5 font-medium shadow-sm transition ${editingId ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-900 text-white hover:bg-gray-800"}`}
-                        disabled={status !== "open" || !text.trim()}
+                        disabled={status !== "LIVE" || !text.trim()}
                     >
                         {editingId ? "Save" : "Send"}
                     </button>

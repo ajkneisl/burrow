@@ -49,6 +49,17 @@ data class Membership(
 }
 
 /**
+ * Check if the user is a moderator.
+ *
+ * @param meetingId The meeting to check in.
+ */
+suspend infix fun String.isModerator(meetingId: String): Boolean {
+    val membership = getMembership(this, meetingId)
+
+    return membership != null && membership.role != MeetingRole.MEMBER
+}
+
+/**
  * A response when retrieving a membership.
  *
  * @param membership A membership to a meeting.

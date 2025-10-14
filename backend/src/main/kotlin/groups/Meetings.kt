@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.Table
 
 /** A meeting. */
 object Meetings : Table("group_meetings") {
-    val id = varchar("id", 64)
+    val id = varchar("id", 64).uniqueIndex()
     val owner = reference("owner", Users.googleID, onDelete = ReferenceOption.CASCADE)
 
     val title = varchar("title", 255)
