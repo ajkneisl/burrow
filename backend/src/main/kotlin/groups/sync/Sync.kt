@@ -40,6 +40,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import org.jetbrains.exposed.sql.selectAll
+import kotlin.text.get
+import kotlin.text.set
 
 /**
  * Handles features that need to be synced among groups.
@@ -92,12 +94,15 @@ object Sync {
      * @param blockName The name of the block to add.
      */
     fun addBlock(meetingId: String, blockName: String) {
-        val blockInstance = BLOCKS[blockName]?.primaryConstructor?.call(meetingId) as Block?
-        val currentCache = MEETING_BLOCK_STATE[blockName]?.toMutableMap() ?: mutableMapOf()
+        val key = blockName.uppercase()
+        val blockClass = BLOCKS[key] ?: return
+        val blockInstance = blockClass.primaryConstructor?.call(meetingId) as? Block
 
-        currentCache[blockName] = blockInstance
-
-        MEETING_BLOCK_STATE[blockName] = currentCache
+        MEETING_BLOCK_STATE.compute(meetingId) { _, current ->
+            val next = (current?.toMutableMap() ?: mutableMapOf())
+            next[key] = blockInstance
+            next
+        }
     }
 
     /**
