@@ -7,6 +7,7 @@ import { useAtom } from "jotai"
 import { newUser } from "@features/auth/api/auth.atom.ts"
 import NewUserIntro from "@pages/home/components/NewUserIntro.tsx"
 
+
 /**
  * The homepage `/`.
  *
@@ -39,19 +40,23 @@ export default function HomeView() {
                 aria-label="Group discovery"
                 className="col-span-3 lg:col-span-2 space-y-6 mt-4"
             >
+                <div className="w-full m-0">
                 <PreviewGroupMeetings
                     title={"Study Groups"}
                     fullPage={"/study"}
                     kind={"STUDY"}
                     amount={3}
                 />
+                </div>
             </section>
 
             <aside
                 aria-label="Utilities"
                 className="col-span-3 lg:col-span-1 space-y-6"
             >
+                <div className="meeting-wrpr">
                 <Schedule />
+                </div>
             </aside>
         </div>
     )

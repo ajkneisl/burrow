@@ -58,47 +58,5 @@
     transition: all 0.2s ease-in-out;
 }
 
-.btn-wrapper{
-    display: grid;
-    place-items: center;
-    box-shadow: 0 0 10px hsla(0, 0%, 0%, 0.28);
-    border-radius: 30px;
-    align-content: center;
-    box-sizing: border-box;
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 
-}
 
-.btn-wrapper:hover:before {
-    opacity: 0.2;
-    transform: scale(1.2, 1.2);
-    filter: blur(10px);
-    outline: white;
-    border: 2px white;
-}
-.btn-wrapper:hover {
-    text-decoration: underline;
-    text-decoration-color: dimgray;
-    transform: scale(1.1, 1.1);
-    transition: all 0.2s ease-in-out;
-    outline: white;
-}
-.btn {
-    position: relative;
-    z-index: 1;
-}
-.back-btn{
-    font-family: "Figtree", sans-serif;
-    font-size: 20px;
-    text-align: center;
-    font-weight: bold;
-    display: flex;
-    gap: 4px;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    align-content: center;
-}
