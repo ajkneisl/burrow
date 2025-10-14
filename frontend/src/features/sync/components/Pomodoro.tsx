@@ -75,7 +75,7 @@ export default function Pomodoro({ meetingId, membership }: PomodoroProps) {
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                     <span
-                        className={`px-2.5 py-1 rounded-full text-xs font-medium border ${state.isActive ? "bg-success/10 text-success border-success/20" : "bg-[color:var(--color-hero)] text-[var(--color-text)]/70 border-primary/10"}`}
+                        className={`px-2.5 py-1 rounded-full text-xs font-medium border ${state.isActive ? "bg-success/10 text-success border-success/20" : "bg-hero text-text/70 border-primary/10"}`}
                     >
                         {state.isActive ? "Active" : "Idle"}
                     </span>
@@ -93,12 +93,12 @@ export default function Pomodoro({ meetingId, membership }: PomodoroProps) {
             </div>
 
             <div className="flex flex-col items-center">
-                <div className="text-6xl font-bold tabular-nums tracking-tight select-none text-[var(--color-text)]">
+                <div className="text-6xl font-bold tabular-nums tracking-tight select-none text-text">
                     {msToClock(optimisticRemaining)}
                 </div>
 
                 <div className="w-full mt-4">
-                    <div className="h-2 rounded-full bg-[color:var(--color-hero)]/60 overflow-hidden">
+                    <div className="h-2 rounded-full bg-hero/60 overflow-hidden">
                         <div
                             className="h-full bg-primary transition-[width] duration-300"
                             style={{ width: `${clamp(progress, 0, 100)}%` }}
@@ -106,7 +106,7 @@ export default function Pomodoro({ meetingId, membership }: PomodoroProps) {
                     </div>
                 </div>
 
-                <div className="text-xs text-[var(--color-text)]/60 mt-2">
+                <div className="text-xs text-text/60 mt-2">
                     {state.isActive
                         ? `Started ${new Date(state.startedAt).toLocaleTimeString()}`
                         : "Timer stopped"}

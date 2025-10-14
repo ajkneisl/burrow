@@ -1,12 +1,12 @@
 export default function Privacy() {
     return (
-        <main className="min-h-screen bg-[rgb(var(--background-color))] text-[rgb(var(--text-color))]">
+        <main className="min-h-screen bg-background text-text">
             <section className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10">
                 <header className="mb-8">
                     <h1 className="text-3xl font-extrabold tracking-tight text-secondary">
                         Privacy Policy
                     </h1>
-                    <p className="mt-2 text-sm text-[rgb(var(--text-color))/0.75]">
+                    <p className="mt-2 text-sm text-text/0.75">
                         <span className="font-medium">Effective:</span>{" "}
                         {"October 7, 2025"} &nbsp;•&nbsp;
                         <span className="font-medium">Last Updated:</span>{" "}
@@ -14,7 +14,7 @@ export default function Privacy() {
                     </p>
                 </header>
 
-                <div className="rounded-2xl border border-[rgb(var(--text-color))/0.12] bg-[var(--card-background-color)] p-6 shadow-sm">
+                <div className="rounded-2xl border border-text/0.12 bg-background p-6 shadow-sm">
                     <p className="mb-6">
                         At <span className="font-semibold">Burrow (umn.app)</span>, your
                         privacy is important to us. This policy explains what we
@@ -100,7 +100,7 @@ export default function Privacy() {
                             emailing{" "}
                             <a
                                 href="mailto:privacy@umn.app"
-                                className="underline text-[rgb(var(--info-color))] hover:text-[rgb(var(--info-hover-color))]"
+                                className="underline text-info hover:text-info-hover"
                             >
                                 privacy@umn.app
                             </a>
@@ -144,7 +144,7 @@ export default function Privacy() {
                             To exercise these rights, contact us at{" "}
                             <a
                                 href="mailto:privacy@umn.app"
-                                className="underline text-[rgb(var(--info-color))] hover:text-[rgb(var(--info-hover-color))]"
+                                className="underline text-info hover:text-info-hover"
                             >
                                 privacy@umn.app
                             </a>
@@ -174,7 +174,7 @@ export default function Privacy() {
                             Questions or requests? Email{" "}
                             <a
                                 href="mailto:privacy@umn.app"
-                                className="underline text-[rgb(var(--info-color))] hover:text-[rgb(var(--info-hover-color))]"
+                                className="underline text-info hover:text-info-hover"
                             >
                                 privacy@umn.app
                             </a>

@@ -1,17 +1,17 @@
 export default function ToS() {
     return (
-        <main className="min-h-screen bg-[rgb(var(--background-color))] text-[rgb(var(--text-color))]">
+        <main className="min-h-screen bg-background text-text">
             <section className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10">
                 <header className="mb-8">
                     <h1 className="text-3xl font-extrabold tracking-tight text-secondary">
                         Terms of Service
                     </h1>
-                    <p className="mt-2 text-sm text-[rgb(var(--text-color))/0.75]">
+                    <p className="mt-2 text-sm text-text/0.75">
                         Effective Date: October 7, 2025
                     </p>
                 </header>
 
-                <div className="rounded-2xl border border-[rgb(var(--text-color))/0.12] bg-[var(--card-background-color)] p-6 shadow-sm">
+                <div className="rounded-2xl border border-text/0.12 bg-background p-6 shadow-sm">
                     <p className="mb-6">
                         Welcome to <span className="font-semibold">Burrow</span>
                         , a study group and meeting platform designed to help
@@ -183,7 +183,7 @@ export default function ToS() {
                             us at{" "}
                             <a
                                 href="mailto:privacy@umn.app"
-                                className="underline text-[rgb(var(--info-color))] hover:text-[rgb(var(--info-hover-color))]"
+                                className="underline text-info hover:text-info-hover"
                             >
                                 privacy@umn.app
                             </a>
