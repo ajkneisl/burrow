@@ -66,7 +66,30 @@ function App() {
         <div className="gopher-stand bg-background text-text min-h-screen w-full flex flex-col bg-background-color transition-colors duration-300">
             {auth !== null && <Header />}
 
-            <Toaster />
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    style: {
+                        background: "var(--card-background-color)",
+                        color: "var(--text-color",
+                        border: "1px solid var(--hero-color)",
+                        borderRadius: "0.75rem",
+                        padding: "0.75rem 1rem",
+                    },
+                    success: {
+                        iconTheme: {
+                            primary: "var(--success-color)",
+                            secondary: "var(--card-background-color)",
+                        },
+                    },
+                    error: {
+                        iconTheme: {
+                            primary: "var(--error-color))",
+                            secondary: "var(--card-background-color)",
+                        },
+                    },
+                }}
+            />
 
             <main className="max-w-screen md:min-w-xl md:m-auto mb-8 mx-4 flex-grow">
                 <CreateStudyGroupModal

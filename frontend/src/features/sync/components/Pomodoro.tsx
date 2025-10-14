@@ -48,6 +48,7 @@ export default function Pomodoro({ meetingId, membership }: PomodoroProps) {
     // compute optimistic remaining based on last server snapshot
     const optimisticRemaining = useMemo(() => {
         if (!state.isActive || state.startedAt === 0) return state.durationMs
+
         const elapsed = Math.max(0, now - state.startedAt)
 
         return Math.max(0, state.durationMs - elapsed)

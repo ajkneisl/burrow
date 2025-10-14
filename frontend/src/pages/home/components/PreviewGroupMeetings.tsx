@@ -5,6 +5,7 @@ import useToken from "@features/auth/api/hooks/useToken.ts"
 import type { GroupType } from "@features/groups/api/groups.types.ts"
 import { getMeetings } from "@features/groups/api/groups.api.ts"
 import Button from "@components/Button.tsx"
+import CreateButton from "@features/layout/components/CreateButton.tsx"
 
 /**
  * A skeleton loading card.
@@ -12,16 +13,16 @@ import Button from "@components/Button.tsx"
  */
 function SkeletonCard() {
     return (
-        <div className="w-full rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="w-full rounded-2xl border border-hero bg-card p-5 shadow-sm">
             <div className="animate-pulse space-y-4">
-                <div className="h-4 w-2/3 rounded bg-gray-200" />
-                <div className="h-3 w-1/3 rounded bg-gray-200" />
+                <div className="h-4 w-2/3 rounded bg-hero" />
+                <div className="h-3 w-1/3 rounded bg-hero" />
                 <div className="flex gap-2">
-                    <div className="h-4 w-16 rounded-full bg-gray-200" />
-                    <div className="h-4 w-12 rounded-full bg-gray-200" />
-                    <div className="h-4 w-14 rounded-full bg-gray-200" />
+                    <div className="h-4 w-16 rounded-full bg-hero" />
+                    <div className="h-4 w-12 rounded-full bg-hero" />
+                    <div className="h-4 w-14 rounded-full bg-hero" />
                 </div>
-                <div className="h-4 w-40 rounded bg-gray-200" />
+                <div className="h-4 w-40 rounded bg-hero" />
             </div>
         </div>
     )
@@ -103,12 +104,15 @@ export default function PreviewGroupMeetings({
 
     return (
         <div>
-            <div className="flex flex-row justify-between items-center">
-                <h1 className="mb-2 text-2xl mt-4 figtree">{title}</h1>
-                {data.length >= amount && (
-                    <Button className="mt-2" thin onClick={() => nav(fullPage)}>
+            <div className="flex flex-row justify-between items-center mb-2 mt-4">
+                <h1 className="text-2xl figtree">{title}</h1>
+
+                {data.length >= amount ? (
+                    <Button onClick={() => nav(fullPage)}>
                         View all
                     </Button>
+                ) : (
+                    <CreateButton />
                 )}
             </div>
 
@@ -118,19 +122,12 @@ export default function PreviewGroupMeetings({
                         .slice(0, amount)
                         .map((meeting) => <GroupMeetingCard {...meeting} />)
                 ) : (
-                    <p>There are currently no upcoming meetings.</p>
+                    <div className="flex flex-col items-center gap-2 justify-start w-full">
+                        <p className="text-text/70 self-start">
+                            Nothing upcoming, start a Burrow :)
+                        </p>
+                    </div>
                 )}
-
-                {/* only show the view all button when there's more meetings than can be displayed */}
-
-                {/*{data.length >= amount && (*/}
-                {/*    <button*/}
-                {/*        onClick={() => nav(fullPage)}*/}
-                {/*        className="self-center w-1/2 cursor-pointer hover:bg-gray-300 transition-all bg-gray-200 rounded-lg px-4 py-2"*/}
-                {/*    >*/}
-                {/*        View all*/}
-                {/*    </button>*/}
-                {/*)}*/}
             </div>
         </div>
     )

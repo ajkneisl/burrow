@@ -47,7 +47,7 @@ export default function ViewAttendees() {
     return (
         <div className="mx-auto w-full">
             {isLoading && (
-                <div className="rounded-lg border border-gray-200 bg-white p-4 text-gray-600">
+                <div className="rounded-lg border border-hero bg-card p-4 text-text">
                     Loading attendees…
                 </div>
             )}

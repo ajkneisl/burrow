@@ -192,13 +192,11 @@ suspend fun banUser(moderator: String, user: String, meeting: String) {
  * @param role The new role.
  */
 suspend fun changeRole(meetingId: String, userId: String, role: MeetingRole) {
-    val userMembership =
-        query {
-                Memberships.selectAll().where {
-                    Memberships.userId eq userId and (Memberships.meetingId eq meetingId)
-                }
-            }
+    val userMembership = query {
+        Memberships.selectAll()
+            .where { Memberships.userId eq userId and (Memberships.meetingId eq meetingId) }
             .firstOrNull()
+    }
 
     if (userMembership == null) {
         throw ServerError(400, "User is not in this meeting!")
