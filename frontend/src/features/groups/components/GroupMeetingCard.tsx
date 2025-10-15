@@ -4,6 +4,7 @@ import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
 import useUser from "@features/auth/api/hooks/useUser.ts"
 import MeetingCapacityBadges from "@features/groups/components/MeetingCapacityBadges.tsx"
 import { formatDateTime } from "@api/util.ts"
+import Card from "@components/Card.tsx"
 
 /**
  * A group card, both study and club meetings.
@@ -24,10 +25,7 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
     }
 
     return (
-        <article
-            onClick={onClick}
-            className="card group bg-card cursor-pointer w-full rounded-2xl border border-primary/20 p-5 shadow-sm ring-1 ring-primary/5 transition-all hover:border-primary/30 hover:shadow-md focus-within:ring-2 focus-within:ring-primary/40"
-        >
+        <Card onClick={onClick} isHoverable={true} className="w-full">
             <div className="flex flex-col gap-4">
                 <div className="min-w-0 flex items-start justify-between gap-4">
                     <div className="flex flex-col items-start justify-between gap-2 text-sm text-text/70">
@@ -176,6 +174,6 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
                     </div>
                 </div>
             </div>
-        </article>
+        </Card>
     )
 }

@@ -8,6 +8,7 @@ import { authToken } from "@features/auth/api/auth.atom.ts"
 import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
 import { useMemo } from "react"
 import { useNavigate } from "react-router"
+import Card from "@components/Card.tsx"
 
 /**
  * An empty schedule entry.
@@ -95,9 +96,9 @@ export default function Schedule() {
                             </h3>
                             <ul className="flex flex-col gap-3">
                                 {group.items.map((it) => (
-                                    <li
+                                    <Card
                                         key={it.meeting.id}
-                                        className="cursor-pointer rounded-2xl border border-primary/20 bg-card p-4 shadow-sm transition-colors hover:border-primary/30 focus-within:ring-2 focus-within:ring-primary/40"
+                                        isHoverable={true}
                                         onClick={() => onClick(it.meeting.id)}
                                     >
                                         <div className="flex flex-col gap-1">
@@ -126,7 +127,7 @@ export default function Schedule() {
                                                 )}
                                             </time>
                                         </div>
-                                    </li>
+                                    </Card>
                                 ))}
                             </ul>
                         </section>

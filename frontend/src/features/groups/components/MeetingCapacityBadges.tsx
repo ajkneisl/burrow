@@ -29,13 +29,13 @@ export default function MeetingCapacityBadges({
             return ["border-info bg-info/10 text-info", "bg-info/20"]
         } else if (joined >= capacity) {
             return ["border-error bg-error/10 text-error", "bg-error/20"]
-        } else if ((joined / capacity) >= 0.8) {
-            return [
-                "border-warn bg-warn/10 text-warn",
-                "bg-warn/20"
-            ]
+        } else if (joined / capacity >= 0.8) {
+            return ["border-warn bg-warn/10 text-warn", "bg-warn/20"]
         } else {
-            return ["border-success bg-success/10 text-success", "bg-success/20"]
+            return [
+                "border-success bg-success/10 text-success",
+                "bg-success/20"
+            ]
         }
     }, [hasLimit, joined, capacity])
 

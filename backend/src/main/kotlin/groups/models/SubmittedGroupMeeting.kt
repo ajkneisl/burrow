@@ -47,12 +47,17 @@ fun SubmittedGroupMeeting.validateSubmittedGroupMeeting(): List<String> {
     }
 
     tags.forEachIndexed { idx, tag ->
-        if (tag.length > 10) errors += "All tags must be under 10 characters."
+        if (tag.length > 10) errors += "Tag $idx must be under 10 characters."
     }
 
     // capacity
     if (capacity > 100) {
         errors += "Capacity must be less than 100."
+    }
+
+    // if capacity 0, then there's no limit
+    if (capacity < 2 && capacity != 0) {
+        errors += "Capacity must be greater than 2."
     }
 
     // make sure that beginning time isn't in the future

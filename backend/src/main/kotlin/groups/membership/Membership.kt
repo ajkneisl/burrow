@@ -287,6 +287,7 @@ suspend fun joinMeeting(user: String, meeting: String) {
         Memberships.selectAll().where { (Memberships.meetingId eq meeting) }.count()
     }
 
+    // if capacity = 0, then there's no limit >:)
     val capacity = query {
         Meetings.select(Meetings.id, Meetings.capacity)
             .where { Meetings.id eq meeting }
@@ -303,7 +304,7 @@ suspend fun joinMeeting(user: String, meeting: String) {
 
             // waitlist previous
             existingMembership[Memberships.status] == MeetingMemberStatus.LEFT &&
-                count >= capacity -> {
+                (count >= capacity && capacity != 0) -> {
                 query {
                     Memberships.update({
                         (Memberships.userId eq user) and (Memberships.meetingId eq meeting)
@@ -340,7 +341,7 @@ suspend fun joinMeeting(user: String, meeting: String) {
                 it[joinedAt] = getTimeMillis()
                 // status depending on count
                 it[status] =
-                    if (count >= capacity) MeetingMemberStatus.WAITLISTED
+                    if (count >= capacity && capacity != 0) MeetingMemberStatus.WAITLISTED
                     else MeetingMemberStatus.JOINED
                 it[role] = MeetingRole.MEMBER
             }

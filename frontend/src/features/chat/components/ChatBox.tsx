@@ -9,6 +9,9 @@ import {
 } from "@features/sync/api/sync.types.ts"
 import { useAtom } from "jotai"
 import { syncStatus } from "@features/sync/api/sync.atom.ts"
+import Card from "@components/Card.tsx"
+import Button from "@components/Button.tsx"
+import Input from "@components/Input.tsx"
 
 /**
  * {@link ChatBox}
@@ -211,8 +214,8 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
     }
 
     return (
-        <section className="border border-primary/30 rounded-2xl mt-8 h-[512px] bg-card shadow-sm flex flex-col">
-            <header className="border-b border-primary/30 px-4 py-3 flex items-center justify-between">
+        <Card className="mt-8 h-[512px] flex flex-col justify-between">
+            <header className="flex items-center justify-between">
                 <h3 className="font-semibold">Chat</h3>
                 <span className="text-xs font-semibold">
                     {status === "CONNECTING" && "Connecting…"}
@@ -245,27 +248,28 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
             </div>
 
             <div
-                className={`py-2 ${!editingId && `border-t border-primary/80`}`}
+                className={`py-2 ${!editingId && `border-t border-background/80`}`}
             >
                 {editingId && (
-                    <div className="relative mb-2 flex flex-col items-center rounded-t-lg border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm">
-                        <div className="flex items-center gap-2">
+                    <div className="relative mb-2 flex flex-col items-center rounded-t-lg border border-background bg-base-100 px-3 py-1.5 text-xs text-base-content/80 shadow-sm">
+                        <div className="flex items-center gap-4">
                             <span className="font-medium">Editing message</span>
                             <button
                                 type="button"
                                 onClick={cancelEdit}
-                                className="inline-flex items-center rounded-md border border-gray-300 bg-gray-50 px-2 py-0.5 text-[11px] font-medium text-gray-600 hover:bg-gray-100"
+                                className="cursor-pointer inline-flex items-center rounded-md border border-background bg-base-200 px-2 py-0.5 text-[11px] font-medium text-base-content/70 hover:bg-base-300"
                             >
                                 Cancel
                             </button>
                         </div>
-                        <div className="absolute left-1/2 top-full -translate-x-1/2 h-0 w-0 border-x-6 border-t-6 border-x-transparent border-t-gray-300" />
-                        <div className="absolute left-1/2 top-[calc(100%_-_1px)] -translate-x-1/2 h-0 w-0 border-x-5 border-t-5 border-x-transparent border-t-white" />
+
+                        <div className="absolute left-1/2 top-full -translate-x-1/2 h-0 w-0 border-x-6 border-t-6 border-x-transparent border-t-base-300" />
+                        <div className="absolute left-1/2 top-[calc(100%_-_1px)] -translate-x-1/2 h-0 w-0 border-x-5 border-t-5 border-x-transparent border-t-base-100" />
                     </div>
                 )}
 
-                <div className="flex items-center gap-2 py-2 px-4 ">
-                    <input
+                <div className="flex items-center gap-4">
+                    <Input
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && send()}
@@ -274,19 +278,19 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                                 ? "Write a message…"
                                 : "You are disconnected."
                         }
-                        className="input input-bordered w-full text-sm"
+                        className="border-background!"
                         disabled={status !== "LIVE"}
                     />
 
-                    <button
+                    <Button
+                        color="INFO"
                         onClick={send}
-                        className={`cursor-pointer text-sm rounded-md px-3 py-1.5 font-medium shadow-sm transition ${editingId ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-900 text-white hover:bg-gray-800"}`}
                         disabled={status !== "LIVE" || !text.trim()}
                     >
                         {editingId ? "Save" : "Send"}
-                    </button>
+                    </Button>
                 </div>
             </div>
-        </section>
+        </Card>
     )
 }

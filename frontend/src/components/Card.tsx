@@ -1,4 +1,4 @@
-import type { DetailedHTMLProps, HTMLAttributes, ReactNode } from "react"
+import type { DetailedHTMLProps, HTMLAttributes } from "react"
 import clsx from "clsx"
 
 /**
@@ -8,28 +8,30 @@ import clsx from "clsx"
  */
 type CardProps = {
     title?: string
-    top?: ReactNode
+    isHoverable?: boolean
 } & DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>
 
 /**
  * A card.
  *
+ * @param title The title of the card.
+ * @param isHoverable If there should be a style when this is hovered.
  * @param props {@link CardProps}
  */
-export default function Card(props: CardProps) {
+export default function Card({ title, isHoverable, ...props }: CardProps) {
     return (
         <section
             {...props}
             className={clsx(
-                "card border border-primary/30 rounded-2xl bg-card p-4 shadow-sm",
+                "card border border-primary/30 rounded-2xl bg-card p-5 shadow-sm",
+                isHoverable &&
+                    "cursor-pointer hover:border-primary/30 hover:shadow-md",
                 props.className
             )}
         >
-            {props.top ? (
-                props.top
-            ) : (
+            {title && (
                 <div className="mb-2 flex items-center justify-between">
-                    <h3 className="text-sm font-semibold">{props.title}</h3>
+                    <h3 className="text-sm font-semibold">{title}</h3>
                 </div>
             )}
 
