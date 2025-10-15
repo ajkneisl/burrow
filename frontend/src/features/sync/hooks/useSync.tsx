@@ -13,10 +13,10 @@ import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
 export default function useSync(meeting?: GroupMeetingResponse | null) {
     const auth = useToken()
 
-    const meetingId = meeting?.meeting.id
+    const meetingId = meeting?.meeting?.id
     const isJoined =
         meeting?.membership !== undefined &&
-        meeting?.membership.status !== "LEFT"
+        meeting?.membership?.status !== "LEFT"
 
     const socketRef = useRef<WebSocket | null>(null)
 
