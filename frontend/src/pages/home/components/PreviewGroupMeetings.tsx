@@ -107,10 +107,8 @@ export default function PreviewGroupMeetings({
             <div className="flex flex-row justify-between items-center mb-2 mt-4">
                 <h1 className="text-2xl figtree">{title}</h1>
 
-                {data.length >= amount ? (
-                    <Button onClick={() => nav(fullPage)}>
-                        View all
-                    </Button>
+                {data.length >= 1 ? (
+                    <Button onClick={() => nav(fullPage)}>View all</Button>
                 ) : (
                     <CreateButton />
                 )}
