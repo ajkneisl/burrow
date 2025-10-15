@@ -90,7 +90,7 @@ export default function Meeting() {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         <div className="lg:col-span-2">
-                            <div className="relative rounded-3xl bg-card border border-primary/30 p-6 shadow-md">
+                            <Card className="relative p-6">
                                 <div className="flex flex-col gap-4">
                                     <div className="min-w-0">
                                         <h1 className="mt-3 truncate text-2xl font-bold tracking-tight text-text md:text-3xl">
@@ -139,7 +139,7 @@ export default function Meeting() {
                                 <div className="pointer-events-none absolute bottom-4 right-4 flex gap-2">
                                     <MeetingCapacityBadges meeting={meeting} />
                                 </div>
-                            </div>
+                            </Card>
 
                             {inMeeting && blocks.includes("CHAT") && (
                                 <ChatBox meeting={data} />

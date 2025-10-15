@@ -46,7 +46,7 @@ export default function Chat({
             key={`${message.messageId}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="group max-w-prose"
+            className="group"
         >
             <div className="inline-flex flex-col mt-0.5 rounded-xl bg-background/60 border border-background/80 px-3 py-2 w-full">
                 <div className="flex flex-row items-center justify-between">
@@ -67,7 +67,7 @@ export default function Chat({
                             <button
                                 onClick={() => editButton("debug")}
                                 aria-label="Edit"
-                                className="cursor-pointer text-blue-500 hover:text-blue-700"
+                                className="cursor-pointer text-warn hover:text-warn-hover"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -88,7 +88,7 @@ export default function Chat({
                             <button
                                 onClick={deleteButton}
                                 aria-label="Delete"
-                                className="cursor-pointer text-red-500 hover:text-red-700"
+                                className="cursor-pointer text-error hover:text-error-hover"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"

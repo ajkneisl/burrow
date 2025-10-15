@@ -7,6 +7,7 @@ import LabelledInput from "@components/LabelledInput.tsx"
 import Button from "@components/Button.tsx"
 import { useAtom } from "jotai"
 import { themeAtom } from "@api/theme.atom.ts"
+import Card from "@components/Card.tsx"
 
 /**
  * User settings page.
@@ -102,7 +103,7 @@ export default function Settings() {
                     await onSubmit()
                 }}
             >
-                <div className="border border-primary/30 rounded-2xl bg-card/80 p-4 flex flex-col gap-4">
+                <Card className="flex flex-col gap-4">
                     {/* user's name */}
                     <LabelledInput
                         text="Name"
@@ -148,7 +149,7 @@ export default function Settings() {
                             Change Theme
                         </Button>
                     </div>
-                </div>
+                </Card>
             </form>
         </div>
     )
