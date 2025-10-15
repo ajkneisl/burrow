@@ -8,9 +8,15 @@ import {
     SyncIncomingEvent,
     type SyncOutgoingEvent
 } from "../api/sync.types.ts"
+import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
 
-export default function useSync(meetingId: string) {
+export default function useSync(meeting?: GroupMeetingResponse | null) {
     const auth = useToken()
+
+    const meetingId = meeting?.meeting.id
+    const isJoined =
+        meeting?.membership !== undefined &&
+        meeting?.membership.status !== "LEFT"
 
     const socketRef = useRef<WebSocket | null>(null)
 
@@ -18,7 +24,7 @@ export default function useSync(meetingId: string) {
     const [, setBlocks] = useAtom(blockStatus)
 
     useEffect(() => {
-        if (auth === null || auth === "") return
+        if (auth === null || auth === "" || !meetingId || !isJoined) return
 
         const base = BASE_URL.replaceAll("https://", "wss://").replaceAll(
             "http://",
@@ -99,7 +105,7 @@ export default function useSync(meetingId: string) {
                 onSyncOutgoing as EventListener
             )
         }
-    }, [auth, meetingId])
+    }, [auth, meetingId, isJoined])
 
     return status
 }

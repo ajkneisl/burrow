@@ -34,13 +34,13 @@ export default function Meeting() {
 
     const [blocks] = useAtom(blockStatus)
 
-    useSync(id!)
-
     const { data, isLoading, error } = useQuery({
         queryKey: [`meeting`, id],
         enabled: id !== null && auth !== null,
         queryFn: () => (id && auth ? getMeeting(auth, id) : null)
     })
+
+    useSync(data)
 
     const isOwner = useMemo(
         () =>

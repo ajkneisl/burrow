@@ -47,24 +47,6 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
     }, [meeting.membership?.role])
 
     useEffect(() => {
-        // receive history
-        window.dispatchEvent(
-            new SyncOutgoingEvent({
-                block: "CHAT",
-                action: "RECEIVE_HISTORY",
-                data: { page: "0" }
-            })
-        )
-
-        // receive members
-        window.dispatchEvent(
-            new SyncOutgoingEvent({
-                block: "CHAT",
-                action: "RECEIVE_MEMBERS",
-                data: {}
-            })
-        )
-
         function onState(event: Event) {
             const payload = (event as SyncIncomingEvent).response
 
@@ -136,6 +118,28 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                 onState as EventListener
             )
     }, [meetingId])
+
+    useEffect(() => {
+        if (status !== "LIVE") return
+
+        // receive history
+        window.dispatchEvent(
+            new SyncOutgoingEvent({
+                block: "CHAT",
+                action: "RECEIVE_HISTORY",
+                data: { page: "0" }
+            })
+        )
+
+        // receive members
+        window.dispatchEvent(
+            new SyncOutgoingEvent({
+                block: "CHAT",
+                action: "RECEIVE_MEMBERS",
+                data: {}
+            })
+        )
+    }, [status, meetingId])
 
     useLayoutEffect(() => {
         const el = listRef.current
