@@ -117,7 +117,7 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
 
                         {meetingResponse.bookmarked && (
                             <span
-                                className="inline-flex items-center rounded-full bg-info/10 px-2.5 py-1 text-info ring-1 ring-inset ring-info/30"
+                                className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-1 text-secondary ring-1 ring-inset ring-secondary/30"
                                 title="Bookmarked"
                             >
                                 <span className="sr-only">Bookmarked</span>
