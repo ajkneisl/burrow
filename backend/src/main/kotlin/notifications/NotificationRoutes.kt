@@ -76,6 +76,7 @@ val NOTIFICATION_ROUTES: Route.() -> Unit = {
         }
     }
 
+    // SSE /notifications/live
     sse("/live") {
         val authorizationToken = call.request.cookies["auth"]?.trim() ?: return@sse
         val userId =

@@ -12,14 +12,17 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.date.getTimeMillis
 import kotlin.system.exitProcess
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.update
 
 /**
  * A Burrow user.
@@ -55,6 +58,9 @@ data class User(
     }
 }
 
+private val client =
+    HttpClient(CIO) { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
+
 /**
  * Using a Google JWT token, verify that they have te proper domain then either create an account or
  * create a login token.
@@ -62,14 +68,10 @@ data class User(
  * @param token Authorized Google JWT
  */
 suspend fun retrieveUser(token: String): AuthorizedUser? {
-    val client =
-        HttpClient(CIO) { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
-
     // TODO verify locally
     val resp = client.get("https://oauth2.googleapis.com/tokeninfo?id_token=${token}").bodyAsText()
 
     val json = Json.parseToJsonElement(resp).jsonObject
-
     val hd = json["hd"]
 
     if (hd == null || hd.jsonPrimitive.content != "umn.edu") {
@@ -91,15 +93,15 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
     if (user == null) {
         val createdDate = getTimeMillis()
 
-        query {
-            Users.insert {
-                it[Users.name] = name
-                it[Users.email] = email
-                it[Users.phoneNumber] = ""
-                it[Users.createdDate] = createdDate
-                it[Users.googleID] = googleID
-            }
-        }
+//        query {
+//            Users.insert {
+//                it[Users.name] = name
+//                it[Users.email] = email
+//                it[Users.phoneNumber] = ""
+//                it[Users.createdDate] = createdDate
+//                it[Users.googleID] = googleID
+//            }
+//        }
 
         return AuthorizedUser(
             User(

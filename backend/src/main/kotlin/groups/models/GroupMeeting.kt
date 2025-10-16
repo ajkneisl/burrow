@@ -12,27 +12,31 @@ import io.ktor.util.date.getTimeMillis
 import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.toList
 import kotlinx.datetime.toKotlinLocalDate
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
-import org.jetbrains.exposed.sql.alias
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.countDistinct
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.innerJoin
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.leftJoin
-import org.jetbrains.exposed.sql.lowerCase
-import org.jetbrains.exposed.sql.or
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.alias
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.countDistinct
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.innerJoin
+import org.jetbrains.exposed.v1.core.leftJoin
+import org.jetbrains.exposed.v1.core.lessEq
+import org.jetbrains.exposed.v1.core.like
+import org.jetbrains.exposed.v1.core.lowerCase
+import org.jetbrains.exposed.v1.core.or
+import org.jetbrains.exposed.v1.r2dbc.deleteWhere
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.select
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.update
 
 /**
  * A group meeting.
@@ -292,6 +296,7 @@ suspend fun getMeetings(user: String? = null, type: GroupType? = null): List<Gro
             .where(expr)
             .groupBy(*Meetings.columns.toTypedArray(), Users.name, Users.googleID)
             .orderBy(Meetings.beginningTime, SortOrder.ASC)
+            .toList()
             .associate { row ->
                 val joinedCount = row[joinedCountExpr]
                 val waitingCount = row[waitingCountExpr]
@@ -314,6 +319,7 @@ suspend fun getMeetings(user: String? = null, type: GroupType? = null): List<Gro
 
         Memberships.selectAll()
             .where { (Memberships.userId eq user) and (Memberships.meetingId inList ids) }
+            .toList()
             .associate { row -> row[Memberships.meetingId] to Membership.fromRow(row) }
     }
 
@@ -324,6 +330,7 @@ suspend fun getMeetings(user: String? = null, type: GroupType? = null): List<Gro
 
         Bookmarks.selectAll()
             .where { (Bookmarks.userId eq user) and (Bookmarks.meetingId inList ids) }
+            .toList()
             .associate { row -> row[Bookmarks.meetingId] to Bookmark.fromRow(row) }
     }
 
@@ -382,6 +389,7 @@ suspend fun searchMeetings(search: String, date: Long? = null): List<GroupMeetin
             .selectAll()
             .where { expr }
             .orderBy(Meetings.beginningTime, SortOrder.ASC)
+            .toList()
             .associate { row -> GroupMeeting.fromRow(row) to row[Users.name] }
     }
 

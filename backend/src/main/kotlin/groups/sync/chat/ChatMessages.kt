@@ -2,8 +2,8 @@ package app.burrow.groups.sync.chat
 
 import app.burrow.account.Users
 import app.burrow.groups.Meetings
-import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.ReferenceOption
+import org.jetbrains.exposed.v1.core.Table
 
 /**
  * Stored chat messages

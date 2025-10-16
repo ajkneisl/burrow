@@ -12,15 +12,19 @@ import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
 import kotlin.collections.toList
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.innerJoin
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.innerJoin
+import org.jetbrains.exposed.v1.r2dbc.deleteWhere
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.select
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.update
 
 /**
  * The `Chats` block.
@@ -66,6 +70,7 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
                 .select(Memberships.userId, Users.name)
                 .where { Memberships.meetingId eq meetingId }
                 .map { member -> ChatMember(member[Memberships.userId], member[Users.name]) }
+                .toList()
         }
 
         return members
@@ -91,7 +96,7 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
      * This includes swear filtering & length checking.
      */
     private fun validateChatMessage(message: String): Boolean {
-        //TODO: swear filtering
+        // TODO: swear filtering
         return message.length in MESSAGE_MIN_LENGTH..MESSAGE_MAX_LENGTH
     }
 

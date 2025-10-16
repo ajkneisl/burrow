@@ -5,18 +5,21 @@ import app.burrow.groups.sync.chat.ChatMessage
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.not
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.not
+import org.jetbrains.exposed.v1.r2dbc.batchInsert
+import org.jetbrains.exposed.v1.r2dbc.deleteWhere
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.select
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.update
 
 /**
  * A notification for a user.
@@ -34,7 +37,8 @@ data class Notification(
     val userId: String,
     val title: String,
     val content: String,
-    val date: Long,
+    val sentDate: Long,
+    val scheduledDate: Long?,
     val read: Boolean,
 ) {
     companion object {
@@ -45,7 +49,8 @@ data class Notification(
                 row[Notifications.userId],
                 row[Notifications.title],
                 row[Notifications.content],
-                row[Notifications.date],
+                row[Notifications.sentDate],
+                row[Notifications.scheduledDate],
                 row[Notifications.read],
             )
     }
@@ -59,8 +64,9 @@ data class Notification(
 suspend fun getNotifications(userId: String): List<Notification> = query {
     Notifications.selectAll()
         .where { Notifications.userId eq userId }
-        .orderBy(Notifications.date, SortOrder.DESC)
+        .orderBy(Notifications.sentDate, SortOrder.DESC)
         .map { Notification.fromRow(it) }
+        .toList()
 }
 
 /**
@@ -95,7 +101,7 @@ suspend fun createNotification(title: String, content: String, userId: String) {
     val uuid = UUID.randomUUID()
     val currentTime = getTimeMillis()
 
-    val obj = Notification(uuid, userId, title, content, currentTime, false)
+    val obj = Notification(uuid, userId, title, content, currentTime, currentTime, false)
     val serializedObj = Json.encodeToString(obj)
 
     query {
@@ -104,7 +110,8 @@ suspend fun createNotification(title: String, content: String, userId: String) {
             it[Notifications.userId] = userId
             it[Notifications.title] = title
             it[Notifications.content] = content
-            it[Notifications.date] = currentTime
+            it[Notifications.scheduledDate] = currentTime
+            it[Notifications.sentDate] = currentTime
             it[Notifications.read] = false
         }
     }
@@ -132,15 +139,25 @@ suspend fun createUniversalNotification(title: String, content: String) {
             this[Notifications.userId] = userId
             this[Notifications.title] = title
             this[Notifications.content] = content
-            this[Notifications.date] = currentTime
+            this[Notifications.sentDate] = currentTime
             this[Notifications.read] = false
 
-            val obj = Notification(uuid, userId, title, content, currentTime, false)
-            val serializedObj = Json.encodeToString(obj)
+            val obj = Notification(uuid, userId, title, content, currentTime, 0, false)
 
-            NotificationSessions.broadcastTo(userId, serializedObj)
+            userId send obj
         }
     }
+}
+
+/**
+ * Send a notification to a user.
+ *
+ * @param notification The notification to send.
+ * @param this The user to send it to.
+ */
+infix fun String.send(notification: Notification) {
+    val serializedObj = Json.encodeToString(notification)
+    NotificationSessions.broadcastTo(this, serializedObj)
 }
 
 /**

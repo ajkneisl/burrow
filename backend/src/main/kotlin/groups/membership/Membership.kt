@@ -11,14 +11,21 @@ import app.burrow.groups.models.MeetingRole
 import app.burrow.notifications.createNotification
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.innerJoin
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.innerJoin
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.select
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.update
 
 /** A membership to a [app.burrow.groups.models.GroupMeeting]. */
 @Serializable
@@ -84,17 +91,18 @@ suspend fun getUserMeetings(user: String): List<GroupMeetingResponse> {
             }
             .orderBy(Meetings.beginningTime, SortOrder.DESC)
             .limit(3)
+            .map { row ->
+                GroupMeetingResponse(
+                    meeting = GroupMeeting.fromRow(row),
+                    meetingAuthor = row[Users.name],
+                    membership = Membership.fromRow(row = row),
+                    bookmarked = false,
+                )
+            }
             .toList()
     }
 
-    return result.map { row ->
-        GroupMeetingResponse(
-            meeting = GroupMeeting.fromRow(row),
-            meetingAuthor = row[Users.name],
-            membership = Membership.fromRow(row = row),
-            bookmarked = false,
-        )
-    }
+    return result
 }
 
 /**
@@ -360,6 +368,7 @@ suspend fun getAttendees(meetingId: String): List<MembershipResponse> {
             .selectAll()
             .where { Memberships.meetingId eq meetingId }
             .map { row -> MembershipResponse(Membership.fromRow(row), User.fromRow(row)) }
+            .toList()
     }
 
     return attendees

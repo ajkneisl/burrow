@@ -1,21 +1,22 @@
 package app.burrow
 
-import app.burrow.account.Users
-import app.burrow.groups.Meetings
-import app.burrow.groups.bookmarks.Bookmarks
-import app.burrow.groups.sync.chat.ChatMessages
-import app.burrow.groups.membership.Memberships
-import app.burrow.groups.sync.block.BlockStates
-import app.burrow.notifications.Notifications
-import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.core.StdOutSqlLogger
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
+import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
+import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.slf4j.LoggerFactory
 
+private lateinit var DB: R2dbcDatabase
+
 /** Create a suspended transactions with [block]. */
-suspend fun <T> query(block: suspend () -> T): T =
-    newSuspendedTransaction(Dispatchers.IO) { block() }
+suspend fun <T> query(block: suspend R2dbcTransaction.() -> T): T =
+    suspendTransaction(
+        db = DB,
+        statement = {
+            addLogger(StdOutSqlLogger)
+            block()
+        },
+    )
 
 private val runningDocker = System.getenv("DOCKER")?.toBoolean() == true
 private val logger = LoggerFactory.getLogger("Database")
@@ -23,34 +24,18 @@ private val logger = LoggerFactory.getLogger("Database")
 /** Initialize and connect to the database. */
 suspend fun initDb() {
     val address = if (runningDocker) "database" else "localhost"
-    val postgresUrl = "jdbc:postgresql://${address}:5432/burrow"
+    val postgresUrl = "r2dbc:postgresql://${address}:5432/burrow"
 
-    logger.debug("Connecting to {}", postgresUrl)
+    logger.debug("Connecting (R2DBC) to {}", postgresUrl)
 
-    val failed =
+    DB =
         runCatching {
-                Database.connect(
-                    postgresUrl,
-                    driver = "org.postgresql.Driver",
-                    user = "postgres",
-                    password = "postgres",
-                )
+                R2dbcDatabase.connect(url = postgresUrl, user = "postgres", password = "postgres")
             }
-            .isFailure
+            .getOrElse {
+                println("FATAL: Failed to connect to database via R2DBC: ${it.message}")
+                throw IllegalStateException("Database connection failed", it)
+            }
 
-    if (failed) {
-        println("FATAL: Failed to connect to database.")
-    }
-
-    query {
-        SchemaUtils.createMissingTablesAndColumns(
-            Users,
-            Meetings,
-            Memberships,
-            Bookmarks,
-            ChatMessages,
-            Notifications,
-            BlockStates
-        )
-    }
+    logger.debug("Connected to Database")
 }

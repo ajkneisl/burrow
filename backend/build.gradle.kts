@@ -38,18 +38,18 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-server-netty")
     implementation("io.ktor:ktor-server-websockets")
+    implementation("io.ktor:ktor-server-call-logging")
 
     implementation("dev.hayden:khealth:3.0.2")
 
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
-    implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
+    implementation("org.jetbrains.exposed:exposed-r2dbc:$exposed_version")
+    implementation("org.postgresql:r2dbc-postgresql:1.1.0.RELEASE")
 
-    implementation("org.postgresql:postgresql:42.7.3")
     implementation("com.h2database:h2:$h2_version")
     implementation("io.github.flaxoos:ktor-server-rate-limiting:2.2.1")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-    implementation("io.ktor:ktor-server-metrics:3.3.0")
     implementation("org.reflections:reflections:0.10.2")
 
     testImplementation("io.ktor:ktor-server-test-host")

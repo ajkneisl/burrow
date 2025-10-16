@@ -21,13 +21,13 @@ object NotificationSessions {
     /**
      * Broadcasts an event to all connected clients.
      *
-     * @param data Event payload (SSE `data:` field). Send serialized JSON or plain text.
+     * @param data Event payload.
      */
     fun broadcast(data: String) {
         _events.tryEmit(OutboundEvent(ServerSentEvent(data = data), userId = null))
     }
 
-    /** Target a specific user by ID (or any stable identifier you use). */
+    /** Target a specific user by ID. */
     fun broadcastTo(userId: String?, data: String) {
         _events.tryEmit(OutboundEvent(ServerSentEvent(data = data), userId = userId))
     }

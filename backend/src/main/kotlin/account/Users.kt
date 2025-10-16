@@ -1,6 +1,6 @@
 package app.burrow.account
 
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Table
 
 /** Database table for [app.burrow.features.account.User]. */
 object Users : Table("users") {

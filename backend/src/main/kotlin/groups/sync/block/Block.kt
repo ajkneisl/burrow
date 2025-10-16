@@ -3,13 +3,17 @@ package app.burrow.groups.sync.block
 import app.burrow.groups.sync.Sync
 import app.burrow.groups.sync.models.Response
 import app.burrow.query
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.r2dbc.deleteWhere
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.select
+import org.jetbrains.exposed.v1.r2dbc.selectAll
 
 /** A feature block. */
 abstract class Block(val blockId: String, val meetingId: String) {
@@ -193,4 +197,5 @@ suspend fun getEnabledBlocks(meetingId: String): List<String> = query {
     BlockStates.select(BlockStates.block)
         .where { BlockStates.meetingId eq meetingId }
         .map { it[BlockStates.block] }
+        .toList()
 }
