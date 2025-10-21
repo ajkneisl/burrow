@@ -25,7 +25,7 @@ export default function Input({ error, ...props }: InputProps) {
                 `w-full input rounded-lg px-3 py-3 text-[15px] placeholder:text-text/40 shadow-inner transition`,
                 error &&
                     "border-red-300 focus:border-red-500 focus:ring-red-300/40",
-                props.readOnly && "cursor-not-allowed",
+                (props.readOnly || props.disabled) && "cursor-not-allowed text-text/60",
                 props.className
             )}
         />

@@ -1,6 +1,7 @@
 package app.burrow.groups.sync
 
-import app.burrow.account.VERIFIER
+import app.burrow.account.Authorization
+
 import app.burrow.groups.membership.isModerator
 import app.burrow.groups.membership.userInMeeting
 import app.burrow.groups.sync.block.Block
@@ -35,13 +36,14 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.typeOf
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
-import org.jetbrains.exposed.sql.selectAll
-import kotlin.text.get
-import kotlin.text.set
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.r2dbc.selectAll
 
 /**
  * Handles features that need to be synced among groups.
@@ -119,6 +121,7 @@ object Sync {
             BlockStates.selectAll()
                 .where { BlockStates.meetingId eq meetingId }
                 .map { row -> Block.BlockState.fromRow(row) }
+                .toList()
                 .associate { block ->
                     val blockInstance =
                         (BLOCKS[block.block]?.primaryConstructor?.call(meetingId) as Block?)
@@ -194,7 +197,7 @@ object Sync {
                                 incomingMsg.action == "AUTHORIZE" -> {
                                     val token = incomingMsg.data["token"]
                                     val authorizedUserId =
-                                        runCatching { VERIFIER.verify(token) }.getOrNull()?.subject
+                                        runCatching { Authorization.VERIFIER.verify(token) }.getOrNull()?.subject
 
                                     if (authorizedUserId == null) {
                                         send(Responses.INVALID_TOKEN, "Invalid token.")

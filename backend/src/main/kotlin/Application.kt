@@ -1,14 +1,15 @@
 package app.burrow
 
+import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
-import app.burrow.account.VERIFIER
-import app.burrow.account.generateToken
+import app.burrow.account.Users
 import app.burrow.groups.GROUP_ROUTES
 import app.burrow.groups.sync.Sync
 import app.burrow.notifications.NOTIFICATION_ROUTES
-import com.codahale.metrics.MetricFilter
-import com.codahale.metrics.Slf4jReporter
+import app.burrow.notifications.notificationWorker
 import dev.hayden.KHealth
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
@@ -17,23 +18,39 @@ import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
-import io.ktor.server.metrics.dropwizard.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.autohead.*
+import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.request.httpMethod
+import io.ktor.server.request.uri
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.ktor.server.websocket.*
-import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.v1.core.vendors.PostgreSQLDialect
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabaseConfig
+import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.slf4j.LoggerFactory
+import org.slf4j.event.Level
+
+/** General, reusable HTTPClient */
+val client = HttpClient(CIO)
+
+/** Burrow logger! */
+private val burrowLogger = LoggerFactory.getLogger("Burrow")
 
 fun main(args: Array<String>) {
     // debug stuff
@@ -42,7 +59,7 @@ fun main(args: Array<String>) {
             arg.startsWith("--gen-token=") -> {
                 val userId = arg.removePrefix("--gen-token=")
 
-                println("Generated Token: " + generateToken(userId))
+                burrowLogger.info("Generated Token: {}", Authorization.generateToken(userId))
             }
         }
     }
@@ -51,8 +68,9 @@ fun main(args: Array<String>) {
         .start(wait = true)
 }
 
-fun Application.module() {
-    runBlocking { initDb() }
+suspend fun Application.module() {
+    initDb()
+    notificationWorker()
 
     install(SSE)
     install(WebSockets) {
@@ -63,20 +81,17 @@ fun Application.module() {
         contentConverter = KotlinxWebsocketSerializationConverter(Json)
     }
 
-    install(DropwizardMetrics) {
-        val logger = LoggerFactory.getLogger("BurrowMetrics")
-        // Log only Ktor call-related metrics to avoid JVM noise and giant dumps every tick
-        val onlyKtorCalls = MetricFilter { name, _ -> name.startsWith("ktor.calls") }
+    install(CallLogging) {
+        level = Level.INFO
+        logger = burrowLogger
 
-        Slf4jReporter.forRegistry(registry)
-            .outputTo(logger)
-            .withLoggingLevel(Slf4jReporter.LoggingLevel.INFO)
-            .prefixedWith("metrics")
-            .convertRatesTo(TimeUnit.SECONDS)
-            .convertDurationsTo(TimeUnit.MILLISECONDS)
-            .filter(onlyKtorCalls)
-            .build()
-            .start(15, TimeUnit.SECONDS)
+        format { call ->
+            val status = call.response.status()?.value ?: "?"
+            val method = call.request.httpMethod.value
+            val uri = call.request.uri
+
+            "$method ($status) $uri"
+        }
     }
 
     install(AutoHeadResponse)
@@ -125,27 +140,32 @@ fun Application.module() {
 
     authentication {
         jwt("primary") {
-            realm = "ajkn"
-            verifier(VERIFIER)
-            challenge { defaultScheme, realm ->
-                call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
-            }
+            realm = "burrow"
+
+            verifier(Authorization.VERIFIER)
+
+            challenge { _, _ -> throw ServerError(401, "Token is invalid or expired.") }
+
             validate { credential ->
                 if (credential.payload.audience.contains("Burrow")) JWTPrincipal(credential.payload)
                 else null
             }
         }
     }
+    try {
+        routing {
+            singlePageApplication { react("frontend") }
 
-    routing {
-        singlePageApplication { react("frontend") }
+            route("/api") {
+                route("/notifications", NOTIFICATION_ROUTES)
+                route("/groups/{id}", Sync.SYNC_ROUTES)
+                route("/user", USER_ROUTES)
 
-        route("/api") {
-            route("/notifications", NOTIFICATION_ROUTES)
-            route("/groups/{id}", Sync.SYNC_ROUTES)
-            route("/user", USER_ROUTES)
-
-            authenticate("primary") { route("/groups", GROUP_ROUTES) }
+                authenticate("primary") { route("/groups", GROUP_ROUTES) }
+            }
         }
+    } catch (t: Throwable) {
+        burrowLogger.error("Unhandled in ${coroutineContext[CoroutineName]?.name}", t)
+        throw t
     }
 }

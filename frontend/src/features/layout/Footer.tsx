@@ -11,11 +11,15 @@ const linkedIn: { name: string; link: string }[] = [
     },
     {
         name: "Thien-Tri Nguyen",
-        link: "/in/ajkn"
+        link: "/in/thientri-nguyen"
     },
     {
         name: "Benjamin Stortroen",
         link: "/in/benjamin-stortroen-b61400347/"
+    },
+    {
+        name: "Josh Westerlund",
+        link: "/in/joshua-westerlund-b29199362/"
     }
 ]
 

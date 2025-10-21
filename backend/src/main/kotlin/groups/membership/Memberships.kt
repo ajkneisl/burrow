@@ -4,12 +4,12 @@ import app.burrow.account.Users
 import app.burrow.groups.Meetings
 import app.burrow.groups.models.MeetingMemberStatus
 import app.burrow.groups.models.MeetingRole
-import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.ReferenceOption
+import org.jetbrains.exposed.v1.core.Table
 
 object Memberships : Table("memberships") {
     val meetingId = reference("meeting_id", Meetings.id, onDelete = ReferenceOption.CASCADE)
-    val userId = reference("user_id", Users.googleID, onDelete = ReferenceOption.CASCADE)
+    val userId = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
 
     val role =
         enumerationByName("role", 32, MeetingRole::class)

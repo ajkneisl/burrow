@@ -1,21 +1,20 @@
 import { useRef, useState } from "react"
-import { useNavigate } from "react-router"
 import { useAtom } from "jotai"
 import { authToken } from "@features/auth/api/auth.atom.ts"
 import { themeAtom } from "@api/theme.atom.ts"
 import { Dropdown, DropdownItem } from "@components/Dropdown.tsx"
 import HeaderButton from "@features/layout/components/HeaderButton.tsx"
+import { settingsModalOpen } from "@features/settings/api/settings.atom.ts"
 
 /**
  * Animation variants for {@link HeaderDropdown}
  */
 
 export default function HeaderDropdown() {
-    const nav = useNavigate()
-
     const [, setAuth] = useAtom(authToken)
     const [theme, setTheme] = useAtom(themeAtom)
     const [open, setOpen] = useState(false)
+    const [, setSettingsOpen] = useAtom(settingsModalOpen)
 
     const buttonRef = useRef<HTMLButtonElement | null>(null)
 
@@ -58,7 +57,7 @@ export default function HeaderDropdown() {
                         label="Settings"
                         onSelect={() => {
                             setOpen(false)
-                            nav("/settings")
+                            setSettingsOpen(true)
                         }}
                         rightIcon={
                             <svg

@@ -1,8 +1,8 @@
 package app.burrow.groups.sync.block
 
 import app.burrow.groups.Meetings
-import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.ReferenceOption
+import org.jetbrains.exposed.v1.core.Table
 
 /** Manage the state of a [Block]. */
 object BlockStates : Table("block_state") {

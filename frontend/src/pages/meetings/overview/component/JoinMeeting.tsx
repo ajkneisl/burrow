@@ -49,7 +49,7 @@ export default function JoinMeeting({ data }: JoinMeetingProps) {
     async function joinLeaveButton() {
         if (auth === null) return
 
-        if (data?.meeting?.owner === user?.googleID) {
+        if (data?.meeting?.owner === user?.id) {
             toast.error("You cannot leave your own meeting!")
             return
         }

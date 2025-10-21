@@ -107,11 +107,7 @@ export default function PreviewGroupMeetings({
             <div className="flex flex-row justify-between items-center mb-2 mt-4">
                 <h1 className="text-2xl figtree">{title}</h1>
 
-                {data.length >= 1 ? (
-                    <Button onClick={() => nav(fullPage)}>View all</Button>
-                ) : (
-                    <CreateButton />
-                )}
+                <Button onClick={() => nav(fullPage)}>View all</Button>
             </div>
 
             <div className="flex flex-col gap-2 overflow-auto justify-center items-center">
@@ -120,10 +116,10 @@ export default function PreviewGroupMeetings({
                         .slice(0, amount)
                         .map((meeting) => <GroupMeetingCard {...meeting} />)
                 ) : (
-                    <div className="flex flex-col items-center gap-2 justify-start w-full">
-                        <p className="text-text/70 self-start">
-                            Nothing upcoming, start a Burrow :)
-                        </p>
+                    <div className="flex flex-col items-center gap-4 justify-start w-full">
+                        <p className="text-text/70">No upcoming Burrows.</p>
+
+                        <CreateButton />
                     </div>
                 )}
             </div>

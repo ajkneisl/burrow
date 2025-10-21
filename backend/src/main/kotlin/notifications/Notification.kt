@@ -1,22 +1,24 @@
 package app.burrow.notifications
 
-import app.burrow.account.Users
 import app.burrow.groups.sync.chat.ChatMessage
+import app.burrow.notifications.delivery.deliver
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.not
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greater
+import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.not
+import org.jetbrains.exposed.v1.r2dbc.deleteWhere
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.update
 
 /**
  * A notification for a user.
@@ -32,9 +34,12 @@ import org.jetbrains.exposed.sql.update
 data class Notification(
     @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val id: UUID,
     val userId: String,
+    val meetingId: String?,
+    val kind: NotificationKind?,
     val title: String,
     val content: String,
-    val date: Long,
+    val sentDate: Long?,
+    val scheduledDate: Long,
     val read: Boolean,
 ) {
     companion object {
@@ -43,9 +48,12 @@ data class Notification(
             Notification(
                 row[Notifications.id],
                 row[Notifications.userId],
+                row[Notifications.meetingId],
+                row[Notifications.kind],
                 row[Notifications.title],
                 row[Notifications.content],
-                row[Notifications.date],
+                row[Notifications.sentDate],
+                row[Notifications.scheduledDate],
                 row[Notifications.read],
             )
     }
@@ -58,9 +66,10 @@ data class Notification(
  */
 suspend fun getNotifications(userId: String): List<Notification> = query {
     Notifications.selectAll()
-        .where { Notifications.userId eq userId }
-        .orderBy(Notifications.date, SortOrder.DESC)
+        .where { (Notifications.userId eq userId) and (Notifications.sentDate neq null) }
+        .orderBy(Notifications.sentDate, SortOrder.DESC)
         .map { Notification.fromRow(it) }
+        .toList()
 }
 
 /**
@@ -91,56 +100,44 @@ suspend fun deleteAllNotifications(userId: String) = query {
  * @param content The content of the notification.
  * @param userId The ID of the user to receive the notification.
  */
-suspend fun createNotification(title: String, content: String, userId: String) {
+suspend fun createNotification(
+    title: String,
+    content: String,
+    userId: String,
+    meetingId: String? = null,
+    kind: NotificationKind? = null,
+) {
     val uuid = UUID.randomUUID()
     val currentTime = getTimeMillis()
 
-    val obj = Notification(uuid, userId, title, content, currentTime, false)
-    val serializedObj = Json.encodeToString(obj)
+    val obj =
+        Notification(
+            id = uuid,
+            userId = userId,
+            meetingId = meetingId,
+            kind = kind,
+            title = title,
+            content = content,
+            scheduledDate = currentTime,
+            sentDate = currentTime,
+            read = false,
+        )
 
     query {
         Notifications.insert {
             it[Notifications.id] = uuid
             it[Notifications.userId] = userId
+            it[Notifications.meetingId] = meetingId
+            it[Notifications.kind] = obj.kind
             it[Notifications.title] = title
             it[Notifications.content] = content
-            it[Notifications.date] = currentTime
+            it[Notifications.scheduledDate] = currentTime
+            it[Notifications.sentDate] = currentTime
             it[Notifications.read] = false
         }
     }
 
-    NotificationSessions.broadcastTo(userId, serializedObj)
-}
-
-/**
- * Create a notification for all users.
- *
- * @param title The title of the notification.
- * @param content The content of the notification.
- */
-suspend fun createUniversalNotification(title: String, content: String) {
-    // TODO: is this fucked
-    val allUser = query { Users.select(Users.googleID).toList().map { it[Users.googleID] } }
-
-    val currentTime = getTimeMillis()
-
-    query {
-        Notifications.batchInsert(allUser) { userId ->
-            val uuid = UUID.randomUUID()
-
-            this[Notifications.id] = uuid
-            this[Notifications.userId] = userId
-            this[Notifications.title] = title
-            this[Notifications.content] = content
-            this[Notifications.date] = currentTime
-            this[Notifications.read] = false
-
-            val obj = Notification(uuid, userId, title, content, currentTime, false)
-            val serializedObj = Json.encodeToString(obj)
-
-            NotificationSessions.broadcastTo(userId, serializedObj)
-        }
-    }
+    obj.deliver()
 }
 
 /**

@@ -1,8 +1,8 @@
 package app.burrow.account.models
 
 import app.burrow.ServerError
+import app.burrow.account.Authorization
 import app.burrow.account.Users
-import app.burrow.account.generateToken
 import app.burrow.query
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -12,19 +12,22 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.date.getTimeMillis
 import kotlin.system.exitProcess
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.update
 
 /**
  * A Burrow user.
  *
- * @param googleID The user's Google ID
+ * @param id The user's Google ID
  * @param name The user's selected name.
  * @param email The user's email.
  * @param phoneNumber The user's phone number.
@@ -32,7 +35,7 @@ import org.jetbrains.exposed.sql.update
  */
 @Serializable
 data class User(
-    val googleID: String,
+    val id: String,
     val name: String,
     val email: String,
     val phoneNumber: String,
@@ -46,7 +49,7 @@ data class User(
          */
         fun fromRow(row: ResultRow): User =
             User(
-                row[Users.googleID],
+                row[Users.id],
                 row[Users.name],
                 row[Users.email],
                 row[Users.phoneNumber],
@@ -55,6 +58,9 @@ data class User(
     }
 }
 
+private val client =
+    HttpClient(CIO) { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
+
 /**
  * Using a Google JWT token, verify that they have te proper domain then either create an account or
  * create a login token.
@@ -62,14 +68,10 @@ data class User(
  * @param token Authorized Google JWT
  */
 suspend fun retrieveUser(token: String): AuthorizedUser? {
-    val client =
-        HttpClient(CIO) { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
-
     // TODO verify locally
     val resp = client.get("https://oauth2.googleapis.com/tokeninfo?id_token=${token}").bodyAsText()
 
     val json = Json.parseToJsonElement(resp).jsonObject
-
     val hd = json["hd"]
 
     if (hd == null || hd.jsonPrimitive.content != "umn.edu") {
@@ -85,7 +87,7 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
         return null
     }
 
-    val user = query { Users.selectAll().where { Users.googleID eq googleID }.singleOrNull() }
+    val user = query { Users.selectAll().where { Users.id eq googleID }.singleOrNull() }
 
     // user does not exist
     if (user == null) {
@@ -97,32 +99,32 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
                 it[Users.email] = email
                 it[Users.phoneNumber] = ""
                 it[Users.createdDate] = createdDate
-                it[Users.googleID] = googleID
+                it[Users.id] = googleID
             }
         }
 
         return AuthorizedUser(
             User(
-                googleID = googleID,
+                id = googleID,
                 name = name,
                 email = email,
                 phoneNumber = "",
                 createdDate = createdDate,
             ),
             true,
-            generateToken(googleID),
+            Authorization.generateToken(googleID),
         )
     } else {
         return AuthorizedUser(
             User(
-                googleID = googleID,
+                id = googleID,
                 name = user[Users.name],
                 email = user[Users.email],
                 phoneNumber = user[Users.phoneNumber],
                 createdDate = user[Users.createdDate],
             ),
             false,
-            generateToken(googleID),
+            Authorization.generateToken(googleID),
         )
     }
 }
@@ -136,7 +138,7 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
  */
 suspend fun updateUser(id: String, key: String, value: String) {
     query {
-        Users.update({ Users.googleID eq id }) {
+        Users.update({ Users.id eq id }) {
             when (key) {
                 "name" -> it[Users.name] = value
                 "phone" -> it[Users.phoneNumber] = value
@@ -155,7 +157,7 @@ suspend fun getUser(id: String): User {
     val user =
         query {
             try {
-                Users.selectAll().where { Users.googleID eq id }.firstOrNull()
+                Users.selectAll().where { Users.id eq id }.firstOrNull()
             } catch (ex: Exception) {
                 ex.printStackTrace()
                 exitProcess(-1)

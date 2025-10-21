@@ -11,7 +11,7 @@ export default function CreateButton() {
     return (
         <motion.button
             onClick={() => setModalOpen(true)}
-            className="cursor-pointer inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-sm font-medium text-neutral-900 hover:bg-secondary-hover transition-colors shadow-sm"
+            className="cursor-pointer inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-sm font-medium text-neutral-900 hover:bg-secondary-hover transition-colors shadow-sm"
             whileTap={{ scale: 0.97 }}
             whileHover={{ scale: 1.03 }}
         >

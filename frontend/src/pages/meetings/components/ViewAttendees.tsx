@@ -26,12 +26,7 @@ export default function ViewAttendees() {
         queryFn: async () => {
             const request = await getAttendees(auth, id!)
 
-            return request.filter(
-                (r) =>
-                    r.membership.status === "JOINED" ||
-                    r.membership.status === "WAITLISTED" ||
-                    r.membership.status === "BANNED"
-            )
+            return request.filter((r) => r.membership.status !== "LEFT")
         }
     })
 
@@ -39,7 +34,7 @@ export default function ViewAttendees() {
         if (!data || !user) return "MEMBER"
 
         return (
-            data?.find(({ membership }) => membership.userId === user.googleID)
+            data?.find(({ membership }) => membership.userId === user.id)
                 ?.membership.role ?? null
         )
     }, [data, user])

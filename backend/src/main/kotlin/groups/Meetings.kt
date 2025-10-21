@@ -2,13 +2,13 @@ package app.burrow.groups
 
 import app.burrow.account.Users
 import app.burrow.groups.models.GroupType
-import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.ReferenceOption
+import org.jetbrains.exposed.v1.core.Table
 
 /** A meeting. */
 object Meetings : Table("group_meetings") {
     val id = varchar("id", 64).uniqueIndex()
-    val owner = reference("owner", Users.googleID, onDelete = ReferenceOption.CASCADE)
+    val owner = reference("owner", Users.id, onDelete = ReferenceOption.CASCADE)
 
     val title = varchar("title", 255)
     val description = text("description")

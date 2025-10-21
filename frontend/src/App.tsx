@@ -4,15 +4,12 @@ import HomeView from "@pages/home/Home.view.tsx"
 import Meeting from "@pages/meetings/overview/Meeting.view.tsx"
 import AllMeetings from "@pages/meetings/AllMeetings.view.tsx"
 import LandingView from "@pages/landing/Landing.view.tsx"
-import Settings from "@pages/settings/Settings.view.tsx"
 import Header from "@features/layout/Header.tsx"
 import About from "@pages/about/About.tsx"
 import useUser from "@features/auth/api/hooks/useUser.ts"
 import useToken from "@features/auth/api/hooks/useToken.ts"
 import NotFound from "@pages/notfound/NotFound.view.tsx"
 import { useAtom } from "jotai"
-
-import "./index.css"
 import Footer from "@features/layout/Footer.tsx"
 import CreateStudyGroupModal from "@features/create/components/CreateStudyGroupModal.tsx"
 import { studyGroupModal } from "@features/create/api/modal.atom.ts"
@@ -20,6 +17,9 @@ import { themeAtom } from "@api/theme.atom.ts"
 import Privacy from "@pages/legal/Privacy.view.tsx"
 import ToS from "@pages/legal/ToS.view.tsx"
 import { Toaster } from "react-hot-toast"
+import SettingsModal from "@features/settings/SettingsModal.tsx"
+
+import "./index.css"
 
 function App() {
     // load user information & ensure logged in
@@ -74,20 +74,8 @@ function App() {
                         color: "var(--text-color",
                         border: "1px solid var(--hero-color)",
                         borderRadius: "0.75rem",
-                        padding: "0.75rem 1rem",
-                    },
-                    success: {
-                        iconTheme: {
-                            primary: "var(--success-color)",
-                            secondary: "var(--card-background-color)",
-                        },
-                    },
-                    error: {
-                        iconTheme: {
-                            primary: "var(--error-color))",
-                            secondary: "var(--card-background-color)",
-                        },
-                    },
+                        padding: "0.75rem 1rem"
+                    }
                 }}
             />
 
@@ -98,12 +86,12 @@ function App() {
                     title="Create a Study Group"
                 />
 
+                <SettingsModal />
+
                 <Routes>
                     <Route path="/" element={<HomeView />} />
 
                     <Route path="/about" element={<About />} />
-
-                    <Route path="/settings" element={<Settings />} />
 
                     <Route path="/welcome" element={<LandingView />} />
 

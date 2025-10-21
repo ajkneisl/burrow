@@ -46,7 +46,7 @@ export default function Meeting() {
         () =>
             auth !== "" &&
             user !== null &&
-            user.googleID === data?.meeting?.owner,
+            user.id === data?.meeting?.owner,
         [auth, data?.meeting?.owner, user]
     )
 
