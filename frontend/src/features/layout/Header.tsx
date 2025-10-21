@@ -9,6 +9,7 @@ import { useAtom } from "jotai"
 import { mobileSearchOpen } from "@features/layout/search/search.atom.ts"
 import MobileSearch from "@features/layout/search/components/MobileSearch.tsx"
 import clsx from "clsx"
+import useToken from "@features/auth/api/hooks/useToken.ts"
 
 /**
  * The main header :)
@@ -17,6 +18,7 @@ import clsx from "clsx"
  */
 export default function Header() {
     const nav = useNavigate()
+    const auth = useToken()
     const location = useLocation()
 
     const [open, setMobileSearchOpen] = useAtom(mobileSearchOpen)
@@ -54,7 +56,7 @@ export default function Header() {
 
                     <div className="flex items-center gap-2 md:gap-3">
                         {/* Create Button */}
-                        <CreateButton />
+                        {auth !== null && <CreateButton />}
 
                         {/* back button ONLY when not home */}
                         {location.pathname !== "/" &&
@@ -71,8 +73,21 @@ export default function Header() {
                                     stroke="currentColor"
                                     strokeWidth={2}
                                 >
-                                    <circle cx="11" cy="11" r="7" strokeLinecap="round" strokeLinejoin="round" />
-                                    <line x1="16.65" y1="16.65" x2="21" y2="21" strokeLinecap="round" strokeLinejoin="round" />
+                                    <circle
+                                        cx="11"
+                                        cy="11"
+                                        r="7"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                    <line
+                                        x1="16.65"
+                                        y1="16.65"
+                                        x2="21"
+                                        y2="21"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
                                 </svg>
                             }
                         />

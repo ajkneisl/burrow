@@ -2,8 +2,8 @@ package app.burrow
 
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
-import app.burrow.account.Users
 import app.burrow.groups.GROUP_ROUTES
+import app.burrow.groups.models.getMeetingResponse
 import app.burrow.groups.sync.Sync
 import app.burrow.notifications.NOTIFICATION_ROUTES
 import app.burrow.notifications.notificationWorker
@@ -34,15 +34,7 @@ import io.ktor.server.websocket.*
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.v1.core.vendors.PostgreSQLDialect
-import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
-import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabaseConfig
-import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
-import org.jetbrains.exposed.v1.r2dbc.selectAll
-import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 
@@ -160,6 +152,23 @@ suspend fun Application.module() {
                 route("/notifications", NOTIFICATION_ROUTES)
                 route("/groups/{id}", Sync.SYNC_ROUTES)
                 route("/user", USER_ROUTES)
+
+                // GET /groups/{id}
+                // retrieve an individual meeting
+                //
+                // this is here because this does NOT need to be authenticated
+                // to support guest users
+                get("/groups/{id}") {
+                    val user = call.principal<JWTPrincipal>()?.subject
+                    val id =
+                        call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+
+                    val meeting =
+                        getMeetingResponse(id, user)
+                            ?: return@get call.respond(HttpStatusCode.NotFound)
+
+                    call.respond(meeting)
+                }
 
                 authenticate("primary") { route("/groups", GROUP_ROUTES) }
             }

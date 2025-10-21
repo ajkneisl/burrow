@@ -7,7 +7,6 @@ import LandingView from "@pages/landing/Landing.view.tsx"
 import Header from "@features/layout/Header.tsx"
 import About from "@pages/about/About.tsx"
 import useUser from "@features/auth/api/hooks/useUser.ts"
-import useToken from "@features/auth/api/hooks/useToken.ts"
 import NotFound from "@pages/notfound/NotFound.view.tsx"
 import { useAtom } from "jotai"
 import Footer from "@features/layout/Footer.tsx"
@@ -24,7 +23,6 @@ import "./index.css"
 function App() {
     // load user information & ensure logged in
     useUser()
-    const auth = useToken()
 
     const [modalOpen, setModalOpen] = useAtom(studyGroupModal)
     const [darkMode, setDarkMode] = useAtom(themeAtom)
@@ -64,7 +62,8 @@ function App() {
 
     return (
         <div className="gopher-stand bg-background text-text min-h-screen w-full flex flex-col bg-background-color transition-colors duration-300">
-            {auth !== null && <Header />}
+            {/* don't show header on welcome */}
+            {window.location.pathname !== "/welcome" && <Header />}
 
             <Toaster
                 position="top-right"

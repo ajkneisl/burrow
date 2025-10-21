@@ -26,7 +26,13 @@ export default function HomeView() {
     )
 
     useEffect(() => {
-        if (auth === null) {
+        // if the location is 9 or 17 then they're viewing a meeting
+        // for example `/abcdefg` or `/meeting/abcdefg`
+        if (
+            auth === null &&
+            window.location.pathname.length !== 9 &&
+            window.location.hostname.length !== 17
+        ) {
             nav("/welcome")
         }
     }, [auth, nav])
