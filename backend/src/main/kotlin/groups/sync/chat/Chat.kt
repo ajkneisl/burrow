@@ -11,7 +11,6 @@ import app.burrow.groups.sync.models.Response
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
-import kotlin.collections.toList
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -66,7 +65,7 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
     /** Get all chat members from a meeting. */
     suspend fun getChatMembers(): List<ChatMember> {
         val members = query {
-            Memberships.innerJoin(Users, { Memberships.userId }, { Users.googleID })
+            Memberships.innerJoin(Users, { Memberships.userId }, { Users.id })
                 .select(Memberships.userId, Users.name)
                 .where { Memberships.meetingId eq meetingId }
                 .map { member -> ChatMember(member[Memberships.userId], member[Users.name]) }

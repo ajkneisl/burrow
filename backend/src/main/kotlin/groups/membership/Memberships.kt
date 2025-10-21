@@ -9,7 +9,7 @@ import org.jetbrains.exposed.v1.core.Table
 
 object Memberships : Table("memberships") {
     val meetingId = reference("meeting_id", Meetings.id, onDelete = ReferenceOption.CASCADE)
-    val userId = reference("user_id", Users.googleID, onDelete = ReferenceOption.CASCADE)
+    val userId = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
 
     val role =
         enumerationByName("role", 32, MeetingRole::class)

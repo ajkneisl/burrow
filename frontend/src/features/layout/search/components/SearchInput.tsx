@@ -20,7 +20,7 @@ export default function SearchInput({
         <form
             onSubmit={handleSubmit}
             role="search"
-            className="relative w-full max-w-md"
+            className="relative w-full lg:min-w-md"
             ref={searchRef}
         >
             <input

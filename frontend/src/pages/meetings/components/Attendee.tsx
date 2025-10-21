@@ -61,7 +61,7 @@ export default function Attendee({
     meetingRole
 }: AttendeeProps) {
     const auth = useToken()
-    const userId = useUser()?.googleID
+    const userId = useUser()?.id
     const queryClient = useQueryClient()
 
     // ban / unban a user
@@ -99,7 +99,7 @@ export default function Attendee({
         () => meetingRole === "MODERATOR",
         [meetingRole]
     )
-    const isSelf = useMemo(() => userId === user.googleID, [user, userId])
+    const isSelf = useMemo(() => userId === user.id, [user, userId])
 
     const canBan = useMemo(
         () =>

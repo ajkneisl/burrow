@@ -2,10 +2,11 @@ import { useEffect, useMemo } from "react"
 import { useNavigate, useSearchParams } from "react-router"
 import useToken from "@features/auth/api/hooks/useToken.ts"
 import PreviewGroupMeetings from "@pages/home/components/PreviewGroupMeetings.tsx"
-import Schedule from "@features/schedule/components/Schedule.tsx"
 import { useAtom } from "jotai"
 import { newUser } from "@features/auth/api/auth.atom.ts"
 import NewUserIntro from "@pages/home/components/NewUserIntro.tsx"
+import MeetingsSection from "@features/groups/components/MeetingsSection.tsx"
+import { getBookmarks, getSchedule } from "@features/groups/api/groups.api.ts"
 
 /**
  * The homepage `/`.
@@ -51,7 +52,19 @@ export default function HomeView() {
                 aria-label="Utilities"
                 className="col-span-3 lg:col-span-1 space-y-6"
             >
-                <Schedule />
+                <MeetingsSection
+                    title="My Schedule"
+                    queryKey={["schedule"]}
+                    queryFn={() => getSchedule(auth!!)}
+                    emptyText="You have no upcoming meetings."
+                />
+
+                <MeetingsSection
+                    title="My Bookmarks"
+                    queryKey={["bookmarks"]}
+                    queryFn={() => getBookmarks(auth!!)}
+                    emptyText="You have no bookmarks."
+                />
             </aside>
         </div>
     )

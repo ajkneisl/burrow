@@ -8,6 +8,6 @@ import org.jetbrains.exposed.v1.core.Table
 /** Table for [Bookmark]. */
 object Bookmarks : Table("bookmarks") {
     val meetingId = reference("meeting_id", Meetings.id, onDelete = ReferenceOption.CASCADE)
-    val userId = reference("user_id", Users.googleID, onDelete = ReferenceOption.CASCADE)
+    val userId = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
     val createdAt = long("created_at")
 }

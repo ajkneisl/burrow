@@ -96,7 +96,7 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
                             </span>
                         )}
 
-                        {user !== null && meeting.owner === user.googleID && (
+                        {user !== null && meeting.owner === user.id && (
                             <span
                                 className="inline-flex items-center rounded-full bg-warn/10 px-2.5 py-1 text-warn ring-1 ring-inset ring-warn/30"
                                 title="You are the host"

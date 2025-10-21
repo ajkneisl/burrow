@@ -239,7 +239,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                         <Chat
                             message={message}
                             editable={
-                                message.userId === user?.googleID || moderator
+                                message.userId === user?.id || moderator
                             }
                             names={names}
                             deleteButton={() =>

@@ -11,7 +11,7 @@ import org.jetbrains.exposed.v1.core.Table
 object ChatMessages : Table("chat_messages") {
     val messageId = uuid("message_id").uniqueIndex()
     val meetingId = reference("meeting_id", Meetings.id, onDelete = ReferenceOption.CASCADE)
-    val userId = reference("user_id", Users.googleID, onDelete = ReferenceOption.CASCADE)
+    val userId = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
     val date = long("date")
     val message = varchar("message", length = 256)
 }

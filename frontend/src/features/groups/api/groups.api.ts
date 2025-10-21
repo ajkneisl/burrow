@@ -322,3 +322,35 @@ export async function toggleBanMember(
         throw new Error(message || "Failed to ban member")
     }
 }
+
+/**
+ * Get the schedule.
+ *
+ * @param auth The authorization token.
+ */
+export async function getSchedule(
+    auth: string
+): Promise<GroupMeetingResponse[]> {
+    const request = await fetch(`${BASE_URL}/groups/schedule`, {
+        headers: {
+            Authorization: `Bearer ${auth}`
+        }
+    })
+
+    return await request.json()
+}
+
+/**
+ * Get all bookmarks.
+ *
+ * @param auth The authorization token.
+ */
+export async function getBookmarks(auth: string): Promise<GroupMeetingResponse[]> {
+    const request = await fetch(`${BASE_URL}/groups/bookmarks`, {
+        headers: {
+            Authorization: `Bearer ${auth}`
+        }
+    })
+
+    return await request.json()
+}

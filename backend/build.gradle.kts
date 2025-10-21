@@ -44,9 +44,10 @@ dependencies {
 
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-r2dbc:$exposed_version")
-    implementation("org.postgresql:r2dbc-postgresql:1.1.0.RELEASE")
 
-    implementation("com.h2database:h2:$h2_version")
+    implementation("io.r2dbc:r2dbc-pool:1.0.2.RELEASE")
+    implementation("org.postgresql:r2dbc-postgresql:1.0.7.RELEASE")
+
     implementation("io.github.flaxoos:ktor-server-rate-limiting:2.2.1")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
@@ -65,3 +66,7 @@ repositories {
 val compileKotlin: KotlinCompile by tasks
 
 compileKotlin.compilerOptions { freeCompilerArgs.set(listOf("-Xnested-type-aliases")) }
+
+ktor {
+    development = false
+}

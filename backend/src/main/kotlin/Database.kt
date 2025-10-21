@@ -1,41 +1,65 @@
 package app.burrow
 
-import org.jetbrains.exposed.v1.core.StdOutSqlLogger
+import app.burrow.notifications.Notification
+import app.burrow.notifications.Notifications
+import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
+import io.r2dbc.postgresql.PostgresqlConnectionFactory
+import io.r2dbc.spi.IsolationLevel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.jetbrains.exposed.v1.core.vendors.PostgreSQLDialect
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabaseConfig
 import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
+import org.jetbrains.exposed.v1.r2dbc.SchemaUtils
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.slf4j.LoggerFactory
 
-private lateinit var DB: R2dbcDatabase
+var DB: R2dbcDatabase? = null
 
 /** Create a suspended transactions with [block]. */
 suspend fun <T> query(block: suspend R2dbcTransaction.() -> T): T =
-    suspendTransaction(
-        db = DB,
-        statement = {
-            addLogger(StdOutSqlLogger)
-            block()
-        },
-    )
+    withContext(Dispatchers.IO) { suspendTransaction(DB, block) }
 
 private val runningDocker = System.getenv("DOCKER")?.toBoolean() == true
-private val logger = LoggerFactory.getLogger("Database")
+private val LOGGER = LoggerFactory.getLogger("Database")
 
 /** Initialize and connect to the database. */
 suspend fun initDb() {
     val address = if (runningDocker) "database" else "localhost"
-    val postgresUrl = "r2dbc:postgresql://${address}:5432/burrow"
 
-    logger.debug("Connecting (R2DBC) to {}", postgresUrl)
+    LOGGER.debug("Connecting (R2DBC) to {}", address)
 
-    DB =
-        runCatching {
-                R2dbcDatabase.connect(url = postgresUrl, user = "postgres", password = "postgres")
-            }
-            .getOrElse {
-                println("FATAL: Failed to connect to database via R2DBC: ${it.message}")
-                throw IllegalStateException("Database connection failed", it)
-            }
+    runCatching {
+            val connectionFactory =
+                PostgresqlConnectionFactory(
+                    PostgresqlConnectionConfiguration.builder()
+                        .host(address)
+                        .port(5432)
+                        .database("burrow")
+                        .username("postgres")
+                        .password("postgres")
+                        .build()
+                )
 
-    logger.debug("Connected to Database")
+            DB =
+                R2dbcDatabase.connect(
+                    connectionFactory = connectionFactory,
+                    databaseConfig =
+                        R2dbcDatabaseConfig {
+                            defaultMaxAttempts = 1
+                            defaultR2dbcIsolationLevel = IsolationLevel.READ_COMMITTED
+                            explicitDialect = PostgreSQLDialect()
+                        },
+                )
+        }
+        .getOrElse {
+            println("FATAL: Failed to connect to database via R2DBC: ${it.message}")
+            throw IllegalStateException("Database connection failed", it)
+        }
+
+    query {
+        SchemaUtils.createMissingTablesAndColumns(Notifications)
+    }
+    LOGGER.debug("Connected to Database")
 }

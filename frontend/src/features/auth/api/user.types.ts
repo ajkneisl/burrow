@@ -21,7 +21,7 @@ export type AuthorizedUser = {
  * @param createdAt When the user created their account.
  */
 export type User = {
-    googleID: string
+    id: string
     name: string
     email: string
     phoneNumber: string

@@ -1,18 +1,16 @@
 import { dayLabel, formatDateTime } from "@api/util.ts"
-
-type Group = { label: string; items: GroupMeetingResponse[] }
 import { useQuery } from "@tanstack/react-query"
-import { getSchedule } from "@features/schedule/api/schedule.api.ts"
-import { useAtom } from "jotai"
-import { authToken } from "@features/auth/api/auth.atom.ts"
 import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
 import { useMemo } from "react"
 import { useNavigate } from "react-router"
 import Card from "@components/Card.tsx"
 
+type Group = { label: string; items: GroupMeetingResponse[] }
+
 /**
- * An empty schedule entry.
- * @see Schedule
+ * Skeleton row for loading
+ *
+ * @see MeetingsSection
  */
 function SkeletonRow() {
     return (
@@ -27,34 +25,51 @@ function SkeletonRow() {
 }
 
 /**
- * The schedule element, seen on the homepage.
- * This shows the next 3 joined meetings and what time they're at.
+ * @see MeetingsSection
  */
-export default function Schedule() {
-    const [auth] = useAtom(authToken)
+type MeetingsSectionProps = {
+    title: string
+    queryKey: (string | number)[]
+    queryFn: () => Promise<GroupMeetingResponse[]>
+    emptyText?: string
+    skeletonCount?: number
+}
+
+/**
+ * A reusable meetings section, used for `My Bookmarks` and `My Schedule`
+ *
+ * @param title The title of the section.
+ * @param queryKey The key to reuse data if possible.
+ * @param queryFn The function to retrieve the data.
+ * @param emptyText When there's no elements
+ * @param skeletonCount How many skeletons to load when loading
+ * @constructor
+ */
+export default function MeetingsSection({
+    title,
+    queryKey,
+    queryFn,
+    emptyText = "Nothing upcoming.",
+    skeletonCount = 3
+}: MeetingsSectionProps) {
     const nav = useNavigate()
 
     const { data, isLoading, error, refetch, isFetching } = useQuery<
         GroupMeetingResponse[]
     >({
-        queryKey: ["schedule", "next"],
-        queryFn: () => getSchedule(auth)
+        queryKey,
+        queryFn
     })
 
-    const onClick = (meetingId: string) => {
-        nav(`/meeting/${meetingId}`)
-    }
+    const onClick = (meetingId: string) => nav(`/meeting/${meetingId}`)
 
     const groups = useMemo(() => {
-        // sort the data by the day label
         return (data ?? []).reduce<Group[]>((acc, item) => {
             const label = dayLabel(item.meeting.beginningTime)
             const last = acc[acc.length - 1]
-
             if (!last || last.label !== label)
                 acc.push({ label, items: [item] })
             else last.items.push(item)
-
             return acc
         }, [])
     }, [data])
@@ -62,12 +77,12 @@ export default function Schedule() {
     return (
         <section className="w-full">
             <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-2xl figtree mt-8">My Schedule</h2>
+                <h2 className="text-2xl figtree mt-8">{title}</h2>
             </div>
 
             {error && (
                 <div className="mb-4 rounded-2xl border border-error/30 bg-error/10 p-4 text-sm text-error">
-                    Couldn’t load schedule.{" "}
+                    Couldn’t load data.{" "}
                     <button onClick={() => refetch()} className="underline">
                         Retry
                     </button>
@@ -77,14 +92,14 @@ export default function Schedule() {
 
             {isLoading && (
                 <div className="flex flex-col gap-3">
-                    <SkeletonRow />
-                    <SkeletonRow />
-                    <SkeletonRow />
+                    {Array.from({ length: skeletonCount }).map((_, i) => (
+                        <SkeletonRow key={i} />
+                    ))}
                 </div>
             )}
 
             {!isLoading && groups.length === 0 && !error && (
-                <p className="text-text/70">Nothing upcoming.</p>
+                <p className="text-text/70">{emptyText}</p>
             )}
 
             {!isLoading && groups.length > 0 && (

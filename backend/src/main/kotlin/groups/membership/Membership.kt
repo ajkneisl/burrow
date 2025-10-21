@@ -4,11 +4,14 @@ import app.burrow.ServerError
 import app.burrow.account.Users
 import app.burrow.account.models.User
 import app.burrow.groups.Meetings
+import app.burrow.groups.bookmarks.Bookmarks
 import app.burrow.groups.models.GroupMeeting
 import app.burrow.groups.models.GroupMeetingResponse
 import app.burrow.groups.models.MeetingMemberStatus
 import app.burrow.groups.models.MeetingRole
 import app.burrow.notifications.createNotification
+import app.burrow.notifications.onUserJoinedMeeting
+import app.burrow.notifications.onUserLeaveMeeting
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.flow.first
@@ -82,7 +85,7 @@ suspend infix fun String.isModerator(meetingId: String): Boolean {
 suspend fun getUserMeetings(user: String): List<GroupMeetingResponse> {
     val result = query {
         Memberships.innerJoin(Meetings, { Memberships.meetingId }, { Meetings.id })
-            .innerJoin(Users, { Meetings.owner }, { Users.googleID })
+            .innerJoin(Users, { Meetings.owner }, { Users.id })
             .selectAll()
             .where {
                 (Memberships.userId eq user) and // the user's meetings
@@ -97,6 +100,39 @@ suspend fun getUserMeetings(user: String): List<GroupMeetingResponse> {
                     meetingAuthor = row[Users.name],
                     membership = Membership.fromRow(row = row),
                     bookmarked = false,
+                )
+            }
+            .toList()
+    }
+
+    return result
+}
+
+/**
+ * Get all [GroupMeeting]s a [user] has bookmarked.
+ *
+ * @param user The ID of the user to find all [GroupMeeting]s for.
+ */
+suspend fun getUserBookmarks(user: String): List<GroupMeetingResponse> {
+    val result = query {
+        Memberships.innerJoin(Meetings, { Memberships.meetingId }, { Meetings.id })
+            .innerJoin(Users, { Meetings.owner }, { Users.id })
+            .innerJoin(Bookmarks, { Memberships.meetingId }, { Bookmarks.meetingId })
+            .selectAll()
+            .where {
+                (Memberships.userId eq user) and // the user's meetings
+                    (Memberships.status eq MeetingMemberStatus.JOINED) and // in the meeting
+                    (Meetings.endTime greaterEq getTimeMillis()) and // ensure it hasn't ended
+                    (Bookmarks.userId eq user)
+            }
+            .orderBy(Meetings.beginningTime, SortOrder.DESC)
+            .limit(3)
+            .map { row ->
+                GroupMeetingResponse(
+                    meeting = GroupMeeting.fromRow(row),
+                    meetingAuthor = row[Users.name],
+                    membership = Membership.fromRow(row = row),
+                    bookmarked = true,
                 )
             }
             .toList()
@@ -216,16 +252,16 @@ suspend fun changeRole(meetingId: String, userId: String, role: MeetingRole) {
 }
 
 /**
- * Have a [user] leave a [meeting].
+ * Have a [userId] leave a [meetingId].
  *
- * @param user The ID of the user leaving the meeting.
- * @param meeting The ID of the meeting to leave.
+ * @param userId The ID of the user leaving the meeting.
+ * @param meetingId The ID of the meeting to leave.
  * @throws ServerError If the user is not in the meeting or they're the host.
  */
-suspend fun leaveMeeting(user: String, meeting: String) {
+suspend fun leaveMeeting(userId: String, meetingId: String) {
     val existingMembership = query {
         Memberships.selectAll()
-            .where { (Memberships.userId eq user) and (Memberships.meetingId eq meeting) }
+            .where { (Memberships.userId eq userId) and (Memberships.meetingId eq meetingId) }
             .firstOrNull()
     }
 
@@ -242,12 +278,18 @@ suspend fun leaveMeeting(user: String, meeting: String) {
         throw ServerError(404, "A host cannot leave their own meeting!")
     }
 
+    // allow the user to leave
     query {
-        Memberships.update(where = { Memberships.userId eq user }) {
+        Memberships.update(
+            where = { (Memberships.userId eq userId) and (Memberships.meetingId eq meetingId) }
+        ) {
             it[role] = MeetingRole.MEMBER
             it[status] = MeetingMemberStatus.LEFT
             it[leftAt] = getTimeMillis()
         }
+
+        // un-schedule their notification
+        onUserLeaveMeeting(userId, meetingId)
     }
 
     // the user who was waitlisted last gets first dibs
@@ -255,7 +297,7 @@ suspend fun leaveMeeting(user: String, meeting: String) {
         val earliestWaitlist =
             Memberships.selectAll()
                 .where {
-                    (Memberships.meetingId eq meeting) and
+                    (Memberships.meetingId eq meetingId) and
                         (Memberships.status eq MeetingMemberStatus.WAITLISTED)
                 }
                 .orderBy(Memberships.joinedAt, SortOrder.DESC)
@@ -265,7 +307,7 @@ suspend fun leaveMeeting(user: String, meeting: String) {
             val waitingUser = earliestWaitlist[Memberships.userId]
 
             Memberships.update({
-                (Memberships.userId eq waitingUser) and (Memberships.meetingId eq meeting)
+                (Memberships.userId eq waitingUser) and (Memberships.meetingId eq meetingId)
             }) {
                 // welcome to the club :)
                 it[Memberships.status] = MeetingMemberStatus.JOINED
@@ -273,87 +315,97 @@ suspend fun leaveMeeting(user: String, meeting: String) {
 
             // notification that they've joined
             createNotification("Joined Meeting", "You've been moved off the waitlist!", waitingUser)
+
+            // schedule their upcoming meeting notification
+            onUserJoinedMeeting(userId, meetingId)
         }
     }
 }
 
 /**
- * Have [user] join a [meeting].
+ * Have [userId] join a [meetingId].
  *
- * @param user The ID of the user joining the meeting.
- * @param meeting The ID of the meeting to join.
+ * @param userId The ID of the user joining the meeting.
+ * @param meetingId The ID of the meeting to join.
  * @throws ServerError If the user is banned or already joined/waitlisted.
  */
-suspend fun joinMeeting(user: String, meeting: String) {
+suspend fun joinMeeting(userId: String, meetingId: String) {
     val existingMembership = query {
         Memberships.selectAll()
-            .where { (Memberships.userId eq user) and (Memberships.meetingId eq meeting) }
+            .where { (Memberships.userId eq userId) and (Memberships.meetingId eq meetingId) }
             .firstOrNull()
     }
 
     val count = query {
-        Memberships.selectAll().where { (Memberships.meetingId eq meeting) }.count()
+        Memberships.selectAll().where { (Memberships.meetingId eq meetingId) }.count()
     }
 
     // if capacity = 0, then there's no limit >:)
     val capacity = query {
         Meetings.select(Meetings.id, Meetings.capacity)
-            .where { Meetings.id eq meeting }
+            .where { Meetings.id eq meetingId }
             .first()[Meetings.capacity]
     }
 
-    // the user already has seen this place..
-    if (existingMembership != null) {
-        when {
-            // they're banned, oh no!
-            existingMembership[Memberships.status] == MeetingMemberStatus.BANNED -> {
-                throw ServerError(401, "You are not authorized to join this meeting.")
-            }
+    // if the meeting is full
+    // if the capacity is zero, then there's no limit
+    val atCapacity = count >= capacity && capacity != 0
 
-            // waitlist previous
-            existingMembership[Memberships.status] == MeetingMemberStatus.LEFT &&
-                (count >= capacity && capacity != 0) -> {
+    // the user has previously joined this meeting
+    if (existingMembership != null) {
+        // they're banned from the meeting
+        if (existingMembership[Memberships.status] == MeetingMemberStatus.BANNED) {
+            throw ServerError(401, "You are not authorized to join this meeting.")
+        }
+
+        if (existingMembership[Memberships.status] == MeetingMemberStatus.LEFT) {
+            // meeting is full
+            if (atCapacity) {
                 query {
                     Memberships.update({
-                        (Memberships.userId eq user) and (Memberships.meetingId eq meeting)
+                        (Memberships.userId eq userId) and (Memberships.meetingId eq meetingId)
                     }) {
                         it[status] = MeetingMemberStatus.WAITLISTED
                         it[leftAt] = null
                         it[joinedAt] = getTimeMillis()
                     }
                 }
-            }
-
-            // previously joined, ok
-            existingMembership[Memberships.status] == MeetingMemberStatus.LEFT -> {
+            } else {
                 query {
                     Memberships.update({
-                        (Memberships.userId eq user) and (Memberships.meetingId eq meeting)
+                        (Memberships.userId eq userId) and (Memberships.meetingId eq meetingId)
                     }) {
                         it[status] = MeetingMemberStatus.JOINED
                         it[leftAt] = null
                         it[joinedAt] = getTimeMillis()
                     }
                 }
+
+                // schedule notification
+                onUserJoinedMeeting(userId, meetingId)
             }
 
-            // they're either already joined, or they're waitlisted; let them know we don't deal
-            // that business here.
-            else -> throw ServerError(400, "You currently cannot join this meeting!")
+            return
         }
+
+        // they're either already joined, or they're waitlisted; let them know we don't deal
+        // that business here.
+        throw ServerError(400, "You currently cannot join this meeting!")
     } else {
-        query {
+        val status = query {
             Memberships.insert {
-                it[userId] = user
-                it[meetingId] = meeting
-                it[joinedAt] = getTimeMillis()
+                it[this.userId] = userId
+                it[this.meetingId] = meetingId
+                it[this.joinedAt] = getTimeMillis()
+                it[this.role] = MeetingRole.MEMBER
+
                 // status depending on count
-                it[status] =
-                    if (count >= capacity && capacity != 0) MeetingMemberStatus.WAITLISTED
-                    else MeetingMemberStatus.JOINED
-                it[role] = MeetingRole.MEMBER
-            }
+                it[this.status] =
+                    if (atCapacity) MeetingMemberStatus.WAITLISTED else MeetingMemberStatus.JOINED
+            } get (Memberships.status)
         }
+
+        if (status == MeetingMemberStatus.JOINED) onUserJoinedMeeting(userId, meetingId)
     }
 }
 
@@ -364,7 +416,7 @@ suspend fun joinMeeting(user: String, meeting: String) {
  */
 suspend fun getAttendees(meetingId: String): List<MembershipResponse> {
     val attendees = query {
-        Memberships.innerJoin(Users, { Memberships.userId }, { Users.googleID })
+        Memberships.innerJoin(Users, { Memberships.userId }, { Users.id })
             .selectAll()
             .where { Memberships.meetingId eq meetingId }
             .map { row -> MembershipResponse(Membership.fromRow(row), User.fromRow(row)) }

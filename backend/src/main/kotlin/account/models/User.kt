@@ -1,8 +1,8 @@
 package app.burrow.account.models
 
 import app.burrow.ServerError
+import app.burrow.account.Authorization
 import app.burrow.account.Users
-import app.burrow.account.generateToken
 import app.burrow.query
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -27,7 +27,7 @@ import org.jetbrains.exposed.v1.r2dbc.update
 /**
  * A Burrow user.
  *
- * @param googleID The user's Google ID
+ * @param id The user's Google ID
  * @param name The user's selected name.
  * @param email The user's email.
  * @param phoneNumber The user's phone number.
@@ -35,7 +35,7 @@ import org.jetbrains.exposed.v1.r2dbc.update
  */
 @Serializable
 data class User(
-    val googleID: String,
+    val id: String,
     val name: String,
     val email: String,
     val phoneNumber: String,
@@ -49,7 +49,7 @@ data class User(
          */
         fun fromRow(row: ResultRow): User =
             User(
-                row[Users.googleID],
+                row[Users.id],
                 row[Users.name],
                 row[Users.email],
                 row[Users.phoneNumber],
@@ -87,44 +87,44 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
         return null
     }
 
-    val user = query { Users.selectAll().where { Users.googleID eq googleID }.singleOrNull() }
+    val user = query { Users.selectAll().where { Users.id eq googleID }.singleOrNull() }
 
     // user does not exist
     if (user == null) {
         val createdDate = getTimeMillis()
 
-//        query {
-//            Users.insert {
-//                it[Users.name] = name
-//                it[Users.email] = email
-//                it[Users.phoneNumber] = ""
-//                it[Users.createdDate] = createdDate
-//                it[Users.googleID] = googleID
-//            }
-//        }
+        query {
+            Users.insert {
+                it[Users.name] = name
+                it[Users.email] = email
+                it[Users.phoneNumber] = ""
+                it[Users.createdDate] = createdDate
+                it[Users.id] = googleID
+            }
+        }
 
         return AuthorizedUser(
             User(
-                googleID = googleID,
+                id = googleID,
                 name = name,
                 email = email,
                 phoneNumber = "",
                 createdDate = createdDate,
             ),
             true,
-            generateToken(googleID),
+            Authorization.generateToken(googleID),
         )
     } else {
         return AuthorizedUser(
             User(
-                googleID = googleID,
+                id = googleID,
                 name = user[Users.name],
                 email = user[Users.email],
                 phoneNumber = user[Users.phoneNumber],
                 createdDate = user[Users.createdDate],
             ),
             false,
-            generateToken(googleID),
+            Authorization.generateToken(googleID),
         )
     }
 }
@@ -138,7 +138,7 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
  */
 suspend fun updateUser(id: String, key: String, value: String) {
     query {
-        Users.update({ Users.googleID eq id }) {
+        Users.update({ Users.id eq id }) {
             when (key) {
                 "name" -> it[Users.name] = value
                 "phone" -> it[Users.phoneNumber] = value
@@ -157,7 +157,7 @@ suspend fun getUser(id: String): User {
     val user =
         query {
             try {
-                Users.selectAll().where { Users.googleID eq id }.firstOrNull()
+                Users.selectAll().where { Users.id eq id }.firstOrNull()
             } catch (ex: Exception) {
                 ex.printStackTrace()
                 exitProcess(-1)
