@@ -8,7 +8,6 @@ import useUser from "@features/auth/api/hooks/useUser.ts"
 import { useQueryClient } from "@tanstack/react-query"
 import useToken from "@features/auth/api/hooks/useToken.ts"
 import Button from "@components/Button.tsx"
-import clsx from "clsx"
 
 type JoinMeetingProps = {
     data: GroupMeetingResponse
@@ -66,12 +65,8 @@ export default function JoinMeeting({ data }: JoinMeetingProps) {
     return (
         <Button
             onClick={joinLeaveButton}
-            colors={clsx(
-                "border",
-                data?.membership?.status === "JOINED"
-                    ? "border-error bg-error/80"
-                    : "border-success bg-success/80"
-            )}
+            disabled={auth === null}
+            color={data?.membership?.status === "JOINED" ? "ERROR" : "SUCCESS"}
         >
             {data?.membership?.status === "JOINED" ? "Leave" : "Join"}
         </Button>

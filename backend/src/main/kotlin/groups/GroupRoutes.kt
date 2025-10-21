@@ -1,6 +1,5 @@
 package app.burrow.groups
 
-import app.burrow.account.Users
 import app.burrow.groups.bookmarks.bookmarkRoutes
 import app.burrow.groups.membership.getUserBookmarks
 import app.burrow.groups.membership.getUserMeetings
@@ -15,7 +14,6 @@ import app.burrow.groups.models.getMeetings
 import app.burrow.groups.models.searchMeetings
 import app.burrow.groups.models.updateMeeting
 import app.burrow.groups.models.validateSubmittedGroupMeeting
-import app.burrow.query
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
@@ -27,8 +25,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import kotlinx.coroutines.flow.map
-import org.jetbrains.exposed.v1.r2dbc.select
 
 /**
  * All routes relating to [app.burrow.groups.models.GroupMeeting]s.
@@ -106,20 +102,6 @@ val GROUP_ROUTES: Route.() -> Unit = {
     // CRUD /groups/{id}
     // manage an individual meeting
     route("/{id}") {
-        // GET /groups/{id}
-        // retrieve an indivudal meeting
-        get {
-            val user =
-                call.principal<JWTPrincipal>()?.subject
-                    ?: return@get call.respond(HttpStatusCode.Forbidden)
-            val id = call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
-
-            val meeting =
-                getMeetingResponse(id, user) ?: return@get call.respond(HttpStatusCode.NotFound)
-
-            call.respond(meeting)
-        }
-
         // DELETE /groups/{id}
         // delete an individual meeting
         delete {

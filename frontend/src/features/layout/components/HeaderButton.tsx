@@ -6,6 +6,7 @@ import {
     type DetailedHTMLProps,
     type ReactNode
 } from "react"
+import useToken from "@features/auth/api/hooks/useToken.ts"
 
 /**
  * {@see HeaderButton}
@@ -25,14 +26,17 @@ type HeaderButtonProps = {
  */
 export default function HeaderButton({ icon, ...props }: HeaderButtonProps) {
     const [pressed, setPressed] = useState(false)
+    const auth = useToken()
 
     return (
         <button
             {...props}
+            disabled={auth === null}
             className={clsx(
                 "border-white/15 bg-white/5 text-white hover:bg-white/10",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-secondary focus-visible:ring-offset-transparent",
-                "cursor-pointer inline-flex h-10 w-10 items-center justify-center rounded-full border",
+                "inline-flex h-10 w-10 items-center justify-center rounded-full border",
+                auth === null ? "cursor-not-allowed" : "cursor-pointer",
                 props.className
             )}
             onPointerDown={(e) => {

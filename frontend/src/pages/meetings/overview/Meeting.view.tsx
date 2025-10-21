@@ -1,4 +1,4 @@
-import { useParams } from "react-router"
+import { Link, useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import useUser from "@features/auth/api/hooks/useUser.ts"
@@ -43,10 +43,7 @@ export default function Meeting() {
     useSync(data)
 
     const isOwner = useMemo(
-        () =>
-            auth !== "" &&
-            user !== null &&
-            user.id === data?.meeting?.owner,
+        () => auth !== "" && user !== null && user.id === data?.meeting?.owner,
         [auth, data?.meeting?.owner, user]
     )
 
@@ -54,6 +51,8 @@ export default function Meeting() {
         () => data?.membership?.status === "JOINED" || isOwner,
         [data?.membership?.status, isOwner]
     )
+
+    const isLoggedOut = useMemo(() => auth === null, [auth])
 
     if (isLoading)
         return (
@@ -86,6 +85,22 @@ export default function Meeting() {
 
     return (
         <main className="min-h-screen">
+            {/* memo to join burrow */}
+            {isLoggedOut && (
+                <div className="w-full text-text bg-primary shadow-md py-3 px-4 text-center rounded-2xl mt-4">
+                    <p className="text-sm sm:text-base font-medium">
+                        Interested in this Burrow?
+                        <br />
+                        <Link
+                            to="/welcome"
+                            className="mt-4 hover:text-text/40 underline underline-offset-4 font-semibold transition-colors"
+                        >
+                            Join Burrow Today
+                        </Link>
+                    </p>
+                </div>
+            )}
+
             <section className="relative isolate">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -126,12 +141,14 @@ export default function Meeting() {
                                     <div className="flex flex-wrap items-center gap-2 pt-2">
                                         <ShareMeeting meeting={data.meeting} />
 
-                                        <BookmarkMeeting
-                                            isBookmarked={
-                                                data?.bookmarked === true
-                                            }
-                                            meetingId={id}
-                                        />
+                                        {!isLoggedOut && (
+                                            <BookmarkMeeting
+                                                isBookmarked={
+                                                    data?.bookmarked === true
+                                                }
+                                                meetingId={id}
+                                            />
+                                        )}
                                     </div>
                                 </div>
 
@@ -164,7 +181,9 @@ export default function Meeting() {
                                     "No description provided."}
                             </Card>
 
-                            <MeetingLocation location={meeting.location} />
+                            {!isLoggedOut && (
+                                <MeetingLocation location={meeting.location} />
+                            )}
 
                             {inMeeting && (
                                 <Card title={"Attendees"}>

@@ -174,7 +174,7 @@ suspend fun getMeeting(id: String): GroupMeeting? = query {
  * @param id The ID of the meeting.
  * @param user The ID of the user requesting, to combine the membership information.
  */
-suspend fun getMeetingResponse(id: String, user: String): GroupMeetingResponse? = query {
+suspend fun getMeetingResponse(id: String, user: String?): GroupMeetingResponse? = query {
     val joinedAlias = Memberships.alias("m_joined")
     val waitingAlias = Memberships.alias("m_waiting")
 
@@ -208,24 +208,28 @@ suspend fun getMeetingResponse(id: String, user: String): GroupMeetingResponse? 
             .firstOrNull() ?: return@query null
 
     val membership =
-        Memberships.selectAll()
-            .where { (Memberships.meetingId eq id) and (Memberships.userId eq user) }
-            .firstOrNull()
-            ?.let { Membership.fromRow(it) }
+        if (user != null)
+            Memberships.selectAll()
+                .where { (Memberships.meetingId eq id) and (Memberships.userId eq user) }
+                .firstOrNull()
+                ?.let { Membership.fromRow(it) }
+        else null
 
     val bookmark =
-        Bookmarks.selectAll()
-            .where { (Bookmarks.meetingId eq id) and (Bookmarks.userId eq user) }
-            .firstOrNull() != null
+        if (user != null)
+            Bookmarks.selectAll()
+                .where { (Bookmarks.meetingId eq id) and (Bookmarks.userId eq user) }
+                .firstOrNull() != null
+        else null
 
     val joinedCount = meeting[joinedCountExpr]
     val waitingCount = meeting[waitingCountExpr]
 
     GroupMeetingResponse(
         meeting = GroupMeeting.fromRow(meeting, joinedCount, waitingCount),
-        meetingAuthor = meeting[Users.name],
+        meetingAuthor = if (user != null) meeting[Users.name] else "Fellow Burrower",
         membership = membership,
-        bookmarked = bookmark,
+        bookmarked = bookmark ?: false,
     )
 }
 
