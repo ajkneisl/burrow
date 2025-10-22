@@ -40,7 +40,7 @@ export default function Footer() {
                         study groups and collaboration.
                     </p>
 
-                    <div className="flex flex-row gap-2 mt-2">
+                    <div className="flex flex-row justify-center gap-2 mt-2">
                         <Link
                             to="/privacy"
                             className="underline hover:text-text/60"
@@ -62,7 +62,7 @@ export default function Footer() {
                         Contributors
                     </h4>
 
-                    <ul className="space-y-2 flex flex-row flex-wrap gap-2">
+                    <ul className="space-y-2 flex flex-row justify-center items-center flex-wrap gap-2">
                         {linkedIn.map(({ name, link }) => (
                             <li>
                                 <a

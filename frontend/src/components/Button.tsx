@@ -71,7 +71,7 @@ export default function Button({
                 )
             case "SECONDARY":
                 return make(
-                    `focus-visible:ring-secondary border-secondary bg-secondary/80 hover:bg-secondary-hover`
+                    `focus-visible:ring-secondary border-secondary bg-secondary/80 hover:bg-secondary-hover/70`
                 )
             default:
                 return clsx(

@@ -1,43 +1,51 @@
 @import "tailwindcss";
 
-
+/*
+    LIGHT THEME
+ */
 :root {
-    --background-color: #ffffff; /* white background */
-    --primary-color: 122 0 25; /* Minnesota maroon (Pantone 202C) */
-    --secondary-color: 255 204 0; /* Minnesota gold */
-    --card-background-color: #f9fafb; /* light surface */
-    --hero-color: #dedbd5; /* near-white neutral for hero sections */
-    --text-color: 33 33 33; /* dark gray text */
-    --success-color: 0 128 0; /* UMN green variant */
-    --info-color: 0 102 204; /* rich UMN blue accent */
-    --warn-color: 255 204 0; /* Minnesota gold (Pantone 123C) */
-    --error-color: 191 30 46; /* deep red for errors */
-    --secondary-hover-color: 230 180 0; /* muted gold hover */
-    --primary-hover-color: 160 40 40; /* deeper maroon hover */
-    --success-hover-color: 0 150 70; /* brighter green hover */
-    --info-hover-color: 30 130 230; /* brighter blue hover */
-    --warn-hover-color: 255 210 70; /* lighter warning gold */
-    --error-hover-color: 210 60 60; /* lighter red hover */
+    --background-color:         #ffffff; /* white background */
+    --primary-color:            #7A0019; /* Minnesota maroon (Pantone 202C) */
+    --secondary-color:          #FFCC00; /* Minnesota gold */
+    --card-background-color:    #f9fafb; /* light surface */
+    --card-border-color:        #E5E7EB; /* light border (Tailwind slate-200) */
+    --hero-color:               #dedbd5; /* near-white neutral for hero sections */
+    --text-color:               #212121; /* dark gray text */
+    --success-color:            #008000; /* UMN green variant */
+    --info-color:               #0066CC; /* rich UMN blue accent */
+    --warn-color:               #FFCC00; /* Minnesota gold (Pantone 123C) */
+    --error-color:              #BF1E2E; /* deep red for errors */
+    --secondary-hover-color:    #E6B400; /* muted gold hover */
+    --primary-hover-color:      #A02828; /* deeper maroon hover */
+    --success-hover-color:      #009646; /* brighter green hover */
+    --info-hover-color:         #1E82E6; /* brighter blue hover */
+    --warn-hover-color:         #FFD246; /* lighter warning gold */
+    --error-hover-color:        #D23C3C; /* lighter red hover */
 }
 
+/*
+    DARK THEME
+ */
 [data-theme="dark"] {
-    --background-color: #1a1a1a; /* dark gray background */
-    --primary-color: 78 0 10; /* Minnesota maroon (Pantone 202C) */
-    --secondary-color: 255 204 0; /* Minnesota gold */
-    --card-background-color: #2a2a2a; /* darker surface */
-    --hero-color: #111827; /* deep gray hero */
-    --text-color: 243 244 246; /* near-white text */
-    --success-color: 72 187 120; /* muted green for dark mode */
-    --info-color: 100 181 246; /* lighter blue for dark mode */
-    --warn-color: 255 215 0; /* bright gold for dark mode */
-    --error-color: 239 83 80; /* light red for dark mode */
-    --secondary-hover-color: 230 180 0; /* muted gold hover */
-    --primary-hover-color: 160 40 40; /* deeper maroon hover */
-    --success-hover-color: 90 200 140; /* brighter green hover */
-    --info-hover-color: 120 200 255; /* light blue hover */
-    --warn-hover-color: 255 225 90; /* brighter gold hover */
-    --error-hover-color: 250 110 110; /* softer red hover */
+    --background-color:         #1a1a1a; /* dark gray background */
+    --primary-color:            #4E000A; /* Minnesota maroon (Pantone 202C) */
+    --secondary-color:          #FFCC00; /* Minnesota gold */
+    --card-background-color:    #2a2a2a; /* darker surface */
+    --card-border-color:        #1a1c1e; /* dark border (Tailwind slate-700) */
+    --hero-color:               #1f2023; /* deep gray hero */
+    --text-color:               #F3F4F6; /* near-white text */
+    --success-color:            #48BB78; /* muted green for dark mode */
+    --info-color:               #64B5F6; /* lighter blue for dark mode */
+    --warn-color:               #FFD700; /* bright gold for dark mode */
+    --error-color:              #EF5350; /* light red for dark mode */
+    --secondary-hover-color:    #E6B400; /* muted gold hover */
+    --primary-hover-color:      #A02828; /* deeper maroon hover */
+    --success-hover-color:      #5AC88C; /* brighter green hover */
+    --info-hover-color:         #78C8FF; /* light blue hover */
+    --warn-hover-color:         #FFE15A; /* brighter gold hover */
+    --error-hover-color:        #FA6E6E; /* softer red hover */
 
+    /* inverts some input stuff so it's dark */
     input[type="date"]::-webkit-calendar-picker-indicator {
         filter: invert(100%);
     }
@@ -46,7 +54,6 @@
         filter: invert(100%);
     }
 }
-
 
 body {
     position: relative;
@@ -100,21 +107,22 @@ footer {
 
 @theme inline {
     --color-background: var(--background-color);
-    --color-primary: rgb(var(--primary-color));
-    --color-secondary: rgb(var(--secondary-color));
+    --color-primary: var(--primary-color);
+    --color-secondary: var(--secondary-color);
     --color-card: var(--card-background-color);
+    --color-card-border: var(--card-border-color);
     --color-hero: var(--hero-color);
-    --color-text: rgb(var(--text-color));
-    --color-success: rgb(var(--success-color));
-    --color-info: rgb(var(--info-color));
-    --color-warn: rgb(var(--warn-color));
-    --color-error: rgb(var(--error-color));
-    --color-primary-hover: rgb(var(--primary-hover-color));
-    --color-secondary-hover: rgb(var(--secondary-hover-color));
-    --color-success-hover: rgb(var(--success-hover-color));
-    --color-info-hover: rgb(var(--info-hover-color));
-    --color-warn-hover: rgb(var(--warn-hover-color));
-    --color-error-hover: rgb(var(--error-hover-color));
+    --color-text: var(--text-color);
+    --color-success: var(--success-color);
+    --color-info: var(--info-color);
+    --color-warn: var(--warn-color);
+    --color-error: var(--error-color);
+    --color-primary-hover: var(--primary-hover-color);
+    --color-secondary-hover: var(--secondary-hover-color);
+    --color-success-hover: var(--success-hover-color);
+    --color-info-hover: var(--info-hover-color);
+    --color-warn-hover: var(--warn-hover-color);
+    --color-error-hover: var(--error-hover-color);
 }
 
 /* ~ different fonts ~ */

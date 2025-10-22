@@ -85,7 +85,7 @@ export default function Search() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
                     transition={{ duration: 0.16 }}
-                    className="absolute left-0 right-0 top-full mt-2 z-[1000] rounded-lg bg-card border border-card/80 shadow-lg overflow-hidden"
+                    className="absolute left-0 right-0 top-full mt-2 z-[1000] rounded-lg bg-card border border-card-border shadow-lg overflow-hidden"
                 >
                     {loading && (
                         <div className="px-3 py-2 text-sm text-text/60">

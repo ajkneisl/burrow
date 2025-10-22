@@ -3,7 +3,7 @@ import useToken from "@features/auth/api/hooks/useToken.ts"
 import { useEffect, useState } from "react"
 import { updateUser } from "@features/auth/api/user.api.ts"
 import Card from "@components/Card.tsx"
-import LabelledInput from "@components/LabelledInput.tsx"
+import Input from "@components/Input.tsx"
 import { useAtom } from "jotai"
 import { settingsSaveLoading } from "@features/settings/api/settings.atom.ts"
 import toast from "react-hot-toast"
@@ -96,7 +96,7 @@ export default function AccountSettings() {
                         }}
                     >
                         {/* user's name */}
-                        <LabelledInput
+                        <Input
                             text="Name"
                             id="name"
                             type="text"
@@ -105,7 +105,7 @@ export default function AccountSettings() {
                             onChange={(e) => setName(e.target.value)}
                         />
 
-                        <LabelledInput
+                        <Input
                             text="Email"
                             id="email"
                             type="email"
@@ -117,7 +117,7 @@ export default function AccountSettings() {
                         />
 
                         {/* user's phone */}
-                        <LabelledInput
+                        <Input
                             text={"Phone Number (optional)"}
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(e.target.value)}

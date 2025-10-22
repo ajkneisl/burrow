@@ -231,7 +231,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
 
             <div ref={listRef} className="flex-1 overflow-y-auto p-4 space-y-3">
                 {messages.length === 0 ? (
-                    <p className="text-sm ">
+                    <p className="text-sm text-text/60 text-center">
                         No messages yet. Start the conversation.
                     </p>
                 ) : (

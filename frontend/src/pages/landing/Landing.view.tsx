@@ -142,31 +142,26 @@ export default function LandingView() {
                 </h2>
 
                 <div className="mt-5">
-                    <div className="group relative flex items-center justify-center">
-                        {/* golden ring around the login */}
-                        <div className="absolute -inset-2 -z-10 rounded-2xl bg-gradient-to-r from-amber-200 via-yellow-200 to-amber-100 opacity-60 blur transition-opacity group-hover:opacity-90" />
-
-                        <div className="w-full rounded-2xl border border-gray-200 bg-white/70 p-4 shadow-sm backdrop-blur">
-                            <div className="flex flex-col items-center gap-3 max-w-screen">
-                                <GoogleOAuthProvider clientId="808386876282-4s7060hmt21b2i069tkea6fddsumj86o.apps.googleusercontent.com">
-                                    <GoogleLogin
-                                        shape="pill"
-                                        size="large"
-                                        text="continue_with"
-                                        theme="filled_blue"
-                                        onSuccess={(response) =>
-                                            attemptRegister(
-                                                response.credential ?? ""
-                                            )
-                                        }
-                                        onError={() =>
-                                            console.log("failure failure :(")
-                                        }
-                                    />
-                                </GoogleOAuthProvider>
-                            </div>
+                    <Card>
+                        <div className="flex flex-col items-center gap-3 max-w-screen">
+                            <GoogleOAuthProvider clientId="808386876282-4s7060hmt21b2i069tkea6fddsumj86o.apps.googleusercontent.com">
+                                <GoogleLogin
+                                    shape="pill"
+                                    size="large"
+                                    text="continue_with"
+                                    theme="filled_blue"
+                                    onSuccess={(response) =>
+                                        attemptRegister(
+                                            response.credential ?? ""
+                                        )
+                                    }
+                                    onError={() =>
+                                        console.log("failure failure :(")
+                                    }
+                                />
+                            </GoogleOAuthProvider>
                         </div>
-                    </div>
+                    </Card>
                 </div>
             </div>
         </div>

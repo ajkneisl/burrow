@@ -23,9 +23,9 @@ export default function Card({ title, isHoverable, ...props }: CardProps) {
         <section
             {...props}
             className={clsx(
-                "card border border-primary/30 rounded-2xl bg-card p-5 shadow-sm",
+                "card transition-all border border-card-border rounded-2xl bg-card p-5 shadow-sm",
                 isHoverable &&
-                    "cursor-pointer hover:border-primary/30 hover:shadow-md",
+                    "cursor-pointer hover:bg-card/80 hover:shadow-md",
                 props.className
             )}
         >

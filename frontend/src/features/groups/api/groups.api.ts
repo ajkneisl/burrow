@@ -68,14 +68,19 @@ export async function updateMeeting(
  * @return The meeting response, including membership and meeting information.
  */
 export async function getMeeting(
-    auth: string,
-    id: string
+    id: string,
+    auth?: string | null
 ): Promise<GroupMeetingResponse> {
-    const request = await fetch(`${BASE_URL}/groups/${id}`, {
-        headers: {
-            Authorization: `Bearer ${auth}`
-        }
-    })
+    const request = await fetch(
+        `${BASE_URL}/groups/${id}`,
+        auth
+            ? {
+                  headers: {
+                      Authorization: `Bearer ${auth}`
+                  }
+              }
+            : {}
+    )
 
     return await request.json()
 }
@@ -345,7 +350,9 @@ export async function getSchedule(
  *
  * @param auth The authorization token.
  */
-export async function getBookmarks(auth: string): Promise<GroupMeetingResponse[]> {
+export async function getBookmarks(
+    auth: string
+): Promise<GroupMeetingResponse[]> {
     const request = await fetch(`${BASE_URL}/groups/bookmarks`, {
         headers: {
             Authorization: `Bearer ${auth}`

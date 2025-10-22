@@ -1,7 +1,15 @@
 package app.burrow
 
-import app.burrow.notifications.Notification
+import app.burrow.account.Users
+import app.burrow.account.settings.Settings
+import app.burrow.groups.Meetings
+import app.burrow.groups.bookmarks.Bookmarks
+import app.burrow.groups.membership.Memberships
+import app.burrow.groups.sync.block.BlockStates
+import app.burrow.groups.sync.chat.ChatMessages
+import app.burrow.notifications.NotificationPreferences
 import app.burrow.notifications.Notifications
+import app.burrow.report.Reports
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.spi.IsolationLevel
@@ -59,7 +67,18 @@ suspend fun initDb() {
         }
 
     query {
-        SchemaUtils.createMissingTablesAndColumns(Notifications)
+        SchemaUtils.createMissingTablesAndColumns(
+            Users,
+            Meetings,
+            Settings,
+            NotificationPreferences,
+            Notifications,
+            Bookmarks,
+            Memberships,
+            BlockStates,
+            ChatMessages,
+            Reports
+        )
     }
     LOGGER.debug("Connected to Database")
 }

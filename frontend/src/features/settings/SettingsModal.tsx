@@ -71,17 +71,16 @@ export default function SettingsModal() {
                             color="SUCCESS"
                             loading={loading}
                         >
-                            Save Preferences
+                            Save
                         </Button>
                     </div>
                 </div>
             }
         >
             <div className="flex h-full sm:flex-row flex-col items-start">
-                {/* Mobile top nav */}
                 <div
                     className={clsx(
-                        "flex sm:flex-col flex-row gap-4 -mt-1 mb-3 p-1 mr-8"
+                        "flex sm:flex-col flex-row gap-2 -mt-1 mb-3 p-1 mr-8"
                     )}
                 >
                     <SettingsNavigationButton name="Account" />

@@ -50,7 +50,7 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
                             </div>
 
                             {/* description */}
-                            <p className="mt-2 max-w-prose truncate text-sm text-text/70">
+                            <p className="mt-2 max-w-prose text-clip text-sm text-text/70">
                                 {meeting.description}
                             </p>
                         </div>

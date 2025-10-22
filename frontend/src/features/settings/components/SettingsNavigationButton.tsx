@@ -24,8 +24,8 @@ export default function SettingsNavigationButton({
             type="button"
             onClick={() => setSection(name)}
             className={clsx(
-                `cursor-pointer flex-1 rounded-md px-3 py-2 text-sm`,
-                section === name ? "bg-card" : "hover:bg-card/60"
+                `cursor-pointer flex-1 rounded-lg px-3 py-3 text-sm`,
+                section === name ? "bg-hero" : "hover:bg-hero/60"
             )}
         >
             {name}

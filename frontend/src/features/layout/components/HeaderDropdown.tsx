@@ -5,6 +5,7 @@ import { themeAtom } from "@api/theme.atom.ts"
 import { Dropdown, DropdownItem } from "@components/Dropdown.tsx"
 import HeaderButton from "@features/layout/components/HeaderButton.tsx"
 import { settingsModalOpen } from "@features/settings/api/settings.atom.ts"
+import { problemModalOpen } from "@features/problem/problem.atom.ts"
 
 /**
  * Animation variants for {@link HeaderDropdown}
@@ -15,6 +16,7 @@ export default function HeaderDropdown() {
     const [theme, setTheme] = useAtom(themeAtom)
     const [open, setOpen] = useState(false)
     const [, setSettingsOpen] = useAtom(settingsModalOpen)
+    const [, setProblemOpen] = useAtom(problemModalOpen)
 
     const buttonRef = useRef<HTMLButtonElement | null>(null)
 
@@ -98,6 +100,32 @@ export default function HeaderDropdown() {
                             >
                                 <circle cx="12" cy="12" r="4" />
                                 <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+                            </svg>
+                        }
+                    />
+
+                    {/* theme */}
+                    <DropdownItem
+                        label={`Report a Problem`}
+                        onSelect={() => {
+                            setProblemOpen((prev) => !prev)
+                            setOpen(false)
+                        }}
+                        rightIcon={
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                <line x1="12" y1="9" x2="12" y2="13" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
                             </svg>
                         }
                     />

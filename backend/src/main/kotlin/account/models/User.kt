@@ -10,6 +10,9 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.principal
 import io.ktor.util.date.getTimeMillis
 import kotlin.system.exitProcess
 import kotlinx.coroutines.flow.firstOrNull
@@ -165,4 +168,16 @@ suspend fun getUser(id: String): User {
         } ?: throw ServerError(401, "Invalid user ID.")
 
     return User.fromRow(user)
+}
+
+/** Get a user's ID from an authorized token from the call. */
+fun ApplicationCall.authorizedToken(): String {
+    return principal<JWTPrincipal>()?.subject ?: throw ServerError(401, "Invalid token.")
+}
+
+/** Get a user's object from an authorized token from the call. */
+suspend fun ApplicationCall.authorizedUser(): User {
+    val token = authorizedToken()
+
+    return getUser(token)
 }

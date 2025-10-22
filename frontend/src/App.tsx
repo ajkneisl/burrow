@@ -19,6 +19,7 @@ import { Toaster } from "react-hot-toast"
 import SettingsModal from "@features/settings/SettingsModal.tsx"
 
 import "./index.css"
+import ReportProblemModal from "@features/problem/ReportProblemModal.tsx"
 
 function App() {
     // load user information & ensure logged in
@@ -84,6 +85,8 @@ function App() {
                     onClose={() => setModalOpen(false)}
                     title="Create a Study Group"
                 />
+
+                <ReportProblemModal />
 
                 <SettingsModal />
 

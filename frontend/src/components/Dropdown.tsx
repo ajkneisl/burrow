@@ -97,7 +97,7 @@ export function Dropdown({
                         role="menu"
                         aria-label="Dropdown menu"
                         className={clsx(
-                            `absolute z-20 w-56 rounded-xl bg-card border border-background p-1.5 shadow-lg ring-1 ring-black/5`,
+                            `absolute z-20 w-56 rounded-xl bg-card border border-card-border p-1.5 shadow-lg ring-1 ring-black/5`,
                             align === "end"
                                 ? "origin-top-right right-0"
                                 : "origin-top-left left-0",

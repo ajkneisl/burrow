@@ -36,8 +36,8 @@ export default function Meeting() {
 
     const { data, isLoading, error } = useQuery({
         queryKey: [`meeting`, id],
-        enabled: id !== null && auth !== null,
-        queryFn: () => (id && auth ? getMeeting(auth, id) : null)
+        enabled: id !== null,
+        queryFn: () => (id ? getMeeting(id, auth) : null)
     })
 
     useSync(data)

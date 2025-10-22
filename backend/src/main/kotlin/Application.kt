@@ -2,11 +2,13 @@ package app.burrow
 
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
+import app.burrow.account.models.authorizedToken
 import app.burrow.groups.GROUP_ROUTES
 import app.burrow.groups.models.getMeetingResponse
 import app.burrow.groups.sync.Sync
 import app.burrow.notifications.NOTIFICATION_ROUTES
 import app.burrow.notifications.notificationWorker
+import app.burrow.report.REPORT_ROUTES
 import dev.hayden.KHealth
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -155,22 +157,25 @@ suspend fun Application.module() {
 
                 // GET /groups/{id}
                 // retrieve an individual meeting
-                //
-                // this is here because this does NOT need to be authenticated
-                // to support guest users
-                get("/groups/{id}") {
-                    val user = call.principal<JWTPrincipal>()?.subject
-                    val id =
-                        call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+                authenticate("primary", optional = true) {
+                    get("/groups/{id}") {
+                        val userId = call.authorizedToken()
+                        val id =
+                            call.parameters["id"]
+                                ?: return@get call.respond(HttpStatusCode.BadRequest)
 
-                    val meeting =
-                        getMeetingResponse(id, user)
-                            ?: return@get call.respond(HttpStatusCode.NotFound)
+                        val meeting =
+                            getMeetingResponse(id, userId)
+                                ?: return@get call.respond(HttpStatusCode.NotFound)
 
-                    call.respond(meeting)
+                        call.respond(meeting)
+                    }
                 }
 
-                authenticate("primary") { route("/groups", GROUP_ROUTES) }
+                authenticate("primary") {
+                    route("/groups", GROUP_ROUTES)
+                    route("/report", REPORT_ROUTES)
+                }
             }
         }
     } catch (t: Throwable) {

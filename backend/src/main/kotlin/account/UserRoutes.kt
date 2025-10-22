@@ -1,7 +1,7 @@
 package app.burrow.account
 
 import app.burrow.account.models.User
-import app.burrow.account.models.getUser
+import app.burrow.account.models.authorizedUser
 import app.burrow.account.models.retrieveUser
 import app.burrow.account.models.updateUser
 import io.ktor.http.HttpStatusCode
@@ -20,14 +20,7 @@ import io.ktor.server.routing.put
 val USER_ROUTES: Route.() -> Unit = {
     authenticate("primary") {
         /** Retrieve user information from token. */
-        get {
-            val principal =
-                call.principal<JWTPrincipal>()
-                    ?: return@get call.respond(HttpStatusCode.Unauthorized)
-            val id = principal.subject ?: return@get call.respond(HttpStatusCode.Unauthorized)
-
-            call.respond(getUser(id))
-        }
+        get { call.respond(call.authorizedUser()) }
 
         /** Update an attribute on a [User]. */
         post {
