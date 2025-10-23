@@ -14,13 +14,13 @@ type Group = { label: string; items: GroupMeetingResponse[] }
  */
 function SkeletonRow() {
     return (
-        <div className="rounded-xl border border-primary/20 bg-card p-4 shadow-sm">
+        <Card>
             <div className="animate-pulse space-y-2">
                 <div className="h-4 w-1/2 rounded bg-text/10" />
                 <div className="h-3 w-1/3 rounded bg-text/10" />
                 <div className="h-3 w-40 rounded bg-text/10" />
             </div>
-        </div>
+        </Card>
     )
 }
 

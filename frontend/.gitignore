@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 
 frontend.iml
+package-lock.json
