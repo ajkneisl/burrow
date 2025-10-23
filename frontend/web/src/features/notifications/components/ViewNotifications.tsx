@@ -12,7 +12,7 @@ import {
 import useToken from "@features/auth/api/hooks/useToken.ts"
 import type { Notification } from "@features/notifications/api/notifications.types.ts"
 import { formatTimeAgo } from "@api/util.ts"
-import { Button } from "burrow-core"
+import { Button } from "@umnburrow/core"
 import clsx from "clsx"
 import HeaderButton from "@features/layout/components/HeaderButton.tsx"
 

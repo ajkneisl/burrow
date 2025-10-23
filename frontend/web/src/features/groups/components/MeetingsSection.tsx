@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
 import { useMemo } from "react"
 import { useNavigate } from "react-router"
-import { Card } from "burrow-core"
+import { Card } from "@umnburrow/core"
 
 type Group = { label: string; items: GroupMeetingResponse[] }
 

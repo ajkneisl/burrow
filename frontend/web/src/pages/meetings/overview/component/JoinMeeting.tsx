@@ -7,7 +7,7 @@ import { joinMeeting, leaveMeeting } from "@features/groups/api/groups.api.ts"
 import useUser from "@features/auth/api/hooks/useUser.ts"
 import { useQueryClient } from "@tanstack/react-query"
 import useToken from "@features/auth/api/hooks/useToken.ts"
-import { Button } from "burrow-core"
+import { Button } from "@umnburrow/core"
 
 type JoinMeetingProps = {
     data: GroupMeetingResponse

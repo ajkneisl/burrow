@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import type { GroupMeeting } from "@features/groups/api/groups.types.ts"
 import { QRCodeSVG } from "qrcode.react"
 import MeetingButton from "@pages/meetings/components/MeetingButton.tsx"
-import { Dropdown, DropdownItem, Modal } from "burrow-core"
+import { Dropdown, DropdownItem, Modal } from "@umnburrow/core"
 
 /**
  * {@link ShareMeeting}

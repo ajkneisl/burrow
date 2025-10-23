@@ -5,7 +5,7 @@ import type {
     SubmittedGroupMeeting
 } from "../../groups/api/groups.types.ts"
 import { useQueryClient } from "@tanstack/react-query"
-import { Button, Input, Modal, TextArea } from "burrow-core"
+import { Button, Input, Modal, TextArea } from "@umnburrow/core"
 
 /**
  * {@link StudyGroupModal}

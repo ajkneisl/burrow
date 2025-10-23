@@ -5,7 +5,7 @@ import { updateUser } from "@features/auth/api/user.api.ts"
 import { useAtom } from "jotai"
 import { settingsSaveLoading } from "@features/settings/api/settings.atom.ts"
 import toast from "react-hot-toast"
-import { Card, Input } from "burrow-core"
+import { Card, Input } from "@umnburrow/core"
 
 /**
  * Settings involving a user's account.

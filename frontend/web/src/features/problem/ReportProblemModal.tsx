@@ -1,5 +1,5 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react"
-import { Button, Input, Modal, SelectInput, TextArea } from "burrow-core"
+import { Button, Input, Modal, SelectInput, TextArea } from "@umnburrow/core"
 import { useAtom } from "jotai"
 import { problemModalOpen } from "@features/problem/problem.atom.ts"
 import {

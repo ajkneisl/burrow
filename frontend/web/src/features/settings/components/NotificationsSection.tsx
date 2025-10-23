@@ -1,4 +1,4 @@
-import { Card } from "burrow-core"
+import { Card } from "@umnburrow/core"
 
 
 /**

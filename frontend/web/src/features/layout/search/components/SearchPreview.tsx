@@ -2,7 +2,7 @@ import type { GroupMeeting } from "@features/groups/api/groups.types.ts"
 import { useNavigate } from "react-router"
 import { formatDateTime } from "@api/util.ts"
 import clsx from "clsx"
-import { Badge } from "burrow-core"
+import { Badge } from "@umnburrow/core"
 
 /**
  * {@link SearchPreview}

@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react"
-import { Button, Modal, Toggle } from "burrow-core"
+import { Button, Modal, Toggle } from "@umnburrow/core"
 import { type Blocks } from "@features/sync/api/sync.types.ts"
 import { blockStatus } from "@features/sync/api/sync.atom.ts"
 import { useAtom } from "jotai"

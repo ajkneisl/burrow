@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Button, Card } from "burrow-core"
+import { Button, Card } from "@umnburrow/core"
 import type { MeetingMembership } from "@features/groups/api/groups.types.ts"
 import usePomodoroSync from "@features/sync/hooks/usePomodoroSync.tsx"
 import { clamp, msToClock } from "@api/util.ts"

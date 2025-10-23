@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { Button, Modal } from "burrow-core"
+import { Button, Modal } from "@umnburrow/core"
 import { useAtom } from "jotai"
 import {
     settingsModalOpen,

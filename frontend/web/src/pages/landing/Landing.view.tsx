@@ -10,7 +10,7 @@ import {
     userDetails
 } from "@features/auth/api/auth.atom.ts"
 import { BASE_URL } from "@api/util.ts"
-import { Card } from "burrow-core"
+import { Card } from "@umnburrow/core"
 
 /**
  * Burrow landing page.

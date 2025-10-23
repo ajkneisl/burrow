@@ -4,7 +4,7 @@ import { useNavigate } from "react-router"
 import useToken from "@features/auth/api/hooks/useToken.ts"
 import type { GroupType } from "@features/groups/api/groups.types.ts"
 import { getMeetings } from "@features/groups/api/groups.api.ts"
-import { Button, Card } from "burrow-core"
+import { Button, Card } from "@umnburrow/core"
 import CreateButton from "@features/layout/components/CreateButton.tsx"
 
 /**

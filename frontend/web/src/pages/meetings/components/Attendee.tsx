@@ -1,5 +1,5 @@
 import { formatTimeAgo } from "@api/util.ts"
-import { Button } from "burrow-core"
+import { Button } from "@umnburrow/core"
 import type {
     MeetingMembershipResponse,
     MeetingMemberStatus,

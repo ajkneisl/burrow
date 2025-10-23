@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router"
-import { Button } from "burrow-core"
+import { Button } from "@umnburrow/core"
 import { useAtom } from "jotai"
 import { problemModalOpen } from "@features/problem/problem.atom.ts"
 

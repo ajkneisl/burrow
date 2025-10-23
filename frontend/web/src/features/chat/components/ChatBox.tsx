@@ -9,7 +9,7 @@ import {
 } from "@features/sync/api/sync.types.ts"
 import { useAtom } from "jotai"
 import { syncStatus } from "@features/sync/api/sync.atom.ts"
-import { Button, Card, Input } from "burrow-core"
+import { Button, Card, Input } from "@umnburrow/core"
 
 /**
  * {@link ChatBox}
@@ -236,9 +236,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                     messages.map((message) => (
                         <Chat
                             message={message}
-                            editable={
-                                message.userId === user?.id || moderator
-                            }
+                            editable={message.userId === user?.id || moderator}
                             names={names}
                             deleteButton={() =>
                                 deleteMessage(message.messageId)
@@ -270,8 +268,9 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                     </div>
                 )}
 
-                <div className="flex items-center w-full justify-between gap-4">
+                <div className="flex flex-row justify-between gap-4">
                     <Input
+                        className="w-2/3"
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && send()}
@@ -280,7 +279,6 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                                 ? "Write a message…"
                                 : "You are disconnected."
                         }
-                        className="w-full"
                         disabled={status !== "LIVE"}
                     />
 

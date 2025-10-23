@@ -10,9 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "burrow-core": "^1.0.13",
+    "@umnburrow/core": "^0.1.1",
+    "tailwindcss": "4.0.17",
+    "@tailwindcss/vite": "4.0.17",
     "@react-oauth/google": "^0.12.2",
-    "@tailwindcss/vite": "^4.1.13",
     "@tanstack/react-query": "^5.89.0",
     "clsx": "^2.1.1",
     "cookie-store": "^3.0.0",
@@ -24,7 +25,6 @@
     "react-dom": "^19.2.0",
     "react-hot-toast": "^2.6.0",
     "react-router": "^7.9.1",
-    "tailwindcss": "^4.1.13",
     "vite-tsconfig-paths": "^5.1.4"
   },
   "devDependencies": {

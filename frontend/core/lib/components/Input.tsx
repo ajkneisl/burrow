@@ -28,7 +28,7 @@ export default function Input({
     ...props
 }: LabelledInputProps) {
     return (
-        <div>
+        <div className="w-full">
             {text && (
                 <label
                     htmlFor="name"

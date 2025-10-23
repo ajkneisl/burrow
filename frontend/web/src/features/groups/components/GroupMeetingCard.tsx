@@ -3,7 +3,7 @@ import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
 import useUser from "@features/auth/api/hooks/useUser.ts"
 import MeetingCapacityBadges from "@features/groups/components/MeetingCapacityBadges.tsx"
 import { formatDateTime } from "@api/util.ts"
-import { Badge, Card } from "burrow-core"
+import { Badge, Card } from "@umnburrow/core"
 
 /**
  * A group card, both study and club meetings.

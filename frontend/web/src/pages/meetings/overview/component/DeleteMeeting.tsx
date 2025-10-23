@@ -5,7 +5,7 @@ import { useRef } from "react"
 import { deleteMeeting } from "@features/groups/api/groups.api.ts"
 import { useNavigate } from "react-router"
 import useToken from "@features/auth/api/hooks/useToken.ts"
-import { Button } from "burrow-core"
+import { Button } from "@umnburrow/core"
 
 /**
  * {@link DeleteMeeting}

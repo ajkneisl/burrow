@@ -19,7 +19,7 @@ import useSync from "@features/sync/hooks/useSync.tsx"
 import { MeetingFeatures } from "@features/sync/components/MeetingFeatures.tsx"
 import useToken from "@features/auth/api/hooks/useToken.ts"
 import { blockStatus } from "@features/sync/api/sync.atom.ts"
-import { Badge, Card } from "burrow-core"
+import { Badge, Card } from "@umnburrow/core"
 
 /**
  * View an individual meeting.

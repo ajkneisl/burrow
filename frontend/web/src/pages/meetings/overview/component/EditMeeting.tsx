@@ -1,7 +1,7 @@
 import type { GroupMeeting } from "@features/groups/api/groups.types.ts"
 import EditStudyGroupModal from "@features/create/components/EditStudyGroupModal.tsx"
 import { useState } from "react"
-import { Button } from "burrow-core"
+import { Button } from "@umnburrow/core"
 
 /**
  * {@link EditMeeting}
