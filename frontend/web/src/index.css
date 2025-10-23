@@ -1,0 +1,3 @@
+@import "burrow-core/style.css";
+@import "tailwindcss";
+@source "../node_modules/burrow-core";
