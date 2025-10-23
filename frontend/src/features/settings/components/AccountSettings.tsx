@@ -67,9 +67,11 @@ export default function AccountSettings() {
 
     return (
         <Card className="flex flex-col gap-4">
+
             {/* errors provided by backend */}
             {errors.length > 0 && (
                 <div className="mb-2 rounded-lg border border-error/30 bg-error/10 p-3 text-sm text-error">
+
                     <p className="mb-1 font-medium">
                         Please fix the following:
                     </p>
