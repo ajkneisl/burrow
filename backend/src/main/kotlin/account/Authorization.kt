@@ -99,15 +99,19 @@ object Authorization {
     private const val VALIDITY_MS = 1000 * 60 * 60 * 24 * 3 // 3 days :)
 
     /** Generate a token for an ID */
-    fun generateToken(id: String): String {
+    fun generateToken(id: String, audience: String = PUBLIC_AUDIENCE): String {
         return JWT.create()
             .withSubject(id)
             .withIssuer("Burrow")
-            .withAudience("Burrow")
+            .withAudience(audience)
             .withExpiresAt(Date(System.currentTimeMillis() + VALIDITY_MS))
             .sign(key)
     }
 
+    const val PUBLIC_AUDIENCE = "burrow/general"
+    const val ADMIN_AUDIENCE = "burrow/admin"
+
     /** Verifier using same algorithm, audience, and issuer */
-    val VERIFIER: JWTVerifier = JWT.require(key).withAudience("Burrow").withIssuer("Burrow").build()
+    fun getVerifier(audience: String = PUBLIC_AUDIENCE): JWTVerifier =
+        JWT.require(key).withAudience(audience).withIssuer("Burrow").build()
 }

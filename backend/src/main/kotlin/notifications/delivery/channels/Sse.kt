@@ -1,6 +1,6 @@
 package app.burrow.notifications.delivery.channels
 
-import app.burrow.account.Authorization.VERIFIER
+import app.burrow.account.Authorization
 import app.burrow.notifications.delivery.Delivery
 import app.burrow.notifications.delivery.DeliveryChannel
 import io.ktor.server.routing.Route
@@ -17,7 +17,7 @@ import kotlinx.serialization.json.Json
 
 /** Delivering notifications through ServerSideEvents */
 object Sse : DeliveryChannel {
-    private val userCount = AtomicInteger(0)
+    val userCount = AtomicInteger(0)
 
     data class OutboundEvent(val sse: ServerSentEvent, val userId: String? = null)
 
@@ -39,8 +39,8 @@ object Sse : DeliveryChannel {
         sse {
             val authorizationToken = call.request.cookies["auth"]?.trim() ?: return@sse
             val userId =
-                runCatching { VERIFIER.verify(authorizationToken).subject }.getOrNull()
-                    ?: return@sse
+                runCatching { Authorization.getVerifier().verify(authorizationToken).subject }
+                    .getOrNull() ?: return@sse
 
             userCount.incrementAndGet()
 

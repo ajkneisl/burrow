@@ -47,7 +47,7 @@ export default function HomeView() {
                 className="col-span-3 lg:col-span-2 space-y-6 mt-4"
             >
                 <PreviewGroupMeetings
-                    title={"Study Groups"}
+                    title={"Upcoming Study Groups"}
                     fullPage={"/study"}
                     kind={"STUDY"}
                     amount={3}

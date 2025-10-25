@@ -18,6 +18,6 @@ import kotlinx.serialization.Serializable
 data class GroupMeetingResponse(
     val meeting: GroupMeeting,
     val meetingAuthor: String?,
-    val membership: Membership?,
-    val bookmarked: Boolean,
+    var membership: Membership?,
+    var bookmarked: Boolean,
 )

@@ -2,6 +2,9 @@ package app.burrow
 
 import app.burrow.account.Users
 import app.burrow.account.settings.Settings
+import app.burrow.admin.account.Administrators
+import app.burrow.admin.account.Permissions
+import app.burrow.admin.account.createAdministrator
 import app.burrow.groups.Meetings
 import app.burrow.groups.bookmarks.Bookmarks
 import app.burrow.groups.membership.Memberships
@@ -77,7 +80,8 @@ suspend fun initDb() {
             Memberships,
             BlockStates,
             ChatMessages,
-            Reports
+            Reports,
+            Administrators
         )
     }
     LOGGER.debug("Connected to Database")

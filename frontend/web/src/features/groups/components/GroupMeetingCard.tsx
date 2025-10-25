@@ -4,6 +4,7 @@ import useUser from "@features/auth/api/hooks/useUser.ts"
 import MeetingCapacityBadges from "@features/groups/components/MeetingCapacityBadges.tsx"
 import { formatDateTime } from "@api/util.ts"
 import { Badge, Card } from "@umnburrow/core"
+import clsx from "clsx"
 
 /**
  * A group card, both study and club meetings.
@@ -24,7 +25,15 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
     }
 
     return (
-        <Card onClick={onClick} isHoverable={true} className="w-full">
+        <Card
+            onClick={onClick}
+            isHoverable={true}
+            className={clsx(
+                "w-full",
+                meetingResponse?.membership?.status === "JOINED" &&
+                    "bg-success/30 hover:bg-success/40"
+            )}
+        >
             <div className="flex flex-col gap-4">
                 <div className="min-w-0 flex items-start justify-between gap-4">
                     <div className="flex flex-col items-start justify-between gap-2 text-sm text-text/70">

@@ -92,7 +92,7 @@ suspend fun getUserMeetings(user: String): List<GroupMeetingResponse> {
                     (Memberships.status eq MeetingMemberStatus.JOINED) and // in the meeting
                     (Meetings.endTime greaterEq getTimeMillis()) // ensure it hasn't ended
             }
-            .orderBy(Meetings.beginningTime, SortOrder.DESC)
+            .orderBy(Meetings.beginningTime, SortOrder.ASC)
             .limit(3)
             .map { row ->
                 GroupMeetingResponse(
@@ -152,6 +152,19 @@ suspend fun getMembership(userId: String, meetingId: String): Membership? = quer
         .where { Memberships.userId eq userId and (Memberships.meetingId eq meetingId) }
         .firstOrNull()
         ?.let { Membership.fromRow(it) }
+}
+
+/**
+ * Get all a [userId]'s [Membership]s.
+ *
+ * @param userId The user to get the memberships for.
+ * @return A map of the meeting ID to the [userId]'s [Membership].
+ */
+suspend fun getMemberships(userId: String): Map<String, Membership> = query {
+    Memberships.selectAll()
+        .where { Memberships.userId eq userId }
+        .toList()
+        .associate { row -> row[Memberships.meetingId] to Membership.fromRow(it) }
 }
 
 /**

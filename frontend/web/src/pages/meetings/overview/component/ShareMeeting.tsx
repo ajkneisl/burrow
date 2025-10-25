@@ -84,7 +84,7 @@ export default function ShareMeeting({ meeting }: ShareMeetingProps) {
                     </svg>
                 </MeetingButton>
 
-                <div className="absolute right-0 top-full">
+                <div className="absolute left-56 top-full">
                     <Dropdown
                         className="-mt-3"
                         open={open}

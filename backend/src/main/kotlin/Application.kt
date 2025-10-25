@@ -2,7 +2,8 @@ package app.burrow
 
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
-import app.burrow.account.models.authorizedToken
+import app.burrow.account.models.token
+import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.groups.GROUP_ROUTES
 import app.burrow.groups.models.getMeetingResponse
 import app.burrow.groups.sync.Sync
@@ -21,6 +22,7 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.*
@@ -44,7 +46,10 @@ import org.slf4j.event.Level
 val client = HttpClient(CIO)
 
 /** Burrow logger! */
-private val burrowLogger = LoggerFactory.getLogger("Burrow")
+val burrowLogger = LoggerFactory.getLogger("Burrow")
+
+const val PRIMARY_AUTH = "primary"
+const val ADMIN_AUTH = "administrator"
 
 fun main(args: Array<String>) {
     // debug stuff
@@ -92,9 +97,14 @@ suspend fun Application.module() {
     install(StatusPages) {
         exception<CancellationException> { _, _ -> }
 
+        exception<BadRequestException> { call, _ ->
+            call.respond(HttpStatusCode.BadRequest, "Invalid request body!")
+        }
+
         exception<ServerError> { call, cause ->
             call.respond(HttpStatusCode.fromValue(cause.code), "Error: ${cause.message}")
         }
+
         exception<Throwable> { call, cause ->
             cause.printStackTrace()
             call.respond(HttpStatusCode.InternalServerError)
@@ -133,33 +143,55 @@ suspend fun Application.module() {
     install(ContentNegotiation) { json() }
 
     authentication {
-        jwt("primary") {
+        // PRIMARY
+        // this is for all regular account stuff
+        // this is accessible by anyone with a
+        // regular account
+        jwt(PRIMARY_AUTH) {
             realm = "burrow"
-
-            verifier(Authorization.VERIFIER)
+            verifier(Authorization.getVerifier())
 
             challenge { _, _ -> throw ServerError(401, "Token is invalid or expired.") }
-
             validate { credential ->
-                if (credential.payload.audience.contains("Burrow")) JWTPrincipal(credential.payload)
+                if (credential.payload.audience.contains(Authorization.PUBLIC_AUDIENCE))
+                    JWTPrincipal(credential.payload)
+                else null
+            }
+        }
+
+        // ADMINISTRATOR
+        // for all administrator actions, requires
+        // a special account
+        jwt(ADMIN_AUTH) {
+            realm = "burrow/administrator"
+            verifier(Authorization.getVerifier(Authorization.ADMIN_AUDIENCE))
+
+            challenge { _, _ -> throw ServerError(401, "Token is invalid or expired.") }
+            validate { credential ->
+                if (credential.payload.audience.contains(Authorization.ADMIN_AUDIENCE))
+                    JWTPrincipal(credential.payload)
                 else null
             }
         }
     }
     try {
         routing {
+            route("/admin") { singlePageApplication { react("admin") } }
+
             singlePageApplication { react("frontend") }
 
             route("/api") {
+                route("/admin", ADMIN_ROUTES)
+
                 route("/notifications", NOTIFICATION_ROUTES)
                 route("/groups/{id}", Sync.SYNC_ROUTES)
                 route("/user", USER_ROUTES)
 
                 // GET /groups/{id}
                 // retrieve an individual meeting
-                authenticate("primary", optional = true) {
+                authenticate(PRIMARY_AUTH, optional = true) {
                     get("/groups/{id}") {
-                        val userId = call.authorizedToken()
+                        val userId = call.token
                         val id =
                             call.parameters["id"]
                                 ?: return@get call.respond(HttpStatusCode.BadRequest)
@@ -172,7 +204,7 @@ suspend fun Application.module() {
                     }
                 }
 
-                authenticate("primary") {
+                authenticate(PRIMARY_AUTH) {
                     route("/groups", GROUP_ROUTES)
                     route("/report", REPORT_ROUTES)
                 }

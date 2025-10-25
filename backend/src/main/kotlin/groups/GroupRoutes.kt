@@ -1,5 +1,7 @@
 package app.burrow.groups
 
+import app.burrow.account.models.authorizedToken
+import app.burrow.account.models.authorizedUser
 import app.burrow.groups.bookmarks.bookmarkRoutes
 import app.burrow.groups.membership.getUserBookmarks
 import app.burrow.groups.membership.getUserMeetings
@@ -69,7 +71,7 @@ val GROUP_ROUTES: Route.() -> Unit = {
     // GET /groups/search
     // search among the stars
     get("/search") {
-        call.principal<JWTPrincipal>()?.subject ?: return@get call.respond(HttpStatusCode.Forbidden)
+        call.authorizedToken()
 
         val searchQuery =
             call.request.queryParameters["query"]

@@ -106,8 +106,6 @@ export default function PreviewGroupMeetings({
         <div>
             <div className="flex flex-row justify-between items-center mb-2 mt-4">
                 <h1 className="text-2xl figtree">{title}</h1>
-
-                <Button onClick={() => nav(fullPage)}>View all</Button>
             </div>
 
             <div className="flex flex-col gap-2 overflow-auto justify-center items-center">
@@ -122,6 +120,8 @@ export default function PreviewGroupMeetings({
                         <CreateButton />
                     </div>
                 )}
+
+                <Button className="w-full" onClick={() => nav(fullPage)}>View all</Button>
             </div>
         </div>
     )

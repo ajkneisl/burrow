@@ -1,7 +1,6 @@
 package app.burrow.groups.sync
 
 import app.burrow.account.Authorization
-
 import app.burrow.groups.membership.isModerator
 import app.burrow.groups.membership.userInMeeting
 import app.burrow.groups.sync.block.Block
@@ -197,7 +196,9 @@ object Sync {
                                 incomingMsg.action == "AUTHORIZE" -> {
                                     val token = incomingMsg.data["token"]
                                     val authorizedUserId =
-                                        runCatching { Authorization.VERIFIER.verify(token) }.getOrNull()?.subject
+                                        runCatching { Authorization.getVerifier().verify(token) }
+                                            .getOrNull()
+                                            ?.subject
 
                                     if (authorizedUserId == null) {
                                         send(Responses.INVALID_TOKEN, "Invalid token.")

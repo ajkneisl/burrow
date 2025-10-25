@@ -1,9 +1,11 @@
 package app.burrow.groups.bookmarks
 
 import app.burrow.ServerError
+import app.burrow.burrowLogger
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -55,6 +57,8 @@ suspend fun createBookmark(userId: String, meetingId: String) {
         throw ServerError(400, "This meeting is already bookmarked!")
     }
 
+    burrowLogger.info("{} has bookmarked {}", userId, meetingId)
+
     query {
         Bookmarks.insert {
             it[Bookmarks.userId] = userId
@@ -83,9 +87,24 @@ suspend fun deleteBookmark(userId: String, meetingId: String) {
         throw ServerError(400, "This meeting is not bookmarked!")
     }
 
+    burrowLogger.info("{} has un-bookmarked {}", userId, meetingId)
+
     query {
         Bookmarks.deleteWhere {
             (Bookmarks.userId eq userId) and (Bookmarks.meetingId eq meetingId)
         }
     }
+}
+
+/**
+ * Get all of a [userId]'s [Bookmark]s.
+ *
+ * @param userId The user to get the [Bookmark]s for
+ * @return A map of the meeting ID to the [Bookmark].
+ */
+suspend fun getBookmarks(userId: String): Map<String, Bookmark> = query {
+    Bookmarks.selectAll()
+        .where { Bookmarks.userId eq userId }
+        .toList()
+        .associate { row -> row[Bookmarks.userId] to Bookmark.fromRow(row) }
 }

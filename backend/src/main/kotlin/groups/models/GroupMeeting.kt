@@ -3,9 +3,10 @@ package app.burrow.groups.models
 import app.burrow.account.Users
 import app.burrow.groups.Meetings
 import app.burrow.groups.bookmarks.Bookmark
-import app.burrow.groups.bookmarks.Bookmarks
+import app.burrow.groups.bookmarks.getBookmarks
 import app.burrow.groups.membership.Membership
 import app.burrow.groups.membership.Memberships
+import app.burrow.groups.membership.getMemberships
 import app.burrow.groups.sync.block.BlockStates
 import app.burrow.notifications.rescheduleNotificationsForMeeting
 import app.burrow.query
@@ -13,9 +14,10 @@ import io.ktor.util.date.getTimeMillis
 import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
+import kotlin.collections.component1
+import kotlin.collections.component2
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
-import kotlinx.datetime.toKotlinLocalDate
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.Op
@@ -26,13 +28,13 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.countDistinct
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
-import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.innerJoin
 import org.jetbrains.exposed.v1.core.leftJoin
 import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.core.or
+import org.jetbrains.exposed.v1.r2dbc.Query
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.select
@@ -171,67 +173,13 @@ suspend fun getMeeting(id: String): GroupMeeting? = query {
 /**
  * Get a [GroupMeetingResponse] by its ID.
  *
- * @param id The ID of the meeting.
- * @param user The ID of the user requesting, to combine the membership information.
+ * @param meetingId The ID of the meeting.
+ * @param userId The ID of the user requesting, to combine the membership information.
  */
-suspend fun getMeetingResponse(id: String, user: String?): GroupMeetingResponse? = query {
-    val joinedAlias = Memberships.alias("m_joined")
-    val waitingAlias = Memberships.alias("m_waiting")
-
-    val joinedCountExpr = joinedAlias[Memberships.userId].countDistinct()
-    val waitingCountExpr = waitingAlias[Memberships.userId].countDistinct()
-
-    val meeting =
-        Meetings.innerJoin(Users, { Meetings.owner }, { Users.id })
-            .leftJoin(
-                joinedAlias,
-                { Meetings.id },
-                { joinedAlias[Memberships.meetingId] },
-                additionalConstraint = {
-                    joinedAlias[Memberships.status] eq MeetingMemberStatus.JOINED
-                },
-            )
-            .leftJoin(
-                waitingAlias,
-                { Meetings.id },
-                { waitingAlias[Memberships.meetingId] },
-                additionalConstraint = {
-                    waitingAlias[Memberships.status] eq MeetingMemberStatus.WAITLISTED
-                },
-            )
-            .select(
-                Meetings.columns + listOf(Users.name, Users.id, joinedCountExpr, waitingCountExpr)
-            )
-            .where { Meetings.id eq id }
-            .groupBy(*Meetings.columns.toTypedArray(), Users.name, Users.id)
-            .orderBy(Meetings.beginningTime, SortOrder.ASC)
-            .firstOrNull() ?: return@query null
-
-    val membership =
-        if (user != null)
-            Memberships.selectAll()
-                .where { (Memberships.meetingId eq id) and (Memberships.userId eq user) }
-                .firstOrNull()
-                ?.let { Membership.fromRow(it) }
-        else null
-
-    val bookmark =
-        if (user != null)
-            Bookmarks.selectAll()
-                .where { (Bookmarks.meetingId eq id) and (Bookmarks.userId eq user) }
-                .firstOrNull() != null
-        else null
-
-    val joinedCount = meeting[joinedCountExpr]
-    val waitingCount = meeting[waitingCountExpr]
-
-    GroupMeetingResponse(
-        meeting = GroupMeeting.fromRow(meeting, joinedCount, waitingCount),
-        meetingAuthor = if (user != null) meeting[Users.name] else "Fellow Burrower",
-        membership = membership,
-        bookmarked = bookmark ?: false,
-    )
-}
+suspend fun getMeetingResponse(meetingId: String, userId: String?): GroupMeetingResponse? =
+    aggregateMeetings(Meetings.id eq meetingId)
+        .toResponses(userId, if (userId == null) "Fellow Burrower" else null)
+        .singleOrNull()
 
 /**
  * Delete a meeting by its ID.
@@ -263,111 +211,119 @@ suspend fun updateMeeting(meetingId: String, meeting: SubmittedGroupMeeting) = q
 /**
  * Retrieve all [GroupMeeting]s.
  *
- * @param user The requesting user. This allows for the [app.burrow.groups.membership.Membership] to
- *   be present in the response. If this is not present, it will be treated as a guest user.
+ * @param userId The requesting user. This allows for the [app.burrow.groups.membership.Membership]
+ *   to be present in the response. If this is not present, it will be treated as a guest user.
  * @param type The type of group. Leave null for all.
  */
-suspend fun getMeetings(user: String? = null, type: GroupType? = null): List<GroupMeetingResponse> =
-    query {
-        var expr: Op<Boolean> = (Meetings.endTime greaterEq getTimeMillis())
+suspend fun getMeetings(
+    userId: String? = null,
+    type: GroupType? = null,
+): List<GroupMeetingResponse> {
+    val timeExpr = Meetings.endTime greaterEq getTimeMillis()
+    val kindExpr = if (type != null) Meetings.kind eq type else Op.TRUE
 
-        if (type != null) {
-            expr = (expr) and (Meetings.kind eq type)
+    return aggregateMeetings(timeExpr and kindExpr).toResponses(userId)
+}
+
+/** Aggregate meetings. */
+private suspend fun aggregateMeetings(
+    where: Op<Boolean> = Op.TRUE,
+    request: (Query.() -> Query)? = null,
+): Map<GroupMeeting, String> = query {
+    val joinedAlias = Memberships.alias("m_joined")
+    val waitingAlias = Memberships.alias("m_waiting")
+
+    val joinedCountExpr = joinedAlias[Memberships.userId].countDistinct()
+    val waitingCountExpr = waitingAlias[Memberships.userId].countDistinct()
+
+    Meetings.innerJoin(Users, { Meetings.owner }, { Users.id })
+        .leftJoin(
+            joinedAlias,
+            { Meetings.id },
+            { joinedAlias[Memberships.meetingId] },
+            additionalConstraint = { joinedAlias[Memberships.status] eq MeetingMemberStatus.JOINED },
+        )
+        .leftJoin(
+            waitingAlias,
+            { Meetings.id },
+            { waitingAlias[Memberships.meetingId] },
+            additionalConstraint = {
+                waitingAlias[Memberships.status] eq MeetingMemberStatus.WAITLISTED
+            },
+        )
+        .select(Meetings.columns + listOf(Users.name, Users.id, joinedCountExpr, waitingCountExpr))
+        .where { where }
+        .groupBy(*Meetings.columns.toTypedArray(), Users.name, Users.id)
+        .orderBy(Meetings.beginningTime, SortOrder.ASC)
+        .let { request?.invoke(it) ?: it }
+        .toList()
+        .associate { row ->
+            val joinedCount = row[joinedCountExpr]
+            val waitingCount = row[waitingCountExpr]
+            GroupMeeting.fromRow(row, joinedCount, waitingCount) to row[Users.name]
         }
+}
 
-        val joinedAlias = Memberships.alias("m_joined")
-        val waitingAlias = Memberships.alias("m_waiting")
-
-        val joinedCountExpr = joinedAlias[Memberships.userId].countDistinct()
-        val waitingCountExpr = waitingAlias[Memberships.userId].countDistinct()
-
-        val meetings =
-            Meetings.innerJoin(Users, { Meetings.owner }, { Users.id })
-                .leftJoin(
-                    joinedAlias,
-                    { Meetings.id },
-                    { joinedAlias[Memberships.meetingId] },
-                    additionalConstraint = {
-                        joinedAlias[Memberships.status] eq MeetingMemberStatus.JOINED
-                    },
-                )
-                .leftJoin(
-                    waitingAlias,
-                    { Meetings.id },
-                    { waitingAlias[Memberships.meetingId] },
-                    additionalConstraint = {
-                        waitingAlias[Memberships.status] eq MeetingMemberStatus.WAITLISTED
-                    },
-                )
-                .select(
-                    Meetings.columns +
-                        listOf(Users.name, Users.id, joinedCountExpr, waitingCountExpr)
-                )
-                .where(expr)
-                .groupBy(*Meetings.columns.toTypedArray(), Users.name, Users.id)
-                .orderBy(Meetings.beginningTime, SortOrder.ASC)
-                .toList()
-                .associate { row ->
-                    val joinedCount = row[joinedCountExpr]
-                    val waitingCount = row[waitingCountExpr]
-
-                    GroupMeeting.fromRow(row, joinedCount, waitingCount) to row[Users.name]
-                }
-
-        // guest user
-        if (user == null || user.isBlank()) {
-            return@query meetings.map { (meeting) ->
-                GroupMeetingResponse(meeting = meeting, "", membership = null, bookmarked = false)
-            }
-        }
-
-        val ids = meetings.map { (meeting) -> meeting.id }
-
-        val membershipByMeetingId =
-            if (ids.isEmpty()) emptyMap()
-            else
-                Memberships.selectAll()
-                    .where { (Memberships.userId eq user) and (Memberships.meetingId inList ids) }
-                    .toList()
-                    .associate { row -> row[Memberships.meetingId] to Membership.fromRow(row) }
-
-        val bookmarksByMeetingId =
-            if (ids.isEmpty()) emptyMap()
-            else
-                Bookmarks.selectAll()
-                    .where { (Bookmarks.userId eq user) and (Bookmarks.meetingId inList ids) }
-                    .toList()
-                    .associate { row -> row[Bookmarks.meetingId] to Bookmark.fromRow(row) }
-
-        meetings.map { (meeting, author) ->
+/**
+ * Implement [Bookmark] and [Membership] into a list of [GroupMeetingResponse].
+ *
+ * @param userId The ID of the user to implement.
+ * @param forceAuthorName Force the author name.
+ * @return A list of [GroupMeetingResponse]
+ */
+private suspend fun Map<GroupMeeting, String>.toResponses(
+    userId: String?,
+    forceAuthorName: String? = null,
+): List<GroupMeetingResponse> {
+    return if (userId == null)
+        map { (meeting, author) ->
             GroupMeetingResponse(
                 meeting = meeting,
-                meetingAuthor = author,
-                membership = membershipByMeetingId[meeting.id],
-                bookmarked = bookmarksByMeetingId.containsKey(meeting.id),
+                meetingAuthor = forceAuthorName ?: author,
+                membership = null,
+                bookmarked = false,
+            )
+        }
+    else {
+        val userMemberships = getMemberships(userId)
+        val userBookmarks = getBookmarks(userId)
+
+        return map { (meeting, author) ->
+            GroupMeetingResponse(
+                meeting = meeting,
+                meetingAuthor = forceAuthorName ?: author,
+                membership = userMemberships[meeting.id],
+                bookmarked = userBookmarks.containsKey(meeting.id),
             )
         }
     }
+}
 
 /**
  * Search through all group meetings.
  *
  * @param query The search query. This will search through tags, title, description, location, etc..
+ * @param date The date to search for.
+ * @param userId The ID of the user searching. This allows for the implementation of bookmarks and
+ *   memberships.
+ * @return A list of [GroupMeetingResponse]. The bookmark will be false and membership be null if
+ *   there's no [userId].
  */
-suspend fun searchMeetings(search: String, date: Long? = null): List<GroupMeetingResponse> = query {
+suspend fun searchMeetings(
+    search: String,
+    date: Long? = null,
+    userId: String? = null,
+): List<GroupMeetingResponse> {
     val term = search.trim()
 
-    val pattern = "%" + term.lowercase().replace("%", "\\%").replace("_", "\\_") + "%"
-
-    var expr: Op<Boolean> =
+    // ensure the meeting is on the proper day
+    val dateExpr: Op<Boolean> =
         if (date == null) {
-            // Default: only future or ongoing meetings
+            // later than today
             (Meetings.endTime greaterEq getTimeMillis())
         } else {
             val zone = ZoneId.systemDefault()
             val localDate = Instant.ofEpochMilli(date).atZone(zone).toLocalDate()
-
-            println(localDate.toKotlinLocalDate().toString())
 
             val startOfDayMillis = localDate.atStartOfDay(zone).toInstant().toEpochMilli()
             val endOfDayMillis =
@@ -377,28 +333,30 @@ suspend fun searchMeetings(search: String, date: Long? = null): List<GroupMeetin
                 (Meetings.beginningTime lessEq endOfDayMillis)
         }
 
-    if (term.trim().isNotBlank())
-        expr =
-            expr and
-                ((Meetings.title.lowerCase() like pattern) or
-                    (Meetings.description.lowerCase() like pattern) or
-                    (Meetings.location.lowerCase() like pattern) or
-                    (Meetings.tags.lowerCase() like pattern))
+    val pattern = "%" + term.lowercase().replace("%", "\\%").replace("_", "\\_") + "%"
 
-    val meetings: Map<GroupMeeting, String> =
-        Meetings.innerJoin(Users, { Meetings.owner }, { Users.id })
-            .selectAll()
-            .where { expr }
-            .orderBy(Meetings.beginningTime, SortOrder.ASC)
-            .toList()
-            .associate { row -> GroupMeeting.fromRow(row) to row[Users.name] }
+    // ensure something contains the proper term
+    val searchExpr =
+        if (term.trim().isNotBlank())
+            ((Meetings.title.lowerCase() like pattern) or
+                (Meetings.description.lowerCase() like pattern) or
+                (Meetings.location.lowerCase() like pattern) or
+                (Meetings.tags.lowerCase() like pattern))
+        else Op.TRUE
 
-    meetings.map { (meeting, author) ->
-        GroupMeetingResponse(
-            meeting = meeting,
-            meetingAuthor = author,
-            membership = null,
-            bookmarked = false,
-        )
+    val meetings = aggregateMeetings(dateExpr and searchExpr)
+
+    // guest user
+    if (userId == null || userId.isBlank()) {
+        return meetings.map { (meeting, author) ->
+            GroupMeetingResponse(
+                meeting = meeting,
+                meetingAuthor = author,
+                membership = null,
+                bookmarked = false,
+            )
+        }
     }
+
+    return meetings.toResponses(userId)
 }

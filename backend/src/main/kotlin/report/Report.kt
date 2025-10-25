@@ -4,9 +4,12 @@ import app.burrow.groups.sync.chat.ChatMessage
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.selectAll
 
 /** A single report. */
 @Serializable
@@ -80,4 +83,13 @@ suspend fun createReport(userId: String, report: SubmittedReport): UUID = query 
         it[Reports.burrowInfo] = report.burrowInfo
         it[Reports.createdAt] = getTimeMillis()
     } get Reports.id
+}
+
+/**
+ * Get all reports.
+ *
+ * @return A list of all [Report]s.
+ */
+suspend fun getAllReports(): List<Report> = query {
+    Reports.selectAll().map(Report::fromRow).toList()
 }
