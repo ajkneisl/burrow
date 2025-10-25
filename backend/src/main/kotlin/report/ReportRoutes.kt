@@ -1,7 +1,7 @@
 package app.burrow.report
 
 import app.burrow.ServerError
-import app.burrow.account.models.authorizedToken
+import app.burrow.account.models.requireUserID
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -11,7 +11,7 @@ val REPORT_ROUTES: Route.() -> Unit = {
     // POST /report
     // create a report
     post {
-        val userId = call.authorizedToken()
+        val userId = call.requireUserID()
         val report = call.receive<SubmittedReport>()
 
         if (!report.validate()) throw ServerError(400, "There's an issue with your report.")

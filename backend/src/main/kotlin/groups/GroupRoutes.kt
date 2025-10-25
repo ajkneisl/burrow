@@ -1,7 +1,7 @@
 package app.burrow.groups
 
-import app.burrow.account.models.authorizedToken
-import app.burrow.account.models.authorizedUser
+import app.burrow.account.models.requireUserID
+import app.burrow.account.models.userID
 import app.burrow.groups.bookmarks.bookmarkRoutes
 import app.burrow.groups.membership.getUserBookmarks
 import app.burrow.groups.membership.getUserMeetings
@@ -34,12 +34,16 @@ import io.ktor.server.routing.route
  * All routes are inherently authorized.
  */
 val GROUP_ROUTES: Route.() -> Unit = {
+    // GET /groups/heatmap
+    // get a heatmap of groups created this month
+    get("/heatmap") {
+        call.respond(getHeatmap())
+    }
+
     // GET /groups
     // get all group meetings
     get {
-        val user =
-            call.principal<JWTPrincipal>()?.subject
-                ?: return@get call.respond(HttpStatusCode.Forbidden)
+        val user = call.userID
         val type =
             call.request.queryParameters["type"]
                 ?.runCatching { GroupType.valueOf(uppercase()) }
@@ -71,7 +75,7 @@ val GROUP_ROUTES: Route.() -> Unit = {
     // GET /groups/search
     // search among the stars
     get("/search") {
-        call.authorizedToken()
+        call.requireUserID()
 
         val searchQuery =
             call.request.queryParameters["query"]

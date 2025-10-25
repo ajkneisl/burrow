@@ -171,16 +171,16 @@ suspend fun getUser(id: String): User {
 }
 
 /** Get a user's ID from an authorized token from the call. */
-fun ApplicationCall.authorizedToken(): String {
-    return this.token ?: throw ServerError(401, "Invalid token.")
+fun ApplicationCall.requireUserID(): String {
+    return this.userID ?: throw ServerError(401, "Invalid token.")
 }
 
-val ApplicationCall.token
+val ApplicationCall.userID
     get() = principal<JWTPrincipal>()?.subject
 
 /** Get a user's object from an authorized token from the call. */
 suspend fun ApplicationCall.authorizedUser(): User {
-    val token = authorizedToken()
+    val token = requireUserID()
 
     return getUser(token)
 }

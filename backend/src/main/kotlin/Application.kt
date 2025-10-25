@@ -2,7 +2,7 @@ package app.burrow
 
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
-import app.burrow.account.models.token
+import app.burrow.account.models.userID
 import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.groups.GROUP_ROUTES
 import app.burrow.groups.models.getMeetingResponse
@@ -191,7 +191,7 @@ suspend fun Application.module() {
                 // retrieve an individual meeting
                 authenticate(PRIMARY_AUTH, optional = true) {
                     get("/groups/{id}") {
-                        val userId = call.token
+                        val userId = call.userID
                         val id =
                             call.parameters["id"]
                                 ?: return@get call.respond(HttpStatusCode.BadRequest)

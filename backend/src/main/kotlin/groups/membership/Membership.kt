@@ -164,7 +164,7 @@ suspend fun getMemberships(userId: String): Map<String, Membership> = query {
     Memberships.selectAll()
         .where { Memberships.userId eq userId }
         .toList()
-        .associate { row -> row[Memberships.meetingId] to Membership.fromRow(it) }
+        .associate { row -> row[Memberships.meetingId] to Membership.fromRow(row) }
 }
 
 /**

@@ -8,6 +8,7 @@ import { useAtom } from "jotai"
 import { authToken } from "@features/auth/api/auth.atom.ts"
 import { GroupMeetingCard } from "@features/groups/components/GroupMeetingCard.tsx"
 import { searchMeetings } from "@features/groups/api/groups.api.ts"
+import MeetingHeatmap from "@features/groups/components/MeetingHeatmap.tsx"
 
 /**
  * Convert a date into a more readable one.
@@ -129,74 +130,86 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
         )
 
     return (
-        <main className="mx-auto w-full max-w-4xl p-4 sm:p-6">
-            {/* top controls */}
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                {/* search */}
-                <div className="flex-1">
-                    <input
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Search meetings…"
-                        className="w-full rounded-2xl border border-primary/20 bg-card px-4 py-2 text-sm text-text shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                    />
-                </div>
-
-                {/* calendar */}
-                <div className="flex items-center gap-2">
-                    <input
-                        type="date"
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                        className="rounded-xl border border-primary/20 bg-card px-3 py-2 text-sm text-text shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                        aria-label="Select date"
-                    />
-                </div>
-            </div>
-
-            {isLoading && !data ? (
-                <div className="space-y-3">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                        <div
-                            key={i}
-                            className="h-24 rounded-2xl bg-card shadow-sm"
+        <main className="md:grid grid-cols-3 flex flex-col-reverse">
+            <section className="col-span-2 mx-auto w-full max-w-4xl p-4 sm:p-6">
+                {/* top controls */}
+                <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    {/* search */}
+                    <div className="flex-1">
+                        <input
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            placeholder="Search meetings…"
+                            className="w-full rounded-2xl border border-primary/20 bg-card px-4 py-2 text-sm text-text shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         />
-                    ))}
-                </div>
-            ) : null}
+                    </div>
 
-            {!isLoading && isFetching ? (
-                <div className="mb-2 text-right">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-info/30 bg-info/10 px-2 py-1 text-xs text-info">
-                        Updating…
-                    </span>
+                    {/* calendar */}
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="rounded-xl border border-primary/20 bg-card px-3 py-2 text-sm text-text shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                            aria-label="Select date"
+                        />
+                    </div>
                 </div>
-            ) : null}
 
-            {/* search results */}
-            {groupedByDate.length === 0 ? (
-                <div className="rounded-2xl border border-primary/20 bg-card p-6 text-text shadow-sm">
-                    <p className="text-sm">No meetings match your filters.</p>
-                    <p className="mt-1 text-xs text-text/70">
-                        Try adjusting your search or picking a different date.
-                    </p>
-                </div>
-            ) : (
-                groupedByDate.map(([dateKey, meetings]) => (
-                    <section key={dateKey} className="mb-10">
-                        <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-text">
-                            {humanDateLabel(dateKey)}
-                            <span className="h-px flex-1 bg-primary/20" />
-                        </h2>
+                {isLoading && !data ? (
+                    <div className="space-y-3">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                            <div
+                                key={i}
+                                className="h-24 rounded-2xl bg-card shadow-sm"
+                            />
+                        ))}
+                    </div>
+                ) : null}
 
-                        <div className="flex flex-col gap-4">
-                            {meetings.map((m) => (
-                                <GroupMeetingCard key={m.meeting.id} {...m} />
-                            ))}
-                        </div>
-                    </section>
-                ))
-            )}
+                {!isLoading && isFetching ? (
+                    <div className="mb-2 text-right">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-info/30 bg-info/10 px-2 py-1 text-xs text-info">
+                            Updating…
+                        </span>
+                    </div>
+                ) : null}
+
+                {/* search results */}
+                {groupedByDate.length === 0 ? (
+                    <div className="rounded-2xl border border-primary/20 bg-card p-6 text-text shadow-sm">
+                        <p className="text-sm">
+                            No meetings match your filters.
+                        </p>
+                        <p className="mt-1 text-xs text-text/70">
+                            Try adjusting your search or picking a different
+                            date.
+                        </p>
+                    </div>
+                ) : (
+                    groupedByDate.map(([dateKey, meetings]) => (
+                        <section key={dateKey} className="mb-10">
+                            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-text">
+                                {humanDateLabel(dateKey)}
+                                <span className="h-px flex-1 bg-primary/20" />
+                            </h2>
+
+                            <div className="flex flex-col gap-4">
+                                {meetings.map((m) => (
+                                    <GroupMeetingCard
+                                        key={m.meeting.id}
+                                        {...m}
+                                    />
+                                ))}
+                            </div>
+                        </section>
+                    ))
+                )}
+            </section>
+
+            <aside className="col-span-1 mt-5">
+                <MeetingHeatmap />
+            </aside>
         </main>
     )
 }

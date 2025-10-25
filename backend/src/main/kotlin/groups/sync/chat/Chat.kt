@@ -193,14 +193,14 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
                 ?: return sendError("Invalid message ID.")
 
         val meeting = getMeetingResponse(meetingId, userId)
+        val membership = meeting?.membership
         val message = getChatMessage(messageId)
 
-        if (meeting == null || message == null || meeting.membership == null)
+        if (meeting == null || message == null || membership == null)
             return sendError("Invalid message ID.")
 
         val isModerator =
-            meeting.membership.role == MeetingRole.HOST ||
-                meeting.membership.role == MeetingRole.MODERATOR
+            membership.role == MeetingRole.HOST || membership.role == MeetingRole.MODERATOR
 
         val isMessageOwner = message.userId == userId
 

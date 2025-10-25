@@ -9,8 +9,10 @@ import Modal from "./components/Modal";
 import SelectInput from "./components/SelectInput";
 import TextArea from "./components/TextArea";
 import Toggle from "./components/Toggle";
+import Hover from "./components/Hover";
 
 export {
     Button, Badge, Card, Dropdown, DropdownItem,
-    Input, Modal, SelectInput, TextArea, Toggle
+    Input, Modal, SelectInput, TextArea, Toggle,
+    Hover
 }
