@@ -121,7 +121,7 @@ export default function PreviewGroupMeetings({
                     </div>
                 )}
 
-                <Button className="w-full" onClick={() => nav(fullPage)}>View all</Button>
+                {data.length > 0 && <Button className="w-full" onClick={() => nav(fullPage)}>View all</Button>}
             </div>
         </div>
     )
