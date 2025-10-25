@@ -162,6 +162,18 @@ export default function LandingView() {
                             </GoogleOAuthProvider>
                         </div>
                     </Card>
+
+                    <p className="mt-3 text-center text-sm text-text/40">
+                        By signing in with Google, you agree to Burrow’s{" "}
+                        <a href="/privacy" className="text-text/60 hover:text-text/50 underline">
+                            Privacy Policy
+                        </a>{" "}
+                        and{" "}
+                        <a href="/tos" className="text-text/60 hover:text-text/50 underline">
+                            Terms of Service
+                        </a>
+                        .
+                    </p>
                 </div>
             </div>
         </div>
