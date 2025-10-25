@@ -134,7 +134,7 @@ export default function ReportProblemModal() {
                 />
 
                 {/* Context preview */}
-                <div className="rounded-lg border border-card-border bg-card px-3 py-2 text-xs text-black/70 dark:text-white/70">
+                <div className="rounded-lg border border-card-border bg-card px-3 py-2 text-xs text-text/70">
                     <div>
                         <span className="font-medium">Version:</span>{" "}
                         {import.meta.env.VITE_VERSION} (

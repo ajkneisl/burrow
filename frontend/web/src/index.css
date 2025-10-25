@@ -1,3 +1,5 @@
 @import "tailwindcss";
 @import "@umnburrow/core/style.css";
+
+/* tailwind needs to register what styles are used in the core*/
 @source "../node_modules/@umnburrow/core/dist";
