@@ -347,7 +347,7 @@ suspend fun searchMeetings(
     val meetings = aggregateMeetings(dateExpr and searchExpr)
 
     // guest user
-    if (userId == null || userId.isBlank()) {
+    if (userId.isNullOrBlank()) {
         return meetings.map { (meeting, author) ->
             GroupMeetingResponse(
                 meeting = meeting,

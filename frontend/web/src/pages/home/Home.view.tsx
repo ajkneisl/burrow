@@ -37,6 +37,10 @@ export default function HomeView() {
         }
     }, [auth, nav])
 
+    if (!auth || auth === "") {
+        return <p></p>
+    }
+
     return (
         <div className="w-full mx-auto px-4 md:px-6 py-6 grid grid-cols-3 gap-6">
             {/* show intro only if it's a new user*/}
@@ -61,14 +65,14 @@ export default function HomeView() {
                 <MeetingsSection
                     title="My Schedule"
                     queryKey={["schedule"]}
-                    queryFn={() => getSchedule(auth!!)}
+                    queryFn={() => getSchedule(auth)}
                     emptyText="You have no upcoming meetings."
                 />
 
                 <MeetingsSection
                     title="My Bookmarks"
                     queryKey={["bookmarks"]}
-                    queryFn={() => getBookmarks(auth!!)}
+                    queryFn={() => getBookmarks(auth)}
                     emptyText="You have no bookmarks."
                 />
             </aside>

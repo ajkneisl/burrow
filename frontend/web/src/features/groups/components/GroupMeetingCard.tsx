@@ -17,6 +17,7 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
 
     const user = useUser()
     const { meeting } = meetingResponse
+
     const isPast = meeting.endTime < Date.now()
 
     // navigate to the club page :)
@@ -67,30 +68,37 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
                     <div className="flex shrink-0 items-start gap-2">
                         {isPast && (
                             <span
-                                className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-1 text-text/70 ring-1 ring-inset ring-text/20"
-                                title="This meeting has ended"
+                                className="inline-flex gap-2 items-center rounded-full px-2.5 py-1 text-error ring-1 ring-inset ring-error/30 bg-error/10"
+                                title="This meeting is archived"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
                                     viewBox="0 0 24 24"
-                                    width="16"
-                                    height="16"
-                                    fill="currentColor"
-                                    aria-hidden="true"
+                                    width="18"
+                                    height="18"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
                                 >
-                                    <path d="M12 1.75a10.25 10.25 0 1 0 10.25 10.25A10.262 10.262 0 0 0 12 1.75Zm.75 5.5h-1.5v5.25l4.5 2.625.75-1.29-3.75-2.185Z" />
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V8.25a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 8.25v10.5M3 18.75A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75M3 18.75V8.25M21 18.75V8.25M8.25 12h7.5"
+                                    />
                                 </svg>
                                 <span className="text-xs font-medium">
                                     Past Meeting
                                 </span>
                             </span>
                         )}
+
                         {meetingResponse?.membership?.status === "JOINED" && (
                             <span
                                 className="inline-flex items-center rounded-full bg-success/10 px-2.5 py-1 text-success ring-1 ring-inset ring-success/30"
                                 title="You're a member"
                             >
                                 <span className="sr-only">Joined</span>
+
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"

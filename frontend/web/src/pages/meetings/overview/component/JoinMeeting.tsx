@@ -9,16 +9,20 @@ import { useQueryClient } from "@tanstack/react-query"
 import useToken from "@features/auth/api/hooks/useToken.ts"
 import { Button } from "@umnburrow/core"
 
+/**
+ * {@see JoinMeeting}
+ */
 type JoinMeetingProps = {
+    inPast: boolean
     data: GroupMeetingResponse
 }
 
 /**
  * Join a meeting.
- * @param data The
- * @constructor
+ * @param data The meeting data.
+ * @param inPast If the meeting is in the past.
  */
-export default function JoinMeeting({ data }: JoinMeetingProps) {
+export default function JoinMeeting({ data, inPast }: JoinMeetingProps) {
     const user = useUser()
     const auth = useToken()
 
@@ -65,7 +69,7 @@ export default function JoinMeeting({ data }: JoinMeetingProps) {
     return (
         <Button
             onClick={joinLeaveButton}
-            disabled={auth === null}
+            disabled={auth === null || inPast}
             color={data?.membership?.status === "JOINED" ? "ERROR" : "SUCCESS"}
         >
             {data?.membership?.status === "JOINED" ? "Leave" : "Join"}

@@ -8,9 +8,16 @@ import useToken from "@features/auth/api/hooks/useToken.ts"
 import { useParams } from "react-router"
 
 /**
+ * {@see MeetingFeatures}
+ */
+type MeetingFeaturesProps = {
+    inPast: boolean
+}
+
+/**
  * Manage the enabled blocks in a meeting
  */
-export function MeetingFeatures() {
+export function MeetingFeatures({ inPast }: MeetingFeaturesProps) {
     const { id } = useParams()
     const auth = useToken()
 
@@ -42,7 +49,11 @@ export function MeetingFeatures() {
 
     return (
         <>
-            <Button color={"PRIMARY"} onClick={() => setOpen(true)}>
+            <Button
+                color={"PRIMARY"}
+                onClick={() => setOpen(true)}
+                disabled={inPast}
+            >
                 <span>Meeting Features</span>
             </Button>
 

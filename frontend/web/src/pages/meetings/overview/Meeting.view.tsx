@@ -19,7 +19,7 @@ import useSync from "@features/sync/hooks/useSync.tsx"
 import { MeetingFeatures } from "@features/sync/components/MeetingFeatures.tsx"
 import useToken from "@features/auth/api/hooks/useToken.ts"
 import { blockStatus } from "@features/sync/api/sync.atom.ts"
-import { Badge, Card } from "@umnburrow/core"
+import { Badge, Card, Hover } from "@umnburrow/core"
 
 /**
  * View an individual meeting.
@@ -41,16 +41,25 @@ export default function Meeting() {
 
     useSync(data)
 
+    // if the user is the owner
     const isOwner = useMemo(
         () => auth !== "" && user !== null && user.id === data?.meeting?.owner,
         [auth, data?.meeting?.owner, user]
     )
 
+    // if the user is in the meeting
     const inMeeting = useMemo(
         () => data?.membership?.status === "JOINED" || isOwner,
         [data?.membership?.status, isOwner]
     )
 
+    // if the meeting is in the past
+    const inPast = useMemo(
+        () => (data?.meeting?.endTime ?? 0) < new Date().valueOf(),
+        [data?.meeting?.endTime]
+    )
+
+    // if the user isn't logged in
     const isLoggedOut = useMemo(() => auth === null, [auth])
 
     if (isLoading)
@@ -107,10 +116,41 @@ export default function Meeting() {
                             <Card className="relative p-6">
                                 <div className="flex flex-col gap-4">
                                     <div className="min-w-0">
+                                        {/* archive notice*/}
+                                        {inPast && (
+                                            <Hover
+                                                content={
+                                                    "You may not edit or interact with this meeting."
+                                                }
+                                            >
+                                                <div className="cursor-pointer mt-2 inline-flex items-center gap-2 rounded-md bg-text/10 px-3 py-1 text-sm font-medium text-text/80">
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        strokeWidth={1.5}
+                                                        stroke="currentColor"
+                                                        className="h-4 w-4"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V8.25a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 8.25v10.5M3 18.75A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75M3 18.75V8.25M21 18.75V8.25M8.25 12h7.5"
+                                                        />
+                                                    </svg>
+                                                    <span>
+                                                        This meeting is archived
+                                                    </span>
+                                                </div>
+                                            </Hover>
+                                        )}
+
+                                        {/* title*/}
                                         <h1 className="mt-3 truncate text-2xl font-bold tracking-tight text-text md:text-3xl">
                                             {meeting.title}
                                         </h1>
 
+                                        {/* date */}
                                         <p className="mt-1 text-sm text-text/70">
                                             {formatDateTime(
                                                 meeting.beginningTime,
@@ -118,6 +158,7 @@ export default function Meeting() {
                                             )}
                                         </p>
 
+                                        {/* host / author */}
                                         <p className="mb-2 mt-1 text-sm text-text/60">
                                             Hosted by{" "}
                                             <span className="font-medium text-text/80">
@@ -125,6 +166,7 @@ export default function Meeting() {
                                             </span>
                                         </p>
 
+                                        {/* tags */}
                                         {tags.length > 0 && (
                                             <div className="mt-6 flex flex-wrap gap-2">
                                                 {tags.slice(0, 6).map((t) => (
@@ -145,6 +187,7 @@ export default function Meeting() {
                                                 isBookmarked={
                                                     data?.bookmarked === true
                                                 }
+                                                inPast={inPast}
                                                 meetingId={id}
                                             />
                                         )}
@@ -168,10 +211,10 @@ export default function Meeting() {
                                     <>
                                         <EditMeeting meeting={meeting} />
                                         <DeleteMeeting meeting={meeting} />
-                                        <MeetingFeatures />
+                                        <MeetingFeatures inPast={inPast} />
                                     </>
                                 ) : (
-                                    <JoinMeeting data={data} />
+                                    <JoinMeeting data={data} inPast={inPast} />
                                 )}
                             </div>
 

@@ -1,8 +1,8 @@
 package app.burrow.account.models
 
-import app.burrow.ServerError
 import app.burrow.account.Authorization
 import app.burrow.account.Users
+import app.burrow.errors.ServerError
 import app.burrow.query
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -170,17 +170,10 @@ suspend fun getUser(id: String): User {
     return User.fromRow(user)
 }
 
-/** Get a user's ID from an authorized token from the call. */
-fun ApplicationCall.requireUserID(): String {
-    return this.userID ?: throw ServerError(401, "Invalid token.")
-}
-
 val ApplicationCall.userID
-    get() = principal<JWTPrincipal>()?.subject
+    get() = principal<JWTPrincipal>()?.subject ?: throw ServerError(401, "Invalid token.")
 
 /** Get a user's object from an authorized token from the call. */
 suspend fun ApplicationCall.authorizedUser(): User {
-    val token = requireUserID()
-
-    return getUser(token)
+    return getUser(userID)
 }

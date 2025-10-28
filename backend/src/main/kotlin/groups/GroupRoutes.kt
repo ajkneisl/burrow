@@ -1,7 +1,10 @@
 package app.burrow.groups
 
-import app.burrow.account.models.requireUserID
 import app.burrow.account.models.userID
+import app.burrow.errors.InvalidArguments
+import app.burrow.errors.InvalidAuthorization
+import app.burrow.errors.NotFound
+import app.burrow.errors.ServerError
 import app.burrow.groups.bookmarks.bookmarkRoutes
 import app.burrow.groups.membership.getUserBookmarks
 import app.burrow.groups.membership.getUserMeetings
@@ -16,9 +19,10 @@ import app.burrow.groups.models.getMeetings
 import app.burrow.groups.models.searchMeetings
 import app.burrow.groups.models.updateMeeting
 import app.burrow.groups.models.validateSubmittedGroupMeeting
+import app.burrow.optionalLongQueryParameter
+import app.burrow.queryParameter
+import app.burrow.urlParameter
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -27,6 +31,9 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
+import io.ktor.util.date.getTimeMillis
+import java.time.LocalDateTime
+import java.time.YearMonth
 
 /**
  * All routes relating to [app.burrow.groups.models.GroupMeeting]s.
@@ -37,7 +44,18 @@ val GROUP_ROUTES: Route.() -> Unit = {
     // GET /groups/heatmap
     // get a heatmap of groups created this month
     get("/heatmap") {
-        call.respond(getHeatmap())
+        val currentDate = LocalDateTime.now()
+
+        val year = call.parameters["year"]?.toIntOrNull() ?: currentDate.year
+        val month = call.parameters["month"]?.toIntOrNull() ?: currentDate.monthValue
+        val range = call.parameters["range"]?.toLongOrNull() ?: 2
+
+        if (range !in 0..12) throw ServerError(400, "range must be between 0 and 12.")
+
+        val start = YearMonth.of(year, month)
+        val end = start.plusMonths(range)
+
+        call.respond(getHeatmapRange(start, end))
     }
 
     // GET /groups
@@ -54,45 +72,24 @@ val GROUP_ROUTES: Route.() -> Unit = {
 
     // GET /groups/schedule
     // get the three most recent meetings
-    get("/schedule") {
-        val user =
-            call.principal<JWTPrincipal>()?.subject
-                ?: return@get call.respond(HttpStatusCode.Forbidden)
-
-        call.respond(getUserMeetings(user))
-    }
+    get("/schedule") { call.respond(getUserMeetings(call.userID)) }
 
     // GET /groups/bookmarks
     // get the most recent bookmarks
-    get("/bookmarks") {
-        val user =
-            call.principal<JWTPrincipal>()?.subject
-                ?: return@get call.respond(HttpStatusCode.Forbidden)
-
-        call.respond(getUserBookmarks(user))
-    }
+    get("/bookmarks") { call.respond(getUserBookmarks(call.userID)) }
 
     // GET /groups/search
     // search among the stars
     get("/search") {
-        call.requireUserID()
+        val searchQuery = call.queryParameter("query")
+        val date = call.optionalLongQueryParameter("date")
 
-        val searchQuery =
-            call.request.queryParameters["query"]
-                ?: return@get call.respond(HttpStatusCode.BadRequest)
-
-        val date = call.request.queryParameters["date"]?.toLongOrNull()
-
-        call.respond(searchMeetings(searchQuery, date))
+        call.respond(searchMeetings(searchQuery, date, call.userID))
     }
 
     // POST /groups
     // create a meeting
     post {
-        val user =
-            call.principal<JWTPrincipal>()?.subject
-                ?: return@post call.respond(HttpStatusCode.Forbidden)
-
         val group = call.receive<SubmittedGroupMeeting>()
         val errors = group.validateSubmittedGroupMeeting()
 
@@ -100,7 +97,7 @@ val GROUP_ROUTES: Route.() -> Unit = {
             return@post call.respond(HttpStatusCode.BadRequest, mapOf("errors" to errors))
         }
 
-        val createdGroup = createGroupMeeting(user, group)
+        val createdGroup = createGroupMeeting(call.userID, group)
 
         call.respond(createdGroup)
     }
@@ -111,17 +108,11 @@ val GROUP_ROUTES: Route.() -> Unit = {
         // DELETE /groups/{id}
         // delete an individual meeting
         delete {
-            val user =
-                call.principal<JWTPrincipal>()?.subject
-                    ?: return@delete call.respond(HttpStatusCode.Forbidden)
-            val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest)
+            val id = call.urlParameter("id")
 
-            val meeting =
-                getMeetingResponse(id, user) ?: return@delete call.respond(HttpStatusCode.NotFound)
+            val meeting = getMeetingResponse(id, call.userID) ?: return@delete throw NotFound()
 
-            if (meeting.meeting.owner != user) {
-                return@delete call.respond(HttpStatusCode.Forbidden)
-            }
+            if (meeting.meeting.owner != call.userID) throw InvalidAuthorization()
 
             deleteMeeting(id)
 
@@ -131,17 +122,16 @@ val GROUP_ROUTES: Route.() -> Unit = {
         // PATCH /groups/{id}
         // update an individual meeting
         patch {
-            val user =
-                call.principal<JWTPrincipal>()?.subject
-                    ?: return@patch call.respond(HttpStatusCode.Forbidden)
-            val id = call.parameters["id"] ?: return@patch call.respond(HttpStatusCode.BadRequest)
+            val user = call.userID
+            val id = call.urlParameter("id")
 
             val meeting = getMeeting(id) ?: return@patch call.respond(HttpStatusCode.NotFound)
 
             // the user is NOT the owner
-            if (meeting.owner != user) {
-                return@patch call.respond(HttpStatusCode.Forbidden)
-            }
+            if (meeting.owner != user) throw InvalidArguments()
+
+            if (getTimeMillis() > meeting.endTime)
+                throw ServerError(400, "You cannot edit a meeting that's in the past.")
 
             val group = call.receive<SubmittedGroupMeeting>()
             val errors = group.validateSubmittedGroupMeeting()

@@ -236,7 +236,8 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                     messages.map((message) => (
                         <Chat
                             message={message}
-                            editable={message.userId === user?.id || moderator}
+                            canEdit={message.userId === user?.id}
+                            canDelete={message.userId === user?.id || moderator}
                             names={names}
                             deleteButton={() =>
                                 deleteMessage(message.messageId)
@@ -270,7 +271,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
 
                 <div className="flex flex-row justify-between gap-4">
                     <Input
-                        className="w-2/3"
+                        className={"w-2/3"}
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && send()}

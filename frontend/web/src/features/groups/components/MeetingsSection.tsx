@@ -64,7 +64,9 @@ export default function MeetingsSection({
     const onClick = (meetingId: string) => nav(`/meeting/${meetingId}`)
 
     const groups = useMemo(() => {
-        return (data ?? []).reduce<Group[]>((acc, item) => {
+        if (!data) return []
+
+        return data.reduce<Group[]>((acc, item) => {
             const label = dayLabel(item.meeting.beginningTime)
             const last = acc[acc.length - 1]
             if (!last || last.label !== label)

@@ -1,6 +1,6 @@
 package app.burrow.admin.account
 
-import app.burrow.ServerError
+import app.burrow.errors.ServerError
 import app.burrow.account.Authorization
 import app.burrow.admin.account.TOTP.secretGenerator
 import app.burrow.groups.sync.chat.ChatMessage

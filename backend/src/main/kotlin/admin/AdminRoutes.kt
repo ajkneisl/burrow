@@ -1,7 +1,7 @@
 package app.burrow.admin
 
 import app.burrow.ADMIN_AUTH
-import app.burrow.ServerError
+import app.burrow.errors.ServerError
 import app.burrow.admin.account.Administrator
 import app.burrow.admin.account.Permissions
 import app.burrow.admin.account.adminLogin

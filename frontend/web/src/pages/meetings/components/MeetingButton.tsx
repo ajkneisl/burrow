@@ -21,7 +21,8 @@ export default function MeetingButton(
                 "bg-background hover:bg-background/40",
                 "border border-transparent",
                 "inline-flex items-center justify-center",
-                "cursor-pointer rounded-xl p-2 text-sm font-medium shadow-sm transition hover:shadow-md",
+                "rounded-xl p-2 text-sm font-medium shadow-sm transition hover:shadow-md",
+                props.disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer",
                 props.className ?? "text-text"
             )}
         >

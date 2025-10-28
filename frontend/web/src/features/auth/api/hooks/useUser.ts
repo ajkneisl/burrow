@@ -15,7 +15,7 @@ export default function useUser(): User | null {
     const { data, error } = useQuery({
         queryKey: ["user"],
         enabled: auth !== "",
-        queryFn: () => getUser(auth)
+        queryFn: async () => await getUser(auth)
     })
 
     // if the request fails, log the user out

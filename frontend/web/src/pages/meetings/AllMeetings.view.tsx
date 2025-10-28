@@ -1,3 +1,6 @@
+import React from "react"
+import { useEffect } from "react"
+import { AnimatePresence, motion } from "framer-motion"
 import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import type {
@@ -36,6 +39,38 @@ function humanDateLabel(key: string): string {
     })
 }
 
+function weekRangeLabel(dateMs: number): string {
+    const d = new Date(dateMs)
+    d.setHours(0, 0, 0, 0)
+    // Make Monday = 0, Sunday = 6
+    const day = d.getDay()
+    const offsetToMonday = (day + 6) % 7
+
+    const start = new Date(d)
+    start.setDate(d.getDate() - offsetToMonday)
+    start.setHours(0, 0, 0, 0)
+
+    const end = new Date(start)
+    end.setDate(start.getDate() + 6)
+    end.setHours(23, 59, 59, 999)
+
+    const formatDay = (date: Date) => {
+        const monthName = date.toLocaleString("default", { month: "long" })
+        const day = date.getDate()
+        const suffix =
+            day % 10 === 1 && day !== 11
+                ? "st"
+                : day % 10 === 2 && day !== 12
+                  ? "nd"
+                  : day % 10 === 3 && day !== 13
+                    ? "rd"
+                    : "th"
+        return `${monthName} ${day}${suffix}`
+    }
+
+    return `${formatDay(start)} — ${formatDay(end)}`
+}
+
 /**
  * {@link AllMeetings}
  */
@@ -52,6 +87,27 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
     const [query, setQuery] = useState("")
     const [auth] = useAtom(authToken)
     const [selectedDate, setSelectedDate] = useState<string>()
+
+    const [hiddenWeeks, setHiddenWeeks] = useState<Set<string>>(new Set())
+    const [hiddenDays, setHiddenDays] = useState<Set<string>>(new Set())
+
+    const toggleWeek = (label: string) => {
+        setHiddenWeeks((prev) => {
+            const next = new Set(prev)
+            if (next.has(label)) next.delete(label)
+            else next.add(label)
+            return next
+        })
+    }
+
+    const toggleDay = (dateKey: string) => {
+        setHiddenDays((prev) => {
+            const next = new Set(prev)
+            if (next.has(dateKey)) next.delete(dateKey)
+            else next.add(dateKey)
+            return next
+        })
+    }
 
     const dateEpoch = useMemo(() => {
         if (!selectedDate) return null
@@ -117,8 +173,28 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
             list.push(m)
             map.set(key, list)
         })
-        return Array.from(map.entries()).sort(([a], [b]) => (a < b ? -1 : 1))
+
+        const entries = Array.from(map.entries()).sort(([a], [b]) =>
+            a < b ? -1 : 1
+        )
+
+        return entries.map(([key, list]) => {
+            // compute week label from the first meeting's beginningTime in this day
+            const firstTime =
+                list[0]?.meeting.beginningTime ?? new Date(key).getTime()
+            return { key, list, week: weekRangeLabel(firstTime) }
+        })
     }, [filtered])
+
+    useEffect(() => {
+        if (groupedByDate.length === 0) return
+        const currentWeekLabel = weekRangeLabel(Date.now())
+        const allWeeks = new Set(groupedByDate.map((g) => g.week))
+        const hidden = new Set(
+            [...allWeeks].filter((w) => w !== currentWeekLabel)
+        )
+        setHiddenWeeks(hidden)
+    }, [groupedByDate])
 
     if (error)
         return (
@@ -187,23 +263,133 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
                         </p>
                     </div>
                 ) : (
-                    groupedByDate.map(([dateKey, meetings]) => (
-                        <section key={dateKey} className="mb-10">
-                            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-text">
-                                {humanDateLabel(dateKey)}
-                                <span className="h-px flex-1 bg-primary/20" />
-                            </h2>
+                    groupedByDate.map(
+                        ({ key: dateKey, list: meetings, week }, idx) => (
+                            <React.Fragment key={dateKey}>
+                                {idx === 0 ||
+                                groupedByDate[idx - 1].week !== week ? (
+                                    <h2
+                                        className="md:min-w-[430px] mb-3 flex cursor-pointer select-none items-center gap-2 text-xs font-semibold uppercase tracking-wide text-text/70 hover:text-text"
+                                        onClick={() => toggleWeek(week)}
+                                        title={
+                                            hiddenWeeks.has(week)
+                                                ? "Show week"
+                                                : "Hide week"
+                                        }
+                                        role="button"
+                                        aria-expanded={!hiddenWeeks.has(week)}
+                                    >
+                                        <span className="h-px flex-1 bg-text/40" />
+                                        {week}
+                                        <span className="h-px flex-1 bg-text/40" />
+                                        <svg
+                                            className={`ml-2 h-3 w-3 transition-transform duration-200 ${hiddenWeeks.has(week) ? "rotate-0" : "rotate-90"}`}
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                            aria-hidden="true"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
+                                    </h2>
+                                ) : null}
 
-                            <div className="flex flex-col gap-4">
-                                {meetings.map((m) => (
-                                    <GroupMeetingCard
-                                        key={m.meeting.id}
-                                        {...m}
-                                    />
-                                ))}
-                            </div>
-                        </section>
-                    ))
+                                <AnimatePresence initial={false}>
+                                    {!hiddenWeeks.has(week) && (
+                                        <motion.section
+                                            key={`week-${week}-${dateKey}`}
+                                            className="mb-10"
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{
+                                                height: "auto",
+                                                opacity: 1
+                                            }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            transition={{
+                                                duration: 0.2,
+                                                ease: "easeOut"
+                                            }}
+                                        >
+                                            <h2
+                                                className="mb-3 flex cursor-pointer select-none items-center gap-2 text-sm font-semibold text-text hover:text-text/80"
+                                                onClick={() =>
+                                                    toggleDay(dateKey)
+                                                }
+                                                title={
+                                                    hiddenDays.has(dateKey)
+                                                        ? "Show day"
+                                                        : "Hide day"
+                                                }
+                                                role="button"
+                                                aria-expanded={
+                                                    !hiddenDays.has(dateKey)
+                                                }
+                                            >
+                                                {humanDateLabel(dateKey)}
+                                                <span className="h-px flex-1 bg-text/50" />
+                                                <svg
+                                                    className={`ml-2 h-3 w-3 transition-transform duration-200 ${hiddenDays.has(dateKey) ? "rotate-0" : "rotate-90"}`}
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                            </h2>
+
+                                            {/* Day content with its own collapse animation */}
+                                            <AnimatePresence initial={false}>
+                                                {!hiddenDays.has(dateKey) && (
+                                                    <motion.div
+                                                        key={`day-${dateKey}`}
+                                                        initial={{
+                                                            height: 0,
+                                                            opacity: 0
+                                                        }}
+                                                        animate={{
+                                                            height: "auto",
+                                                            opacity: 1
+                                                        }}
+                                                        exit={{
+                                                            height: 0,
+                                                            opacity: 0
+                                                        }}
+                                                        transition={{
+                                                            duration: 0.2,
+                                                            ease: "easeOut"
+                                                        }}
+                                                        className="overflow-hidden"
+                                                    >
+                                                        <div className="flex flex-col gap-4">
+                                                            {meetings.map(
+                                                                (m) => (
+                                                                    <GroupMeetingCard
+                                                                        key={
+                                                                            m
+                                                                                .meeting
+                                                                                .id
+                                                                        }
+                                                                        {...m}
+                                                                    />
+                                                                )
+                                                            )}
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </motion.section>
+                                    )}
+                                </AnimatePresence>
+                            </React.Fragment>
+                        )
+                    )
                 )}
             </section>
 

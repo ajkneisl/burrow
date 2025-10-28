@@ -2,8 +2,8 @@ package app.burrow
 
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
-import app.burrow.account.models.userID
 import app.burrow.admin.ADMIN_ROUTES
+import app.burrow.errors.ServerError
 import app.burrow.groups.GROUP_ROUTES
 import app.burrow.groups.models.getMeetingResponse
 import app.burrow.groups.sync.Sync
@@ -102,7 +102,10 @@ suspend fun Application.module() {
         }
 
         exception<ServerError> { call, cause ->
-            call.respond(HttpStatusCode.fromValue(cause.code), "Error: ${cause.message}")
+            call.respond(
+                HttpStatusCode.fromValue(cause.code),
+                hashMapOf("code" to "${cause.code}", "message" to cause.message),
+            )
         }
 
         exception<Throwable> { call, cause ->
@@ -191,7 +194,7 @@ suspend fun Application.module() {
                 // retrieve an individual meeting
                 authenticate(PRIMARY_AUTH, optional = true) {
                     get("/groups/{id}") {
-                        val userId = call.userID
+                        val userId = call.principal<JWTPrincipal>()?.subject
                         val id =
                             call.parameters["id"]
                                 ?: return@get call.respond(HttpStatusCode.BadRequest)
@@ -215,3 +218,16 @@ suspend fun Application.module() {
         throw t
     }
 }
+
+fun ApplicationCall.queryParameter(name: String): String =
+    request.queryParameters[name] ?: throw ServerError(400, "Missing parameter: $name")
+
+fun ApplicationCall.longQueryParameter(name: String): Long =
+    request.queryParameters[name]?.toLongOrNull()
+        ?: throw ServerError(400, "Missing parameter: $name")
+
+fun ApplicationCall.urlParameter(name: String): String =
+    parameters[name] ?: throw ServerError(400, "Missing parameter: $name")
+
+fun ApplicationCall.optionalLongQueryParameter(name: String): Long? =
+    request.queryParameters[name]?.toLongOrNull()

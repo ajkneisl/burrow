@@ -1,6 +1,6 @@
 package app.burrow.groups.membership
 
-import app.burrow.ServerError
+import app.burrow.errors.ServerError
 import app.burrow.account.Users
 import app.burrow.account.models.User
 import app.burrow.groups.Meetings
@@ -9,6 +9,7 @@ import app.burrow.groups.models.GroupMeeting
 import app.burrow.groups.models.GroupMeetingResponse
 import app.burrow.groups.models.MeetingMemberStatus
 import app.burrow.groups.models.MeetingRole
+import app.burrow.groups.models.getMeeting
 import app.burrow.notifications.createNotification
 import app.burrow.notifications.onUserJoinedMeeting
 import app.burrow.notifications.onUserLeaveMeeting
@@ -272,6 +273,11 @@ suspend fun changeRole(meetingId: String, userId: String, role: MeetingRole) {
  * @throws ServerError If the user is not in the meeting or they're the host.
  */
 suspend fun leaveMeeting(userId: String, meetingId: String) {
+    val meeting = getMeeting(meetingId) ?: throw ServerError(404, "Meeting not found!")
+
+    // ensure meeting hasn't ended
+    if (getTimeMillis() > meeting.endTime) throw ServerError(400, "This meeting has already ended.")
+
     val existingMembership = query {
         Memberships.selectAll()
             .where { (Memberships.userId eq userId) and (Memberships.meetingId eq meetingId) }
@@ -343,6 +349,11 @@ suspend fun leaveMeeting(userId: String, meetingId: String) {
  * @throws ServerError If the user is banned or already joined/waitlisted.
  */
 suspend fun joinMeeting(userId: String, meetingId: String) {
+    val meeting = getMeeting(meetingId) ?: throw ServerError(404, "Meeting does not exist.")
+
+    // ensure meeting hasn't ended
+    if (getTimeMillis() > meeting.endTime) throw ServerError(400, "This meeting has already ended.")
+
     val existingMembership = query {
         Memberships.selectAll()
             .where { (Memberships.userId eq userId) and (Memberships.meetingId eq meetingId) }

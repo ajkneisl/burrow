@@ -342,6 +342,9 @@ export async function getSchedule(
         }
     })
 
+    if (!request.ok)
+        return Promise.reject("Failed to load schedule.")
+
     return await request.json()
 }
 
@@ -358,6 +361,9 @@ export async function getBookmarks(
             Authorization: `Bearer ${auth}`
         }
     })
+
+    if (!request.ok)
+        return Promise.reject("Failed to load schedule.")
 
     return await request.json()
 }

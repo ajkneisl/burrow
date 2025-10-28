@@ -1,6 +1,6 @@
 package app.burrow.groups.bookmarks
 
-import app.burrow.ServerError
+import app.burrow.errors.ServerError
 import app.burrow.burrowLogger
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis

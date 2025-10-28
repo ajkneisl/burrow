@@ -1,12 +1,15 @@
 package app.burrow.groups.membership
 
-import app.burrow.ServerError
+import app.burrow.account.models.userID
+import app.burrow.errors.InvalidAuthorization
+import app.burrow.errors.NotFound
+import app.burrow.errors.ServerError
 import app.burrow.groups.models.MeetingMemberStatus
 import app.burrow.groups.models.MeetingRole
 import app.burrow.groups.models.getMeeting
+import app.burrow.queryParameter
+import app.burrow.urlParameter
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -20,17 +23,13 @@ fun Route.membershipRoutes() {
     // GET /groups/{id}/attendees
     // get all attendees for this group
     get("/attendees") {
-        val user =
-            call.principal<JWTPrincipal>()?.subject
-                ?: return@get call.respond(HttpStatusCode.Forbidden)
-        val id = call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
-
+        val id = call.urlParameter("id")
         val attendees = getAttendees(id)
 
         // must be in the group to see the members!
         val inGroup =
             attendees.any { (membership) ->
-                membership.userId == user && membership.status == MeetingMemberStatus.JOINED
+                membership.userId == call.userID && membership.status == MeetingMemberStatus.JOINED
             }
 
         if (!inGroup) {
@@ -43,12 +42,9 @@ fun Route.membershipRoutes() {
     // POST /groups/{id}/join
     // joins a meeting
     post("/join") {
-        val user =
-            call.principal<JWTPrincipal>()?.subject
-                ?: return@post call.respond(HttpStatusCode.Forbidden)
-        val id = call.parameters["id"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+        val id = call.urlParameter("id")
 
-        joinMeeting(user, id)
+        joinMeeting(call.userID, id)
 
         call.respond(HttpStatusCode.OK)
     }
@@ -56,12 +52,9 @@ fun Route.membershipRoutes() {
     // POST /groups/{id}/leave
     // leaves a meeting
     post("/leave") {
-        val user =
-            call.principal<JWTPrincipal>()?.subject
-                ?: return@post call.respond(HttpStatusCode.Forbidden)
-        val id = call.parameters["id"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+        val id = call.urlParameter("id")
 
-        leaveMeeting(user, id)
+        leaveMeeting(call.userID, id)
 
         call.respond(HttpStatusCode.OK)
     }
@@ -77,14 +70,11 @@ fun Route.membershipRoutes() {
     // PATCH /groups/{id}/role
     // adjust the role of a user
     patch("/role") {
-        val user =
-            call.principal<JWTPrincipal>()?.subject
-                ?: return@patch call.respond(HttpStatusCode.Forbidden)
-        val id = call.parameters["id"] ?: return@patch call.respond(HttpStatusCode.BadRequest)
-        val meeting = getMeeting(id) ?: return@patch call.respond(HttpStatusCode.BadRequest)
+        val id = call.urlParameter("id")
+        val meeting = getMeeting(id) ?: throw NotFound()
 
         // must be owner to change someone's role
-        if (meeting.owner != user) return@patch call.respond(HttpStatusCode.Forbidden)
+        if (meeting.owner != call.userID) throw InvalidAuthorization()
 
         val payload = call.receive<UpdateRolePayload>()
 
@@ -103,15 +93,12 @@ fun Route.membershipRoutes() {
     // PATCH /groups/{id}/status
     // ban or unban a user
     patch("/status") {
-        val user =
-            call.principal<JWTPrincipal>()?.subject
-                ?: return@patch call.respond(HttpStatusCode.Forbidden)
-        val id = call.parameters["id"] ?: return@patch call.respond(HttpStatusCode.BadRequest)
+        val id = call.urlParameter("id")
         val payload = call.receive<UpdateStatusPayload>()
 
-        val moderatorMembership = getMembership(user, id)
+        val moderatorMembership = getMembership(call.userID, id)
         if (moderatorMembership == null || moderatorMembership.role == MeetingRole.MEMBER)
-            return@patch call.respond(HttpStatusCode.Forbidden)
+            throw InvalidAuthorization()
 
         val membership =
             getMembership(payload.userId, id)
@@ -120,7 +107,7 @@ fun Route.membershipRoutes() {
         if (membership.status == MeetingMemberStatus.BANNED) {
             unBanUser(payload.userId, id)
         } else {
-            banUser(user, payload.userId, id)
+            banUser(call.userID, payload.userId, id)
         }
 
         call.respond(HttpStatusCode.OK)

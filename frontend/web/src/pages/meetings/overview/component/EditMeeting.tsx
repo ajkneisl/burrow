@@ -1,6 +1,6 @@
 import type { GroupMeeting } from "@features/groups/api/groups.types.ts"
 import EditStudyGroupModal from "@features/create/components/EditStudyGroupModal.tsx"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Button } from "@umnburrow/core"
 
 /**
@@ -19,6 +19,10 @@ type EditMeetingProps = {
  */
 export default function EditMeeting({ meeting }: EditMeetingProps) {
     const [open, setOpen] = useState(false)
+    const inPast = useMemo(
+        () => new Date().valueOf() > meeting.endTime,
+        [meeting.endTime]
+    )
 
     return (
         <>
@@ -32,6 +36,7 @@ export default function EditMeeting({ meeting }: EditMeetingProps) {
             <Button
                 onClick={() => setOpen(true)}
                 color={"SECONDARY"}
+                disabled={inPast}
             >
                 Edit
             </Button>

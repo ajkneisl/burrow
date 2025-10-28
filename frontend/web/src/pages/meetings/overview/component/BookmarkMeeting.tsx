@@ -6,8 +6,12 @@ import {
 import useToken from "@features/auth/api/hooks/useToken.ts"
 import MeetingButton from "@pages/meetings/components/MeetingButton.tsx"
 
+/**
+ * {@see BookmarkMeeting}
+ */
 type BookmarkMeetingProps = {
     isBookmarked: boolean
+    inPast: boolean
     meetingId: string
 }
 
@@ -15,11 +19,13 @@ type BookmarkMeetingProps = {
  * Button to bookmark a meeting.
  *
  * @param isBookmarked If the meeting is bookmarked.
+ * @param inPast If the meeting is in the past.
  * @param meetingId The ID of the meeting.
  * @constructor
  */
 export default function BookmarkMeeting({
     isBookmarked,
+    inPast,
     meetingId
 }: BookmarkMeetingProps) {
     const queryClient = useQueryClient()
@@ -43,6 +49,7 @@ export default function BookmarkMeeting({
     return (
         <MeetingButton
             onClick={bookmark}
+            disabled={inPast}
             className={isBookmarked ? "text-secondary" : "text-text"}
         >
             <svg
