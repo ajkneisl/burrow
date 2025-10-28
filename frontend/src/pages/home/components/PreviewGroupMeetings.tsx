@@ -6,6 +6,7 @@ import type { GroupType } from "@features/groups/api/groups.types.ts"
 import { getMeetings } from "@features/groups/api/groups.api.ts"
 import Button from "@components/Button.tsx"
 import CreateButton from "@features/layout/components/CreateButton.tsx"
+import Card from "@components/Card.tsx"
 
 /**
  * A skeleton loading card.
@@ -13,18 +14,18 @@ import CreateButton from "@features/layout/components/CreateButton.tsx"
  */
 function SkeletonCard() {
     return (
-        <div className="w-full rounded-2xl border border-hero bg-card p-5 shadow-sm">
+        <Card className="min-w-full">
             <div className="animate-pulse space-y-4">
-                <div className="h-4 w-2/3 rounded bg-hero" />
-                <div className="h-3 w-1/3 rounded bg-hero" />
+                <div className="h-4 w-2/3 rounded bg-text/10" />
+                <div className="h-3 w-1/3 rounded bg-text/10" />
                 <div className="flex gap-2">
-                    <div className="h-4 w-16 rounded-full bg-hero" />
-                    <div className="h-4 w-12 rounded-full bg-hero" />
-                    <div className="h-4 w-14 rounded-full bg-hero" />
+                    <div className="h-4 w-16 rounded-full bg-text/10" />
+                    <div className="h-4 w-12 rounded-full bg-text/10" />
+                    <div className="h-4 w-14 rounded-full bg-text/10" />
                 </div>
-                <div className="h-4 w-40 rounded bg-hero" />
+                <div className="h-4 w-40 rounded bg-text/10" />
             </div>
-        </div>
+        </Card>
     )
 }
 

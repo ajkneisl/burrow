@@ -188,6 +188,7 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
                             {humanDateLabel(dateKey)}
                             <span className="h-px flex-1 bg-primary/20" />
                         </h2>
+
                         <div className="flex flex-col gap-4">
                             {meetings.map((m) => (
                                 <GroupMeetingCard key={m.meeting.id} {...m} />
