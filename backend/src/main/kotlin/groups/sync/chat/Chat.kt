@@ -65,10 +65,10 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
     /** Get all chat members from a meeting. */
     suspend fun getChatMembers(): List<ChatMember> {
         val members = query {
-            Memberships.innerJoin(Users, { Memberships.userId }, { Users.id })
-                .select(Memberships.userId, Users.name)
-                .where { Memberships.meetingId eq meetingId }
-                .map { member -> ChatMember(member[Memberships.userId], member[Users.name]) }
+            Memberships.innerJoin(Users, { Memberships.userID }, { Users.id })
+                .select(Memberships.userID, Users.username)
+                .where { Memberships.meetingID eq meetingId }
+                .map { member -> ChatMember(member[Memberships.userID], member[Users.username]) }
                 .toList()
         }
 

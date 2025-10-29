@@ -140,8 +140,8 @@ suspend fun createGroupMeeting(userId: String, meeting: SubmittedGroupMeeting): 
         }
 
         Memberships.insert {
-            it[Memberships.meetingId] = groupMeeting.id
-            it[Memberships.userId] = groupMeeting.owner
+            it[Memberships.meetingID] = groupMeeting.id
+            it[Memberships.userID] = groupMeeting.owner
             it[Memberships.role] = MeetingRole.HOST
             it[Memberships.status] = MeetingMemberStatus.JOINED
             it[Memberships.joinedAt] = getTimeMillis()
@@ -233,34 +233,34 @@ private suspend fun aggregateMeetings(
     val joinedAlias = Memberships.alias("m_joined")
     val waitingAlias = Memberships.alias("m_waiting")
 
-    val joinedCountExpr = joinedAlias[Memberships.userId].countDistinct()
-    val waitingCountExpr = waitingAlias[Memberships.userId].countDistinct()
+    val joinedCountExpr = joinedAlias[Memberships.userID].countDistinct()
+    val waitingCountExpr = waitingAlias[Memberships.userID].countDistinct()
 
     Meetings.innerJoin(Users, { Meetings.owner }, { Users.id })
         .leftJoin(
             joinedAlias,
             { Meetings.id },
-            { joinedAlias[Memberships.meetingId] },
+            { joinedAlias[Memberships.meetingID] },
             additionalConstraint = { joinedAlias[Memberships.status] eq MeetingMemberStatus.JOINED },
         )
         .leftJoin(
             waitingAlias,
             { Meetings.id },
-            { waitingAlias[Memberships.meetingId] },
+            { waitingAlias[Memberships.meetingID] },
             additionalConstraint = {
                 waitingAlias[Memberships.status] eq MeetingMemberStatus.WAITLISTED
             },
         )
-        .select(Meetings.columns + listOf(Users.name, Users.id, joinedCountExpr, waitingCountExpr))
+        .select(Meetings.columns + listOf(Users.username, Users.id, joinedCountExpr, waitingCountExpr))
         .where { where }
-        .groupBy(*Meetings.columns.toTypedArray(), Users.name, Users.id)
+        .groupBy(*Meetings.columns.toTypedArray(), Users.username, Users.id)
         .orderBy(Meetings.beginningTime, SortOrder.ASC)
         .let { request?.invoke(it) ?: it }
         .toList()
         .associate { row ->
             val joinedCount = row[joinedCountExpr]
             val waitingCount = row[waitingCountExpr]
-            GroupMeeting.fromRow(row, joinedCount, waitingCount) to row[Users.name]
+            GroupMeeting.fromRow(row, joinedCount, waitingCount) to row[Users.username]
         }
 }
 

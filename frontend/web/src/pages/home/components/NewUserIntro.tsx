@@ -7,7 +7,7 @@ import { useMemo } from "react"
 export default function NewUserIntro() {
     const user = useUser()
 
-    const firstName = useMemo(() => user?.name?.split(" ")[0], [user?.name])
+    const firstName = useMemo(() => user?.username?.split(" ")[0], [user?.username])
 
     return (
         <section className="bg-card rounded-2xl shadow p-6 col-span-3 text-text/80 max-w-content max-w-4xl">

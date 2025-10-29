@@ -39,6 +39,9 @@ export default function MeetingCapacityBadges({
         }
     }, [hasLimit, joined, capacity])
 
+    if (joined === -1)
+        return <></>
+
     return (
         <>
             <span

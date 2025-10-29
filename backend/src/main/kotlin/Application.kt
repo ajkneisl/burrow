@@ -2,6 +2,8 @@ package app.burrow
 
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
+import app.burrow.account.Users
+import app.burrow.account.profile.Profiles
 import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.errors.ServerError
 import app.burrow.groups.GROUP_ROUTES
@@ -39,6 +41,9 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 
@@ -70,6 +75,19 @@ fun main(args: Array<String>) {
 suspend fun Application.module() {
     initDb()
     notificationWorker()
+
+    // convert current users to have profiles
+    query {
+        Users.selectAll().collect { row ->
+            query {
+                if (Profiles.selectAll().where { Profiles.userID eq row[Users.id] }.count() == 0L)
+                    Profiles.insert {
+                        it[Profiles.userID] = row[Users.id]
+                        it[Profiles.name] = row[Users.username]
+                    }
+            }
+        }
+    }
 
     install(SSE)
     install(WebSockets) {

@@ -1,4 +1,5 @@
 import type { User } from "@features/auth/api/user.types.ts"
+import type { Profile } from "@features/profile/profile.model.ts"
 
 /**
  * The type of group meeting.
@@ -78,6 +79,7 @@ export interface MeetingMembership {
 export interface MeetingMembershipResponse {
     membership: MeetingMembership
     user: User
+    profile: Profile
 }
 
 /**

@@ -22,7 +22,7 @@ export default function AccountSettings() {
     // auto load in user and phone
     useEffect(() => {
         if (user) {
-            setName(user.name ?? "")
+            setName(user.username ?? "")
             setPhoneNumber(user.phoneNumber ?? "")
         }
     }, [user])
@@ -47,7 +47,7 @@ export default function AccountSettings() {
                 }
 
                 // if name has been changed
-                if (name !== (user.name ?? "")) {
+                if (name !== (user.username ?? "")) {
                     await updateUser(auth, "name", name)
                 }
             }

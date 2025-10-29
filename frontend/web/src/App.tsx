@@ -1,5 +1,3 @@
-import { useEffect } from "react"
-import { Route, Routes, useParams } from "react-router"
 import HomeView from "@pages/home/Home.view.tsx"
 import Meeting from "@pages/meetings/overview/Meeting.view.tsx"
 import AllMeetings from "@pages/meetings/AllMeetings.view.tsx"
@@ -18,8 +16,37 @@ import ToS from "@pages/legal/ToS.view.tsx"
 import { Toaster } from "react-hot-toast"
 import SettingsModal from "@features/settings/SettingsModal.tsx"
 import ReportProblemModal from "@features/problem/ReportProblemModal.tsx"
+import ProfileView from "@pages/Profile.view.tsx"
+import { useEffect } from "react"
+import {
+    createBrowserRouter,
+    Outlet,
+    RouterProvider,
+    useParams,
+    useRouteError
+} from "react-router"
 
-function App() {
+function ErrorElement() {
+    const error = useRouteError() as Error | undefined
+    return (
+        <div className="text-center p-8">
+            <h1 className="text-2xl font-bold text-error">
+                Something went wrong
+            </h1>
+            <p className="mt-2 opacity-70">
+                {error?.message || "An unexpected error occurred."}
+            </p>
+        </div>
+    )
+}
+
+function MeetingReRoute() {
+    const { id } = useParams()
+    if (id && id.length === 8) return <Meeting />
+    return <NotFound />
+}
+
+function RootLayout() {
     // load user information & ensure logged in
     useUser()
 
@@ -28,36 +55,17 @@ function App() {
 
     useEffect(() => {
         const mq = window.matchMedia("(prefers-color-scheme: dark)")
-        setDarkMode((prev) => {
-            if (prev === null) return mq.matches
-            else return prev
-        })
-
-        const handler = () => {
-            setDarkMode((prev) => {
-                if (prev === null) return mq.matches
-                else return prev
-            })
-        }
-
+        setDarkMode((prev) => (prev === null ? mq.matches : prev))
+        const handler = () =>
+            setDarkMode((prev) => (prev === null ? mq.matches : prev))
         mq.addEventListener("change", handler)
         return () => mq.removeEventListener("change", handler)
-    }, [darkMode, setDarkMode])
+    }, [setDarkMode])
 
     useEffect(() => {
         const root = document.querySelector("html")
-
-        if (root) {
-            root.setAttribute("data-theme", darkMode ? "dark" : "light")
-        }
+        if (root) root.setAttribute("data-theme", darkMode ? "dark" : "light")
     }, [darkMode])
-
-    const MeetingReRoute = () => {
-        const { id } = useParams()
-
-        if (id?.length === 8) return <Meeting />
-        else return <NotFound />
-    }
 
     return (
         <div className="gopher-stand bg-background text-text min-h-screen w-full flex flex-col bg-background-color transition-colors duration-300">
@@ -85,34 +93,39 @@ function App() {
                 />
 
                 <ReportProblemModal />
-
                 <SettingsModal />
 
-                <Routes>
-                    <Route path="/" element={<HomeView />} />
-
-                    <Route path="/about" element={<About />} />
-
-                    <Route path="/welcome" element={<LandingView />} />
-
-                    <Route
-                        path="/study"
-                        element={<AllMeetings type="STUDY" />}
-                    />
-
-                    <Route path="/meeting/:id" element={<Meeting />} />
-                    <Route path="/:id" element={<MeetingReRoute />} />
-
-                    <Route path="/privacy" element={<Privacy />} />
-                    <Route path="/tos" element={<ToS />} />
-
-                    <Route path="*" element={<NotFound />} />
-                </Routes>
+                {/* Child routes render here */}
+                <Outlet />
             </main>
 
             <Footer />
         </div>
     )
+}
+
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <RootLayout />,
+        errorElement: <ErrorElement />,
+        children: [
+            { index: true, element: <HomeView /> },
+            { path: "about", element: <About /> },
+            { path: "welcome", element: <LandingView /> },
+            { path: "study", element: <AllMeetings type="STUDY" /> },
+            { path: "user/:username", element: <ProfileView /> },
+            { path: "privacy", element: <Privacy /> },
+            { path: "tos", element: <ToS /> },
+            { path: "*", element: <NotFound /> },
+            { path: "meeting/:id", element: <Meeting /> },
+            { path: ":id", element: <MeetingReRoute /> },
+        ]
+    }
+])
+
+function App() {
+    return <RouterProvider router={router} />
 }
 
 export default App

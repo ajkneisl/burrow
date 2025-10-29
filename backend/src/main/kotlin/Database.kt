@@ -1,6 +1,8 @@
 package app.burrow
 
 import app.burrow.account.Users
+import app.burrow.account.profile.Following
+import app.burrow.account.profile.Profiles
 import app.burrow.account.settings.Settings
 import app.burrow.admin.account.Administrators
 import app.burrow.admin.account.Permissions
@@ -81,8 +83,11 @@ suspend fun initDb() {
             BlockStates,
             ChatMessages,
             Reports,
-            Administrators
+            Administrators,
+            Profiles,
+            Following
         )
     }
+
     LOGGER.debug("Connected to Database")
 }

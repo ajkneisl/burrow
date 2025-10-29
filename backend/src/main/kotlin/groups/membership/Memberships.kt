@@ -8,8 +8,8 @@ import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 
 object Memberships : Table("memberships") {
-    val meetingId = reference("meeting_id", Meetings.id, onDelete = ReferenceOption.CASCADE)
-    val userId = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
+    val meetingID = reference("meeting_id", Meetings.id, onDelete = ReferenceOption.CASCADE)
+    val userID = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
 
     val role =
         enumerationByName("role", 32, MeetingRole::class)
@@ -22,5 +22,5 @@ object Memberships : Table("memberships") {
     val joinedAt = long("joined_at")
     val leftAt = long("left_at").nullable()
 
-    override val primaryKey = PrimaryKey(meetingId, userId, name = "pk_membership")
+    override val primaryKey = PrimaryKey(meetingID, userID, name = "pk_membership")
 }

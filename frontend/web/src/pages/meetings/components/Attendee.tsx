@@ -10,6 +10,8 @@ import { useMemo } from "react"
 import { toggleBanMember, changeRole } from "@features/groups/api/groups.api.ts"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import useToken from "@features/auth/api/hooks/useToken.ts"
+import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
+import { useNavigate } from "react-router"
 
 /**
  * The color depending on the role.
@@ -54,13 +56,15 @@ type AttendeeProps = {
  * @param user The attendee information.
  * @param membership The attendee's membership information.
  * @param meetingRole The role of the authorized user.
+ * @param profile The user's profile.
  * @constructor
  */
 export default function Attendee({
-    meeting: { user, membership },
+    meeting: { user, membership, profile },
     meetingRole
 }: AttendeeProps) {
     const auth = useToken()
+    const nav = useNavigate()
     const userId = useUser()?.id
     const queryClient = useQueryClient()
 
@@ -130,22 +134,37 @@ export default function Attendee({
 
     return (
         <li
+            onClick={() => nav(`/user/${user.username}`)}
             key={`${membership.meetingId}-${membership.userId}`}
-            className="rounded-2xl bg-background/60 border border-background/80 p-4"
+            className="cursor-pointer rounded-2xl bg-background/60 border border-background/80 p-4"
         >
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div>
                         <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold">
-                                {user.name}
+                            <div className="flex flex-row items-center gap-2 mb-4">
+                                <ProfilePicture
+                                    name={profile.name}
+                                    userID={user.id}
+                                    size={"sm"}
+                                />
 
-                                {isSelf && (
-                                    <span className="ml-1 text-[10px] font-normal text-text/60">
-                                        (you)
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-semibold">
+                                        {profile.name}
+
+                                        {isSelf && (
+                                            <span className="ml-1 text-[10px] font-normal text-text/60">
+                                                (you)
+                                            </span>
+                                        )}
                                     </span>
-                                )}
-                            </span>
+
+                                    <span className="text-xs text-text/70">
+                                        {user.username}
+                                    </span>
+                                </div>
+                            </div>
 
                             {membership.status === "WAITLISTED" && (
                                 <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700">
@@ -189,7 +208,7 @@ export default function Attendee({
                                 banMutation.mutate(membership.userId)
                             }
                             disabled={banMutation.isPending}
-                            aria-label={`Ban ${user.name}`}
+                            aria-label={`Ban ${user.username}`}
                             title="Ban attendee"
                         >
                             {banMutation.isPending ? "Banning…" : "Ban"}
@@ -204,7 +223,7 @@ export default function Attendee({
                                 banMutation.mutate(membership.userId)
                             }
                             disabled={banMutation.isPending}
-                            aria-label={`Unban ${user.name}`}
+                            aria-label={`Unban ${user.username}`}
                             title="Unban attendee"
                         >
                             {banMutation.isPending ? "Unbanning…" : "Unban"}
@@ -219,7 +238,7 @@ export default function Attendee({
                                 demoteModMutation.mutate(membership.userId)
                             }
                             loading={demoteModMutation.isPending}
-                            aria-label={`Remove moderator role from ${user.name}`}
+                            aria-label={`Remove moderator role from ${user.username}`}
                             title="Remove moderator"
                         >
                             {demoteModMutation.isPending
@@ -237,7 +256,7 @@ export default function Attendee({
                                 modMutation.mutate(membership.userId)
                             }
                             disabled={modMutation.isPending}
-                            aria-label={`Promote ${user.name} to moderator`}
+                            aria-label={`Promote ${user.username} to moderator`}
                             title="Make moderator"
                         >
                             {modMutation.isPending

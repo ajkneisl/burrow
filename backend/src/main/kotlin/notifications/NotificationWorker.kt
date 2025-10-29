@@ -232,12 +232,12 @@ private suspend fun upsertUpcomingForUser(
  * @return All users attending the meeting, including the owner.
  */
 private suspend fun attendeeIds(meetingId: String): List<String> = query {
-    Memberships.select(Memberships.userId)
+    Memberships.select(Memberships.userID)
         .where {
-            (Memberships.meetingId eq meetingId) and
+            (Memberships.meetingID eq meetingId) and
                 (Memberships.status eq MeetingMemberStatus.JOINED)
         }
-        .map { it[Memberships.userId] }
+        .map { it[Memberships.userID] }
         .toList()
 }
 
@@ -301,20 +301,20 @@ suspend fun onUserLeaveMeeting(userId: String, meetingId: String) {
  */
 suspend fun onUserSettingsChanged(userId: String, nowMs: Long = getTimeMillis()) {
     query {
-        Meetings.leftJoin(Memberships, { Meetings.id }, { Memberships.meetingId })
+        Meetings.leftJoin(Memberships, { Meetings.id }, { Memberships.meetingID })
             .select(
                 Meetings.id,
                 Meetings.beginningTime,
                 Meetings.title,
                 Meetings.location,
                 Meetings.owner,
-                Memberships.userId,
+                Memberships.userID,
                 Memberships.status,
             )
             .where {
                 (Meetings.beginningTime greater nowMs) and
                     ((Meetings.owner eq userId) or
-                        ((Memberships.userId eq userId) and
+                        ((Memberships.userID eq userId) and
                             (Memberships.status eq MeetingMemberStatus.JOINED)))
             }
             .withDistinct()
