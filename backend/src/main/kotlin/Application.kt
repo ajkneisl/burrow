@@ -50,6 +50,8 @@ import org.slf4j.event.Level
 /** General, reusable HTTPClient */
 val client = HttpClient(CIO)
 
+val json = Json { ignoreUnknownKeys = true }
+
 /** Burrow logger! */
 val burrowLogger = LoggerFactory.getLogger("Burrow")
 
@@ -115,8 +117,13 @@ suspend fun Application.module() {
     install(StatusPages) {
         exception<CancellationException> { _, _ -> }
 
-        exception<BadRequestException> { call, _ ->
-            call.respond(HttpStatusCode.BadRequest, "Invalid request body!")
+        exception<BadRequestException> { call, ex ->
+            ex.printStackTrace()
+
+            call.respond(
+                HttpStatusCode.BadRequest,
+                hashMapOf("code" to "400", "message" to "Invalid request body."),
+            )
         }
 
         exception<ServerError> { call, cause ->
@@ -161,7 +168,7 @@ suspend fun Application.module() {
 
     install(DefaultHeaders) { header("X-Engine", "Burrow") }
     install(KHealth)
-    install(ContentNegotiation) { json() }
+    install(ContentNegotiation) { json(json) }
 
     authentication {
         // PRIMARY

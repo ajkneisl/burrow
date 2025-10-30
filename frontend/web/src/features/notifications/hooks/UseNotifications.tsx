@@ -3,8 +3,8 @@ import { motion } from "framer-motion"
 import toast from "react-hot-toast"
 import { BASE_URL } from "@api/util.ts"
 import { useAtom } from "jotai"
-import { notificationsAtom } from "@features/notifications/api/notifications.atom.ts"
-import type { Notification } from "@features/notifications/api/notifications.types.ts"
+import { notificationsAtom } from "@features/notifications/notifications.atom.ts"
+import type { Notification } from "@features/notifications/notifications.types.ts"
 
 /**
  * Load the SSE for notifications.

@@ -1,8 +1,8 @@
 import { useAtom } from "jotai"
-import { authToken } from "../../auth/api/auth.atom.ts"
-import type { GroupMeeting } from "../../groups/api/groups.types.ts"
+import { authToken } from "../../auth/auth.atom.ts"
+import type { GroupMeeting } from "../../groups/groups.types.ts"
 import StudyGroupModal from "./StudyGroupModal.tsx"
-import { updateMeeting } from "@features/groups/api/groups.api.ts"
+import { updateMeeting } from "@features/groups/groups.api.ts"
 
 export default function EditStudyGroupModal({
     open,

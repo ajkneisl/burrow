@@ -2,18 +2,17 @@ package app.burrow.account.profile
 
 import app.burrow.account.Users
 import app.burrow.errors.ServerError
+import app.burrow.json
 import app.burrow.query
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
-import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
 
@@ -25,10 +24,17 @@ import org.jetbrains.exposed.v1.r2dbc.update
 object Profiles : Table("profiles") {
     val userID = reference("user_id", Users.id, ReferenceOption.CASCADE)
 
+    // DEFAULT
     val name = varchar("name", 64)
+    val visibility =
+        enumeration<Profile.Visibility>("visibility").default(Profile.Visibility.PUBLIC)
     val bio = varchar("bio", 512).nullable().default(null)
-    val phoneNumber = varchar("phone_number", 128).nullable().default(null)
 
+    // CONTACT
+    val phoneNumber = varchar("phone_number", 128).nullable().default(null)
+    val instagram = varchar("instagram", 32).nullable().default(null)
+
+    // SCHOOL
     val gradYear = integer("grad_year").nullable().default(null)
     val classes = text("classes").nullable().default(null)
 }
@@ -37,19 +43,30 @@ object Profiles : Table("profiles") {
  * A user's profile.
  *
  * @param userID The user's ID.
+ * @param visibility The visibility of the profile.
  * @param name The chosen display name of the user.
  * @param bio The optional bio. This should be a short description of who they are.
  * @param phoneNumber An optional phone number.
+ * @param instagram An optional instagram.
  */
 @Serializable
 data class Profile(
     val userID: String,
     val name: String,
+    val visibility: Visibility,
     val bio: String?,
     val gradYear: Int?,
     val classes: List<String>?,
-    val phoneNumber: String?
+    val phoneNumber: String?,
+    val instagram: String?,
 ) {
+    /** Profile visibility. */
+    enum class Visibility {
+        PUBLIC,
+        PRIVATE,
+        FRIENDS,
+    }
+
     /** Validate this profile. */
     fun validate() {
         // validate name
@@ -74,6 +91,20 @@ data class Profile(
         if (bio != null && bio.length > 512)
             throw ServerError(400, "Bio must be under 512 characters.")
 
+        if (instagram != null) {
+            if (instagram.isBlank() || instagram.length > 32) {
+                throw ServerError(400, "Instagram handle must be between 1 and 32 characters.")
+            }
+
+            if (!instagram.startsWith("@")) {
+                throw ServerError(400, "Instagram handle must start with '@'.")
+            }
+
+            if (!instaRegex.matches(instagram)) {
+                throw ServerError(400, "Instagram handle contains invalid characters.")
+            }
+        }
+
         // validate phone number
         if (phoneNumber != null && !phoneRegex.matches(phoneNumber)) {
             throw ServerError(400, "Invalid phone number format.")
@@ -81,10 +112,11 @@ data class Profile(
     }
 
     companion object {
+        private val instaRegex = Regex("^@[A-Za-z0-9._]+$")
         private val nameRegex = Regex("^[A-Za-z\\-\\s']+$")
         private val phoneRegex = Regex("^\\+?[0-9. ()-]{7,25}$")
 
-        private val umnClassRegex = Regex("^[A-Z]{3,4}\\s[1-8][0-9]{3}[A-Z]?$")
+        private val umnClassRegex = Regex("^[A-Z]{2,4}\\s[1-8][0-9]{3}[A-Z]?$")
 
         /**
          * Returns true if [course] looks like a valid UMN course code (e.g., `CSCI 2021`, `MATH
@@ -103,7 +135,9 @@ data class Profile(
                 bio = row[Profiles.bio],
                 gradYear = row[Profiles.gradYear],
                 classes = row[Profiles.classes]?.let { Json.decodeFromString(it) },
+                instagram = row[Profiles.instagram],
                 phoneNumber = row[Profiles.phoneNumber],
+                visibility = row[Profiles.visibility],
             )
     }
 }
@@ -122,5 +156,9 @@ suspend fun updateProfile(profile: Profile) = query {
         it[name] = profile.name
         it[bio] = profile.bio
         it[phoneNumber] = profile.phoneNumber
+        it[gradYear] = profile.gradYear
+        it[classes] = json.encodeToString(profile.classes)
+        it[instagram] = profile.instagram
+        it[visibility] = profile.visibility
     }
 }

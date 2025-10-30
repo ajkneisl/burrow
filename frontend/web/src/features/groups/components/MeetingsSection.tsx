@@ -1,6 +1,6 @@
 import { dayLabel, formatDateTime } from "@api/util.ts"
 import { useQuery } from "@tanstack/react-query"
-import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
+import type { GroupMeetingResponse } from "@features/groups/groups.types.ts"
 import { useMemo } from "react"
 import { useNavigate } from "react-router"
 import { Card } from "@umnburrow/core"

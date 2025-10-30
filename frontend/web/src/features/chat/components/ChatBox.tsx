@@ -1,14 +1,14 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import Chat from "@features/chat/components/Chat.tsx"
-import useUser from "@features/auth/api/hooks/useUser.ts"
-import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
-import type { ChatMember, ChatMessage } from "@features/chat/api/chat.types.ts"
+import useUser from "@features/auth/hooks/useUser.ts"
+import type { GroupMeetingResponse } from "@features/groups/groups.types.ts"
+import type { ChatMember, ChatMessage } from "@features/chat/chat.types.ts"
 import {
     type SyncIncomingEvent,
     SyncOutgoingEvent
-} from "@features/sync/api/sync.types.ts"
+} from "@features/sync/sync.types.ts"
 import { useAtom } from "jotai"
-import { syncStatus } from "@features/sync/api/sync.atom.ts"
+import { syncStatus } from "@features/sync/sync.atom.ts"
 import { Button, Card, Input } from "@umnburrow/core"
 
 /**

@@ -1,4 +1,4 @@
-import type { GroupMeeting } from "@features/groups/api/groups.types.ts"
+import type { GroupMeeting } from "@features/groups/groups.types.ts"
 import { useMemo } from "react"
 import clsx from "clsx"
 

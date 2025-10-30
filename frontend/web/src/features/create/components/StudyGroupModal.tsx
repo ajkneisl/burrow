@@ -3,7 +3,7 @@ import { useNavigate } from "react-router"
 import type {
     GroupMeeting,
     SubmittedGroupMeeting
-} from "../../groups/api/groups.types.ts"
+} from "../../groups/groups.types.ts"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button, Input, Modal, TextArea } from "@umnburrow/core"
 

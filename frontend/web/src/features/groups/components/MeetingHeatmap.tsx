@@ -1,6 +1,6 @@
 import { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
-import useToken from "@features/auth/api/hooks/useToken.ts"
+import useToken from "@features/auth/hooks/useToken.ts"
 import { BASE_URL } from "@api/util.ts"
 import { Card, Hover } from "@umnburrow/core"
 

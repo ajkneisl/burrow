@@ -1,10 +1,10 @@
 import { useRef, useState } from "react"
 import { useAtom } from "jotai"
-import { authToken } from "@features/auth/api/auth.atom.ts"
+import { authToken } from "@features/auth/auth.atom.ts"
 import { themeAtom } from "@api/theme.atom.ts"
 import { Dropdown, DropdownItem } from "@umnburrow/core"
 import HeaderButton from "@features/layout/components/HeaderButton.tsx"
-import { settingsModalOpen } from "@features/settings/api/settings.atom.ts"
+import { settingsModalOpen } from "@features/sync/settings/settings.atom.ts"
 import { problemModalOpen } from "@features/problem/problem.atom.ts"
 
 /**

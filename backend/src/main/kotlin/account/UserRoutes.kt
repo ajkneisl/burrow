@@ -12,6 +12,7 @@ import app.burrow.account.models.validateUsername
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.followUser
 import app.burrow.account.profile.unFollowUser
+import app.burrow.account.profile.updateProfile
 import app.burrow.errors.InvalidAuthorization
 import app.burrow.queryParameter
 import app.burrow.urlParameter
@@ -74,21 +75,34 @@ val USER_ROUTES: Route.() -> Unit = {
             @Serializable
             data class UpdateProfileRequest(
                 val name: String,
-                val bio: String?,
-                val phoneNumber: String?,
-                val gradYear: Int?,
-                val classes: List<String>?,
+                val visibility: Profile.Visibility,
+                val bio: String? = null,
+                val phoneNumber: String? = null,
+                val gradYear: Int? = null,
+                val classes: List<String>? = null,
+                val instagram: String? = null,
             )
 
             // POST /profile
             // update your profile
             post {
-                val (name, bio, phoneNumber, gradYear, classes) =
+                val (name, visibility, bio, phoneNumber, gradYear, classes, instagram) =
                     call.receive<UpdateProfileRequest>()
 
-                val profile = Profile(call.userID, name, bio, gradYear, classes, phoneNumber)
+                val profile =
+                    Profile(
+                        call.userID,
+                        name,
+                        visibility,
+                        bio,
+                        gradYear,
+                        classes,
+                        phoneNumber,
+                        instagram,
+                    )
 
                 profile.validate()
+                updateProfile(profile)
 
                 call.respond(HttpStatusCode.OK, profile)
             }

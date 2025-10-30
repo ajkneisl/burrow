@@ -1,14 +1,14 @@
 import { useEffect, useRef } from "react"
 import { BASE_URL } from "@api/util.ts"
-import useToken from "@features/auth/api/hooks/useToken.ts"
+import useToken from "@features/auth/hooks/useToken.ts"
 import { useAtom } from "jotai"
-import { blockStatus, syncStatus } from "@features/sync/api/sync.atom.ts"
+import { blockStatus, syncStatus } from "@features/sync/sync.atom.ts"
 import {
     type Response,
     SyncIncomingEvent,
     type SyncOutgoingEvent
-} from "../api/sync.types.ts"
-import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
+} from "../sync.types.ts"
+import type { GroupMeetingResponse } from "@features/groups/groups.types.ts"
 
 export default function useSync(meeting?: GroupMeetingResponse | null) {
     const auth = useToken()

@@ -48,44 +48,72 @@ data class UserResponse(
  * @param requestingUserID An optional parameter to include who's requesting to see a profile's
  *   mutual friends.
  */
-suspend fun getUserResponse(userID: String, requestingUserID: String): UserResponse =
-    query {
-        val userRow =
-            Users.selectAll().where { Users.id eq userID }.singleOrNull()
-                ?: throw ServerError(404, "User not found")
+suspend fun getUserResponse(userID: String, requestingUserID: String): UserResponse = query {
+    val userRow =
+        Users.selectAll().where { Users.id eq userID }.singleOrNull()
+            ?: throw ServerError(404, "User not found")
 
-        val profileRow =
-            Profiles.selectAll().where { Profiles.userID eq userID }.singleOrNull()
-                ?: throw ServerError(404, "Profile not found")
+    val profileRow =
+        Profiles.selectAll().where { Profiles.userID eq userID }.singleOrNull()
+            ?: throw ServerError(404, "Profile not found")
 
-        val now = System.currentTimeMillis()
+    val following = getFollowing(userID, requestingUserID)
+    val isFriends = following.theyFollow && following.youFollow
 
-        val hostedMeetings =
-            Meetings.selectAll()
-                .where { (Meetings.owner eq userID) and (Meetings.beginningTime greater now) }
-                .orderBy(Meetings.beginningTime to SortOrder.ASC)
-                .limit(3)
-                .map { GroupMeeting.fromRow(it) }
-                .toList()
+    var profile = Profile.fromRow(profileRow)
 
-        val joinedMeetings =
-            (Memberships innerJoin Meetings)
-                .select(Meetings.columns)
-                .where {
-                    (Memberships.userID eq userID) and
-                        (Meetings.beginningTime greater now) and
-                        (Memberships.role neq MeetingRole.HOST)
-                }
-                .orderBy(Meetings.beginningTime to SortOrder.ASC)
-                .limit(3)
-                .map { GroupMeeting.fromRow(it) }
-                .toList()
+    // check the privacy
+    // if it's private or friends (and they're not friends)
+    val isPrivate = profile.visibility == Profile.Visibility.PRIVATE
+    val isNotFriends = profile.visibility == Profile.Visibility.FRIENDS && !isFriends
 
-        UserResponse(
-            user = User.fromRow(userRow),
-            profile = Profile.fromRow(profileRow),
-            following = getFollowing(userID, requestingUserID),
-            recentJoinedGroups = joinedMeetings,
-            recentHostedGroups = hostedMeetings,
-        )
+    val cannotSee = requestingUserID != userID && (isPrivate || isNotFriends)
+
+    if (cannotSee) {
+        // remove all details
+        profile =
+            Profile(
+                userID = profile.userID,
+                name = profile.name,
+                visibility = profile.visibility,
+                bio = null,
+                gradYear = null,
+                classes = null,
+                phoneNumber = null,
+                instagram = null,
+            )
     }
+
+    following.mutuals
+
+    val now = System.currentTimeMillis()
+
+    val hostedMeetings =
+        Meetings.selectAll()
+            .where { (Meetings.owner eq userID) and (Meetings.beginningTime greater now) }
+            .orderBy(Meetings.beginningTime to SortOrder.ASC)
+            .limit(3)
+            .map { GroupMeeting.fromRow(it) }
+            .toList()
+
+    val joinedMeetings =
+        (Memberships innerJoin Meetings)
+            .select(Meetings.columns)
+            .where {
+                (Memberships.userID eq userID) and
+                    (Meetings.beginningTime greater now) and
+                    (Memberships.role neq MeetingRole.HOST)
+            }
+            .orderBy(Meetings.beginningTime to SortOrder.ASC)
+            .limit(3)
+            .map { GroupMeeting.fromRow(it) }
+            .toList()
+
+    UserResponse(
+        user = User.fromRow(userRow),
+        profile = profile,
+        following = following,
+        recentJoinedGroups = if (cannotSee) emptyList() else joinedMeetings,
+        recentHostedGroups = if (cannotSee) emptyList() else hostedMeetings,
+    )
+}

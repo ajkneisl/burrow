@@ -3,7 +3,6 @@ package app.burrow.account.profile
 import app.burrow.account.Users
 import app.burrow.errors.ServerError
 import app.burrow.query
-import kotlin.system.*
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
@@ -67,12 +66,12 @@ suspend fun getFollowing(userID: String, otherUserID: String): FollowResponse = 
             .toList()
             .toSet()
 
-    val mutualsCount = userFollowing.intersect(otherUserFollowing).size
+    val mutualsCount = getFollowers(userID).intersect(getFollowers(otherUserID).toSet()).size
 
     FollowResponse(
         following = followingCount,
         followers = followersCount,
-        mutuals = mutualsCount,
+        mutuals = if (userID == otherUserID) 0 else mutualsCount,
         youFollow = otherUserFollowing.contains(userID),
         theyFollow = userFollowing.contains(otherUserID),
     )

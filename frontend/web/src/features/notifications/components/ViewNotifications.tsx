@@ -2,15 +2,15 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import useNotifications from "@features/notifications/hooks/UseNotifications.tsx"
 import { useAtom } from "jotai"
-import { notificationsAtom } from "@features/notifications/api/notifications.atom.ts"
+import { notificationsAtom } from "@features/notifications/notifications.atom.ts"
 import {
     clearNotifications,
     deleteNotification,
     getNotifications,
     toggleReadNotification
-} from "@features/notifications/api/notifications.api.ts"
-import useToken from "@features/auth/api/hooks/useToken.ts"
-import type { Notification } from "@features/notifications/api/notifications.types.ts"
+} from "@features/notifications/notifications.api.ts"
+import useToken from "@features/auth/hooks/useToken.ts"
+import type { Notification } from "@features/notifications/notifications.types.ts"
 import { formatTimeAgo } from "@api/util.ts"
 import { Button } from "@umnburrow/core"
 import clsx from "clsx"

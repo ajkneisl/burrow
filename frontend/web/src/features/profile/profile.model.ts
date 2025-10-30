@@ -1,5 +1,5 @@
-import type { User } from "@features/auth/api/user.types.ts"
-import type { GroupMeeting } from "@features/groups/api/groups.types.ts"
+import type { User } from "@features/auth/user.types.ts"
+import type { GroupMeeting } from "@features/groups/groups.types.ts"
 
 /**
  * A user's profile.
@@ -7,9 +7,11 @@ import type { GroupMeeting } from "@features/groups/api/groups.types.ts"
 export type Profile = {
     userID: string
     name: string
+    visibility: "PUBLIC" | "FRIENDS" | "PRIVATE"
     gradYear: number | null
     classes: string[] | null
     bio: string | null
+    instagram: string | null
     phoneNumber: string | null
 }
 

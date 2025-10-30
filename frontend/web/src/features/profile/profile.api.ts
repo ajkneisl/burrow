@@ -1,4 +1,4 @@
-import type { UserResponse } from "@features/profile/profile.model.ts"
+import type { Profile, UserResponse } from "@features/profile/profile.model.ts"
 import { BASE_URL } from "@api/util.ts"
 
 /**
@@ -83,4 +83,62 @@ export async function unFollowUser(auth: string, userID: string) {
     )
 
     if (!request.ok) return Promise.reject("Failed to un-follow user.")
+}
+
+/**
+ * Save an updated profile.
+ *
+ * @param auth The authorization token.
+ * @param profile The updated attributes of the profile.
+ */
+export async function saveProfile(
+    auth: string,
+    profile: Record<keyof Profile, string>
+) {
+    let parsedProfile: Partial<Profile> = {
+        ...profile,
+        visibility: profile.visibility.toUpperCase() as
+            | "PUBLIC"
+            | "PRIVATE"
+            | "FRIENDS",
+        gradYear: profile.gradYear ? parseInt(profile.gradYear) : null,
+        classes: profile.classes
+            ? profile.classes
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter((s) => s.length > 0)
+            : []
+    }
+
+    Object.keys(parsedProfile).forEach((key) => {
+        const value = parsedProfile[key as keyof Profile]
+
+        if (
+            (value === undefined || value === "") &&
+            key !== "userID" &&
+            key !== "name"
+        ) {
+            parsedProfile = {
+                ...parsedProfile,
+                [key as keyof Profile]: null
+            }
+        }
+    })
+
+    const request = await fetch(`${BASE_URL}/user/profile`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + auth
+        },
+        body: JSON.stringify(parsedProfile)
+    })
+
+    if (!request.ok) {
+        const error = await request.json()
+
+        return Promise.reject(error.message)
+    }
+
+    return await request.json()
 }

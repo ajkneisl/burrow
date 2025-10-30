@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import type { ChatMessage } from "@features/chat/api/chat.types.ts"
+import type { ChatMessage } from "@features/chat/chat.types.ts"
 
 /**
  * {@link Chat}

@@ -1,10 +1,10 @@
 import { useCallback, useState } from "react"
 import { Button, Modal, Toggle } from "@umnburrow/core"
-import { type Blocks } from "@features/sync/api/sync.types.ts"
-import { blockStatus } from "@features/sync/api/sync.atom.ts"
+import { type Blocks } from "@features/sync/sync.types.ts"
+import { blockStatus } from "@features/sync/sync.atom.ts"
 import { useAtom } from "jotai"
-import { saveBlocks } from "@features/sync/api/blocks.api.ts"
-import useToken from "@features/auth/api/hooks/useToken.ts"
+import { saveBlocks } from "@features/sync/blocks.api.ts"
+import useToken from "@features/auth/hooks/useToken.ts"
 import { useParams } from "react-router"
 
 /**

@@ -6,7 +6,7 @@ import {
     type DetailedHTMLProps,
     type ReactNode
 } from "react"
-import useToken from "@features/auth/api/hooks/useToken.ts"
+import useToken from "@features/auth/hooks/useToken.ts"
 
 /**
  * {@see HeaderButton}

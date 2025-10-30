@@ -1,6 +1,6 @@
 import clsx from "clsx"
 import type { FormEvent, ReactNode, RefObject } from "react"
-import useToken from "@features/auth/api/hooks/useToken.ts"
+import useToken from "@features/auth/hooks/useToken.ts"
 
 type SearchInputProps = {
     query: string

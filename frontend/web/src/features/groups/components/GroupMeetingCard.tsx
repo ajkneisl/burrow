@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router"
-import type { GroupMeetingResponse } from "@features/groups/api/groups.types.ts"
-import useUser from "@features/auth/api/hooks/useUser.ts"
+import type { GroupMeetingResponse } from "@features/groups/groups.types.ts"
+import useUser from "@features/auth/hooks/useUser.ts"
 import MeetingCapacityBadges from "@features/groups/components/MeetingCapacityBadges.tsx"
 import { formatDateTime } from "@api/util.ts"
 import { Badge, Card } from "@umnburrow/core"
