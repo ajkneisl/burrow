@@ -6,12 +6,15 @@ import { Dropdown, DropdownItem } from "@umnburrow/core"
 import HeaderButton from "@features/layout/components/HeaderButton.tsx"
 import { settingsModalOpen } from "@features/sync/settings/settings.atom.ts"
 import { problemModalOpen } from "@features/problem/problem.atom.ts"
+import { useNavigate } from "react-router"
 
 /**
  * Animation variants for {@link HeaderDropdown}
  */
 
 export default function HeaderDropdown() {
+    const nav = useNavigate()
+
     const [, setAuth] = useAtom(authToken)
     const [theme, setTheme] = useAtom(themeAtom)
     const [open, setOpen] = useState(false)
@@ -134,7 +137,9 @@ export default function HeaderDropdown() {
                     <DropdownItem
                         label="Log out"
                         onSelect={() => {
-                            setAuth("").then(() => setOpen(false))
+                            setAuth("")
+                                .then(() => setOpen(false))
+                                .then(() => nav("/welcome"))
                         }}
                         rightIcon={
                             <svg

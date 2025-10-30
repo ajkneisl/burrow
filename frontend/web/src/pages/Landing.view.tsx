@@ -62,7 +62,7 @@ export default function LandingView() {
                 <div className="h-[22rem] w-full bg-[url('/realgopher.png')] bg-[position:center_calc(100%+225px)]" />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 <div className="absolute inset-0 flex flex-col items-center justify-end pb-8 text-center">
-                    <h1 className="figtree text-7xl font-extrabold tracking-tight text-white drop-shadow-md">
+                    <h1 className="figtree text-7xl font-extrabold tracking-tight text-secondary drop-shadow-md">
                         Burrow
                     </h1>
 
@@ -75,7 +75,7 @@ export default function LandingView() {
 
             <div className="mx-auto mt-10 grid w-full max-w-5xl grid-cols-1 gap-4 px-4 md:grid-cols-3">
                 <Card>
-                    <div className="mb-2 flex items-center gap-2 font-semibold">
+                    <div className="mb-2 flex items-center gap-2 font-semibold text-secondary">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
@@ -86,12 +86,13 @@ export default function LandingView() {
                         </svg>
                         Find study groups
                     </div>
+
                     Search by course, topic, or club and see who’s active right
                     now.
                 </Card>
 
                 <Card>
-                    <div className="mb-2 flex items-center gap-2 font-semibold">
+                    <div className="mb-2 flex items-center gap-2 font-semibold text-secondary">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
@@ -107,7 +108,7 @@ export default function LandingView() {
                 </Card>
 
                 <Card>
-                    <div className="mb-2 flex items-center gap-2 font-semibold">
+                    <div className="mb-2 flex items-center gap-2 font-semibold text-secondary">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
