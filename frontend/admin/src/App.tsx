@@ -4,17 +4,20 @@ import LoginView from "./pages/Login.view.tsx"
 import { useAtom } from "jotai"
 import { themeAtom } from "./theme.atom.ts"
 import { useEffect } from "react"
-import Admin from "./Admin.tsx"
+import Layout from "./features/layout/components/Layout.tsx"
 import AnalyticsView from "./pages/Analytics.view.tsx"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import ReportsView from "./pages/Reports.view.tsx"
-import SettingsView from "./pages/Settings.view.tsx"
 
 const queryClient = new QueryClient()
 
+/**
+ * The app
+ */
 export default function App() {
     const [darkMode, setDarkMode] = useAtom(themeAtom)
 
+    // detect theme
     useEffect(() => {
         const mq = window.matchMedia("(prefers-color-scheme: dark)")
         setDarkMode((prev) => {
@@ -47,14 +50,14 @@ export default function App() {
                 <Routes>
                     <Route path="/login" element={<LoginView />} />
 
-                    <Route element={<Admin />}>
+                    <Route element={<Layout />}>
                         <Route
-                            index
+                            path="/dashboard"
                             element={<Card className="p-6">Burrow Hello!</Card>}
                         />
                         <Route path="/analytics" element={<AnalyticsView />} />
                         <Route path="/reports" element={<ReportsView />} />
-                        <Route path="/settings" element={<SettingsView />} />
+
                         <Route
                             path="*"
                             element={

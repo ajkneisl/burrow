@@ -1,11 +1,9 @@
 import { type FormEvent, useState } from "react"
-import { adminLogin } from "../admin.api.ts"
+import { adminLogin } from "../features/auth/admin.api.ts"
 import { Button, Input } from "@umnburrow/core"
 import { useSetAtom } from "jotai"
-import { atomWithStorage } from "jotai/utils"
 import { useNavigate } from "react-router"
-
-export const adminTokenAtom = atomWithStorage<string | null>("admin_token", null)
+import { adminTokenAtom } from "../features/auth/admin.atom.ts"
 
 export default function LoginView() {
     const nav = useNavigate()
@@ -29,7 +27,7 @@ export default function LoginView() {
 
             setAdminToken(result.token)
 
-            nav("/")
+            nav("/admin/dashboard")
         } catch (err: any) {
             setError(err?.message ?? "Login failed")
         } finally {

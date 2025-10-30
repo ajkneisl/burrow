@@ -23,5 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
-package.json
+pnpm-lock.yaml
 .idea
