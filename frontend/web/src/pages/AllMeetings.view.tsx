@@ -1,7 +1,5 @@
-import React from "react"
-import { useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { useMemo, useState } from "react"
+import React, { useMemo, useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import type {
     GroupMeetingResponse,
@@ -206,7 +204,7 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
         )
 
     return (
-        <main className="md:grid grid-cols-3 flex flex-col-reverse">
+        <main className="lg:grid grid-cols-3 flex flex-col-reverse">
             <section className="col-span-2 mx-auto w-full max-w-4xl p-4 sm:p-6">
                 {/* top controls */}
                 <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

@@ -48,6 +48,17 @@ function findClass(value: number, max: number): string {
 }
 
 /**
+ * Compute thresholds for the legend using the same logic as findClass.
+ */
+function legendThresholds(max: number): { q1: number; q2: number; q3: number } {
+    if (max <= 1) return { q1: 1, q2: 1, q3: 1 }
+    const q1 = Math.max(1, Math.ceil(max * 0.25))
+    const q2 = Math.max(2, Math.ceil(max * 0.5))
+    const q3 = Math.max(3, Math.ceil(max * 0.75))
+    return { q1, q2, q3 }
+}
+
+/**
  * Parse a yyyy-mm into numbers.
  *
  * @param key The yyyy-mm string.
@@ -87,7 +98,7 @@ function monthLabel(date: Date): { monthName: string; year: number } {
  * A heatmap of how many Burrows were made on what day.
  * @constructor
  */
-export default function MeetingHeatmap({ range = 1 }: { range?: number }) {
+export default function MeetingHeatmap({ range = 0, onSelectDate }: { range?: number; onSelectDate?: (date: Date) => void }) {
     const token = useToken()
 
     const { monthName, year } = useMemo(() => monthMeta(new Date()), [])
@@ -205,6 +216,7 @@ export default function MeetingHeatmap({ range = 1 }: { range?: number }) {
                             </h3>
                         </div>
 
+                        <div className="flex items-start gap-4">
                         {isLoading ? (
                             <div
                                 className="grid gap-1"
@@ -251,7 +263,18 @@ export default function MeetingHeatmap({ range = 1 }: { range?: number }) {
                                                         content={text}
                                                     >
                                                         <div
-                                                            className={`h-4 w-4 rounded-sm ${cls}`}
+                                                            role="button"
+                                                            tabIndex={0}
+                                                            onClick={() => onSelectDate?.(day.date)}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === "Enter" || e.key === " ") {
+                                                                    e.preventDefault()
+                                                                    onSelectDate?.(day.date)
+                                                                }
+                                                            }}
+                                                            className={`h-4 w-4 rounded-sm ${cls} cursor-pointer focus:outline-none focus:ring-2 focus:ring-secondary/60`}
+                                                            aria-label={text}
+                                                            title={text}
                                                         />
                                                     </Hover>
                                                 )
@@ -260,6 +283,7 @@ export default function MeetingHeatmap({ range = 1 }: { range?: number }) {
                                                 <div
                                                     key={`o-${m.key}-${wi}-${di}`}
                                                     className="h-4 w-4 rounded-sm bg-base-300"
+                                                    aria-hidden="true"
                                                 />
                                             )
                                         })}
@@ -267,6 +291,41 @@ export default function MeetingHeatmap({ range = 1 }: { range?: number }) {
                                 ))}
                             </div>
                         )}
+                        {/* Legend (right of heatmap) */}
+                        <div className="flex flex-col items-start text-xs text-muted-foreground min-w-[8rem]">
+                            {m.max === 0 ? (
+                                // No Burrows this month: show only one dark swatch labeled "0 Burrows"
+                                <div className="flex items-center gap-2">
+                                    <div className="h-3 w-3 rounded-sm bg-secondary" />
+                                    <span>0 Burrows</span>
+                                </div>
+                            ) : (
+                                (() => {
+                                    const { q1, q2, q3 } = legendThresholds(m.max)
+                                    const steps = [
+                                        { label: "0 Burrows", val: 0 },
+                                        { label: `≤${q1} Burrows`, val: q1 },
+                                        { label: `≤${q2} Burrows`, val: q2 },
+                                        { label: `≤${q3} Burrows`, val: q3 },
+                                        { label: `${m.max} Burrows`, val: Math.max(1, m.max) }
+                                    ]
+                                    return (
+                                        <div className="flex flex-col gap-2">
+                                            {steps.map((s, i) => {
+                                                const cls = findClass(s.val, m.max)
+                                                return (
+                                                    <div key={i} className="flex items-center gap-2">
+                                                        <div className={`h-3 w-3 rounded-sm ${cls}`} />
+                                                        <span>{s.label}</span>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    )
+                                })()
+                            )}
+                        </div>
+                        </div>
                     </div>
                 ))}
                 {error && (
