@@ -10,7 +10,7 @@ export default function NewUserIntro() {
     const firstName = useMemo(() => user?.username?.split(" ")[0], [user?.username])
 
     return (
-        <section className="bg-card rounded-2xl shadow p-6 col-span-3 text-text/80 max-w-content max-w-4xl">
+        <section className="bg-card rounded-2xl shadow p-6 col-span-4 text-text/80 max-w-content max-w-4xl">
             <h1 className="text-2xl font-bold mb-4 text-text">
                 Welcome to Burrow, {firstName}!
             </h1>

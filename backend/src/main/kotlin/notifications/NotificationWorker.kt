@@ -80,7 +80,7 @@ suspend fun pollNotifications(nowMs: Long): Flow<Notification> {
             SET sent_date = $nowMs
             FROM claimed c
             WHERE n.notifications_id = c.notifications_id
-            RETURNING n.notifications_id, n.user_id, n.title, n.content, n.scheduled_date, n.sent_date, n.read
+            RETURNING n.notifications_id, n.user_id, n.title, n.content, n.scheduled_date, n.sent_date, n.read, n.meeting_id
         """
                 .trimIndent()
 

@@ -4,27 +4,71 @@ import { useNavigate } from "react-router"
 import useToken from "@features/auth/hooks/useToken.ts"
 import type { GroupType } from "@features/groups/groups.types.ts"
 import { getMeetings } from "@features/groups/groups.api.ts"
-import { Button, Card } from "@umnburrow/core"
-import CreateButton from "@features/layout/components/CreateButton.tsx"
+import { Badge, Button, Card } from "@umnburrow/core"
+import { useAtom } from "jotai"
+import { studyGroupModal } from "@features/create/create.atom.ts"
+
+/**
+ * When there's an error loading the preview.
+ *
+ * @param onRetry When they press retry.
+ */
+function ErrorPreview({ onRetry }: { onRetry: () => void }) {
+    return (
+        <Card className="mt-8">
+            <div className="min-w-0 flex-1">
+                <h4 className="text-destructive text-sm font-semibold">
+                    Failed to load upcoming Burrows
+                </h4>
+                <p className="text-text/70 mt-1 text-xs">
+                    There was an issue loading Burrows. Please try again.
+                </p>
+                <div className="mt-3">
+                    <Button color="PRIMARY" onClick={onRetry}>
+                        Retry
+                    </Button>
+                </div>
+            </div>
+        </Card>
+    )
+}
 
 /**
  * A skeleton loading card.
- * @constructor
+ *
+ * @param amount The number of cards to show.
  */
-function SkeletonCard() {
+function LoadingPreview({ amount }: { amount: number }) {
     return (
-        <Card className="min-w-full">
-            <div className="animate-pulse space-y-4">
-                <div className="h-4 w-2/3 rounded bg-text/10" />
-                <div className="h-3 w-1/3 rounded bg-text/10" />
-                <div className="flex gap-2">
-                    <div className="h-4 w-16 rounded-full bg-text/10" />
-                    <div className="h-4 w-12 rounded-full bg-text/10" />
-                    <div className="h-4 w-14 rounded-full bg-text/10" />
-                </div>
-                <div className="h-4 w-40 rounded bg-text/10" />
-            </div>
-        </Card>
+        <div className="flex flex-col items-center justify-center gap-2 overflow-auto">
+            <h3 className="text-text/60 mb-2 self-start text-sm font-semibold tracking-wide uppercase">
+                Upcoming Burrows
+            </h3>
+
+            {Array.from({ length: amount }).map((_, i) => (
+                <Card className="min-w-xs" key={i}>
+                    <div className="animate-pulse space-y-4">
+                        <div className="flex flex-row justify-between">
+                            <div className="animate-pulse space-y-4">
+                                <div className="bg-text/10 h-4 w-48 rounded" />
+                                <div className="bg-text/10 h-3 w-32 rounded" />
+                            </div>
+
+                            <div className="bg-text/10 size-8 rounded-full" />
+                        </div>
+
+                        <div className="flex gap-2">
+                            <Badge>
+                                <div className="h-4 w-16" />
+                            </Badge>
+                            <Badge>
+                                <div className="w-12" />
+                            </Badge>
+                        </div>
+                    </div>
+                </Card>
+            ))}
+        </div>
     )
 }
 
@@ -32,7 +76,6 @@ function SkeletonCard() {
  * {@link PreviewGroupMeetings}
  */
 type PreviewGroupsProps = {
-    title: string
     kind: GroupType
     fullPage: string
     amount: number
@@ -41,14 +84,12 @@ type PreviewGroupsProps = {
 /**
  * Preview a list of group meetings
  *
- * @param title The title of the section.
  * @param kind The kind of meetings
  * @param fullPage The link to the full page of this type of meeting.
  * @param amount The amount of meetings to preview.
  * @constructor
  */
 export default function PreviewGroupMeetings({
-    title,
     kind,
     fullPage,
     amount
@@ -56,73 +97,59 @@ export default function PreviewGroupMeetings({
     const nav = useNavigate()
     const auth = useToken()
 
-    const { data, isLoading, isFetching, error, refetch } = useQuery({
+    const [, setModalOpen] = useAtom(studyGroupModal)
+
+    const { data, isLoading, isError, refetch } = useQuery({
         queryKey: [kind],
         enabled: auth !== "" && auth !== null,
         queryFn: () => getMeetings(auth!, kind)
     })
 
-    // load the meetings noo :(
-    if (error) {
-        return (
-            <div>
-                <h1 className="mb-2 text-2xl mt-4 font-bold">{title}</h1>
-                <div className="mx-auto w-full p-4 sm:p-6">
-                    <div className="rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm">
-                        <h2 className="mb-2 text-base font-semibold text-red-800">
-                            Couldn’t load meetings
-                        </h2>
-                        <p className="mb-4 text-sm text-red-700">
-                            Please try again{isFetching ? "…" : "."}
-                        </p>
-
-                        <button
-                            onClick={() => refetch()}
-                            className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-800 shadow-sm hover:shadow-md"
-                        >
-                            Retry
-                        </button>
-                    </div>
-                </div>
-            </div>
-        )
+    if (isError) {
+        return <ErrorPreview onRetry={refetch} />
     }
 
     if (isLoading || !data) {
-        return (
-            <div>
-                <h1 className="mb-2 text-2xl mt-4 figtree">{title}</h1>
-
-                <div className="flex flex-col gap-2 overflow-auto items-start">
-                    <SkeletonCard />
-                    <SkeletonCard />
-                    <SkeletonCard />
-                </div>
-            </div>
-        )
+        return <LoadingPreview amount={amount} />
     }
 
     return (
-        <div>
-            <div className="flex flex-row justify-between items-center mb-2 mt-4">
-                <h1 className="text-2xl figtree">{title}</h1>
-            </div>
+        <div className="flex flex-col items-center justify-center gap-2 overflow-auto">
+            <h3 className="text-text/60 mb-2 self-start text-sm font-semibold tracking-wide uppercase">
+                Upcoming Burrows
+            </h3>
 
-            <div className="flex flex-col gap-2 overflow-auto justify-center items-center">
-                {data.length > 0 ? (
-                    data
-                        .slice(0, amount)
-                        .map((meeting) => <GroupMeetingCard {...meeting} />)
-                ) : (
-                    <div className="flex flex-col items-center gap-4 justify-start w-full">
-                        <p className="text-text/70">No upcoming Burrows.</p>
+            {data.length > 0 ? (
+                data
+                    .slice(0, amount)
+                    .map((meeting) => (
+                        <GroupMeetingCard meetingResponse={meeting} />
+                    ))
+            ) : (
+                <Card
+                    aria-live="polite"
+                    aria-label="No upcoming meetings"
+                    className="border-text/40 text-text/50 flex h-24 w-full min-w-xs items-center justify-center border-2 border-dashed opacity-50"
+                >
+                    <p className="text-center text-sm tracking-wide">
+                        No upcoming Burrows.
+                        <br />
+                        <button
+                            onClick={() => setModalOpen(true)}
+                            className="hover:text-text/70 cursor-pointer underline"
+                        >
+                            Start one
+                        </button>
+                        .
+                    </p>
+                </Card>
+            )}
 
-                        <CreateButton />
-                    </div>
-                )}
-
-                {data.length > 0 && <Button className="w-full" onClick={() => nav(fullPage)}>View all</Button>}
-            </div>
+            {data.length > 5 && (
+                <Button className="w-full" onClick={() => nav(fullPage)}>
+                    View all
+                </Button>
+            )}
         </div>
     )
 }

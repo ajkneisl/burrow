@@ -56,7 +56,7 @@ export default function ProfilePicture({
         >
             <div
                 className={clsx(
-                    "flex h-full w-full items-center justify-center bg-card font-bold",
+                    "flex h-full w-full items-center justify-center bg-hero font-bold",
                     textStyle
                 )}
             >

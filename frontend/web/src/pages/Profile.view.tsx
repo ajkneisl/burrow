@@ -14,31 +14,8 @@ import useUser from "@features/auth/hooks/useUser.ts"
 import About from "@features/profile/components/About.tsx"
 import Contact from "@features/profile/components/Contact.tsx"
 import EditProfile from "@features/profile/components/EditProfile.tsx"
-
-/**
- * Convert a year into a textual graduation year, like `Senior`.
- * If this goes past the four most recent, it'll turn 2050 to '50.
- *
- * @param year The graduation year.
- */
-function convertGraduationYear(year: number | null) {
-    if (year === null) return ""
-
-    const currentYear = new Date().getFullYear()
-
-    switch (year) {
-        case currentYear + 1:
-            return "Senior"
-        case currentYear + 2:
-            return "Junior"
-        case currentYear + 3:
-            return "Sophomore"
-        case currentYear + 4:
-            return "Freshman"
-        default:
-            return `'${year.toString().slice(2, 4)}`
-    }
-}
+import type { GroupMeetingResponse } from "@features/groups/groups.types.ts"
+import { convertGraduationYear } from "@api/util.ts"
 
 /**
  * The view of a profile.
@@ -260,7 +237,7 @@ export default function ProfileView() {
 
                 {/* meetings section */}
                 {!isPrivate && (
-                    <section className="px-4 pb-12 md:grid grid-cols-2 flex flex-col gap-4">
+                    <section className="flex grid-cols-2 flex-col gap-4 px-4 pb-12 md:grid">
                         {/* hosted meetings */}
                         <div className="col-span-1 flex flex-col gap-4">
                             <h2 className="figtree text-lg">Hosted Burrows</h2>
@@ -274,8 +251,13 @@ export default function ProfileView() {
                             ) : (
                                 data.recentHostedGroups.map((meeting) => (
                                     <GroupMeetingCard
-                                        meeting={meeting}
-                                        bookmarked={false}
+                                        meetingResponse={
+                                            {
+                                                meeting,
+                                                bookmarked: false
+                                            } as GroupMeetingResponse
+                                        }
+                                        details={false}
                                     />
                                 ))
                             )}
@@ -294,8 +276,13 @@ export default function ProfileView() {
                             ) : (
                                 data.recentJoinedGroups.map((meeting) => (
                                     <GroupMeetingCard
-                                        meeting={meeting}
-                                        bookmarked={false}
+                                        meetingResponse={
+                                            {
+                                                meeting,
+                                                bookmarked: false
+                                            } as GroupMeetingResponse
+                                        }
+                                        details={false}
                                     />
                                 ))
                             )}

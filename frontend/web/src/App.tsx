@@ -68,7 +68,7 @@ function RootLayout() {
     }, [darkMode])
 
     return (
-        <div className="gopher-stand bg-background text-text min-h-screen w-full flex flex-col bg-background-color transition-colors duration-300">
+        <div className="gopher-stand bg-transparent text-text min-h-screen w-full flex flex-col transition-colors duration-300">
             {/* don't show header on welcome */}
             {window.location.pathname !== "/welcome" && <Header />}
 

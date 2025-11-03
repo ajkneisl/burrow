@@ -4,6 +4,7 @@ import reactHooks from "eslint-plugin-react-hooks"
 import reactRefresh from "eslint-plugin-react-refresh"
 import tseslint from "typescript-eslint"
 import { globalIgnores } from "eslint/config"
+import tailwind from "eslint-plugin-tailwindcss"
 
 export default tseslint.config([
     globalIgnores(["dist"]),
@@ -13,11 +14,15 @@ export default tseslint.config([
             js.configs.recommended,
             tseslint.configs.recommended,
             reactHooks.configs["recommended-latest"],
-            reactRefresh.configs.vite
+            reactRefresh.configs.vite,
+            tailwind.configs["flat/recommended"]
         ],
         languageOptions: {
             ecmaVersion: 2020,
             globals: globals.browser
+        },
+        rules: {
+            "tailwindcss/no-custom-classname": "off"
         }
     }
 ])

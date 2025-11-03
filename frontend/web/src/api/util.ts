@@ -229,3 +229,28 @@ export function msToClock(ms: number) {
 export function clamp(n: number, min: number, max: number) {
     return Math.min(max, Math.max(min, n))
 }
+
+/**
+ * Convert a year into a textual graduation year, like `Senior`.
+ * If this goes past the four most recent, it'll turn 2050 to '50.
+ *
+ * @param year The graduation year.
+ */
+export function convertGraduationYear(year: number | null) {
+    if (year === null) return ""
+
+    const currentYear = new Date().getFullYear()
+
+    switch (year) {
+        case currentYear + 1:
+            return "Senior"
+        case currentYear + 2:
+            return "Junior"
+        case currentYear + 3:
+            return "Sophomore"
+        case currentYear + 4:
+            return "Freshman"
+        default:
+            return `'${year.toString().slice(2, 4)}`
+    }
+}

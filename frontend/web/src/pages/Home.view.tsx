@@ -6,7 +6,8 @@ import { useAtom } from "jotai"
 import { newUser } from "@features/auth/auth.atom.ts"
 import NewUserIntro from "@features/auth/components/NewUserIntro.tsx"
 import MeetingsSection from "@features/groups/components/MeetingsSection.tsx"
-import { getBookmarks, getSchedule } from "@features/groups/groups.api.ts"
+import { getSchedule } from "@features/groups/groups.api.ts"
+import MyProfile from "@features/profile/components/MyProfile.tsx"
 
 /**
  * The homepage `/`.
@@ -42,38 +43,32 @@ export default function HomeView() {
     }
 
     return (
-        <div className="w-full mx-auto px-4 md:px-6 py-6 grid grid-cols-3 gap-6">
+        <div className="mx-auto flex w-full grid-cols-4 flex-col gap-6 px-4 py-6 md:grid md:px-6">
             {/* show intro only if it's a new user*/}
             {showNewUser && <NewUserIntro />}
 
-            <section
-                aria-label="Group discovery"
-                className="col-span-3 lg:col-span-2 space-y-6 mt-4"
-            >
-                <PreviewGroupMeetings
-                    title={"Upcoming Study Groups"}
-                    fullPage={"/study"}
-                    kind={"STUDY"}
-                    amount={3}
+            {/* left side profile */}
+            <aside className="col-span-1">
+                <MyProfile />
+            </aside>
+
+            {/* middle schedule */}
+            <section className="col-span-2">
+                <MeetingsSection
+                    queryKey={["schedule"]}
+                    queryFn={() => getSchedule(auth)}
+                    emptyText="You have no upcoming Burrows."
                 />
             </section>
 
-            <aside
-                aria-label="Utilities"
-                className="col-span-3 lg:col-span-1 space-y-6"
-            >
-                <MeetingsSection
-                    title="My Schedule"
-                    queryKey={["schedule"]}
-                    queryFn={() => getSchedule(auth)}
-                    emptyText="You have no upcoming meetings."
-                />
+            <div className="border-text/10 block border-t md:hidden" />
 
-                <MeetingsSection
-                    title="My Bookmarks"
-                    queryKey={["bookmarks"]}
-                    queryFn={() => getBookmarks(auth)}
-                    emptyText="You have no bookmarks."
+            {/* right side upcoming study burrows*/}
+            <aside className="col-span-1">
+                <PreviewGroupMeetings
+                    fullPage={"/study"}
+                    kind={"STUDY"}
+                    amount={5}
                 />
             </aside>
         </div>

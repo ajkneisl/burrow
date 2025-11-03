@@ -1,18 +1,31 @@
 import { useNavigate } from "react-router"
 import type { GroupMeetingResponse } from "@features/groups/groups.types.ts"
 import useUser from "@features/auth/hooks/useUser.ts"
-import MeetingCapacityBadges from "@features/groups/components/MeetingCapacityBadges.tsx"
 import { formatDateTime } from "@api/util.ts"
 import { Badge, Card } from "@umnburrow/core"
 import clsx from "clsx"
+import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
+import { useMemo } from "react"
+import MeetingCapacityBadges from "@features/groups/components/MeetingCapacityBadges.tsx"
+
+/**
+ * {@see GroupMeetingCard}
+ */
+type GroupMeetingCardProps = {
+    meetingResponse: GroupMeetingResponse
+    details?: boolean
+}
 
 /**
  * A group card, both study and club meetings.
  *
  * @param meetingResponse The meeting details.
- * @constructor
+ * @param details If extra details should be shown.
  */
-export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
+export function GroupMeetingCard({
+    meetingResponse,
+    details
+}: GroupMeetingCardProps) {
     const nav = useNavigate()
 
     const user = useUser()
@@ -20,35 +33,44 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
 
     const isPast = meeting.endTime < Date.now()
 
+    const isOwner = useMemo(
+        () => user !== null && meeting.owner === user.id,
+        [meeting.owner, user]
+    )
+
+    const isJoined = useMemo(
+        () => meetingResponse?.membership?.status === "JOINED",
+        [meetingResponse?.membership?.status]
+    )
+
     // navigate to the club page :)
     const onClick = () => {
         nav(`/meeting/${meeting.id}`)
     }
 
     return (
-        <Card
-            onClick={onClick}
-            isHoverable={true}
-            className={clsx(
-                "w-full",
-                meetingResponse?.membership?.status === "JOINED" &&
-                    "bg-success/30 hover:bg-success/40"
-            )}
-        >
+        <Card onClick={onClick} isHoverable={true} className="w-full">
             <div className="flex flex-col gap-4">
-                <div className="min-w-0 flex items-start justify-between gap-4">
-                    <div className="flex flex-col items-start justify-between gap-2 text-sm text-text/70">
+                <div className="flex min-w-0 items-start justify-between gap-4">
+                    <div className="text-text/70 flex flex-col items-start justify-between gap-2 text-sm">
                         {/* title, description and timing */}
-                        <div className="flex flex-col">
+                        <div className="flex w-full flex-col ">
                             {/* title */}
-                            <h3 className="truncate text-lg font-semibold tracking-tight text-text">
-                                {meeting.title}
-                            </h3>
+                            <div className="flex w-full items-center justify-between gap-3">
+                                <h3
+                                    className={clsx(
+                                        "text-md text-text truncate font-semibold tracking-tight",
+                                        !details && "max-w-[16ch]"
+                                    )}
+                                >
+                                    {meeting.title}
+                                </h3>
+                            </div>
 
                             {/* timing */}
                             <div className="flex flex-row gap-2">
                                 <time
-                                    className="inline-flex items-center gap-1 rounded-full text-sm font-medium text-text/80"
+                                    className="text-text/80 inline-flex items-center gap-1 rounded-full text-xs font-medium"
                                     aria-label="Time Occurring"
                                 >
                                     {formatDateTime(
@@ -59,16 +81,19 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
                             </div>
 
                             {/* description */}
-                            <p className="mt-2 max-w-prose text-clip text-sm text-text/70">
-                                {meeting.description}
-                            </p>
+                            {details && (
+                                <p className="text-text/70 mt-2 max-w-prose text-sm text-clip">
+                                    {meeting.description}
+                                </p>
+                            )}
                         </div>
                     </div>
 
-                    <div className="flex shrink-0 items-start gap-2">
-                        {isPast && (
+                    <div className="flex shrink-0 items-center gap-2">
+                        {/* if it's in the past */}
+                        {isPast && details && (
                             <span
-                                className="inline-flex gap-2 items-center rounded-full px-2.5 py-1 text-error ring-1 ring-inset ring-error/30 bg-error/10"
+                                className="text-error ring-error/30 bg-error/10 inline-flex items-center gap-2 rounded-full px-2.5 py-1 ring-1 ring-inset"
                                 title="This meeting is archived"
                             >
                                 <svg
@@ -92,13 +117,15 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
                             </span>
                         )}
 
-                        {meetingResponse?.membership?.status === "JOINED" && (
+                        {/* is joined */}
+                        {isJoined && details && (
                             <span
-                                className="inline-flex items-center rounded-full bg-success/10 px-2.5 py-1 text-success ring-1 ring-inset ring-success/30"
+                                className="bg-success/10 text-success ring-success/30 inline-flex items-center rounded-full px-2.5 py-1 ring-1 ring-inset"
                                 title="You're a member"
                             >
                                 <span className="sr-only">Joined</span>
 
+                                {/* a checkmark */}
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
@@ -112,12 +139,15 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
                             </span>
                         )}
 
-                        {user !== null && meeting.owner === user.id && (
+                        {/* is the owner */}
+                        {isOwner && details && (
                             <span
-                                className="inline-flex items-center rounded-full bg-warn/10 px-2.5 py-1 text-warn ring-1 ring-inset ring-warn/30"
+                                className="bg-warn/10 text-warn ring-warn/30 inline-flex items-center rounded-full px-2.5 py-1 ring-1 ring-inset"
                                 title="You are the host"
                             >
                                 <span className="sr-only">Host</span>
+
+                                {/* a star */}
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
@@ -131,12 +161,15 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
                             </span>
                         )}
 
+                        {/* is bookmarked :o */}
                         {meetingResponse.bookmarked && (
                             <span
-                                className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-1 text-secondary ring-1 ring-inset ring-secondary/30"
+                                className="bg-secondary/10 text-secondary ring-secondary/30 inline-flex items-center rounded-full px-2.5 py-1 ring-1 ring-inset"
                                 title="Bookmarked"
                             >
                                 <span className="sr-only">Bookmarked</span>
+
+                                {/* a bookmark */}
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
@@ -149,46 +182,87 @@ export function GroupMeetingCard(meetingResponse: GroupMeetingResponse) {
                                 </svg>
                             </span>
                         )}
+
+                        {/* the profile picture */}
+                        <div className="flex-shrink-0 self-start">
+                            <ProfilePicture
+                                name="AJ Kneis"
+                                userID="123"
+                                size="sm"
+                            />
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex flex-row justify-between gap-3 sm:items-center">
-                    {/* tags */}
-                    <div className="flex flex-row flex-wrap gap-1.5 pt-1">
-                        {meeting.tags.map((tag: string) => (
-                            <Badge key={tag}>{tag}</Badge>
-                        ))}
-                    </div>
-
-                    {/* person counts */}
-                    <div className="flex items-center gap-3 text-sm">
-                        <div className="flex items-center gap-1 rounded-full bg-hero px-3 py-1 text-sm font-medium text-text/80 ring-1 ring-inset ring-primary/15">
-                            {/* location pin icon */}
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="h-4 w-4 shrink-0 text-text/60"
-                                aria-hidden="true"
-                                focusable="false"
-                            >
-                                <path d="M12 2.25c-3.728 0-6.75 2.99-6.75 6.68 0 4.989 6.053 11.744 6.311 12.03a.75.75 0 0 0 1.078 0c.258-.286 6.311-7.041 6.311-12.03 0-3.69-3.022-6.68-6.95-6.68Zm0 9.18a2.5 2.5 0 1 1 0-5.001 2.5 2.5 0 0 1 0 5z" />
-                            </svg>
-                            <p className="truncate">
-                                {meeting.location
-                                    ?.split(" ")[0]
-                                    ?.charAt(0)
-                                    .toUpperCase() +
-                                    meeting.location
-                                        ?.split(" ")[0]
-                                        ?.slice(1)
-                                        .toLowerCase()}
-                            </p>
+                {/* extra details depending on choice */}
+                {!details ? (
+                    <div className="flex flex-row items-center justify-between">
+                        <div className="flex flex-row flex-wrap gap-1.5 pt-1">
+                            {meeting.tags.slice(0, 2).map((tag: string) => (
+                                <Badge size="medium" key={tag}>
+                                    {tag}
+                                </Badge>
+                            ))}
                         </div>
 
-                        <MeetingCapacityBadges meeting={meeting} />
+                        {isJoined && (
+                            <p className="text-text/40 inline-flex gap-2 text-xs">
+                                Joined{" "}
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                    width="18"
+                                    height="18"
+                                    fill="currentColor"
+                                >
+                                    <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
+                                </svg>
+                            </p>
+                        )}
                     </div>
-                </div>
+                ) : (
+                    <div className="flex flex-row justify-between gap-3 sm:items-center">
+                        {/* tags */}
+                        <div className="flex flex-row flex-wrap gap-1.5 pt-1">
+                            {meeting.tags.map((tag: string) => (
+                                <Badge key={tag}>{tag}</Badge>
+                            ))}
+                        </div>
+
+                        {/* location / counts */}
+                        <div className="flex items-center gap-3 text-sm">
+                            <div className="sm:flex hidden items-center gap-1 rounded-full bg-hero px-3 py-1 text-sm font-medium text-text/80 ring-1 ring-inset ring-primary/15">
+                                {/* location pin icon */}
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    className="h-4 w-4 shrink-0 text-text/60"
+                                    aria-hidden="true"
+                                    focusable="false"
+                                >
+                                    <path d="M12 2.25c-3.728 0-6.75 2.99-6.75 6.68 0 4.989 6.053 11.744 6.311 12.03a.75.75 0 0 0 1.078 0c.258-.286 6.311-7.041 6.311-12.03 0-3.69-3.022-6.68-6.95-6.68Zm0 9.18a2.5 2.5 0 1 1 0-5.001 2.5 2.5 0 0 1 0 5z" />
+                                </svg>
+
+                                {/* location pin */}
+                                <p className="truncate">
+                                    {meeting.location
+                                        ?.split(" ")[0]
+                                        ?.charAt(0)
+                                        .toUpperCase() +
+                                        meeting.location
+                                            ?.split(" ")[0]
+                                            ?.slice(1)
+                                            .toLowerCase()}
+                                </p>
+                            </div>
+
+                            {/* capacity */}
+                            <MeetingCapacityBadges meeting={meeting} />
+                        </div>
+                    </div>
+                )}
             </div>
         </Card>
     )

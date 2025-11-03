@@ -53,31 +53,6 @@
     }
 }
 
-body {
-    position: relative;
-}
-
-/* Device size must be at least 768px (Desktop, Large Tablet) */
-@media (min-width: 768px) {
-    /* Standing Gopher on the Left Side of the Page */
-    body::before {
-        content: "";
-        position: fixed;
-        top: 250px;
-        left: -100px;
-        width: 30%;
-        height: 100%;
-        background-image: url("/standing_gopher.png");
-        background-repeat: no-repeat;
-        background-position: left center;
-        background-size: contain;
-        filter: grayscale(100%);
-        opacity: 0.15;
-        pointer-events: none;
-        z-index: 0;
-    }
-}
-
 .card {
     z-index: 1;
 }

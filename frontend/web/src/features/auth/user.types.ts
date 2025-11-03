@@ -27,3 +27,18 @@ export type User = {
     phoneNumber: string
     createdDate: number
 }
+
+/**
+ * A friend. This is someone that both you follow and they follow you.
+ *
+ * @param userID The ID of the friend.
+ * @param username The username of the friend.
+ * @param name The name of the friend.
+ * @param friendsAt When you became friends.
+ */
+export type Friend = {
+    userID: string
+    username: string
+    name: string
+    friendsAt: number
+}

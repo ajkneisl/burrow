@@ -251,7 +251,9 @@ private suspend fun aggregateMeetings(
                 waitingAlias[Memberships.status] eq MeetingMemberStatus.WAITLISTED
             },
         )
-        .select(Meetings.columns + listOf(Users.username, Users.id, joinedCountExpr, waitingCountExpr))
+        .select(
+            Meetings.columns + listOf(Users.username, Users.id, joinedCountExpr, waitingCountExpr)
+        )
         .where { where }
         .groupBy(*Meetings.columns.toTypedArray(), Users.username, Users.id)
         .orderBy(Meetings.beginningTime, SortOrder.ASC)
@@ -303,7 +305,7 @@ private suspend fun Map<GroupMeeting, String>.toResponses(
  * Search through all group meetings.
  *
  * @param query The search query. This will search through tags, title, description, location, etc..
- * @param date The date to search for.
+ * @param dateRange The range of dates to search through.
  * @param userId The ID of the user searching. This allows for the implementation of bookmarks and
  *   memberships.
  * @return A list of [GroupMeetingResponse]. The bookmark will be false and membership be null if
@@ -311,23 +313,23 @@ private suspend fun Map<GroupMeeting, String>.toResponses(
  */
 suspend fun searchMeetings(
     search: String,
-    date: Long? = null,
+    dateRange: LongRange? = null,
     userId: String? = null,
 ): List<GroupMeetingResponse> {
     val term = search.trim()
 
     // ensure the meeting is on the proper day
     val dateExpr: Op<Boolean> =
-        if (date == null) {
+        if (dateRange == null) {
             // later than today
             (Meetings.endTime greaterEq getTimeMillis())
         } else {
             val zone = ZoneId.systemDefault()
-            val localDate = Instant.ofEpochMilli(date).atZone(zone).toLocalDate()
+            val startDate = Instant.ofEpochMilli(dateRange.first).atZone(zone).toLocalDate()
+            val endDate = Instant.ofEpochMilli(dateRange.last).atZone(zone).toLocalDate()
 
-            val startOfDayMillis = localDate.atStartOfDay(zone).toInstant().toEpochMilli()
-            val endOfDayMillis =
-                localDate.atTime(23, 59, 59, 999_000_000).atZone(zone).toInstant().toEpochMilli()
+            val startOfDayMillis = startDate.atStartOfDay(zone).toInstant().toEpochMilli()
+            val endOfDayMillis = endDate.atTime(23, 59, 59).atZone(zone).toInstant().toEpochMilli()
 
             (Meetings.beginningTime greaterEq startOfDayMillis) and
                 (Meetings.beginningTime lessEq endOfDayMillis)

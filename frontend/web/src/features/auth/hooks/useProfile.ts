@@ -1,14 +1,11 @@
-import type { User } from "../user.types.ts"
 import { useAtom } from "jotai"
-import { authToken } from "../auth.atom.ts"
+import { authToken } from "@features/auth/auth.atom.ts"
+import { useNavigate } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { getUser } from "@features/auth/user.api.ts"
-import { useNavigate } from "react-router"
+import type { Profile } from "@features/profile/profile.model.ts"
 
-/**
- * Retrieve the `User` object.
- */
-export default function useUser(): User | null {
+export default function useProfile(): Profile | null {
     const [auth, setAuth] = useAtom(authToken)
     const nav = useNavigate()
 
@@ -30,5 +27,5 @@ export default function useUser(): User | null {
         return null
     }
 
-    return data.user
+    return data.profile
 }

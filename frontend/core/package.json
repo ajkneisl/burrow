@@ -1,6 +1,6 @@
 {
   "name": "@umnburrow/core",
-  "version": "0.1.5",
+  "version": "0.1.10",
   "description": "Shared Burrow component and utility library.",
   "type": "module",
   "main": "./dist/index.js",
@@ -23,16 +23,18 @@
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
+    "framer-motion": ">=12",
     "react": ">=18 || >=19",
-    "react-dom": ">=18 || >=19",
-    "framer-motion": ">=12"
+    "react-dom": ">=18 || >=19"
   },
   "dependencies": {
-    "clsx": "^2.1.1"
+    "clsx": "^2.1.1",
+    "prettier": "^3.6.2",
+    "react-aria-components": "^1.13.0",
+    "tailwindcss-react-aria-components": "^2.0.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.17",
-    "tailwindcss": "^4.0.17",
     "@types/node": "^24.9.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
@@ -44,6 +46,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "postcss": "^8.4.33",
+    "tailwindcss": "^4.0.17",
     "typescript": "^5.2.2",
     "vite": "^5.0.8",
     "vite-plugin-dts": "^4.5.4"

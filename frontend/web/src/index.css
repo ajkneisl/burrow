@@ -3,3 +3,47 @@
 
 /* tailwind needs to register what styles are used in the core*/
 @source "../node_modules/@umnburrow/core/dist";
+
+@plugin "tailwindcss-react-aria-components";
+
+body {
+    background: var(--background-color);
+}
+
+/* Device size must be at least 768px (Desktop, Large Tablet) */
+@media (min-width: 768px) {
+    /* Standing Gopher on the Left Side of the Page */
+    body::before {
+        content: "";
+        position: absolute;
+        top: 250px;
+        width: 30%;
+        height: 100%;
+        background-image: url("/standing_gopher.png");
+        background-repeat: no-repeat;
+        background-position: left center;
+        background-size: contain;
+        filter: grayscale(100%);
+        opacity: 0.15;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    /* Standing Gopher on the Left Side of the Page */
+    body::after {
+        content: "";
+        position: absolute;
+        top: 350px;
+        right: 0px;
+        width: 30%;
+        height: 100%;
+        background-image: url("/yord_gopher.png");
+        background-repeat: no-repeat;
+        background-position: left center;
+        background-size: contain;
+        filter: grayscale(100%);
+        opacity: 0.15;
+        pointer-events: none;
+        z-index: -1;
+    }
+}

@@ -1,7 +1,6 @@
 package app.burrow.account
 
 import app.burrow.account.models.User
-import app.burrow.account.models.authorizedUser
 import app.burrow.account.models.getUserByID
 import app.burrow.account.models.getUserByUsername
 import app.burrow.account.models.getUserResponse
@@ -10,6 +9,7 @@ import app.burrow.account.models.updateUsername
 import app.burrow.account.models.userID
 import app.burrow.account.models.validateUsername
 import app.burrow.account.profile.Profile
+import app.burrow.account.profile.findFriends
 import app.burrow.account.profile.followUser
 import app.burrow.account.profile.unFollowUser
 import app.burrow.account.profile.updateProfile
@@ -34,7 +34,7 @@ val USER_ROUTES: Route.() -> Unit = {
     authenticate("primary") {
         // GET /user
         // get the user's information
-        get { call.respond(call.authorizedUser()) }
+        get { call.respond(getUserResponse(call.userID, call.userID)) }
 
         // GET /user/id/{id}
         // get a user by their ID
@@ -52,6 +52,13 @@ val USER_ROUTES: Route.() -> Unit = {
             val user = getUserByUsername(username)
 
             call.respond(getUserResponse(user.id, call.userID))
+        }
+
+        // routes involving friends
+        route("/friends") {
+            get {
+                call.respond(findFriends(call.userID))
+            }
         }
 
         // routes involving the profile

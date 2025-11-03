@@ -229,15 +229,17 @@ export async function getAttendees(
  * @param auth The authorization token.
  * @param type The type of group.
  * @param query The search query.
- * @param date The date to search for.
+ * @param startDate The beginning of a time range to search through.
+ * @param endDate The ending of a time range to search through.
  */
 export async function searchMeetings(
     auth: string,
     type: GroupType | null,
     query: string,
-    date?: number
+    startDate?: number,
+    endDate?: number
 ): Promise<GroupMeetingResponse[]> {
-    const params = `?query=${encodeURIComponent(query)}&type=${type}&date=${date}`
+    const params = `?query=${encodeURIComponent(query)}&type=${type}&start=${startDate}&end=${endDate}`
 
     const res = await fetch(`${BASE_URL}/groups/search${params}`, {
         headers: {
@@ -342,8 +344,7 @@ export async function getSchedule(
         }
     })
 
-    if (!request.ok)
-        return Promise.reject("Failed to load schedule.")
+    if (!request.ok) return Promise.reject("Failed to load schedule.")
 
     return await request.json()
 }
@@ -362,8 +363,7 @@ export async function getBookmarks(
         }
     })
 
-    if (!request.ok)
-        return Promise.reject("Failed to load schedule.")
+    if (!request.ok) return Promise.reject("Failed to load schedule.")
 
     return await request.json()
 }

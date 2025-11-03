@@ -10,6 +10,7 @@ import { authToken } from "@features/auth/auth.atom.ts"
 import { GroupMeetingCard } from "@features/groups/components/GroupMeetingCard.tsx"
 import { searchMeetings } from "@features/groups/groups.api.ts"
 import MeetingHeatmap from "@features/groups/components/MeetingHeatmap.tsx"
+import { Input, useDateRangePicker } from "@umnburrow/core"
 
 /**
  * Convert a date into a more readable one.
@@ -84,7 +85,8 @@ type AllMeetingsProps = {
 export default function AllMeetings({ type }: AllMeetingsProps) {
     const [query, setQuery] = useState("")
     const [auth] = useAtom(authToken)
-    const [selectedDate, setSelectedDate] = useState<string>()
+
+    const [startDate, endDate, picker] = useDateRangePicker()
 
     const [hiddenWeeks, setHiddenWeeks] = useState<Set<string>>(new Set())
     const [hiddenDays, setHiddenDays] = useState<Set<string>>(new Set())
@@ -107,30 +109,24 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
         })
     }
 
-    const dateEpoch = useMemo(() => {
-        if (!selectedDate) return null
-
-        const parts = selectedDate.split("-")
-        const year = parseInt(parts[0], 10)
-        const month = parseInt(parts[1], 10) - 1
-        const day = parseInt(parts[2], 10)
-
-        // don't request until reaching a real year
-        if (year < 2025) return null
-
-        return new Date(year, month, day).valueOf()
-    }, [selectedDate])
-
     const dayStart = useMemo(() => {
-        const d = new Date(dateEpoch ?? new Date().getDate())
+        const d = new Date(
+            (startDate as number | undefined) ?? new Date().valueOf()
+        )
         d.setHours(0, 0, 0, 0)
         return d.getTime()
-    }, [dateEpoch])
+    }, [startDate])
 
     const { data, isLoading, isFetching, error } = useQuery({
-        queryKey: ["meetings", type, query, dateEpoch],
+        queryKey: ["meetings", type, query, startDate, endDate],
         queryFn: async () =>
-            await searchMeetings(auth, type, query, dateEpoch ?? undefined),
+            await searchMeetings(
+                auth,
+                type,
+                query,
+                startDate as number | undefined,
+                endDate as number | undefined
+            ),
         refetchOnWindowFocus: false
     })
 
@@ -166,22 +162,38 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
         const map = new Map<string, GroupMeetingResponse[]>()
 
         filtered.forEach((m) => {
-            const key = new Date(m.meeting.beginningTime).toLocaleDateString()
+            const d = new Date(m.meeting.beginningTime)
+            d.setHours(0, 0, 0, 0)
+            const key = d.toISOString().slice(0, 10) // YYYY-MM-DD, stable & sortable
             const list = map.get(key) ?? []
             list.push(m)
             map.set(key, list)
         })
 
-        const entries = Array.from(map.entries()).sort(([a], [b]) =>
-            a < b ? -1 : 1
-        )
-
-        return entries.map(([key, list]) => {
-            // compute week label from the first meeting's beginningTime in this day
-            const firstTime =
-                list[0]?.meeting.beginningTime ?? new Date(key).getTime()
-            return { key, list, week: weekRangeLabel(firstTime) }
+        const entries = Array.from(map.entries()).sort(([a], [b]) => {
+            const aMs = new Date(a).getTime()
+            const bMs = new Date(b).getTime()
+            return aMs - bMs
         })
+
+        // Exclude past dates
+        const now = Date.now()
+
+        return entries
+            .map(([key, list]) => {
+                const firstTime =
+                    list[0]?.meeting.beginningTime ?? new Date(key).getTime()
+                return { key, list, week: weekRangeLabel(firstTime) }
+            })
+            .filter(({ list }) => {
+                // Check if the day's latest meeting has ended before now
+                const latestEnd = Math.max(
+                    ...list.map(
+                        (m) => m.meeting.endTime ?? m.meeting.beginningTime
+                    )
+                )
+                return latestEnd >= now
+            })
     }, [filtered])
 
     useEffect(() => {
@@ -197,37 +209,28 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
     if (error)
         return (
             <main className="mx-auto w-full max-w-4xl p-4 sm:p-6">
-                <div className="rounded-2xl border border-error/30 bg-error/10 p-4 text-error">
+                <div className="border-error/30 bg-error/10 text-error rounded-2xl border p-4">
                     Failed to load meetings.
                 </div>
             </main>
         )
 
     return (
-        <main className="lg:grid grid-cols-3 flex flex-col-reverse">
+        <main className="flex grid-cols-3 flex-col-reverse lg:grid">
             <section className="col-span-2 mx-auto w-full max-w-4xl p-4 sm:p-6">
                 {/* top controls */}
                 <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     {/* search */}
                     <div className="flex-1">
-                        <input
+                        <Input
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="Search meetings…"
-                            className="w-full rounded-2xl border border-primary/20 bg-card px-4 py-2 text-sm text-text shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         />
                     </div>
 
                     {/* calendar */}
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="date"
-                            value={selectedDate}
-                            onChange={(e) => setSelectedDate(e.target.value)}
-                            className="rounded-xl border border-primary/20 bg-card px-3 py-2 text-sm text-text shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                            aria-label="Select date"
-                        />
-                    </div>
+                    <div className="flex items-center gap-2">{picker}</div>
                 </div>
 
                 {isLoading && !data ? (
@@ -235,7 +238,7 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
                         {Array.from({ length: 4 }).map((_, i) => (
                             <div
                                 key={i}
-                                className="h-24 rounded-2xl bg-card shadow-sm"
+                                className="bg-card h-24 rounded-2xl shadow-sm"
                             />
                         ))}
                     </div>
@@ -243,7 +246,7 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
 
                 {!isLoading && isFetching ? (
                     <div className="mb-2 text-right">
-                        <span className="inline-flex items-center gap-2 rounded-full border border-info/30 bg-info/10 px-2 py-1 text-xs text-info">
+                        <span className="border-info/30 bg-info/10 text-info inline-flex items-center gap-2 rounded-full border px-2 py-1 text-xs">
                             Updating…
                         </span>
                     </div>
@@ -251,11 +254,11 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
 
                 {/* search results */}
                 {groupedByDate.length === 0 ? (
-                    <div className="rounded-2xl border border-primary/20 bg-card p-6 text-text shadow-sm">
+                    <div className="border-primary/20 bg-card text-text rounded-2xl border p-6 shadow-sm">
                         <p className="text-sm">
                             No meetings match your filters.
                         </p>
-                        <p className="mt-1 text-xs text-text/70">
+                        <p className="text-text/70 mt-1 text-xs">
                             Try adjusting your search or picking a different
                             date.
                         </p>
@@ -267,7 +270,7 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
                                 {idx === 0 ||
                                 groupedByDate[idx - 1].week !== week ? (
                                     <h2
-                                        className="md:min-w-[430px] mb-3 flex cursor-pointer select-none items-center gap-2 text-xs font-semibold uppercase tracking-wide text-text/70 hover:text-text"
+                                        className="text-text/70 hover:text-text mb-3 flex cursor-pointer items-center gap-2 text-xs font-semibold tracking-wide uppercase select-none md:min-w-[430px]"
                                         onClick={() => toggleWeek(week)}
                                         title={
                                             hiddenWeeks.has(week)
@@ -277,9 +280,9 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
                                         role="button"
                                         aria-expanded={!hiddenWeeks.has(week)}
                                     >
-                                        <span className="h-px flex-1 bg-text/40" />
+                                        <span className="bg-text/40 h-px flex-1" />
                                         {week}
-                                        <span className="h-px flex-1 bg-text/40" />
+                                        <span className="bg-text/40 h-px flex-1" />
                                         <svg
                                             className={`ml-2 h-3 w-3 transition-transform duration-200 ${hiddenWeeks.has(week) ? "rotate-0" : "rotate-90"}`}
                                             viewBox="0 0 20 20"
@@ -312,7 +315,7 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
                                             }}
                                         >
                                             <h2
-                                                className="mb-3 flex cursor-pointer select-none items-center gap-2 text-sm font-semibold text-text hover:text-text/80"
+                                                className="text-text hover:text-text/80 mb-3 flex cursor-pointer items-center gap-2 text-sm font-semibold select-none"
                                                 onClick={() =>
                                                     toggleDay(dateKey)
                                                 }
@@ -327,7 +330,7 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
                                                 }
                                             >
                                                 {humanDateLabel(dateKey)}
-                                                <span className="h-px flex-1 bg-text/50" />
+                                                <span className="bg-text/50 h-px flex-1" />
                                                 <svg
                                                     className={`ml-2 h-3 w-3 transition-transform duration-200 ${hiddenDays.has(dateKey) ? "rotate-0" : "rotate-90"}`}
                                                     viewBox="0 0 20 20"
@@ -369,12 +372,17 @@ export default function AllMeetings({ type }: AllMeetingsProps) {
                                                             {meetings.map(
                                                                 (m) => (
                                                                     <GroupMeetingCard
+                                                                        details={
+                                                                            true
+                                                                        }
                                                                         key={
                                                                             m
                                                                                 .meeting
                                                                                 .id
                                                                         }
-                                                                        {...m}
+                                                                        meetingResponse={
+                                                                            m
+                                                                        }
                                                                     />
                                                                 )
                                                             )}

@@ -1,5 +1,6 @@
 import { BASE_URL } from "@api/util.ts"
-import type { AuthorizedUser, User } from "@features/auth/user.types.ts"
+import type { AuthorizedUser, Friend } from "@features/auth/user.types.ts"
+import type { UserResponse } from "@features/profile/profile.model.ts"
 
 /**
  * Update a user.
@@ -27,7 +28,7 @@ export async function updateUser(auth: string, key: string, value: string) {
  *
  * @param auth The authorization token.
  */
-export async function getUser(auth: string): Promise<User> {
+export async function getUser(auth: string): Promise<UserResponse> {
     const request = await fetch(`${BASE_URL}/user`, {
         headers: {
             Authorization: `Bearer ${auth}`
@@ -50,6 +51,17 @@ export async function login(credentials: string): Promise<AuthorizedUser> {
     const request = await fetch(`${BASE_URL}/user/login`, {
         method: "PUT",
         body: credentials
+    })
+
+    return await request.json()
+}
+
+export async function getFriends(auth: string): Promise<Friend[]> {
+    const request = await fetch(`${BASE_URL}/user/friends`, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${auth}`
+        }
     })
 
     return await request.json()

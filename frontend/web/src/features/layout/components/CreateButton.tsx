@@ -3,6 +3,7 @@ import { useAtom } from "jotai"
 import { studyGroupModal } from "@features/create/create.atom.ts"
 import React, { useEffect, useRef, useState, useCallback } from "react"
 import toast from "react-hot-toast"
+import clsx from "clsx"
 
 /**
  * The `Create Burrow` button with a unique dropdown.
@@ -117,9 +118,27 @@ export default function CreateButton() {
         }
     }
 
+    // Responsive: detect desktop for animation direction and panel placement
+    const [isDesktop, setIsDesktop] = useState(false)
+    useEffect(() => {
+        const mq = window.matchMedia('(min-width: 768px)')
+        const update = () => setIsDesktop(mq.matches)
+        update()
+        if (mq.addEventListener) {
+            mq.addEventListener('change', update)
+            return () => mq.removeEventListener('change', update)
+        } else {
+            // Safari fallback
+            // @ts-ignore
+            mq.addListener(update)
+            // @ts-ignore
+            return () => mq.removeListener(update)
+        }
+    }, [])
+
     // Motion variants for the dropdown panel and items
     const panel: Variants = {
-        hidden: { opacity: 0, y: -6, scale: 0.98 },
+        hidden: { opacity: 0, y: isDesktop ? -6 : 6, scale: 0.98 },
         visible: {
             opacity: 1,
             y: 0,
@@ -129,10 +148,10 @@ export default function CreateButton() {
                 stiffness: 420,
                 damping: 28,
                 mass: 0.8,
-                staggerChildren: 0.035
-            }
+                staggerChildren: 0.035,
+            },
         },
-        exit: { opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.12 } }
+        exit: { opacity: 0, y: isDesktop ? -6 : 6, scale: 0.98, transition: { duration: 0.12 } },
     }
     const item = {
         hidden: { opacity: 0, y: -2 },
@@ -140,7 +159,7 @@ export default function CreateButton() {
     }
 
     return (
-        <div className="relative inline-block text-left">
+        <div className="md:relative md:inline-block md:bottom-0 md:right-0 md:text-left fixed bottom-6 right-6 z-50">
             <motion.button
                 ref={buttonRef}
                 type="button"
@@ -169,20 +188,6 @@ export default function CreateButton() {
                     />
                 </svg>
                 <span className="md:block hidden">Create Burrow</span>
-                {/* caret */}
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className="h-4 w-4 md:block hidden"
-                    aria-hidden="true"
-                >
-                    <path
-                        fillRule="evenodd"
-                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.188l3.71-3.958a.75.75 0 111.08 1.04l-4.24 4.52a.75.75 0 01-1.08 0l-4.24-4.52a.75.75 0 01.02-1.06z"
-                        clipRule="evenodd"
-                    />
-                </svg>
             </motion.button>
 
             <AnimatePresence>
@@ -197,7 +202,14 @@ export default function CreateButton() {
                         animate="visible"
                         exit="exit"
                         onKeyDown={onMenuKeyDown}
-                        className="absolute right-0 mt-2 w-64 origin-top-right rounded-2xl border border-primary/20 bg-background shadow-xl ring-1 ring-black/5 focus:outline-none overflow-hidden"
+                        className={clsx(
+                            "absolute right-0 w-64 rounded-2xl",
+                            // Mobile: open above (go up)
+                            "bottom-full mb-2 origin-bottom-right",
+                            // Desktop md+: open below (go down)
+                            "md:bottom-auto md:mb-0 md:top-full md:mt-2 md:origin-top-right",
+                            "border border-primary/20 bg-background shadow-xl ring-1 ring-black/5 focus:outline-none overflow-hidden"
+                        )}
                     >
                         <ul className="p-1.5" role="none">
                             {options.map((opt, idx) => {

@@ -10,10 +10,13 @@ import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.innerJoin
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
+import kotlin.text.get
 
 object Following : Table("following") {
     val follower = reference("follower_id", Users.id, onDelete = ReferenceOption.CASCADE)
@@ -66,12 +69,10 @@ suspend fun getFollowing(userID: String, otherUserID: String): FollowResponse = 
             .toList()
             .toSet()
 
-    val mutualsCount = getFollowers(userID).intersect(getFollowers(otherUserID).toSet()).size
-
     FollowResponse(
         following = followingCount,
         followers = followersCount,
-        mutuals = if (userID == otherUserID) 0 else mutualsCount,
+        mutuals = if (userID == otherUserID) 0 else findMutuals(userID, otherUserID),
         youFollow = otherUserFollowing.contains(userID),
         theyFollow = userFollowing.contains(otherUserID),
     )
@@ -100,6 +101,55 @@ suspend fun findMutuals(userID: String, otherUserID: String): Int = query {
 
     userFollowing.intersect(otherFollowing.toSet()).size
 }
+
+@Serializable
+data class Friend(val userID: String, val username: String, val name: String, val friendsAt: Long)
+
+suspend fun findFriends(userID: String): List<Friend> = query {
+    // Users that this user follows: followee -> when user followed them
+    val followingMap: Map<String, Long> =
+        Following.selectAll()
+            .where { Following.follower eq userID }
+            .map { it[Following.followee] to it[Following.createdAt] }
+            .toList()
+            .toMap()
+
+    // Users that follow this user: follower -> when they followed user
+    val followersMap: Map<String, Long> =
+        Following.selectAll()
+            .where { Following.followee eq userID }
+            .map { it[Following.follower] to it[Following.createdAt] }
+            .toList()
+            .toMap()
+
+    // Mutuals (friend = both follow each other)
+    val mutualIds = followingMap.keys.intersect(followersMap.keys)
+    if (mutualIds.isEmpty()) return@query emptyList()
+
+    // Fetch user + profile info for mutuals
+    val userRows =
+        Users.innerJoin(Profiles, { Users.id }, { Profiles.userID })
+            .select(Users.id, Users.username, Profiles.name)
+            .where { Users.id inList mutualIds.toList() }
+            .toList()
+
+    val byId = userRows.associateBy({ it[Users.id] }, { it })
+
+    // friendsAt = later of the two follow times
+    mutualIds
+        .mapNotNull { id ->
+            val row = byId[id] ?: return@mapNotNull null
+            val friendsAt = kotlin.math.max(followingMap[id] ?: 0L, followersMap[id] ?: 0L)
+            Friend(
+                userID = id,
+                username = row[Users.username],
+                name = row[Profiles.name],
+                friendsAt = friendsAt,
+            )
+        }
+        .sortedByDescending { it.friendsAt }
+}
+
 
 /** Check if [followerID] is following [followeeID]. */
 suspend fun isFollowing(followerID: String, followeeID: String): Boolean = query {

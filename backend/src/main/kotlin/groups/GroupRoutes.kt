@@ -82,9 +82,17 @@ val GROUP_ROUTES: Route.() -> Unit = {
     // search among the stars
     get("/search") {
         val searchQuery = call.queryParameter("query")
-        val date = call.optionalLongQueryParameter("date")
 
-        call.respond(searchMeetings(searchQuery, date, call.userID))
+        val startDate = call.optionalLongQueryParameter("start")
+        val endDate = call.optionalLongQueryParameter("end")
+
+        val range = if (startDate != null && endDate != null) {
+            startDate..endDate
+        } else {
+            null
+        }
+
+        call.respond(searchMeetings(searchQuery, range, call.userID))
     }
 
     // POST /groups

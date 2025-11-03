@@ -97,7 +97,7 @@ suspend fun getUserMeetings(user: String): List<GroupMeetingResponse> {
                     (Meetings.endTime greaterEq getTimeMillis()) // ensure it hasn't ended
             }
             .orderBy(Meetings.beginningTime, SortOrder.ASC)
-            .limit(3)
+            .limit(5)
             .map { row ->
                 GroupMeetingResponse(
                     meeting = GroupMeeting.fromRow(row),
