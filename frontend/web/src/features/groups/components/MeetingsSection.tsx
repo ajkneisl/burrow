@@ -77,7 +77,7 @@ export default function MeetingsSection({
         <section className="w-full">
             {error && (
                 <div className="border-error/30 bg-error/10 text-error mb-4 rounded-2xl border p-4 text-sm">
-                    Couldn’t load data.{" "}
+                    Couldn't load data.{" "}
                     <button onClick={() => refetch()} className="underline">
                         Retry
                     </button>

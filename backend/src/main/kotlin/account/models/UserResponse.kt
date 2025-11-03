@@ -84,8 +84,6 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
             )
     }
 
-    following.mutuals
-
     val now = System.currentTimeMillis()
 
     val hostedMeetings =

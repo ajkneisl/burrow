@@ -25,12 +25,13 @@ import {
     useParams,
     useRouteError
 } from "react-router"
+import ViewRelations from "@features/profile/components/ViewRelations.tsx"
 
 function ErrorElement() {
     const error = useRouteError() as Error | undefined
     return (
-        <div className="text-center p-8">
-            <h1 className="text-2xl font-bold text-error">
+        <div className="p-8 text-center">
+            <h1 className="text-error text-2xl font-bold">
                 Something went wrong
             </h1>
             <p className="mt-2 opacity-70">
@@ -68,7 +69,7 @@ function RootLayout() {
     }, [darkMode])
 
     return (
-        <div className="gopher-stand bg-transparent text-text min-h-screen w-full flex flex-col transition-colors duration-300">
+        <div className="gopher-stand text-text flex min-h-screen w-full flex-col bg-transparent transition-colors duration-300">
             {/* don't show header on welcome */}
             {window.location.pathname !== "/welcome" && <Header />}
 
@@ -85,13 +86,14 @@ function RootLayout() {
                 }}
             />
 
-            <main className="max-w-screen md:min-w-xl md:m-auto mb-8 mx-4 flex-grow">
+            <main className="mx-4 mb-8 max-w-screen flex-grow md:m-auto md:min-w-xl">
                 <CreateStudyGroupModal
                     open={modalOpen}
                     onClose={() => setModalOpen(false)}
                     title="Create a Study Group"
                 />
 
+                <ViewRelations />
                 <ReportProblemModal />
                 <SettingsModal />
 
@@ -119,7 +121,7 @@ const router = createBrowserRouter([
             { path: "tos", element: <ToS /> },
             { path: "*", element: <NotFound /> },
             { path: "meeting/:id", element: <Meeting /> },
-            { path: ":id", element: <MeetingReRoute /> },
+            { path: ":id", element: <MeetingReRoute /> }
         ]
     }
 ])

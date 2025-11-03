@@ -37,7 +37,7 @@ export default function Privacy() {
                                 <span className="font-medium">
                                     Google account ID
                                 </span>{" "}
-                                provided by Google’s authentication service.
+                                provided by Google's authentication service.
                             </li>
                             <li>
                                 <span className="font-medium">Optional:</span>{" "}
@@ -118,7 +118,7 @@ export default function Privacy() {
                         <p className="mt-3">
                             Login is provided by{" "}
                             <span className="font-medium">Google Sign-In</span>.
-                            Your use of Google Sign-In is subject to Google’s
+                            Your use of Google Sign-In is subject to Google's
                             terms and privacy policy in addition to this policy.
                         </p>
                     </section>

@@ -28,10 +28,10 @@ const linkedIn: { name: string; link: string }[] = [
  */
 export default function Footer() {
     return (
-        <footer className="border-t bg-background text-text/80 text-sm py-8 px-4 mt-auto">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center sm:text-left">
+        <footer className="bg-background text-text/80 mt-auto border-t px-4 py-8 text-sm">
+            <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4">
                 <div>
-                    <h4 className="font-semibold text-secondary mb-2">
+                    <h4 className="text-secondary mb-2 font-semibold">
                         Burrow
                     </h4>
 
@@ -40,17 +40,17 @@ export default function Footer() {
                         study groups and collaboration.
                     </p>
 
-                    <div className="flex flex-row justify-center gap-2 mt-2">
+                    <div className="mt-2 flex flex-row justify-center gap-2">
                         <Link
                             to="/privacy"
-                            className="underline hover:text-text/60"
+                            className="hover:text-text/60 underline"
                         >
                             Privacy Policy
                         </Link>
                         <span>—</span>
                         <Link
                             to="/tos"
-                            className="underline hover:text-text/60"
+                            className="hover:text-text/60 underline"
                         >
                             Terms of Service
                         </Link>
@@ -58,17 +58,17 @@ export default function Footer() {
                 </div>
 
                 <div className="col-span-2">
-                    <h4 className="font-semibold text-secondary mb-2">
+                    <h4 className="text-secondary mb-2 font-semibold">
                         Contributors
                     </h4>
 
-                    <ul className="space-y-2 flex flex-row justify-center items-center flex-wrap gap-2">
+                    <ul className="flex flex-row flex-wrap items-center justify-center gap-2 space-y-2">
                         {linkedIn.map(({ name, link }) => (
                             <li>
                                 <a
                                     href={`https://www.linkedin.com${link}`}
                                     target="_blank"
-                                    className="inline-flex items-center gap-2 rounded-md border border-info px-3 py-1.5 text-xs font-medium text-info hover:bg-info-hover/20 transition"
+                                    className="border-info text-info hover:bg-info-hover/20 inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-medium transition"
                                     rel="noopener noreferrer"
                                 >
                                     <svg
@@ -87,7 +87,7 @@ export default function Footer() {
                 </div>
 
                 <div className="text-text/70">
-                    <p>© {new Date().getFullYear()} Burrow</p>
+                    <p>© {new Date().getFullYear()} Burrow (v{import.meta.env.VITE_VERSION})</p>
                     <p>Not affiliated with the University of Minnesota.</p>
                 </div>
             </div>

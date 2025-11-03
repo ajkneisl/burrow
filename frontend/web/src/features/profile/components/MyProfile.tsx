@@ -8,6 +8,8 @@ import useToken from "@features/auth/hooks/useToken.ts"
 import { getFriends } from "@features/auth/user.api.ts"
 import { convertGraduationYear } from "@api/util.ts"
 import MyFriend from "@features/profile/components/MyFriend.tsx"
+import useRelations from "@features/profile/hooks/useRelations.ts"
+import { FRIENDS_VIEW } from "@features/profile/profile.api.ts"
 
 /**
  * A loading skeleton.
@@ -84,6 +86,7 @@ function ProfileError({ onRetry }: { onRetry: () => void }) {
 export default function MyProfile() {
     const auth = useToken()
     const user = useUser()
+    const rel = useRelations()
     const profile = useProfile()
 
     const { data, isLoading, error, refetch } = useQuery({
@@ -141,12 +144,21 @@ export default function MyProfile() {
                         aria-labelledby="friends-heading"
                         className="flex flex-col"
                     >
-                        <h2
-                            id="friends-heading"
-                            className="text-text/60 figtree text-[11px] tracking-wider uppercase"
-                        >
-                            Friends
-                        </h2>
+                        <div className="flex flex-row items-center justify-between">
+                            <h2
+                                id="friends-heading"
+                                className="text-text/60 figtree text-[11px] tracking-wider uppercase"
+                            >
+                                Friends
+                            </h2>
+
+                            <button
+                                onClick={() => rel(FRIENDS_VIEW)}
+                                className="text-text/60 hover:text-text/80 cursor-pointer text-xs hover:underline"
+                            >
+                                View all
+                            </button>
+                        </div>
 
                         <ul className="mt-2 space-y-2">
                             {data?.map((friend) => (

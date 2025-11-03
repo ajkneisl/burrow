@@ -86,12 +86,12 @@ export default function ReportProblemModal() {
         >
             <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
-                    <div className="rounded-lg border border-error/20 bg-error/5 px-3 py-2 text-sm text-error">
+                    <div className="border-error/20 bg-error/5 text-error rounded-lg border px-3 py-2 text-sm">
                         {error}
                     </div>
                 )}
 
-                <div className="grid gap-4 grid-cols-2">
+                <div className="grid grid-cols-2 gap-4">
                     <Input
                         className="col-span-1"
                         text="Brief summary"
@@ -134,7 +134,7 @@ export default function ReportProblemModal() {
                 />
 
                 {/* Context preview */}
-                <div className="rounded-lg border border-card-border bg-card px-3 py-2 text-xs text-text/70">
+                <div className="border-card-border bg-card text-text/70 rounded-lg border px-3 py-2 text-xs">
                     <div>
                         <span className="font-medium">Version:</span>{" "}
                         {import.meta.env.VITE_VERSION} (

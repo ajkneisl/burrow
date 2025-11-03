@@ -81,7 +81,7 @@ export default function ToS() {
                             align with the general behavioral expectations of
                             the{" "}
                             <span className="font-medium">
-                                University of Minnesota’s Code of Conduct
+                                University of Minnesota's Code of Conduct
                             </span>
                             , though Burrow is not affiliated with the
                             University of Minnesota.
@@ -155,7 +155,7 @@ export default function ToS() {
                             </span>{" "}
                             or endorsed by the University of Minnesota. However,
                             we expect users to conduct themselves in a manner
-                            consistent with the University’s community standards
+                            consistent with the University's community standards
                             and values.
                         </p>
                     </section>

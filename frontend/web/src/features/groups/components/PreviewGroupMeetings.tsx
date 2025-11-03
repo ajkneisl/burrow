@@ -46,9 +46,9 @@ function LoadingPreview({ amount }: { amount: number }) {
             </h3>
 
             {Array.from({ length: amount }).map((_, i) => (
-                <Card className="min-w-xs" key={i}>
+                <Card className="w-full" key={i}>
                     <div className="animate-pulse space-y-4">
-                        <div className="flex flex-row justify-between">
+                        <div className="flex flex-row justify-between gap-4">
                             <div className="animate-pulse space-y-4">
                                 <div className="bg-text/10 h-4 w-48 rounded" />
                                 <div className="bg-text/10 h-3 w-32 rounded" />
@@ -145,11 +145,9 @@ export default function PreviewGroupMeetings({
                 </Card>
             )}
 
-            {data.length > 5 && (
-                <Button className="w-full" onClick={() => nav(fullPage)}>
-                    View all
-                </Button>
-            )}
+            <Button className="w-full" onClick={() => nav(fullPage)}>
+                Browse
+            </Button>
         </div>
     )
 }

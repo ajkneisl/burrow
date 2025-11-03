@@ -1,4 +1,4 @@
-import type { User } from "@features/auth/user.types.ts"
+import type { Friend, User } from "@features/auth/user.types.ts"
 import type { GroupMeeting } from "@features/groups/groups.types.ts"
 
 /**
@@ -35,4 +35,17 @@ export type UserResponse = {
     following: Following
     recentJoinedGroups: GroupMeeting[]
     recentHostedGroups: GroupMeeting[]
+}
+
+/**
+ * A view for the relations modal.
+ *
+ * @param title The title of the modal.
+ * @param func The function to retrieve the data. This is some-sort of user relation.
+ * @param queryKey The key to not replicate the request.
+ */
+export type RelationView = {
+    title: string
+    func: (auth: string) => Promise<Friend[]>
+    queryKey: string
 }

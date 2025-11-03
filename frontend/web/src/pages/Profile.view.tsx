@@ -101,22 +101,22 @@ export default function ProfileView() {
                 <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
                     <Card>
                         <div className="p-6">
-                            <div className="h-6 w-40 animate-pulse rounded bg-card" />
+                            <div className="bg-card h-6 w-40 animate-pulse rounded" />
                             <div className="mt-4 space-y-2">
-                                <div className="h-4 w-full animate-pulse rounded bg-card" />
-                                <div className="h-4 w-5/6 animate-pulse rounded bg-card" />
-                                <div className="h-4 w-2/3 animate-pulse rounded bg-card" />
+                                <div className="bg-card h-4 w-full animate-pulse rounded" />
+                                <div className="bg-card h-4 w-5/6 animate-pulse rounded" />
+                                <div className="bg-card h-4 w-2/3 animate-pulse rounded" />
                             </div>
                         </div>
                     </Card>
 
                     <Card>
                         <div className="p-6">
-                            <div className="h-6 w-32 animate-pulse rounded bg-card" />
+                            <div className="bg-card h-6 w-32 animate-pulse rounded" />
                             <div className="mt-4 space-y-3">
-                                <div className="h-4 w-full animate-pulse rounded bg-card" />
-                                <div className="h-4 w-full animate-pulse rounded bg-card" />
-                                <div className="h-4 w-full animate-pulse rounded bg-card" />
+                                <div className="bg-card h-4 w-full animate-pulse rounded" />
+                                <div className="bg-card h-4 w-full animate-pulse rounded" />
+                                <div className="bg-card h-4 w-full animate-pulse rounded" />
                             </div>
                         </div>
                     </Card>
@@ -142,7 +142,7 @@ export default function ProfileView() {
         <div className="relative">
             <div className="mx-auto max-w-6xl">
                 {/* name and profile picture */}
-                <div className="mx-4 flex items-center justify-between gap-4 py-6 px-0 sm:px-2">
+                <div className="mx-4 flex items-center justify-between gap-4 px-0 py-6 sm:px-2">
                     <div className="flex items-center gap-4">
                         <ProfilePicture
                             name={data.profile.name}
@@ -158,7 +158,7 @@ export default function ProfileView() {
 
                             <div className="mt-1 flex flex-wrap items-center gap-2">
                                 {/* profile URL*/}
-                                <span className="font-mono text-text/60">
+                                <span className="text-text/60 font-mono">
                                     {data.user.username}
                                 </span>
 
@@ -173,7 +173,7 @@ export default function ProfileView() {
                             </div>
 
                             {/* followers / following */}
-                            <div className="mt-1 text-sm text-text/80">
+                            <div className="text-text/80 mt-1 text-sm">
                                 <span className="font-mono">
                                     {data.following.followers}
                                 </span>{" "}
@@ -228,7 +228,7 @@ export default function ProfileView() {
                         You cannot view this profile
                     </Card>
                 ) : (
-                    <div className="items-start grid gap-6 px-4 py-6 lg:grid-cols-[1fr_340px]">
+                    <div className="grid items-start gap-6 px-4 py-6 lg:grid-cols-[1fr_340px]">
                         <About profile={data.profile} />
 
                         <Contact user={data.user} profile={data.profile} />

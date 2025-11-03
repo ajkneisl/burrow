@@ -14,35 +14,38 @@ body {
 @media (min-width: 768px) {
     /* Standing Gopher on the Left Side of the Page */
     body::before {
+        @apply bg-contain bg-no-repeat bg-center absolute top-[612px] left-[-64px] bottom-0;
         content: "";
-        position: absolute;
-        top: 250px;
-        width: 30%;
-        height: 100%;
+
         background-image: url("/standing_gopher.png");
-        background-repeat: no-repeat;
-        background-position: left center;
-        background-size: contain;
+
+
+        width: 30%;
+        height: 50%;
+
         filter: grayscale(100%);
         opacity: 0.15;
+
         pointer-events: none;
         z-index: -1;
     }
 
     /* Standing Gopher on the Left Side of the Page */
     body::after {
+        @apply bg-contain bg-no-repeat bg-center absolute top-0 left-0 right-0 bottom-0;
         content: "";
-        position: absolute;
-        top: 350px;
-        right: 0px;
-        width: 30%;
-        height: 100%;
+
         background-image: url("/yord_gopher.png");
-        background-repeat: no-repeat;
-        background-position: left center;
-        background-size: contain;
+
+        top: 0px;
+        right: -90px;
+
+        width: 30%;
+        height: 50%;
+
         filter: grayscale(100%);
         opacity: 0.15;
+
         pointer-events: none;
         z-index: -1;
     }

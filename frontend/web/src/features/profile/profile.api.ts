@@ -1,5 +1,10 @@
-import type { Profile, UserResponse } from "@features/profile/profile.model.ts"
+import type {
+    Profile,
+    RelationView,
+    UserResponse
+} from "@features/profile/profile.model.ts"
 import { BASE_URL } from "@api/util.ts"
+import { getFriends } from "@features/auth/user.api.ts"
 
 /**
  * Get a user by their username.
@@ -141,4 +146,13 @@ export async function saveProfile(
     }
 
     return await request.json()
+}
+
+/**
+ * A view of the {@see ViewRelations} modal that displays friends.
+ */
+export const FRIENDS_VIEW: RelationView = {
+    queryKey: "FRIENDS",
+    func: (auth) => getFriends(auth),
+    title: "My Friends"
 }

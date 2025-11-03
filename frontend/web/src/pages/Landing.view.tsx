@@ -87,7 +87,7 @@ export default function LandingView() {
                         Find study groups
                     </div>
 
-                    Search by course, topic, or club and see who’s active right
+                    Search by course, topic, or club and see who's active right
                     now.
                 </Card>
 
@@ -119,7 +119,7 @@ export default function LandingView() {
                         </svg>
                         Join in seconds
                     </div>
-                    Use your UMN Google account to sign in and you’re ready to
+                    Use your UMN Google account to sign in and you're ready to
                     go.
                 </Card>
             </div>
@@ -165,7 +165,7 @@ export default function LandingView() {
                     </Card>
 
                     <p className="mt-3 text-center text-sm text-text/40">
-                        By signing in with Google, you agree to Burrow’s{" "}
+                        By signing in with Google, you agree to Burrow's{" "}
                         <a href="/privacy" className="text-text/60 hover:text-text/50 underline">
                             Privacy Policy
                         </a>{" "}
