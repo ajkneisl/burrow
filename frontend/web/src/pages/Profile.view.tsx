@@ -2,8 +2,6 @@ import { useParams } from "react-router"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Badge, Button, Card } from "@umnburrow/core"
 import {
-    FOLLOWERS_VIEW,
-    FOLLOWING_VIEW,
     followUser,
     getUserByUsername,
     unFollowUser
@@ -18,7 +16,7 @@ import Contact from "@features/profile/components/Contact.tsx"
 import EditProfile from "@features/profile/components/EditProfile.tsx"
 import type { GroupMeetingResponse } from "@features/groups/groups.types.ts"
 import { convertGraduationYear } from "@api/util.ts"
-import useRelations from "@features/profile/hooks/useRelations.ts"
+import Relations from "@features/profile/components/Relations.tsx"
 
 /**
  * The view of a profile.
@@ -26,7 +24,6 @@ import useRelations from "@features/profile/hooks/useRelations.ts"
 export default function ProfileView() {
     const auth = useToken()
     const user = useUser()
-    const rel = useRelations()
 
     const { username = "me" } = useParams()
     const queryClient = useQueryClient()
@@ -177,24 +174,7 @@ export default function ProfileView() {
                             </div>
 
                             {/* followers / following */}
-                            <div className="text-text/80 mt-1 text-sm">
-                                <Button
-                                    color="LINK"
-                                    onClick={() => rel(FOLLOWERS_VIEW)}
-                                >
-                                    {data.following.followers} follower
-                                    {data.following.followers === 1
-                                        ? ""
-                                        : "s"}{" "}
-                                </Button>
-                                <span className="opacity-60">•</span>{" "}
-                                <Button
-                                    color="LINK"
-                                    onClick={() => rel(FOLLOWING_VIEW)}
-                                >
-                                    {data.following.following} following
-                                </Button>
-                            </div>
+                            <Relations data={data} />
 
                             {/* how many mutual friends you have with them */}
                             {data.following.mutuals > 0 && (

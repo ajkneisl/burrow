@@ -8,7 +8,7 @@ import {
     relationType
 } from "@features/profile/profile.atom.ts"
 import type { Relation } from "@features/auth/user.types.ts"
-import {getRelations} from "@features/auth/user.api.ts";
+import { getRelations } from "@features/auth/user.api.ts"
 
 /**
  * View a certain type of relation, like friends, followers, following.
@@ -62,7 +62,11 @@ export default function ViewRelations() {
                     {!isLoading && !isError && data && data.length > 0 && (
                         <ul className="space-y-2">
                             {data.map((friend) => (
-                                <MyFriend key={friend.userID} friend={friend} />
+                                <MyFriend
+                                    key={friend.userID}
+                                    friend={friend}
+                                    inModal={true}
+                                />
                             ))}
                         </ul>
                     )}
