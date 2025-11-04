@@ -182,7 +182,7 @@ export default function ProfileView() {
                                     color="LINK"
                                     onClick={() => rel(FOLLOWERS_VIEW)}
                                 >
-                                    {data.following.followers} follower{" "}
+                                    {data.following.followers} follower
                                     {data.following.followers === 1
                                         ? ""
                                         : "s"}{" "}
