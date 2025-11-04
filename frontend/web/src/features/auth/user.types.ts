@@ -29,16 +29,20 @@ export type User = {
 }
 
 /**
- * A friend. This is someone that both you follow and they follow you.
+ * This resembles a relation between two users, primarily in the form of a Follower or Friend.
  *
  * @param userID The ID of the friend.
  * @param username The username of the friend.
  * @param name The name of the friend.
- * @param friendsAt When you became friends.
+ * @param friendsAt When you became friends. This is undefined if they're not friends, or that wasn't the relation that was retrieved.
+ * @param theyFollowedAt When the retriever followed the user.
+ * @param youFollowedAt When you followed the user.
  */
-export type Friend = {
+export type Relation = {
     userID: string
     username: string
     name: string
-    friendsAt: number
+    friendsAt?: number
+    theyFollowedAt?: number
+    youFollowedAt?: number
 }

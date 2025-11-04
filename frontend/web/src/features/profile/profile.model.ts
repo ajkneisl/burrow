@@ -1,4 +1,4 @@
-import type { Friend, User } from "@features/auth/user.types.ts"
+import type { User } from "@features/auth/user.types.ts"
 import type { GroupMeeting } from "@features/groups/groups.types.ts"
 
 /**
@@ -46,6 +46,5 @@ export type UserResponse = {
  */
 export type RelationView = {
     title: string
-    func: (auth: string) => Promise<Friend[]>
-    queryKey: string
+    key: string
 }

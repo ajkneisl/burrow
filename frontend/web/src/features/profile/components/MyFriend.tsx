@@ -1,4 +1,4 @@
-import type { Friend } from "@features/auth/user.types.ts"
+import type { Relation } from "@features/auth/user.types.ts"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useNavigate } from "react-router"
 
@@ -6,7 +6,7 @@ import { useNavigate } from "react-router"
  * {@see MyFriend}
  */
 type MyFriendProps = {
-    friend: Friend
+    friend: Relation
 }
 
 /**

@@ -1,8 +1,10 @@
 import {
     type ButtonHTMLAttributes,
     type DetailedHTMLProps,
-    useMemo
+    useMemo,
+    useRef
 } from "react"
+import { useButton } from "react-aria"
 import clsx from "clsx"
 
 /**
@@ -15,7 +17,14 @@ import clsx from "clsx"
  */
 export type ButtonProps = {
     colors?: string
-    color?: "ERROR" | "WARNING" | "INFO" | "SUCCESS" | "PRIMARY" | "SECONDARY"
+    color?:
+        | "ERROR"
+        | "WARNING"
+        | "INFO"
+        | "SUCCESS"
+        | "PRIMARY"
+        | "SECONDARY"
+        | "LINK"
     thin?: boolean
     loading?: boolean
 } & Omit<
@@ -40,6 +49,28 @@ export default function Button({
     onClick,
     ...rest
 }: ButtonProps) {
+    const ref = useRef<HTMLButtonElement>(null)
+    const isDisabled = disabled || loading
+
+    const { buttonProps } = useButton(
+        {
+            onPress: onClick
+                ? () => {
+                      const syntheticEvent = {
+                          currentTarget: ref.current,
+                          target: ref.current
+                      } as any
+
+                      onClick(syntheticEvent)
+                  }
+                : undefined,
+            isDisabled,
+            type: rest.type,
+            elementType: "button"
+        },
+        ref
+    )
+
     const colorStyles = useMemo(() => {
         const make = (classes: string, opts?: { textOnGold?: boolean }) =>
             clsx(
@@ -73,6 +104,12 @@ export default function Button({
                 return make(
                     `focus-visible:ring-secondary border-secondary bg-secondary/80 hover:bg-secondary-hover/70`
                 )
+            case "LINK":
+                return clsx(
+                    "border-transparent bg-transparent text-text",
+                    "hover:underline",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                )
             default:
                 return clsx(
                     "border border-transparent",
@@ -83,26 +120,25 @@ export default function Button({
         }
     }, [color])
 
-    const isDisabled = disabled || loading
-
     return (
         <button
             {...rest}
-            onClick={onClick}
-            disabled={isDisabled}
-            aria-disabled={isDisabled}
+            {...buttonProps}
+            ref={ref}
             aria-busy={loading || undefined}
             className={clsx(
                 "cursor-pointer inline-flex select-none items-center justify-center gap-1 rounded-xl px-4",
                 thin ? "py-1" : "py-2",
-                "text-sm font-medium shadow-sm transition focus-visible:shadow-md",
+                "text-sm transition",
                 "disabled:cursor-not-allowed disabled:opacity-60",
+                color !== "LINK" && "font-medium shadow-sm focus-visible:shadow-md",
                 colors,
                 colorStyles,
                 className
             )}
         >
             {children}
+
             {loading && (
                 <svg
                     className="ms-2 h-4 w-4 animate-spin"

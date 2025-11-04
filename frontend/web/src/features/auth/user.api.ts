@@ -1,5 +1,5 @@
 import { BASE_URL } from "@api/util.ts"
-import type { AuthorizedUser, Friend } from "@features/auth/user.types.ts"
+import type { AuthorizedUser, Relation } from "@features/auth/user.types.ts"
 import type { UserResponse } from "@features/profile/profile.model.ts"
 
 /**
@@ -56,8 +56,17 @@ export async function login(credentials: string): Promise<AuthorizedUser> {
     return await request.json()
 }
 
-export async function getFriends(auth: string): Promise<Friend[]> {
-    const request = await fetch(`${BASE_URL}/user/friends`, {
+/**
+ * Get all relations.
+ *
+ * @param auth The authorization token.
+ * @param key The type of relation to retrieve.
+ */
+export async function getRelations(
+    auth: string,
+    key: string
+): Promise<Relation[]> {
+    const request = await fetch(`${BASE_URL}/user/relations/${key}`, {
         method: "GET",
         headers: {
             Authorization: `Bearer ${auth}`

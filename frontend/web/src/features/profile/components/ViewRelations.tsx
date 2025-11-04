@@ -7,7 +7,8 @@ import {
     isRelationsVisible,
     relationType
 } from "@features/profile/profile.atom.ts"
-import type { Friend } from "@features/auth/user.types.ts"
+import type { Relation } from "@features/auth/user.types.ts"
+import {getRelations} from "@features/auth/user.api.ts";
 
 /**
  * View a certain type of relation, like friends, followers, following.
@@ -22,10 +23,10 @@ export default function ViewRelations() {
     const [isOpen, setOpen] = useAtom(isRelationsVisible)
 
     // fetch the relatio
-    const { data, isLoading, isError } = useQuery<Friend[]>({
-        queryKey: [relation?.queryKey],
-        enabled: isOpen && auth !== null && relation?.func !== null,
-        queryFn: () => relation?.func(auth!) ?? []
+    const { data, isLoading, isError } = useQuery<Relation[]>({
+        queryKey: [relation?.key],
+        enabled: isOpen && auth !== null,
+        queryFn: () => getRelations(auth!, relation?.key ?? "friends") ?? []
     })
 
     if (!isOpen) return null

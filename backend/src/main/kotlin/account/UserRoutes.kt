@@ -9,8 +9,10 @@ import app.burrow.account.models.updateUsername
 import app.burrow.account.models.userID
 import app.burrow.account.models.validateUsername
 import app.burrow.account.profile.Profile
-import app.burrow.account.profile.findFriends
 import app.burrow.account.profile.followUser
+import app.burrow.account.profile.getFollowersRelations
+import app.burrow.account.profile.getFollowingRelations
+import app.burrow.account.profile.getFriends
 import app.burrow.account.profile.unFollowUser
 import app.burrow.account.profile.updateProfile
 import app.burrow.errors.InvalidAuthorization
@@ -54,11 +56,19 @@ val USER_ROUTES: Route.() -> Unit = {
             call.respond(getUserResponse(user.id, call.userID))
         }
 
-        // routes involving friends
-        route("/friends") {
-            get {
-                call.respond(findFriends(call.userID))
-            }
+        // routes involving followers / following
+        route("/relations") {
+            // GET /user/relations/friends
+            // retrieve all your friends.
+            get("/friends") { call.respond(getFriends(call.userID)) }
+
+            // GET /user/relations/following
+            // retrieve all the user's you're following
+            get("/following") { call.respond(getFollowingRelations(call.userID)) }
+
+            // GET /user/relations/followers
+            // retrieve all the user's that follow you
+            get("/followers") { call.respond(getFollowersRelations(call.userID)) }
         }
 
         // routes involving the profile

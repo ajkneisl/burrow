@@ -5,7 +5,7 @@ import useUser from "@features/auth/hooks/useUser.ts"
 import useProfile from "@features/auth/hooks/useProfile.ts"
 import { useQuery } from "@tanstack/react-query"
 import useToken from "@features/auth/hooks/useToken.ts"
-import { getFriends } from "@features/auth/user.api.ts"
+import { getRelations } from "@features/auth/user.api.ts"
 import { convertGraduationYear } from "@api/util.ts"
 import MyFriend from "@features/profile/components/MyFriend.tsx"
 import useRelations from "@features/profile/hooks/useRelations.ts"
@@ -92,7 +92,7 @@ export default function MyProfile() {
     const { data, isLoading, error, refetch } = useQuery({
         queryKey: ["friends"],
         enabled: auth !== null,
-        queryFn: async () => await getFriends(auth!)
+        queryFn: async () => await getRelations(auth!, "friends")
     })
 
     if (isLoading || !user || !profile) {

@@ -1,12 +1,12 @@
 export default function Privacy() {
     return (
-        <main className="min-h-screen bg-background text-text">
-            <section className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10">
+        <main className="bg-background text-text min-h-screen">
+            <section className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
                 <header className="mb-8">
-                    <h1 className="text-3xl font-extrabold tracking-tight text-secondary">
+                    <h1 className="text-secondary text-3xl font-extrabold tracking-tight">
                         Privacy Policy
                     </h1>
-                    <p className="mt-2 text-sm text-text/0.75">
+                    <p className="text-text/0.75 mt-2 text-sm">
                         <span className="font-medium">Effective:</span>{" "}
                         {"October 7, 2025"} &nbsp;•&nbsp;
                         <span className="font-medium">Last Updated:</span>{" "}
@@ -14,7 +14,7 @@ export default function Privacy() {
                     </p>
                 </header>
 
-                <div className="rounded-2xl border border-text/0.12 bg-background p-6 shadow-sm">
+                <div className="border-text/0.12 bg-background rounded-2xl border p-6 shadow-sm">
                     <p className="mb-6">
                         At <span className="font-semibold">Burrow (umn.app)</span>, your
                         privacy is important to us. This policy explains what we
@@ -23,10 +23,10 @@ export default function Privacy() {
 
                     {/* 1. Information We Collect */}
                     <section className="mb-6">
-                        <h2 className="text-xl font-bold text-secondary">
+                        <h2 className="text-secondary text-xl font-bold">
                             1. Information We Collect
                         </h2>
-                        <ul className="mt-3 list-disc pl-5 space-y-2">
+                        <ul className="mt-3 list-disc space-y-2 pl-5">
                             <li>
                                 <span className="font-medium">
                                     Google Sign-In:
@@ -57,10 +57,10 @@ export default function Privacy() {
 
                     {/* 2. How We Use Your Information */}
                     <section className="mb-6">
-                        <h2 className="text-xl font-bold text-secondary">
+                        <h2 className="text-secondary text-xl font-bold">
                             2. How We Use Your Information
                         </h2>
-                        <ul className="mt-3 list-disc pl-5 space-y-2">
+                        <ul className="mt-3 list-disc space-y-2 pl-5">
                             <li>Create and maintain your account.</li>
                             <li>
                                 Enable features that require authentication.
@@ -79,7 +79,7 @@ export default function Privacy() {
 
                     {/* 3. Data Storage and Security */}
                     <section className="mb-6">
-                        <h2 className="text-xl font-bold text-secondary">
+                        <h2 className="text-secondary text-xl font-bold">
                             3. Data Storage & Security
                         </h2>
                         <p className="mt-3">
@@ -91,7 +91,7 @@ export default function Privacy() {
 
                     {/* 4. Data Retention and Deletion */}
                     <section className="mb-6">
-                        <h2 className="text-xl font-bold text-secondary">
+                        <h2 className="text-secondary text-xl font-bold">
                             4. Data Retention & Deletion
                         </h2>
                         <p className="mt-3">
@@ -100,7 +100,7 @@ export default function Privacy() {
                             emailing{" "}
                             <a
                                 href="mailto:privacy@umn.app"
-                                className="underline text-info hover:text-info-hover"
+                                className="text-info hover:text-info-hover underline"
                             >
                                 privacy@umn.app
                             </a>
@@ -112,7 +112,7 @@ export default function Privacy() {
 
                     {/* 5. Third-Party Authentication */}
                     <section className="mb-6">
-                        <h2 className="text-xl font-bold text-secondary">
+                        <h2 className="text-secondary text-xl font-bold">
                             5. Third-Party Authentication
                         </h2>
                         <p className="mt-3">
@@ -125,10 +125,10 @@ export default function Privacy() {
 
                     {/* 6. Your Rights */}
                     <section className="mb-6">
-                        <h2 className="text-xl font-bold text-secondary">
+                        <h2 className="text-secondary text-xl font-bold">
                             6. Your Rights
                         </h2>
-                        <ul className="mt-3 list-disc pl-5 space-y-2">
+                        <ul className="mt-3 list-disc space-y-2 pl-5">
                             <li>
                                 Access the personal information we hold about
                                 you.
@@ -144,7 +144,7 @@ export default function Privacy() {
                             To exercise these rights, contact us at{" "}
                             <a
                                 href="mailto:privacy@umn.app"
-                                className="underline text-info hover:text-info-hover"
+                                className="text-info hover:text-info-hover underline"
                             >
                                 privacy@umn.app
                             </a>
@@ -154,7 +154,7 @@ export default function Privacy() {
 
                     {/* 7. Changes to This Policy */}
                     <section className="mb-6">
-                        <h2 className="text-xl font-bold text-secondary">
+                        <h2 className="text-secondary text-xl font-bold">
                             7. Changes to This Policy
                         </h2>
                         <p className="mt-3">
@@ -167,14 +167,14 @@ export default function Privacy() {
 
                     {/* 8. Contact */}
                     <section>
-                        <h2 className="text-xl font-bold text-secondary">
+                        <h2 className="text-secondary text-xl font-bold">
                             8. Contact Us
                         </h2>
                         <p className="mt-3">
                             Questions or requests? Email{" "}
                             <a
                                 href="mailto:privacy@umn.app"
-                                className="underline text-info hover:text-info-hover"
+                                className="text-info hover:text-info-hover underline"
                             >
                                 privacy@umn.app
                             </a>

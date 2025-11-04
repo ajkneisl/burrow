@@ -50,7 +50,7 @@ export default function HeaderDropdown() {
                 }
             />
 
-            <div className="absolute right-0 top-full">
+            <div className="absolute top-full right-0">
                 <Dropdown
                     className="mt-2"
                     btnRef={buttonRef}
@@ -109,7 +109,7 @@ export default function HeaderDropdown() {
 
                     {/* theme */}
                     <DropdownItem
-                        label={`Report a Problem`}
+                        label={`Feedback`}
                         onSelect={() => {
                             setProblemOpen((prev) => !prev)
                             setOpen(false)

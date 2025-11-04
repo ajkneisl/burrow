@@ -28,29 +28,27 @@ export default function Header() {
         <div className="relative">
             <header
                 className={clsx(
-                    "flex-col sticky top-0 z-50 w-full bg-primary text-text",
+                    "bg-primary text-text sticky top-0 z-50 w-full flex-col",
                     !open && "shadow-md"
                 )}
             >
-                <div className="w-full px-4 md:px-6 py-3 md:py-4 flex flex-row items-center justify-between gap-4">
+                <div className="flex w-full flex-row items-center justify-between gap-4 px-4 py-3 md:px-6 md:py-4">
                     {/* logo */}
                     <div
-                        className="flex flex-row items-center gap-3 cursor-pointer"
+                        className="flex cursor-pointer flex-row items-center justify-center gap-3"
                         onClick={() => nav("/")}
                     >
-                        <img
-                            src="/burrow.png"
-                            alt="Burrow Logo"
-                            className="bg-primary w-[48px] h-[48px] object-cover rounded-2xl"
-                        />
+                        <div className="relative -top-3 h-8 w-8">
+                            <div className="absolute inset-0 h-16 w-16 bg-[url('/burrow.png')] bg-contain bg-center bg-no-repeat" />
+                        </div>
 
-                        <h1 className="md:block hidden transition-colors text-3xl md:text-4xl text-secondary hover:text-secondary-hover font-extrabold figtree tracking-tight drop-shadow-sm underline-offset-4 hover:underline">
+                        <h1 className="text-secondary hover:text-secondary-hover figtree ml-6 hidden text-3xl font-extrabold tracking-tight underline-offset-4 drop-shadow-sm transition-colors hover:underline md:block md:text-4xl">
                             Burrow
                         </h1>
                     </div>
 
                     {/* Search Bar */}
-                    <div className="lg:flex hidden items-center justify-center">
+                    <div className="hidden items-center justify-center lg:flex">
                         {input}
                     </div>
 

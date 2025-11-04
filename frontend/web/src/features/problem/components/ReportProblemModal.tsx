@@ -79,11 +79,7 @@ export default function ReportProblemModal() {
     }
 
     return (
-        <Modal
-            open={open}
-            onClose={() => setOpen(false)}
-            title="ReportView a problem"
-        >
+        <Modal open={open} onClose={() => setOpen(false)} title="Feedback">
             <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
                     <div className="border-error/20 bg-error/5 text-error rounded-lg border px-3 py-2 text-sm">

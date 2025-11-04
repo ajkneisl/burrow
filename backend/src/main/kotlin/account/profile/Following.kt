@@ -16,7 +16,6 @@ import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
-import kotlin.text.get
 
 object Following : Table("following") {
     val follower = reference("follower_id", Users.id, onDelete = ReferenceOption.CASCADE)
@@ -103,10 +102,16 @@ suspend fun findMutuals(userID: String, otherUserID: String): Int = query {
 }
 
 @Serializable
-data class Friend(val userID: String, val username: String, val name: String, val friendsAt: Long)
+data class Relation(
+    val userID: String,
+    val username: String,
+    val name: String,
+    val friendsAt: Long?,
+    val youFollowedAt: Long?,
+    val theyFollowedAt: Long?,
+)
 
-suspend fun findFriends(userID: String): List<Friend> = query {
-    // Users that this user follows: followee -> when user followed them
+suspend fun getFriends(userID: String): List<Relation> = query {
     val followingMap: Map<String, Long> =
         Following.selectAll()
             .where { Following.follower eq userID }
@@ -140,16 +145,18 @@ suspend fun findFriends(userID: String): List<Friend> = query {
         .mapNotNull { id ->
             val row = byId[id] ?: return@mapNotNull null
             val friendsAt = kotlin.math.max(followingMap[id] ?: 0L, followersMap[id] ?: 0L)
-            Friend(
+
+            Relation(
                 userID = id,
                 username = row[Users.username],
                 name = row[Profiles.name],
                 friendsAt = friendsAt,
+                youFollowedAt = followingMap[id],
+                theyFollowedAt = followersMap[id],
             )
         }
         .sortedByDescending { it.friendsAt }
 }
-
 
 /** Check if [followerID] is following [followeeID]. */
 suspend fun isFollowing(followerID: String, followeeID: String): Boolean = query {
@@ -183,4 +190,82 @@ suspend fun unFollowUser(followerID: String, followeeID: String) = query {
     Following.deleteWhere {
         (Following.follower eq followerID) and (Following.followee eq followeeID)
     }
+}
+
+/**
+ * Get all follower [Relation]s of a [userID]
+ *
+ * @param userID The ID of the user to get the relations for.
+ */
+suspend fun getFollowersRelations(userID: String): List<Relation> = query {
+    val followersMap: Map<String, Long> =
+        Following.selectAll()
+            .where { Following.followee eq userID }
+            .map { it[Following.follower] to it[Following.createdAt] }
+            .toList()
+            .toMap()
+
+    if (followersMap.isEmpty()) return@query emptyList()
+
+    val userRows =
+        Users.innerJoin(Profiles, { Users.id }, { Profiles.userID })
+            .select(Users.id, Users.username, Profiles.name)
+            .where { Users.id inList followersMap.keys.toList() }
+            .toList()
+
+    val byId = userRows.associateBy({ it[Users.id] }, { it })
+
+    followersMap.keys
+        .mapNotNull { id ->
+            val row = byId[id] ?: return@mapNotNull null
+            val theyFollowedAt = followersMap[id] ?: 0L
+            Relation(
+                userID = id,
+                username = row[Users.username],
+                name = row[Profiles.name],
+                friendsAt = theyFollowedAt,
+                youFollowedAt = 0L,
+                theyFollowedAt = theyFollowedAt,
+            )
+        }
+        .sortedByDescending { it.friendsAt }
+}
+
+/**
+ * Get the [Relation]s for all users that [userID] is following.
+ *
+ * @param userID The user to find the relations for.
+ */
+suspend fun getFollowingRelations(userID: String): List<Relation> = query {
+    val followingMap: Map<String, Long> =
+        Following.selectAll()
+            .where { Following.follower eq userID }
+            .map { it[Following.followee] to it[Following.createdAt] }
+            .toList()
+            .toMap()
+
+    if (followingMap.isEmpty()) return@query emptyList()
+
+    val userRows =
+        Users.innerJoin(Profiles, { Users.id }, { Profiles.userID })
+            .select(Users.id, Users.username, Profiles.name)
+            .where { Users.id inList followingMap.keys.toList() }
+            .toList()
+
+    val byId = userRows.associateBy({ it[Users.id] }, { it })
+
+    followingMap.keys
+        .mapNotNull { id ->
+            val row = byId[id] ?: return@mapNotNull null
+            val youFollowedAt = followingMap[id] ?: 0L
+            Relation(
+                userID = id,
+                username = row[Users.username],
+                name = row[Profiles.name],
+                friendsAt = youFollowedAt,
+                youFollowedAt = youFollowedAt,
+                theyFollowedAt = 0L,
+            )
+        }
+        .sortedByDescending { it.friendsAt }
 }
