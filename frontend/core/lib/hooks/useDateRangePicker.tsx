@@ -31,6 +31,15 @@ export default function useDateRangePicker() {
 
     const tz = getLocalTimeZone()
 
+    // Calculate max allowed date (1 month from start date)
+    const maxDate = firstDate
+        ? (() => {
+              const max = new Date(firstDate)
+              max.setMonth(max.getMonth() + 1)
+              return toCalendarDate(fromDate(max, tz))
+          })()
+        : null
+
     return [
         firstDate?.valueOf(),
         lastDate?.valueOf(),
@@ -39,16 +48,27 @@ export default function useDateRangePicker() {
             className="rac-date-range"
             {...(firstDate && lastDate
                 ? {
-                    value: {
-                        start: toCalendarDate(fromDate(firstDate, tz)),
-                        end: toCalendarDate(fromDate(lastDate, tz))
-                    }
-                }
+                      value: {
+                          start: toCalendarDate(fromDate(firstDate, tz)),
+                          end: toCalendarDate(fromDate(lastDate, tz))
+                      }
+                  }
                 : {})}
             onChange={(range) => {
                 // range may be partial while the user is picking
                 const start = range?.start ? range.start.toDate(tz) : null
                 const end = range?.end ? range.end.toDate(tz) : null
+
+                if (start && end) {
+                    const maxEndDate = new Date(start)
+                    maxEndDate.setMonth(maxEndDate.getMonth() + 1)
+
+                    if (end.getTime() > maxEndDate.getTime()) {
+                        setFirstDate(start)
+                        setLastDate(maxEndDate)
+                        return
+                    }
+                }
 
                 setFirstDate(start)
                 setLastDate(end)
@@ -128,7 +148,11 @@ export default function useDateRangePicker() {
 
             <Popover className="border-text/10 bg-card z-50 mt-2 w-fit overflow-hidden rounded-xl border p-3 shadow-lg">
                 <Dialog className="outline-none">
-                    <RangeCalendar>
+                    <RangeCalendar
+                        isDateUnavailable={(date) =>
+                            maxDate ? date.compare(maxDate) > 0 : false
+                        }
+                    >
                         <div className="text-text mb-2 flex items-center justify-between">
                             <RaButton
                                 slot="previous"
@@ -163,12 +187,12 @@ export default function useDateRangePicker() {
                                     <CalendarCell
                                         date={date}
                                         className={({
-                                                        isSelected,
-                                                        isDisabled,
-                                                        isFocused,
-                                                        isSelectionEnd,
-                                                        isSelectionStart
-                                                    }) =>
+                                            isSelected,
+                                            isDisabled,
+                                            isFocused,
+                                            isSelectionEnd,
+                                            isSelectionStart
+                                        }) =>
                                             clsx(
                                                 "relative h-8 w-8 cursor-default text-center leading-8 outline-none select-none",
                                                 isDisabled
@@ -176,11 +200,11 @@ export default function useDateRangePicker() {
                                                     : "hover:bg-text/10",
                                                 isSelected && "bg-secondary/15",
                                                 isSelectionStart &&
-                                                "rounded-l-md bg-secondary/25",
+                                                    "rounded-l-md bg-secondary/25",
                                                 isSelectionEnd &&
-                                                "rounded-r-md bg-secondary/25",
+                                                    "rounded-r-md bg-secondary/25",
                                                 isFocused &&
-                                                "ring-2 ring-secondary/50"
+                                                    "ring-2 ring-secondary/50"
                                             )
                                         }
                                     />

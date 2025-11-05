@@ -49,7 +49,7 @@ export default function Hover({ content, children }: HoverProps) {
             <AriaTooltip
                 offset={6}
                 placement="top"
-                className="absolute z-50 whitespace-nowrap rounded-md bg-background px-2 py-1 text-xs text-base-100 shadow-md outline-none animate-in fade-in duration-150"
+                className="absolute z-50 whitespace-nowrap rounded-md bg-background px-2 py-1 text-xs text-text/70 shadow-md outline-none animate-in fade-in duration-150"
             >
                 {content}
             </AriaTooltip>

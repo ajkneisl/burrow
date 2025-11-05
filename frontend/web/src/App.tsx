@@ -1,6 +1,6 @@
 import HomeView from "@pages/Home.view.tsx"
 import Meeting from "@pages/Meeting.view.tsx"
-import AllMeetings from "@pages/AllMeetings.view.tsx"
+import Browse from "@pages/Browse.view.tsx"
 import LandingView from "@pages/Landing.view.tsx"
 import Header from "@features/layout/components/Header.tsx"
 import About from "@pages/About.tsx"
@@ -119,7 +119,7 @@ const router = createBrowserRouter([
             { index: true, element: <HomeView /> },
             { path: "about", element: <About /> },
             { path: "welcome", element: <LandingView /> },
-            { path: "study", element: <AllMeetings type="STUDY" /> },
+            { path: "study", element: <Browse type="STUDY" /> },
             { path: "user/:username", element: <ProfileView /> },
             { path: "privacy", element: <Privacy /> },
             { path: "tos", element: <ToS /> },

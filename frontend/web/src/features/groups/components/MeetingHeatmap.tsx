@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import useToken from "@features/auth/hooks/useToken.ts"
 import { BASE_URL } from "@api/util.ts"
 import { Card, Hover } from "@umnburrow/core"
+import clsx from "clsx"
 
 type MonthCounts = Record<number, number>
 type HeatmapData = Record<string, MonthCounts> // { "YYYY-MM": { day: count } }
@@ -48,14 +49,36 @@ function findClass(value: number, max: number): string {
 }
 
 /**
- * Compute thresholds for the legend using the same logic as findClass.
+ * Generate unique legend steps for the heatmap.
+ * Returns an array of { label, value } objects without duplicates.
  */
-function legendThresholds(max: number): { q1: number; q2: number; q3: number } {
-    if (max <= 1) return { q1: 1, q2: 1, q3: 1 }
+function generateLegendSteps(max: number): Array<{ label: string; value: number }> {
+    if (max === 0) {
+        return [{ label: "0 Burrows", value: 0 }]
+    }
+
+    if (max === 1) {
+        return [
+            { label: "0 Burrows", value: 0 },
+            { label: "1 Burrow", value: 1 }
+        ]
+    }
+
     const q1 = Math.max(1, Math.ceil(max * 0.25))
     const q2 = Math.max(2, Math.ceil(max * 0.5))
     const q3 = Math.max(3, Math.ceil(max * 0.75))
-    return { q1, q2, q3 }
+
+    // Collect all unique values in order
+    const values = Array.from(new Set([0, q1, q2, q3, max])).sort((a, b) => a - b)
+
+    return values.map((val) => ({
+        label: val === 0
+            ? "0 Burrows"
+            : val === max
+              ? `${val} Burrow${val === 1 ? "" : "s"}`
+              : `${val} Burrow${val === 1 ? "" : "s"}`,
+        value: val
+    }))
 }
 
 /**
@@ -204,132 +227,128 @@ export default function MeetingHeatmap({ range = 0, onSelectDate }: { range?: nu
 
     return (
         <Card>
-            <div className="flex md:flex-col flex-row justify-evenly gap-6">
+            <div className="flex flex-row justify-evenly gap-6 md:flex-col">
                 {months.map((m) => (
                     <div
                         key={m.key}
                         className="flex flex-col items-center gap-3"
                     >
-                        <div className="flex flex-col items-baseline justify-between">
-                            <h3 className="text-lg font-semibold">
-                                {m.label.monthName} {m.label.year}
-                            </h3>
-                        </div>
+                        <h3 className="text-lg font-semibold">
+                            {m.label.monthName} {m.label.year}
+                        </h3>
 
                         <div className="flex items-start gap-4">
-                        {isLoading ? (
-                            <div
-                                className="grid gap-1"
-                                style={{
-                                    gridTemplateRows: `repeat(${m.weeks.length}, 1rem)`
-                                }}
-                            >
-                                {m.weeks.map((week, wi) => (
-                                    <div
-                                        key={`s-${m.key}-${wi}`}
-                                        className="grid grid-cols-7 gap-1"
-                                    >
-                                        {week.days.map((day, di) => (
-                                            <div
-                                                key={`s-${m.key}-${wi}-${di}`}
-                                                className={`h-4 w-4 rounded-sm ${day.inMonth ? "bg-background animate-pulse" : "bg-base-300"}`}
-                                            />
-                                        ))}
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div
-                                className="grid gap-1"
-                                style={{
-                                    gridTemplateRows: `repeat(${m.weeks.length}, 1rem)`
-                                }}
-                            >
-                                {m.weeks.map((week, wi) => (
-                                    <div
-                                        key={`w-${m.key}-${wi}`}
-                                        className="grid grid-cols-7 gap-1"
-                                    >
-                                        {week.days.map((day, di) => {
-                                            if (day.inMonth) {
-                                                const cls = findClass(
-                                                    day.count,
-                                                    m.max
-                                                )
-                                                const text = `${day.count ?? 0} Burrow${(day.count ?? 0) === 1 ? "" : "s"} on ${m.label.monthName} ${day.day}`
+                            {isLoading ? (
+                                <div
+                                    className="grid gap-1"
+                                    style={{
+                                        gridTemplateRows: `repeat(${m.weeks.length}, 1rem)`
+                                    }}
+                                >
+                                    {m.weeks.map((week, wi) => (
+                                        <div
+                                            key={`loading-${m.key}-${wi}`}
+                                            className="grid grid-cols-7 gap-1"
+                                        >
+                                            {week.days.map((day, di) => (
+                                                <div
+                                                    key={`loading-day-${di}`}
+                                                    className={clsx(
+                                                        "h-4 w-4 rounded-sm",
+                                                        day.inMonth
+                                                            ? "bg-background animate-pulse"
+                                                            : "bg-base-300"
+                                                    )}
+                                                />
+                                            ))}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div
+                                    className="grid gap-1"
+                                    style={{
+                                        gridTemplateRows: `repeat(${m.weeks.length}, 1rem)`
+                                    }}
+                                >
+                                    {m.weeks.map((week, wi) => (
+                                        <div
+                                            key={`week-${m.key}-${wi}`}
+                                            className="grid grid-cols-7 gap-1"
+                                        >
+                                            {week.days.map((day, di) => {
+                                                if (!day.inMonth) {
+                                                    return (
+                                                        <div
+                                                            key={`empty-${di}`}
+                                                            className="bg-base-300 h-4 w-4 rounded-sm"
+                                                            aria-hidden="true"
+                                                        />
+                                                    )
+                                                }
+
+                                                const colorClass = findClass(day.count, m.max)
+                                                const tooltipText = `${day.count} Burrow${day.count === 1 ? "" : "s"} on ${m.label.monthName} ${day.day}`
+
                                                 return (
                                                     <Hover
-                                                        key={`d-${m.key}-${wi}-${di}`}
-                                                        content={text}
+                                                        key={`day-${di}`}
+                                                        content={tooltipText}
                                                     >
                                                         <div
                                                             role="button"
                                                             tabIndex={0}
                                                             onClick={() => onSelectDate?.(day.date)}
                                                             onKeyDown={(e) => {
-                                                                if (e.key === "Enter" || e.key === " ") {
+                                                                if (
+                                                                    e.key === "Enter" ||
+                                                                    e.key === " "
+                                                                ) {
                                                                     e.preventDefault()
                                                                     onSelectDate?.(day.date)
                                                                 }
                                                             }}
-                                                            className={`h-4 w-4 rounded-sm ${cls} cursor-pointer focus:outline-none focus:ring-2 focus:ring-secondary/60`}
-                                                            aria-label={text}
-                                                            title={text}
+                                                            className={clsx(
+                                                                "h-4 w-4 cursor-pointer rounded-sm",
+                                                                "focus:ring-secondary/60 focus:ring-2 focus:outline-none",
+                                                                colorClass
+                                                            )}
+                                                            aria-label={tooltipText}
                                                         />
                                                     </Hover>
                                                 )
-                                            }
-                                            return (
-                                                <div
-                                                    key={`o-${m.key}-${wi}-${di}`}
-                                                    className="h-4 w-4 rounded-sm bg-base-300"
-                                                    aria-hidden="true"
-                                                />
-                                            )
-                                        })}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        {/* Legend (right of heatmap) */}
-                        <div className="flex flex-col items-start text-xs text-muted-foreground min-w-[8rem]">
-                            {m.max === 0 ? (
-                                // No Burrows this month: show only one dark swatch labeled "0 Burrows"
-                                <div className="flex items-center gap-2">
-                                    <div className="h-3 w-3 rounded-sm bg-secondary" />
-                                    <span>0 Burrows</span>
-                                </div>
-                            ) : (
-                                (() => {
-                                    const { q1, q2, q3 } = legendThresholds(m.max)
-                                    const steps = [
-                                        { label: "0 Burrows", val: 0 },
-                                        { label: `≤${q1} Burrows`, val: q1 },
-                                        { label: `≤${q2} Burrows`, val: q2 },
-                                        { label: `≤${q3} Burrows`, val: q3 },
-                                        { label: `${m.max} Burrows`, val: Math.max(1, m.max) }
-                                    ]
-                                    return (
-                                        <div className="flex flex-col gap-2">
-                                            {steps.map((s, i) => {
-                                                const cls = findClass(s.val, m.max)
-                                                return (
-                                                    <div key={i} className="flex items-center gap-2">
-                                                        <div className={`h-3 w-3 rounded-sm ${cls}`} />
-                                                        <span>{s.label}</span>
-                                                    </div>
-                                                )
                                             })}
                                         </div>
-                                    )
-                                })()
+                                    ))}
+                                </div>
                             )}
-                        </div>
+                            {/* Legend (right of heatmap) */}
+                            <div className="text-muted-foreground flex min-w-[8rem] flex-col items-start text-xs">
+                                <div className="flex flex-col gap-2">
+                                    {generateLegendSteps(m.max).map((step) => {
+                                        const cls = findClass(step.value, m.max)
+                                        return (
+                                            <div
+                                                key={step.value}
+                                                className="flex items-center gap-2"
+                                            >
+                                                <div
+                                                    className={clsx(
+                                                        "h-3 w-3 rounded-sm",
+                                                        cls
+                                                    )}
+                                                />
+                                                <span>{step.label}</span>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 ))}
                 {error && (
-                    <div className="text-sm text-error">
+                    <div className="text-error text-sm">
                         Failed to load heatmap.
                     </div>
                 )}
