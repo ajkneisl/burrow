@@ -17,6 +17,7 @@ import EditProfile from "@features/profile/components/EditProfile.tsx"
 import type { GroupMeetingResponse } from "@features/groups/groups.types.ts"
 import { convertGraduationYear } from "@api/util.ts"
 import Relations from "@features/profile/components/Relations.tsx"
+import useMetaTags from "@api/useMetaTags.ts"
 
 /**
  * The view of a profile.
@@ -94,6 +95,16 @@ export default function ProfileView() {
                     !(data.following?.youFollow && data.following?.theyFollow)))
         )
     }, [data, user])
+
+    // Set meta tags for this profile
+    useMetaTags({
+        title: data ? `${data.profile.name} on Burrow` : "Profile on Burrow",
+        description: data
+            ? `View ${data.profile.name}'s profile on Burrow`
+            : "View this profile on Burrow",
+        url: `https://umn.app/user/${username}`,
+        image: "https://umn.app/burrow.png"
+    })
 
     // when loading
     if (isLoading) {

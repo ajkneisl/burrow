@@ -3,13 +3,12 @@ package app.burrow
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
 import app.burrow.account.Users
+import app.burrow.account.models.getUserByID
 import app.burrow.account.profile.Profiles
 import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.errors.ServerError
 import app.burrow.groups.GROUP_ROUTES
-import app.burrow.groups.models.GroupType
-import app.burrow.groups.models.SubmittedGroupMeeting
-import app.burrow.groups.models.createGroupMeeting
+import app.burrow.groups.models.getMeeting
 import app.burrow.groups.models.getMeetingResponse
 import app.burrow.groups.sync.Sync
 import app.burrow.notifications.NOTIFICATION_ROUTES
@@ -40,6 +39,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.ktor.server.websocket.*
+import java.io.File
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
@@ -61,6 +61,8 @@ val burrowLogger = LoggerFactory.getLogger("Burrow")
 const val PRIMARY_AUTH = "primary"
 const val ADMIN_AUTH = "administrator"
 
+lateinit var FRONTEND_DIR: String
+
 fun main(args: Array<String>) {
     // debug stuff
     args.forEach { arg ->
@@ -70,7 +72,17 @@ fun main(args: Array<String>) {
 
                 burrowLogger.info("Generated Token: {}", Authorization.generateToken(userId))
             }
+
+            arg.startsWith("--use-frontend=") -> {
+                FRONTEND_DIR = arg.removePrefix("--use-frontend=")
+
+                burrowLogger.info("Using frontend: {}", FRONTEND_DIR)
+            }
         }
+    }
+
+    if (!::FRONTEND_DIR.isInitialized) {
+        FRONTEND_DIR = "frontend"
     }
 
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
@@ -209,8 +221,6 @@ suspend fun Application.module() {
         routing {
             route("/admin") { singlePageApplication { react("admin") } }
 
-            singlePageApplication { react("frontend") }
-
             route("/api") {
                 route("/admin", ADMIN_ROUTES)
 
@@ -239,6 +249,65 @@ suspend fun Application.module() {
                     route("/groups", GROUP_ROUTES)
                     route("/report", REPORT_ROUTES)
                 }
+            }
+
+            val baseHtml =
+                runCatching { File("${FRONTEND_DIR}/index.html").readText() }.getOrNull()
+                    ?: "hello!"
+
+            val defaultMeta =
+                MetaTags(
+                    title = "Burrow — Study Together @ UMN",
+                    description =
+                        "Host and discover your next study group. Learn better with Burrow.",
+                    image = "/image/burrow.png",
+                )
+
+            staticFiles("/assets", File("$FRONTEND_DIR/assets"))
+            staticFiles("/image", File("$FRONTEND_DIR/image"))
+
+            // GET /*
+            // retrieve the frontend and inject SEO information
+            get("{...}") {
+                val path = call.request.uri
+
+                // retrieve the meta depending on the URI
+                val metaTags =
+                    when {
+                        // when they're requesting a meeting page
+                        path.startsWith("/meeting/") || path.length == 9 -> {
+                            val burrowID =
+                                if (path.length == 9) path.removePrefix("/")
+                                else path.removePrefix("/meeting/")
+
+                            val burrow = getMeeting(burrowID)
+
+                            defaultMeta.copy(
+                                title = burrow?.title ?: defaultMeta.title,
+                                description = burrow?.description ?: defaultMeta.description,
+                                url = "https://umn.app$path",
+                            )
+                        }
+
+                        // when they're requesting a user page
+                        path.startsWith("/user/") -> {
+                            val user =
+                                path.removePrefix("/user/").split("/").firstOrNull()?.let {
+                                    getUserByID(it)
+                                }
+
+                            defaultMeta.copy(
+                                title = "${user?.username} on Burrow",
+                                description = "View ${user?.username}'s profile on Burrow",
+                                url = "https://umn.app$path",
+                            )
+                        }
+
+                        else -> defaultMeta.copy(url = "https://umn.app$path")
+                    }
+
+                val htmlWithMeta = injectMetaTags(baseHtml, metaTags)
+                call.respondText(htmlWithMeta, ContentType.Text.Html)
             }
         }
     } catch (t: Throwable) {

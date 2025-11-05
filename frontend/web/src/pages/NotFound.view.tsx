@@ -25,7 +25,7 @@ export default function NotFound() {
                 <div className="relative overflow-hidden bg-card rounded-2xl border border-card-border p-8 shadow-sm">
                     {/* Watermark gopher behind content */}
                     <img
-                        src="/not_found.jpg"
+                        src="/image/not_found.jpg"
                         className="rounded-lg mb-4 grayscale"
                         aria-hidden
                         draggable={false}

@@ -20,6 +20,7 @@ import { MeetingFeatures } from "@features/sync/components/MeetingFeatures.tsx"
 import useToken from "@features/auth/hooks/useToken.ts"
 import { blockStatus } from "@features/sync/sync.atom.ts"
 import { Badge, Card, Hover } from "@umnburrow/core"
+import useMetaTags from "@api/useMetaTags.ts"
 
 /**
  * View an individual meeting.
@@ -62,14 +63,22 @@ export default function Meeting() {
     // if the user isn't logged in
     const isLoggedOut = useMemo(() => auth === null, [auth])
 
+    // Set meta tags for this meeting
+    useMetaTags({
+        title: data?.meeting?.title,
+        description: data?.meeting.description || undefined,
+        url: `https://umn.app/${id}`,
+        image: "https://umn.app/burrow.png"
+    })
+
     if (isLoading)
         return (
-            <main className="min-h-screen bg-card-background/70 animate-pulse px-4 py-8 md:px-8">
+            <main className="bg-card-background/70 min-h-screen animate-pulse px-4 py-8 md:px-8">
                 <div className="space-y-4">
-                    <div className="h-10 w-2/3 rounded-lg bg-text/10" />
+                    <div className="bg-text/10 h-10 w-2/3 rounded-lg" />
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                        <div className="h-64 rounded-2xl bg-text/10" />
-                        <div className="h-64 rounded-2xl bg-text/10 lg:col-span-2" />
+                        <div className="bg-text/10 h-64 rounded-2xl" />
+                        <div className="bg-text/10 h-64 rounded-2xl lg:col-span-2" />
                     </div>
                 </div>
             </main>
@@ -77,10 +86,10 @@ export default function Meeting() {
 
     if (error || !data || !id)
         return (
-            <main className="min-h-screen bg-background text-text px-4 py-8 md:px-8">
+            <main className="bg-background text-text min-h-screen px-4 py-8 md:px-8">
                 <div
                     role="alert"
-                    className="rounded-md border border-error/30 bg-error/10 p-4 text-sm text-error"
+                    className="border-error/30 bg-error/10 text-error rounded-md border p-4 text-sm"
                 >
                     Error loading meeting.
                 </div>
@@ -95,13 +104,13 @@ export default function Meeting() {
         <main className="min-h-screen">
             {/* memo to join burrow */}
             {isLoggedOut && (
-                <div className="w-full text-text bg-primary shadow-md py-3 px-4 text-center rounded-2xl mt-4">
-                    <p className="text-sm sm:text-base font-medium">
+                <div className="text-text bg-primary mt-4 w-full rounded-2xl px-4 py-3 text-center shadow-md">
+                    <p className="text-sm font-medium sm:text-base">
                         Interested in this Burrow?
                         <br />
                         <Link
                             to="/welcome"
-                            className="mt-4 hover:text-text/40 underline underline-offset-4 font-semibold transition-colors"
+                            className="hover:text-text/40 mt-4 font-semibold underline underline-offset-4 transition-colors"
                         >
                             Join Burrow Today
                         </Link>
@@ -110,7 +119,7 @@ export default function Meeting() {
             )}
 
             <section className="relative isolate">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+                <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         <div className="lg:col-span-2">
                             <Card className="relative p-6">
@@ -123,7 +132,7 @@ export default function Meeting() {
                                                     "You may not edit or interact with this meeting."
                                                 }
                                             >
-                                                <div className="cursor-pointer mt-2 inline-flex items-center gap-2 rounded-md bg-text/10 px-3 py-1 text-sm font-medium text-text/80">
+                                                <div className="bg-text/10 text-text/80 mt-2 inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-1 text-sm font-medium">
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"
                                                         fill="none"
@@ -146,12 +155,12 @@ export default function Meeting() {
                                         )}
 
                                         {/* title*/}
-                                        <h1 className="mt-3 truncate text-2xl font-bold tracking-tight text-text md:text-3xl">
+                                        <h1 className="text-text mt-3 truncate text-2xl font-bold tracking-tight md:text-3xl">
                                             {meeting.title}
                                         </h1>
 
                                         {/* date */}
-                                        <p className="mt-1 text-sm text-text/70">
+                                        <p className="text-text/70 mt-1 text-sm">
                                             {formatDateTime(
                                                 meeting.beginningTime,
                                                 meeting.endTime
@@ -159,9 +168,9 @@ export default function Meeting() {
                                         </p>
 
                                         {/* host / author */}
-                                        <p className="mb-2 mt-1 text-sm text-text/60">
+                                        <p className="text-text/60 mt-1 mb-2 text-sm">
                                             Hosted by{" "}
-                                            <span className="font-medium text-text/80">
+                                            <span className="text-text/80 font-medium">
                                                 {meetingAuthor}
                                             </span>
                                         </p>
@@ -195,7 +204,7 @@ export default function Meeting() {
                                 </div>
 
                                 {/* user count badges */}
-                                <div className="pointer-events-none absolute bottom-4 right-4 flex gap-2">
+                                <div className="pointer-events-none absolute right-4 bottom-4 flex gap-2">
                                     <MeetingCapacityBadges meeting={meeting} />
                                 </div>
                             </Card>
@@ -205,7 +214,7 @@ export default function Meeting() {
                             )}
                         </div>
 
-                        <div className="lg:col-span-1 space-y-6">
+                        <div className="space-y-6 lg:col-span-1">
                             <div className="flex flex-row gap-2">
                                 {isOwner ? (
                                     <>

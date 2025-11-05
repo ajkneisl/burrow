@@ -26,6 +26,7 @@ import {
     useRouteError
 } from "react-router"
 import ViewRelations from "@features/profile/components/ViewRelations.tsx"
+import MetaTags from "@components/MetaTags.tsx"
 
 function ErrorElement() {
     const error = useRouteError() as Error | undefined
@@ -70,6 +71,9 @@ function RootLayout() {
 
     return (
         <div className="gopher-stand text-text flex min-h-screen w-full flex-col bg-transparent transition-colors duration-300">
+            {/* Centralized meta tags - updated via useMetaTags hook in pages */}
+            <MetaTags />
+
             {/* don't show header on welcome */}
             {window.location.pathname !== "/welcome" && <Header />}
 

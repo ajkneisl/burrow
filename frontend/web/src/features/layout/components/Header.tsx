@@ -39,7 +39,7 @@ export default function Header() {
                         onClick={() => nav("/")}
                     >
                         <div className="relative -top-3 h-8 w-8">
-                            <div className="absolute inset-0 h-16 w-16 bg-[url('/burrow.png')] bg-contain bg-center bg-no-repeat" />
+                            <div className="absolute inset-0 h-16 w-16 bg-[url('/image/burrow.png')] bg-contain bg-center bg-no-repeat" />
                         </div>
 
                         <h1 className="text-secondary hover:text-secondary-hover figtree ml-6 hidden text-3xl font-extrabold tracking-tight underline-offset-4 drop-shadow-sm transition-colors hover:underline md:block md:text-4xl">
