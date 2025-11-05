@@ -18,6 +18,7 @@ import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -40,7 +41,7 @@ import org.jetbrains.exposed.v1.r2dbc.update
 data class User(
     val id: String,
     val username: String,
-    val email: String,
+    @Transient val email: String = "",
     val phoneNumber: String,
     val createdDate: Long,
 ) {

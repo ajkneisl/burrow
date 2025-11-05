@@ -20,7 +20,7 @@ import { MeetingFeatures } from "@features/sync/components/MeetingFeatures.tsx"
 import useToken from "@features/auth/hooks/useToken.ts"
 import { blockStatus } from "@features/sync/sync.atom.ts"
 import { Badge, Card, Hover } from "@umnburrow/core"
-import useMetaTags from "@api/useMetaTags.ts"
+import useMetaTags from "@features/layout/useMetaTags.ts"
 
 /**
  * View an individual meeting.

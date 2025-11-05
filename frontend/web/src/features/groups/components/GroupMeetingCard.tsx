@@ -43,6 +43,27 @@ export function GroupMeetingCard({
         [meetingResponse?.membership?.status]
     )
 
+    const tags: Record<string, boolean> = useMemo(() => {
+        const highlightedSet = new Set(meetingResponse.highlightedTags)
+        const tags: Record<string, boolean> = {}
+
+        // Add highlighted tags first
+        meetingResponse.meeting.tags.forEach((tag, index) => {
+            if (highlightedSet.has(index)) {
+                tags[tag] = true
+            }
+        })
+
+        // Then add non-highlighted tags
+        meetingResponse.meeting.tags.forEach((tag, index) => {
+            if (!highlightedSet.has(index)) {
+                tags[tag] = false
+            }
+        })
+
+        return tags
+    }, [meetingResponse.highlightedTags, meetingResponse.meeting.tags])
+
     // navigate to the club page :)
     const onClick = () => {
         nav(`/meeting/${meeting.id}`)
@@ -186,8 +207,14 @@ export function GroupMeetingCard({
                         {/* the profile picture */}
                         <div className="flex-shrink-0 self-start">
                             <ProfilePicture
-                                name="AJ Kneis"
-                                userID="123"
+                                name={
+                                    meetingResponse.meetingAuthorProfile
+                                        ?.name ?? ""
+                                }
+                                userID={
+                                    meetingResponse.meetingAuthorProfile
+                                        ?.userID ?? ""
+                                }
                                 size="sm"
                             />
                         </div>
@@ -198,11 +225,13 @@ export function GroupMeetingCard({
                 {!details ? (
                     <div className="flex flex-row items-center justify-between">
                         <div className="flex flex-row flex-wrap gap-1.5 pt-1">
-                            {meeting.tags.slice(0, 2).map((tag: string) => (
-                                <Badge size="medium" key={tag}>
-                                    {tag}
-                                </Badge>
-                            ))}
+                            {Object.keys(tags)
+                                .slice(0, 2)
+                                .map((tag: string) => (
+                                    <Badge size="medium" highlighted={tags[tag]} key={tag}>
+                                        {tag}
+                                    </Badge>
+                                ))}
                         </div>
 
                         {isJoined && (
@@ -232,13 +261,13 @@ export function GroupMeetingCard({
 
                         {/* location / counts */}
                         <div className="flex items-center gap-3 text-sm">
-                            <div className="sm:flex hidden items-center gap-1 rounded-full bg-hero px-3 py-1 text-sm font-medium text-text/80 ring-1 ring-inset ring-primary/15">
+                            <div className="bg-hero text-text/80 ring-primary/15 hidden items-center gap-1 rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset sm:flex">
                                 {/* location pin icon */}
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
                                     fill="currentColor"
-                                    className="h-4 w-4 shrink-0 text-text/60"
+                                    className="text-text/60 h-4 w-4 shrink-0"
                                     aria-hidden="true"
                                     focusable="false"
                                 >

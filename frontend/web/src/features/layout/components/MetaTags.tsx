@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet"
 import { useAtomValue } from "jotai"
-import { metaTagsAtom } from "@api/meta.atom.ts"
+import { metaTagsAtom } from "@features/layout/meta.atom.ts"
 
 /**
  * MetaTags component for injecting SEO meta tags into the page.

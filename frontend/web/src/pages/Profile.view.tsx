@@ -17,7 +17,7 @@ import EditProfile from "@features/profile/components/EditProfile.tsx"
 import type { GroupMeetingResponse } from "@features/groups/groups.types.ts"
 import { convertGraduationYear } from "@api/util.ts"
 import Relations from "@features/profile/components/Relations.tsx"
-import useMetaTags from "@api/useMetaTags.ts"
+import useMetaTags from "@features/layout/useMetaTags.ts"
 
 /**
  * The view of a profile.

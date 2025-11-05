@@ -88,6 +88,8 @@ export interface MeetingMembershipResponse {
 export interface GroupMeetingResponse {
     meeting: GroupMeeting
     meetingAuthor?: string
+    meetingAuthorProfile?: Profile
     membership?: MeetingMembership
     bookmarked: boolean
+    highlightedTags: number[]
 }

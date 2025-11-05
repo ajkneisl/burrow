@@ -1,6 +1,7 @@
 package app.burrow.groups.models
 
 import app.burrow.account.Users
+import app.burrow.account.profile.getProfile
 import app.burrow.groups.Meetings
 import app.burrow.groups.bookmarks.Bookmark
 import app.burrow.groups.bookmarks.getBookmarks
@@ -267,17 +268,18 @@ private suspend fun aggregateMeetings(
 }
 
 /**
- * Implement [Bookmark] and [Membership] into a list of [GroupMeetingResponse].
+ * Implement [Bookmark], [Membership], and [GroupMeetingResponse.highlightedTags] into a list of
+ * [GroupMeetingResponse].
  *
- * @param userId The ID of the user to implement.
+ * @param userID The ID of the user to implement.
  * @param forceAuthorName Force the author name.
  * @return A list of [GroupMeetingResponse]
  */
 private suspend fun Map<GroupMeeting, String>.toResponses(
-    userId: String?,
+    userID: String?,
     forceAuthorName: String? = null,
 ): List<GroupMeetingResponse> {
-    return if (userId == null)
+    return if (userID == null)
         map { (meeting, author) ->
             GroupMeetingResponse(
                 meeting = meeting,
@@ -287,15 +289,30 @@ private suspend fun Map<GroupMeeting, String>.toResponses(
             )
         }
     else {
-        val userMemberships = getMemberships(userId)
-        val userBookmarks = getBookmarks(userId)
+        val userProfile = getProfile(userID)
+        val userMemberships = getMemberships(userID)
+        val userBookmarks = getBookmarks(userID)
 
         return map { (meeting, author) ->
+            val highlightedTags = buildList {
+                meeting.tags.forEachIndexed { index, tag ->
+                    val normalizedTag = tag.replace(Regex("[\\s_-]"), "").lowercase()
+
+                    userProfile
+                        ?.classes
+                        ?.map { className -> className.replace(Regex("[\\s_-]"), "").lowercase() }
+                        ?.filter { className -> className == normalizedTag }
+                        ?.forEach { _ -> add(index) }
+                }
+            }
+
             GroupMeetingResponse(
                 meeting = meeting,
                 meetingAuthor = forceAuthorName ?: author,
+                meetingAuthorProfile = userProfile,
                 membership = userMemberships[meeting.id],
                 bookmarked = userBookmarks.containsKey(meeting.id),
+                highlightedTags = highlightedTags,
             )
         }
     }

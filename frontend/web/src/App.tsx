@@ -26,7 +26,7 @@ import {
     useRouteError
 } from "react-router"
 import ViewRelations from "@features/profile/components/ViewRelations.tsx"
-import MetaTags from "@components/MetaTags.tsx"
+import MetaTags from "@features/layout/components/MetaTags.tsx"
 
 function ErrorElement() {
     const error = useRouteError() as Error | undefined

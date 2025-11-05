@@ -134,16 +134,6 @@ export default function StudyGroupModal({
         }
     }
 
-    // leave when pressing escape
-    useEffect(() => {
-        function onKey(e: KeyboardEvent) {
-            if (e.key === "Escape") onClose()
-        }
-
-        if (open) window.addEventListener("keydown", onKey)
-        return () => window.removeEventListener("keydown", onKey)
-    }, [open, onClose])
-
     // pre validate before server
     function validateInput(): boolean {
         const next: Record<string, string> = {}
@@ -231,20 +221,35 @@ export default function StudyGroupModal({
         ])
     }
 
+    // to be honest, this is kinda cheap.
+    // the submit button got moved out the form eventually, so this is a workaround.
+    function onClickSubmit() {
+        const form = document.getElementById("study-form") as HTMLFormElement
+
+        form.requestSubmit()
+    }
+
     return (
         <Modal
             open={open}
             onClose={onClose}
             title={
                 modalTitle ??
-                (mode === "update" ? "Update Study Group" : "Create a Study Group")
+                (mode === "update"
+                    ? "Update Study Group"
+                    : "Create a Study Group")
             }
             footer={
                 <div className="flex items-center justify-end gap-3">
                     <Button color="ERROR" type="button" onClick={onClose}>
                         Cancel
                     </Button>
-                    <Button color="SUCCESS" type="submit" form="study-form">
+
+                    <Button
+                        color="SUCCESS"
+                        type="submit"
+                        onClick={onClickSubmit}
+                    >
                         {mode === "update" ? "Save Changes" : "Create"}
                     </Button>
                 </div>
@@ -255,8 +260,10 @@ export default function StudyGroupModal({
                 {/* errors.. uh oh! */}
                 {serverErrors.length > 0 && (
                     <div className="mx-0 mt-0 mb-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">
-                        <p className="font-medium mb-1">Please fix the following:</p>
-                        <ul className="list-disc pl-5 space-y-1">
+                        <p className="mb-1 font-medium">
+                            Please fix the following:
+                        </p>
+                        <ul className="list-disc space-y-1 pl-5">
                             {serverErrors.map((err, i) => (
                                 <li key={i}>{err}</li>
                             ))}
@@ -264,7 +271,7 @@ export default function StudyGroupModal({
                     </div>
                 )}
 
-                <p className="mt-0.5 mb-4 text-sm leading-6 text-text/60">
+                <p className="text-text/60 mt-0.5 mb-4 text-sm leading-6">
                     {mode === "update"
                         ? "Modify the details below and save your changes."
                         : "Fill details below and publish your meeting."}
@@ -272,7 +279,11 @@ export default function StudyGroupModal({
 
                 <div className="grid gap-6 md:grid-cols-2">
                     {/* title of the session */}
-                    <Field label="Title" error={errors.title} className="min-w-0">
+                    <Field
+                        label="Title"
+                        error={errors.title}
+                        className="min-w-0"
+                    >
                         <Input
                             ref={firstFieldRef}
                             value={title}
@@ -318,7 +329,10 @@ export default function StudyGroupModal({
                     </Field>
 
                     {/* description */}
-                    <Field label="Description" className="md:col-span-2 min-w-0">
+                    <Field
+                        label="Description"
+                        className="min-w-0 md:col-span-2"
+                    >
                         <TextArea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
@@ -337,9 +351,13 @@ export default function StudyGroupModal({
                     </Field>
 
                     {/* time */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                         {/* start */}
-                        <Field label="Start" error={errors.startTime} className="min-w-0">
+                        <Field
+                            label="Start"
+                            error={errors.startTime}
+                            className="min-w-0"
+                        >
                             <Input
                                 type="time"
                                 value={startTime}
@@ -349,7 +367,11 @@ export default function StudyGroupModal({
                         </Field>
 
                         {/* end */}
-                        <Field label="End" error={errors.endTime} className="min-w-0">
+                        <Field
+                            label="End"
+                            error={errors.endTime}
+                            className="min-w-0"
+                        >
                             <Input
                                 type="time"
                                 value={endTime}
@@ -386,7 +408,7 @@ function Field({
 }) {
     return (
         <div className={className}>
-            <label className="mb-1 block text-[13px] font-medium tracking-wide text-text/80">
+            <label className="text-text/80 mb-1 block text-[13px] font-medium tracking-wide">
                 {label}
             </label>
             {children}

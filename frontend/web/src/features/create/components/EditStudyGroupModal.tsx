@@ -25,6 +25,7 @@ export default function EditStudyGroupModal({
             meeting={meeting}
             modalTitle={title}
             onSubmit={async (payload) => {
+                console.log("waddup")
                 return await updateMeeting(auth, meeting.id, payload)
             }}
         />
