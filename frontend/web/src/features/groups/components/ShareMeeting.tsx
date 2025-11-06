@@ -84,14 +84,13 @@ export default function ShareMeeting({ meeting }: ShareMeetingProps) {
                     </svg>
                 </MeetingButton>
 
-                <div className="absolute left-56 top-full">
-                    <Dropdown
-                        className="-mt-3"
-                        open={open}
-                        onClose={() => setOpen(false)}
-                        btnRef={buttonRef}
-                    >
-                        {/* show qr code */}
+                <Dropdown
+                    open={open}
+                    onClose={() => setOpen(false)}
+                    btnRef={buttonRef}
+                    align="start"
+                >
+                    {/* show qr code */}
                         <DropdownItem
                             label="Show QR code"
                             onSelect={() => {
@@ -135,8 +134,7 @@ export default function ShareMeeting({ meeting }: ShareMeetingProps) {
                                 </svg>
                             }
                         />
-                    </Dropdown>
-                </div>
+                </Dropdown>
             </div>
 
             {/* QR Code modal */}

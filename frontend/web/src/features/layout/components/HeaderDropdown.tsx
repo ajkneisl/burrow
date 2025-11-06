@@ -52,7 +52,7 @@ export default function HeaderDropdown() {
 
             <div className="absolute top-full right-0">
                 <Dropdown
-                    className="mt-2"
+                    className="-mt-2"
                     btnRef={buttonRef}
                     open={open}
                     onClose={() => setOpen(false)}
