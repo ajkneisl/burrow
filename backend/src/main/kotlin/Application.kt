@@ -4,6 +4,7 @@ import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
 import app.burrow.account.Users
 import app.burrow.account.models.getUserByID
+import app.burrow.account.models.getUserByUsername
 import app.burrow.account.profile.Profiles
 import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.errors.ServerError
@@ -293,7 +294,7 @@ suspend fun Application.module() {
                         path.startsWith("/user/") -> {
                             val user =
                                 path.removePrefix("/user/").split("/").firstOrNull()?.let {
-                                    getUserByID(it)
+                                    getUserByUsername(it)
                                 }
 
                             defaultMeta.copy(

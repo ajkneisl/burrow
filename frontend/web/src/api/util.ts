@@ -2,6 +2,7 @@ import { atomWithStorage } from "jotai/utils"
 import "cookie-store"
 
 export const BASE_URL = import.meta.env.VITE_BASE_URL
+export const CDN_URL = import.meta.env.VITE_CDN_URL
 
 /**
  * Label a date.

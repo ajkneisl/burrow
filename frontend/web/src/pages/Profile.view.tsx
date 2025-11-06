@@ -160,6 +160,7 @@ export default function ProfileView() {
                             name={data.profile.name}
                             userID={data.profile.userID}
                             size="lg"
+                            editable={data.user.id === user?.id}
                         />
 
                         <div className="pb-1">

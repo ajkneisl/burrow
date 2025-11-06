@@ -16,6 +16,7 @@ import app.burrow.account.profile.getFriends
 import app.burrow.account.profile.unFollowUser
 import app.burrow.account.profile.updateProfile
 import app.burrow.errors.InvalidAuthorization
+import app.burrow.photo.USER_PHOTO_ROUTES
 import app.burrow.queryParameter
 import app.burrow.urlParameter
 import io.ktor.http.HttpStatusCode
@@ -34,6 +35,8 @@ import kotlinx.serialization.Serializable
 /** All routes relating to [User] */
 val USER_ROUTES: Route.() -> Unit = {
     authenticate("primary") {
+        route("/photo", USER_PHOTO_ROUTES)
+
         // GET /user
         // get the user's information
         get { call.respond(getUserResponse(call.userID, call.userID)) }

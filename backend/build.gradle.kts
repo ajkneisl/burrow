@@ -55,6 +55,9 @@ dependencies {
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("dev.samstevens.totp:totp:1.7.1")
 
+    implementation("io.minio:minio:8.6.0")
+
+
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }

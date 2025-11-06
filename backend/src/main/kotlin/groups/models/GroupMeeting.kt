@@ -1,6 +1,8 @@
 package app.burrow.groups.models
 
 import app.burrow.account.Users
+import app.burrow.account.profile.Profile
+import app.burrow.account.profile.Profiles
 import app.burrow.account.profile.getProfile
 import app.burrow.groups.Meetings
 import app.burrow.groups.bookmarks.Bookmark
@@ -230,7 +232,7 @@ suspend fun getMeetings(
 private suspend fun aggregateMeetings(
     where: Op<Boolean> = Op.TRUE,
     request: (Query.() -> Query)? = null,
-): Map<GroupMeeting, String> = query {
+): Map<GroupMeeting, ResultRow> = query {
     val joinedAlias = Memberships.alias("m_joined")
     val waitingAlias = Memberships.alias("m_waiting")
 
@@ -252,18 +254,27 @@ private suspend fun aggregateMeetings(
                 waitingAlias[Memberships.status] eq MeetingMemberStatus.WAITLISTED
             },
         )
+        .leftJoin(Profiles, { Meetings.owner }, { Profiles.userID })
         .select(
-            Meetings.columns + listOf(Users.username, Users.id, joinedCountExpr, waitingCountExpr)
+            Meetings.columns +
+                Profiles.columns +
+                listOf(Users.username, Users.id, joinedCountExpr, waitingCountExpr)
         )
         .where { where }
-        .groupBy(*Meetings.columns.toTypedArray(), Users.username, Users.id)
+        .groupBy(
+            *Meetings.columns.toTypedArray(),
+            *Profiles.columns.toTypedArray(),
+            Users.username,
+            Users.id,
+        )
         .orderBy(Meetings.beginningTime, SortOrder.ASC)
         .let { request?.invoke(it) ?: it }
         .toList()
-        .associate { row ->
+        .associateBy { row ->
             val joinedCount = row[joinedCountExpr]
             val waitingCount = row[waitingCountExpr]
-            GroupMeeting.fromRow(row, joinedCount, waitingCount) to row[Users.username]
+
+            GroupMeeting.fromRow(row, joinedCount, waitingCount)
         }
 }
 
@@ -275,15 +286,16 @@ private suspend fun aggregateMeetings(
  * @param forceAuthorName Force the author name.
  * @return A list of [GroupMeetingResponse]
  */
-private suspend fun Map<GroupMeeting, String>.toResponses(
+private suspend fun Map<GroupMeeting, ResultRow>.toResponses(
     userID: String?,
     forceAuthorName: String? = null,
 ): List<GroupMeetingResponse> {
     return if (userID == null)
-        map { (meeting, author) ->
+        map { (meeting, row) ->
             GroupMeetingResponse(
                 meeting = meeting,
-                meetingAuthor = forceAuthorName ?: author,
+                meetingAuthor = forceAuthorName ?: row[Users.username],
+                meetingAuthorProfile = Profile.fromRow(row),
                 membership = null,
                 bookmarked = false,
             )
@@ -293,7 +305,7 @@ private suspend fun Map<GroupMeeting, String>.toResponses(
         val userMemberships = getMemberships(userID)
         val userBookmarks = getBookmarks(userID)
 
-        return map { (meeting, author) ->
+        return map { (meeting, row) ->
             val highlightedTags = buildList {
                 meeting.tags.forEachIndexed { index, tag ->
                     val normalizedTag = tag.replace(Regex("[\\s_-]"), "").lowercase()
@@ -308,8 +320,8 @@ private suspend fun Map<GroupMeeting, String>.toResponses(
 
             GroupMeetingResponse(
                 meeting = meeting,
-                meetingAuthor = forceAuthorName ?: author,
-                meetingAuthorProfile = userProfile,
+                meetingAuthor = forceAuthorName ?: row[Users.username],
+                meetingAuthorProfile = Profile.fromRow(row),
                 membership = userMemberships[meeting.id],
                 bookmarked = userBookmarks.containsKey(meeting.id),
                 highlightedTags = highlightedTags,
@@ -367,10 +379,10 @@ suspend fun searchMeetings(
 
     // guest user
     if (userId.isNullOrBlank()) {
-        return meetings.map { (meeting, author) ->
+        return meetings.map { (meeting, row) ->
             GroupMeetingResponse(
                 meeting = meeting,
-                meetingAuthor = author,
+                meetingAuthor = row[Users.username],
                 membership = null,
                 bookmarked = false,
             )
