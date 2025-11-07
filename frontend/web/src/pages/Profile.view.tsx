@@ -7,17 +7,17 @@ import {
     unFollowUser
 } from "@features/profile/profile.api.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
-import { GroupMeetingCard } from "@features/groups/components/GroupMeetingCard.tsx"
+import { GroupMeetingCard } from "@features/burrows/components/GroupMeetingCard.tsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useMemo, useState } from "react"
 import useUser from "@features/auth/hooks/useUser.ts"
 import About from "@features/profile/components/About.tsx"
 import Contact from "@features/profile/components/Contact.tsx"
 import EditProfile from "@features/profile/components/EditProfile.tsx"
-import type { GroupMeetingResponse } from "@features/groups/groups.types.ts"
+import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
 import { convertGraduationYear } from "@api/util.ts"
 import Relations from "@features/profile/components/Relations.tsx"
-import useMetaTags from "@features/layout/useMetaTags.ts"
+import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 
 /**
  * The view of a profile.
@@ -255,9 +255,9 @@ export default function ProfileView() {
                                     <GroupMeetingCard
                                         meetingResponse={
                                             {
-                                                meeting,
+                                                burrow: meeting,
                                                 bookmarked: false
-                                            } as GroupMeetingResponse
+                                            } as BurrowResponse
                                         }
                                         details={false}
                                     />
@@ -280,9 +280,9 @@ export default function ProfileView() {
                                     <GroupMeetingCard
                                         meetingResponse={
                                             {
-                                                meeting,
+                                                burrow: meeting,
                                                 bookmarked: false
-                                            } as GroupMeetingResponse
+                                            } as BurrowResponse
                                         }
                                         details={false}
                                     />

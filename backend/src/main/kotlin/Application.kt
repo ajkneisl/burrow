@@ -3,15 +3,13 @@ package app.burrow
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
 import app.burrow.account.Users
-import app.burrow.account.models.getUserByID
 import app.burrow.account.models.getUserByUsername
 import app.burrow.account.profile.Profiles
 import app.burrow.admin.ADMIN_ROUTES
-import app.burrow.errors.ServerError
-import app.burrow.groups.GROUP_ROUTES
-import app.burrow.groups.models.getMeeting
-import app.burrow.groups.models.getMeetingResponse
-import app.burrow.groups.sync.Sync
+import app.burrow.burrows.BURROW_ROUTES
+import app.burrow.burrows.getBurrow
+import app.burrow.burrows.getMeetingResponse
+import app.burrow.burrows.sync.Sync
 import app.burrow.notifications.NOTIFICATION_ROUTES
 import app.burrow.notifications.notificationWorker
 import app.burrow.report.REPORT_ROUTES
@@ -134,18 +132,26 @@ suspend fun Application.module() {
         exception<CancellationException> { _, _ -> }
 
         exception<BadRequestException> { call, ex ->
-            ex.printStackTrace()
-
             call.respond(
                 HttpStatusCode.BadRequest,
                 hashMapOf("code" to "400", "message" to "Invalid request body."),
             )
         }
 
+        // this is the default error
+        // contains invalid args, etc
         exception<ServerError> { call, cause ->
             call.respond(
                 HttpStatusCode.fromValue(cause.code),
-                hashMapOf("code" to "${cause.code}", "message" to cause.message),
+                hashMapOf("error" to cause::class.simpleName, "message" to cause.message),
+            )
+        }
+
+        // multiple errors
+        exception<MultiError> { call, cause ->
+            call.respond(
+                HttpStatusCode.fromValue(cause.code),
+                hashMapOf("error" to cause::class.simpleName, "message" to cause.messages),
             )
         }
 
@@ -195,7 +201,7 @@ suspend fun Application.module() {
             realm = "burrow"
             verifier(Authorization.getVerifier())
 
-            challenge { _, _ -> throw ServerError(401, "Token is invalid or expired.") }
+            challenge { _, _ -> throw Error(401, "Token is invalid or expired.") }
             validate { credential ->
                 if (credential.payload.audience.contains(Authorization.PUBLIC_AUDIENCE))
                     JWTPrincipal(credential.payload)
@@ -210,7 +216,7 @@ suspend fun Application.module() {
             realm = "burrow/administrator"
             verifier(Authorization.getVerifier(Authorization.ADMIN_AUDIENCE))
 
-            challenge { _, _ -> throw ServerError(401, "Token is invalid or expired.") }
+            challenge { _, _ -> throw Error(401, "Token is invalid or expired.") }
             validate { credential ->
                 if (credential.payload.audience.contains(Authorization.ADMIN_AUDIENCE))
                     JWTPrincipal(credential.payload)
@@ -226,13 +232,13 @@ suspend fun Application.module() {
                 route("/admin", ADMIN_ROUTES)
 
                 route("/notifications", NOTIFICATION_ROUTES)
-                route("/groups/{id}", Sync.SYNC_ROUTES)
+                route("/burrows/{id}", Sync.SYNC_ROUTES)
                 route("/user", USER_ROUTES)
 
                 // GET /groups/{id}
                 // retrieve an individual meeting
                 authenticate(PRIMARY_AUTH, optional = true) {
-                    get("/groups/{id}") {
+                    get("/burrows/{id}") {
                         val userId = call.principal<JWTPrincipal>()?.subject
                         val id =
                             call.parameters["id"]
@@ -247,9 +253,13 @@ suspend fun Application.module() {
                 }
 
                 authenticate(PRIMARY_AUTH) {
-                    route("/groups", GROUP_ROUTES)
+                    route("/burrows", BURROW_ROUTES)
                     route("/report", REPORT_ROUTES)
                 }
+
+                // GET *
+                // 404
+                get("{...}") { throw NotFound("That page could not be found.") }
             }
 
             val baseHtml =
@@ -281,7 +291,7 @@ suspend fun Application.module() {
                                 if (path.length == 9) path.removePrefix("/")
                                 else path.removePrefix("/meeting/")
 
-                            val burrow = getMeeting(burrowID)
+                            val burrow = getBurrow(burrowID)
 
                             defaultMeta.copy(
                                 title = burrow?.title ?: defaultMeta.title,
@@ -316,16 +326,3 @@ suspend fun Application.module() {
         throw t
     }
 }
-
-fun ApplicationCall.queryParameter(name: String): String =
-    request.queryParameters[name] ?: throw ServerError(400, "Missing parameter: $name")
-
-fun ApplicationCall.longQueryParameter(name: String): Long =
-    request.queryParameters[name]?.toLongOrNull()
-        ?: throw ServerError(400, "Missing parameter: $name")
-
-fun ApplicationCall.urlParameter(name: String): String =
-    parameters[name] ?: throw ServerError(400, "Missing parameter: $name")
-
-fun ApplicationCall.optionalLongQueryParameter(name: String): Long? =
-    request.queryParameters[name]?.toLongOrNull()

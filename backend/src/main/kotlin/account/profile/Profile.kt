@@ -1,14 +1,14 @@
 package app.burrow.account.profile
 
 import app.burrow.account.Users
-import app.burrow.errors.ServerError
+import app.burrow.Error
 import app.burrow.json
 import app.burrow.query
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.v1.core.Alias
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.Table
@@ -71,43 +71,43 @@ data class Profile(
     fun validate() {
         // validate name
         if (name.isBlank() || name.length > 64)
-            throw ServerError(400, "Name must be between 1 and 64 characters.")
+            throw Error(400, "Name must be between 1 and 64 characters.")
 
-        if (!nameRegex.matches(name)) throw ServerError(400, "Name contains invalid characters.")
+        if (!nameRegex.matches(name)) throw Error(400, "Name contains invalid characters.")
 
         if (classes != null && classes.isNotEmpty()) {
             val normalized = classes.map { it.trim() }
             val invalid = normalized.filterNot(::isValidUmnClass)
             if (invalid.isNotEmpty()) {
-                throw ServerError(400, "Invalid UMN class codes: ${invalid.joinToString(", ")}.")
+                throw Error(400, "Invalid UMN class codes: ${invalid.joinToString(", ")}.")
             }
         }
 
         // todo: does this need to be different?
         if (gradYear != null && gradYear !in 2020..2035)
-            throw ServerError(400, "Invalid graduation year!")
+            throw Error(400, "Invalid graduation year!")
 
         // validate bio
         if (bio != null && bio.length > 512)
-            throw ServerError(400, "Bio must be under 512 characters.")
+            throw Error(400, "Bio must be under 512 characters.")
 
         if (instagram != null) {
             if (instagram.isBlank() || instagram.length > 32) {
-                throw ServerError(400, "Instagram handle must be between 1 and 32 characters.")
+                throw Error(400, "Instagram handle must be between 1 and 32 characters.")
             }
 
             if (!instagram.startsWith("@")) {
-                throw ServerError(400, "Instagram handle must start with '@'.")
+                throw Error(400, "Instagram handle must start with '@'.")
             }
 
             if (!instaRegex.matches(instagram)) {
-                throw ServerError(400, "Instagram handle contains invalid characters.")
+                throw Error(400, "Instagram handle contains invalid characters.")
             }
         }
 
         // validate phone number
         if (phoneNumber != null && !phoneRegex.matches(phoneNumber)) {
-            throw ServerError(400, "Invalid phone number format.")
+            throw Error(400, "Invalid phone number format.")
         }
     }
 
@@ -138,6 +138,19 @@ data class Profile(
                 instagram = row[Profiles.instagram],
                 phoneNumber = row[Profiles.phoneNumber],
                 visibility = row[Profiles.visibility],
+            )
+
+        /** Get a [Profile] from a [row] using an aliased table */
+        fun fromRow(row: ResultRow, alias: Alias<Profiles>): Profile =
+            Profile(
+                userID = row[alias[Profiles.userID]],
+                name = row[alias[Profiles.name]],
+                bio = row[alias[Profiles.bio]],
+                gradYear = row[alias[Profiles.gradYear]],
+                classes = row[alias[Profiles.classes]]?.let { Json.decodeFromString(it) },
+                instagram = row[alias[Profiles.instagram]],
+                phoneNumber = row[alias[Profiles.phoneNumber]],
+                visibility = row[alias[Profiles.visibility]],
             )
     }
 }

@@ -2,14 +2,14 @@ import { AnimatePresence, motion } from "framer-motion"
 import React, { useMemo, useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import type {
-    GroupMeetingResponse,
-    GroupType
-} from "@features/groups/groups.types.ts"
+    BurrowResponse,
+    BurrowType
+} from "@features/burrows/burrows.types.ts"
 import { useAtom } from "jotai"
 import { authToken } from "@features/auth/auth.atom.ts"
-import { GroupMeetingCard } from "@features/groups/components/GroupMeetingCard.tsx"
-import { searchMeetings } from "@features/groups/groups.api.ts"
-import MeetingHeatmap from "@features/groups/components/MeetingHeatmap.tsx"
+import { GroupMeetingCard } from "@features/burrows/components/GroupMeetingCard.tsx"
+import { searchMeetings } from "@features/burrows/burrows.api.ts"
+import MeetingHeatmap from "@features/burrows/components/MeetingHeatmap.tsx"
 import { Input, useDateRangePicker } from "@umnburrow/core"
 import clsx from "clsx"
 
@@ -75,7 +75,7 @@ function weekRangeLabel(dateMs: number): string {
  * {@link Browse}
  */
 type AllMeetingsProps = {
-    type: GroupType
+    type: BurrowType
 }
 
 /**
@@ -121,39 +121,39 @@ export default function Browse({ type }: AllMeetingsProps) {
         refetchOnWindowFocus: false
     })
 
-    const allMeetings: GroupMeetingResponse[] = useMemo(
-        () => data ?? [],
+    const allBurrows: BurrowResponse[] = useMemo(
+        () => data?.contents ?? [],
         [data]
     )
 
     const filtered = useMemo(() => {
         const searchQuery = query.trim().toLowerCase()
 
-        const byDate = allMeetings.filter((m) => {
-            return m.meeting.beginningTime >= dayStart
+        const byDate = allBurrows.filter((m) => {
+            return m.burrow.beginningTime >= dayStart
         })
 
         return byDate
             .filter((meeting) => {
                 return (
                     !searchQuery ||
-                    meeting.meeting.title.toLowerCase().includes(searchQuery) ||
-                    meeting.meeting.description
+                    meeting.burrow.title.toLowerCase().includes(searchQuery) ||
+                    meeting.burrow.description
                         .toLowerCase()
                         .includes(searchQuery) ||
-                    meeting.meeting.tags.some((tag) =>
+                    meeting.burrow.tags.some((tag) =>
                         tag.toLowerCase().includes(searchQuery)
                     )
                 )
             })
-            .sort((a, b) => a.meeting.beginningTime - b.meeting.beginningTime)
-    }, [allMeetings, query, dayStart])
+            .sort((a, b) => a.burrow.beginningTime - b.burrow.beginningTime)
+    }, [allBurrows, query, dayStart])
 
     const groupedByDate = useMemo(() => {
-        const map = new Map<string, GroupMeetingResponse[]>()
+        const map = new Map<string, BurrowResponse[]>()
 
         filtered.forEach((m) => {
-            const d = new Date(m.meeting.beginningTime)
+            const d = new Date(m.burrow.beginningTime)
             d.setHours(0, 0, 0, 0)
             const key = d.toISOString().slice(0, 10) // YYYY-MM-DD, stable & sortable
             const list = map.get(key) ?? []
@@ -175,7 +175,7 @@ export default function Browse({ type }: AllMeetingsProps) {
         return entries
             .map(([key, list]) => {
                 const firstTime =
-                    list[0]?.meeting.beginningTime ?? new Date(key).getTime()
+                    list[0]?.burrow.beginningTime ?? new Date(key).getTime()
                 return { key, list, week: weekRangeLabel(firstTime) }
             })
             .filter(({ key }) => {
@@ -344,7 +344,7 @@ export default function Browse({ type }: AllMeetingsProps) {
                                                             <GroupMeetingCard
                                                                 details={true}
                                                                 key={
-                                                                    m.meeting.id
+                                                                    m.burrow.id
                                                                 }
                                                                 meetingResponse={
                                                                     m

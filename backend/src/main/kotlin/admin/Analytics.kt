@@ -1,7 +1,7 @@
 package app.burrow.admin
 
 import app.burrow.account.Users
-import app.burrow.groups.Meetings
+import app.burrow.burrows.models.Burrows
 import app.burrow.notifications.delivery.channels.Sse
 import app.burrow.query
 import kotlinx.serialization.Serializable
@@ -20,9 +20,9 @@ suspend fun getAnalytics(): Analytics = query {
     val now = System.currentTimeMillis()
 
     val userCount = Users.selectAll().count()
-    val meetingCount = Meetings.selectAll().count()
+    val meetingCount = Burrows.selectAll().count()
     val activeMeetingCount =
-        Meetings.selectAll().where { Meetings.beginningTime lessEq now }.count()
+        Burrows.selectAll().where { Burrows.beginningTime lessEq now }.count()
 
     Analytics(
         userCount = userCount,

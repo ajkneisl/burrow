@@ -1,7 +1,7 @@
 package app.burrow.admin
 
 import app.burrow.ADMIN_AUTH
-import app.burrow.errors.ServerError
+import app.burrow.Error
 import app.burrow.admin.account.Administrator
 import app.burrow.admin.account.Permissions
 import app.burrow.admin.account.adminLogin
@@ -13,8 +13,6 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
-import io.ktor.server.http.content.react
-import io.ktor.server.http.content.singlePageApplication
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -24,10 +22,10 @@ import io.ktor.server.routing.put
 import kotlinx.serialization.Serializable
 
 val ApplicationCall.administrator
-    get() = principal<JWTPrincipal>()?.subject ?: throw ServerError(401, "Unauthorized.")
+    get() = principal<JWTPrincipal>()?.subject ?: throw Error(401, "Unauthorized.")
 
 suspend fun ApplicationCall.getAdministrator() =
-    getAdministrator(administrator) ?: throw ServerError(401, "Unauthorized.")
+    getAdministrator(administrator) ?: throw Error(401, "Unauthorized.")
 
 /** All routes involving administrators. */
 val ADMIN_ROUTES: Route.() -> Unit = {

@@ -44,7 +44,7 @@ export default function SearchInput({
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search groups, clubs, or tags..."
+                placeholder="Search burrows, clubs, or tags..."
                 className={clsx(
                     "text-white w-full rounded-lg pl-8 pr-3 py-2 text-sm shadow-sm ring-1 focus:outline-none focus:ring-2",
                     auth === null && "cursor-not-allowed"

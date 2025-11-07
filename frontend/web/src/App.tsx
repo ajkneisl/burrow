@@ -16,6 +16,7 @@ import ToS from "@pages/ToS.view.tsx"
 import { Toaster } from "react-hot-toast"
 import SettingsModal from "@features/sync/settings/SettingsModal.tsx"
 import ReportProblemModal from "@features/problem/components/ReportProblemModal.tsx"
+import MyInvitesModal from "@features/layout/components/MyInvitesModal.tsx"
 import ProfileView from "@pages/Profile.view.tsx"
 import { useEffect } from "react"
 import {
@@ -100,6 +101,7 @@ function RootLayout() {
                 <ViewRelations />
                 <ReportProblemModal />
                 <SettingsModal />
+                <MyInvitesModal />
 
                 {/* Child routes render here */}
                 <Outlet />

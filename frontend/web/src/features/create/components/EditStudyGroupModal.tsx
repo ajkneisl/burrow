@@ -1,8 +1,8 @@
 import { useAtom } from "jotai"
 import { authToken } from "../../auth/auth.atom.ts"
-import type { GroupMeeting } from "../../groups/groups.types.ts"
+import type { Burrow } from "@features/burrows/burrows.types.ts"
 import StudyGroupModal from "./StudyGroupModal.tsx"
-import { updateMeeting } from "@features/groups/groups.api.ts"
+import { updateMeeting } from "@features/burrows/burrows.api.ts"
 
 export default function EditStudyGroupModal({
     open,
@@ -12,7 +12,7 @@ export default function EditStudyGroupModal({
 }: {
     open: boolean
     onClose: () => void
-    meeting: GroupMeeting
+    meeting: Burrow
     title?: string
 }) {
     const [auth] = useAtom(authToken)

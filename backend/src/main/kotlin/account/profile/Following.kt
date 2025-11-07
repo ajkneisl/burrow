@@ -1,7 +1,7 @@
 package app.burrow.account.profile
 
 import app.burrow.account.Users
-import app.burrow.errors.ServerError
+import app.burrow.Error
 import app.burrow.query
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -168,7 +168,7 @@ suspend fun isFollowing(followerID: String, followeeID: String): Boolean = query
 /** Follow a user. */
 suspend fun followUser(followerID: String, followeeID: String) = query {
     if (followerID == followeeID) {
-        throw ServerError(400, "You cannot follow yourself.")
+        throw Error(400, "You cannot follow yourself.")
     }
 
     val exists =

@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion"
 import SearchPreview from "@features/layout/search/components/SearchPreview.tsx"
 import { type FormEvent, useEffect, useRef, useState } from "react"
-import type { GroupMeetingResponse } from "@features/groups/groups.types.ts"
-import { searchMeetings } from "@features/groups/groups.api.ts"
+import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
+import { searchMeetings } from "@features/burrows/burrows.api.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
 import SearchInput from "@features/layout/search/components/SearchInput.tsx"
 import { useAtom } from "jotai"
@@ -14,7 +14,7 @@ export default function Search() {
     const [debounceKey, setDebounceKey] = useState(0)
     const searchRef = useRef<HTMLFormElement>(null)
     const [query, setQuery] = useState("")
-    const [results, setResults] = useState<GroupMeetingResponse[] | null>(null)
+    const [results, setResults] = useState<BurrowResponse[] | null>(null)
     const [loading, setLoading] = useState(false)
     const [err, setErr] = useState<string | null>(null)
 
@@ -107,10 +107,10 @@ export default function Search() {
 
                     {!loading && !err && results && results.length > 0 && (
                         <ul className="max-h-72 divide-y-1 divide-background overflow-auto">
-                            {results.map(({ meeting }) => (
-                                <li key={meeting.id}>
+                            {results.map(({ burrow }) => (
+                                <li key={burrow.id}>
                                     <SearchPreview
-                                        meeting={meeting}
+                                        meeting={burrow}
                                         onClick={() => {
                                             setResults(null)
                                             setQuery("")

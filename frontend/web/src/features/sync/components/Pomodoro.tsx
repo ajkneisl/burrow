@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Button, Card } from "@umnburrow/core"
-import type { MeetingMembership } from "@features/groups/groups.types.ts"
+import type { BurrowMembership } from "@features/burrows/burrows.types.ts"
 import usePomodoroSync from "@features/sync/hooks/usePomodoroSync.tsx"
 import { clamp, msToClock } from "@api/util.ts"
 
@@ -9,7 +9,7 @@ import { clamp, msToClock } from "@api/util.ts"
  */
 type PomodoroProps = {
     meetingId?: string
-    membership: MeetingMembership
+    membership: BurrowMembership
 }
 
 /**

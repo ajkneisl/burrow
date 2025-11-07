@@ -15,7 +15,7 @@ import app.burrow.account.profile.getFollowingRelations
 import app.burrow.account.profile.getFriends
 import app.burrow.account.profile.unFollowUser
 import app.burrow.account.profile.updateProfile
-import app.burrow.errors.InvalidAuthorization
+import app.burrow.InvalidAuthorization
 import app.burrow.photo.USER_PHOTO_ROUTES
 import app.burrow.queryParameter
 import app.burrow.urlParameter

@@ -3,7 +3,7 @@ package app.burrow.account.models
 import app.burrow.account.Authorization
 import app.burrow.account.Users
 import app.burrow.account.profile.Profiles
-import app.burrow.errors.ServerError
+import app.burrow.Error
 import app.burrow.query
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -154,12 +154,12 @@ suspend fun updateUsername(userID: String, newUsername: String) {
  * Get a user by their ID.
  *
  * @param userID The ID of the user.
- * @throws ServerError If the user doesn't exist.
+ * @throws Error If the user doesn't exist.
  */
 suspend fun getUserByID(userID: String): User {
     val user =
         query { Users.selectAll().where { Users.id eq userID }.firstOrNull() }
-            ?: throw ServerError(401, "Invalid user ID.")
+            ?: throw Error(401, "Invalid user ID.")
 
     return User.fromRow(user)
 }
@@ -172,13 +172,13 @@ suspend fun getUserByID(userID: String): User {
 suspend fun getUserByUsername(username: String): User {
     val user =
         query { Users.selectAll().where { Users.username eq username }.firstOrNull() }
-            ?: throw ServerError(401, "Invalid username.")
+            ?: throw Error(401, "Invalid username.")
 
     return User.fromRow(user)
 }
 
 val ApplicationCall.userID
-    get() = principal<JWTPrincipal>()?.subject ?: throw ServerError(401, "Invalid token.")
+    get() = principal<JWTPrincipal>()?.subject ?: throw Error(401, "Invalid token.")
 
 /** Get a user's object from an authorized token from the call. */
 suspend fun ApplicationCall.authorizedUser(): User {
@@ -200,17 +200,17 @@ suspend fun validateUsername(username: String) {
     when {
         // ensure in range
         username.length !in 3..32 ->
-            throw ServerError(400, "Username must be between 3 and 32 characters.")
+            throw Error(400, "Username must be between 3 and 32 characters.")
 
         // proper characters
         !usernameRegex.matches(username) ->
-            throw ServerError(
+            throw Error(
                 400,
                 "You may only use uppercase and lowercase letters, numbers, underscores, and hyphens.",
             )
 
         // uniqueness
         query { Users.selectAll().where { Users.username eq username }.firstOrNull() } != null ->
-            throw ServerError(400, "This username is already taken!")
+            throw Error(400, "This username is already taken!")
     }
 }

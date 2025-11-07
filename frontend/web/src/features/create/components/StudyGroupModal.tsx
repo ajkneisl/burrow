@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router"
 import type {
-    GroupMeeting,
+    Burrow,
     SubmittedGroupMeeting
-} from "../../groups/groups.types.ts"
+} from "@features/burrows/burrows.types.ts"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button, Input, Modal, TextArea } from "@umnburrow/core"
 
@@ -14,7 +14,7 @@ type StudyGroupModalProps = {
     open: boolean
     onClose: () => void
     mode?: "create" | "update"
-    meeting?: GroupMeeting
+    meeting?: Burrow
     modalTitle?: string
     onSubmit: (payload: SubmittedGroupMeeting) => Promise<unknown>
 }
@@ -209,7 +209,7 @@ export default function StudyGroupModal({
         ) {
             setServerErrors([])
 
-            const updated = response as GroupMeeting
+            const updated = response as Burrow
             nav(`/meeting/${updated.id}`)
 
             onClose()

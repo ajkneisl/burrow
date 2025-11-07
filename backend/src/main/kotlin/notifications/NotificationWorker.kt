@@ -1,10 +1,10 @@
 package app.burrow.notifications
 
 import app.burrow.account.settings.Settings
-import app.burrow.groups.Meetings
-import app.burrow.groups.membership.Memberships
-import app.burrow.groups.membership.getAttendees
-import app.burrow.groups.models.MeetingMemberStatus
+import app.burrow.burrows.membership.Memberships
+import app.burrow.burrows.membership.getAttendees
+import app.burrow.burrows.models.BurrowMemberStatus
+import app.burrow.burrows.models.Burrows
 import app.burrow.notifications.delivery.deliver
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
@@ -65,6 +65,7 @@ fun notificationWorker() {
 
 /** Find all notifications that should be sent and send them. */
 suspend fun pollNotifications(nowMs: Long): Flow<Notification> {
+    return emptyFlow()
     val items: List<Notification> = query {
         val notifReq =
             """
@@ -179,22 +180,22 @@ private suspend fun upsertUpcomingForUser(
     userId: String,
     nowMs: Long = getTimeMillis(),
 ) = query {
-    val meetingId = meetingRow[Meetings.id]
-    val title = "“${meetingRow[Meetings.title]}” starts soon"
+    val meetingId = meetingRow[Burrows.id]
+    val title = "“${meetingRow[Burrows.title]}” starts soon"
     val content = buildString {
-        val startTime = dateFormat.format(Instant.ofEpochMilli(meetingRow[Meetings.beginningTime]))
+        val startTime = dateFormat.format(Instant.ofEpochMilli(meetingRow[Burrows.beginningTime]))
 
         append("Starts at ")
         append(startTime)
         append(" at ")
-        append(meetingRow[Meetings.location])
+        append(meetingRow[Burrows.location])
     }
 
     val (enabled, leadMin, _) =
         getNotificationPreferences(userId, NotificationKind.UPCOMING_MEETING)
 
     // when this notification should be sent
-    val scheduleDate = (meetingRow[Meetings.beginningTime] - leadMin * 60_000L)
+    val scheduleDate = (meetingRow[Burrows.beginningTime] - leadMin * 60_000L)
 
     LOGGER.debug("Scheduling notification for $userId for $meetingId at $scheduleDate")
 
@@ -235,7 +236,7 @@ private suspend fun attendeeIds(meetingId: String): List<String> = query {
     Memberships.select(Memberships.userID)
         .where {
             (Memberships.meetingID eq meetingId) and
-                (Memberships.status eq MeetingMemberStatus.JOINED)
+                (Memberships.status eq BurrowMemberStatus.JOINED)
         }
         .map { it[Memberships.userID] }
         .toList()
@@ -251,7 +252,7 @@ suspend fun rescheduleNotificationsForMeeting(meetingId: String, nowMs: Long = g
     LOGGER.debug("Scheduling notifications for $meetingId")
 
     val meetingRow =
-        query { Meetings.selectAll().where { Meetings.id eq meetingId }.firstOrNull() } ?: return
+        query { Burrows.selectAll().where { Burrows.id eq meetingId }.firstOrNull() } ?: return
 
     val attendees = getAttendees(meetingId)
 
@@ -270,7 +271,7 @@ suspend fun rescheduleNotificationsForMeeting(meetingId: String, nowMs: Long = g
 suspend fun onUserJoinedMeeting(userId: String, meetingId: String, nowMs: Long = getTimeMillis()) {
     query {
         val meeting =
-            Meetings.selectAll().where { Meetings.id eq meetingId }.firstOrNull() ?: return@query
+            Burrows.selectAll().where { Burrows.id eq meetingId }.firstOrNull() ?: return@query
         upsertUpcomingForUser(meeting, userId, nowMs)
     }
 }
@@ -301,26 +302,26 @@ suspend fun onUserLeaveMeeting(userId: String, meetingId: String) {
  */
 suspend fun onUserSettingsChanged(userId: String, nowMs: Long = getTimeMillis()) {
     query {
-        Meetings.leftJoin(Memberships, { Meetings.id }, { Memberships.meetingID })
+        Burrows.leftJoin(Memberships, { Burrows.id }, { Memberships.meetingID })
             .select(
-                Meetings.id,
-                Meetings.beginningTime,
-                Meetings.title,
-                Meetings.location,
-                Meetings.owner,
+                Burrows.id,
+                Burrows.beginningTime,
+                Burrows.title,
+                Burrows.location,
+                Burrows.ownerID,
                 Memberships.userID,
                 Memberships.status,
             )
             .where {
-                (Meetings.beginningTime greater nowMs) and
-                    ((Meetings.owner eq userId) or
+                (Burrows.beginningTime greater nowMs) and
+                    ((Burrows.ownerID eq userId) or
                         ((Memberships.userID eq userId) and
-                            (Memberships.status eq MeetingMemberStatus.JOINED)))
+                            (Memberships.status eq BurrowMemberStatus.JOINED)))
             }
             .withDistinct()
-            .map { it[Meetings.id] }
+            .map { it[Burrows.id] }
             .collect { mid ->
-                val row = Meetings.selectAll().where { Meetings.id eq mid }.first()
+                val row = Burrows.selectAll().where { Burrows.id eq mid }.first()
                 upsertUpcomingForUser(row, userId, nowMs)
             }
     }
