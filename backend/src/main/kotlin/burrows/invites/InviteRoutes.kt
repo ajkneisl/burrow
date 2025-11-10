@@ -1,28 +1,20 @@
 package app.burrow.burrows.invites
 
-import app.burrow.InvalidAuthorization
-import app.burrow.Error
 import app.burrow.account.models.userID
-import app.burrow.burrows.membership.getMembership
-import app.burrow.burrows.models.BurrowRole
+import app.burrow.burrows.membership.requireModerator
 import app.burrow.optionalEnumQueryParameter
+import app.burrow.queryParameter
 import app.burrow.urlParameter
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.delete
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.route
+import io.ktor.http.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 
-/**
- * Routes for managing burrow invitations.
- *
- * All routes require authentication.
- */
+/** Requests relating to invites. */
 fun Route.inviteRoutes() {
+    // ROUTE /{id}/invites
+    // routes interacting with invites for a specific burrow
     route("/{id}/invites") {
         /**
          * Payload for creating an invite.
@@ -34,23 +26,18 @@ fun Route.inviteRoutes() {
         data class CreateInvitePayload(val inviteeId: String, val expiresAt: Long? = null)
 
         // POST /groups/{id}/invites
-        // Create an invitation to a burrow
+        // create an invitation to a burrow
         post {
-            val burrowId = call.urlParameter("id")
-            val inviterId = call.userID
+            val burrowID = call.urlParameter("id")
+            val inviterID = call.userID
             val payload = call.receive<CreateInvitePayload>()
 
-            // Check that inviter is at least a moderator
-            val membership = getMembership(inviterId, burrowId) ?: throw InvalidAuthorization()
-
-            if (membership.role == BurrowRole.MEMBER) {
-                throw InvalidAuthorization()
-            }
+            call.requireModerator(burrowID)
 
             createInvite(
-                inviterId = inviterId,
+                inviterId = inviterID,
                 inviteeId = payload.inviteeId,
-                burrowId = burrowId,
+                burrowId = burrowID,
                 expiresAt = payload.expiresAt,
             )
 
@@ -58,213 +45,84 @@ fun Route.inviteRoutes() {
         }
 
         // GET /groups/{id}/invites
-        // Get all pending invites for a burrow (host/moderator only)
+        // get all pending invites for a burrow (host/moderator only)
         get {
-            val burrowId = call.urlParameter("id")
-            val userId = call.userID
+            val burrowID = call.urlParameter("id")
+            call.requireModerator(burrowID)
 
-            // Check that user is at least a moderator
-            val membership = getMembership(userId, burrowId) ?: throw InvalidAuthorization()
-
-            if (membership.role == BurrowRole.MEMBER) {
-                throw InvalidAuthorization()
-            }
-
-            val invites = getInvitesForBurrow(burrowId)
+            val invites = getInvitesForBurrow(burrowID)
             call.respond(invites)
         }
 
-        // DELETE /groups/{id}/invites/{inviteeId}
-        // Cancel an invitation (inviter only)
+        // DELETE /groups/{id}/invites/{inviteeID}
+        // cancel an invitation (inviter only)
         delete("/{inviteeId}") {
-            val burrowId = call.urlParameter("id")
-            val inviteeId =
-                call.parameters["inviteeId"]
-                    ?: throw Error(400, "Missing inviteeId parameter")
-            val inviterId = call.userID
+            val burrowID = call.urlParameter("id")
+            val inviteeID = call.urlParameter("inviteeID")
+            val inviterID = call.userID
 
-            cancelInvite(inviterId, inviteeId, burrowId)
+            cancelInvite(inviterID, inviteeID, burrowID)
 
             call.respond(HttpStatusCode.OK)
         }
     }
 
-    // Routes under /invites (not scoped to a specific burrow)
+    // ROUTE /invites
+    // invites not relating to a specific burrow
     route("/invites") {
         // GET /invites/received
-        // Get all invites received by the authenticated user
+        // get all invites received by the authenticated user
         get("/received") {
-            val userId = call.userID
+            val userID = call.userID
             val status = call.optionalEnumQueryParameter<InviteStatus>("status")
 
-            val invites = getReceivedInvites(userId, status)
+            val invites = getReceivedInvites(userID, status)
             call.respond(invites)
         }
 
         // GET /invites/sent
-        // Get all invites sent by the authenticated user
+        // get all invites sent by the authenticated user
         get("/sent") {
-            val userId = call.userID
+            val userID = call.userID
             val status = call.optionalEnumQueryParameter<InviteStatus>("status")
 
-            val invites = getSentInvites(userId, status)
+            val invites = getSentInvites(userID, status)
             call.respond(invites)
         }
 
-        // POST /invites/{burrowId}/accept
-        // Accept an invitation
-        post("/{burrowId}/accept") {
-            val burrowId =
-                call.parameters["burrowId"] ?: throw Error(400, "Missing burrowId parameter")
-            val userId = call.userID
-
-            acceptInvite(userId, burrowId)
-
-            call.respond(HttpStatusCode.OK)
-        }
-
-        // POST /invites/{burrowId}/decline
-        // Decline an invitation
-        post("/{burrowId}/decline") {
-            val burrowId =
-                call.parameters["burrowId"] ?: throw Error(400, "Missing burrowId parameter")
-            val userId = call.userID
-
-            declineInvite(userId, burrowId)
-
-            call.respond(HttpStatusCode.OK)
-        }
-
         // GET /invites/count
-        // Get count of pending invites for the authenticated user
+        // get count of pending invites for the authenticated user
         get("/count") {
             val userId = call.userID
             val count = getPendingInviteCountForUser(userId)
 
             call.respond(mapOf("count" to count))
         }
-    }
-}
 
-/**
- * Routes for managing burrow join requests.
- *
- * All routes require authentication.
- */
-fun Route.joinRequestRoutes() {
-    route("/{id}/requests") {
-        // POST /groups/{id}/requests
-        // Create a join request for a burrow
-        post {
-            val burrowId = call.urlParameter("id")
-            val userId = call.userID
+        // ROUTE /invites/{id}
+        // personally manage invites to a user
+        route("/{id}") {
+            // POST /invites/{id}/accept
+            // accept an invitation
+            post("/accept") {
+                val burrowId = call.queryParameter("id")
+                val userId = call.userID
 
-            createJoinRequest(userId, burrowId)
+                acceptInvite(userId, burrowId)
 
-            call.respond(HttpStatusCode.Created)
-        }
-
-        // GET /groups/{id}/requests
-        // Get all pending join requests for a burrow (host/moderator only)
-        get {
-            val burrowId = call.urlParameter("id")
-            val userId = call.userID
-
-            // Check that user is at least a moderator
-            val membership = getMembership(userId, burrowId) ?: throw InvalidAuthorization()
-
-            if (membership.role == BurrowRole.MEMBER) {
-                throw InvalidAuthorization()
+                call.respond(HttpStatusCode.OK)
             }
 
-            val requests = getJoinRequests(burrowId)
-            call.respond(requests)
-        }
+            // POST /invites/{id}/decline
+            // decline an invitation
+            post("/decline") {
+                val burrowId = call.queryParameter("id")
+                val userId = call.userID
 
-        /**
-         * Payload for accepting/denying a join request.
-         *
-         * @param requesterId The ID of the user who made the request.
-         */
-        @Serializable data class ReviewRequestPayload(val requesterId: String)
+                declineInvite(userId, burrowId)
 
-        // POST /groups/{id}/requests/accept
-        // Accept a join request (host/moderator only)
-        post("/accept") {
-            val burrowId = call.urlParameter("id")
-            val reviewerId = call.userID
-            val payload = call.receive<ReviewRequestPayload>()
-
-            // Check that reviewer is at least a moderator
-            val membership = getMembership(reviewerId, burrowId) ?: throw InvalidAuthorization()
-
-            if (membership.role == BurrowRole.MEMBER) {
-                throw InvalidAuthorization()
+                call.respond(HttpStatusCode.OK)
             }
-
-            acceptJoinRequest(payload.requesterId, burrowId, reviewerId)
-
-            call.respond(HttpStatusCode.OK)
-        }
-
-        // POST /groups/{id}/requests/deny
-        // Deny a join request (host/moderator only)
-        post("/deny") {
-            val burrowId = call.urlParameter("id")
-            val reviewerId = call.userID
-            val payload = call.receive<ReviewRequestPayload>()
-
-            // Check that reviewer is at least a moderator
-            val membership = getMembership(reviewerId, burrowId) ?: throw InvalidAuthorization()
-
-            if (membership.role == BurrowRole.MEMBER) {
-                throw InvalidAuthorization()
-            }
-
-            denyJoinRequest(payload.requesterId, burrowId, reviewerId)
-
-            call.respond(HttpStatusCode.OK)
-        }
-
-        // DELETE /groups/{id}/requests
-        // Cancel your own join request
-        delete {
-            val burrowId = call.urlParameter("id")
-            val userId = call.userID
-
-            cancelJoinRequest(userId, burrowId)
-
-            call.respond(HttpStatusCode.OK)
-        }
-
-        // GET /groups/{id}/requests/count
-        // Get count of pending requests for a burrow (host/moderator only)
-        get("/count") {
-            val burrowId = call.urlParameter("id")
-            val userId = call.userID
-
-            // Check that user is at least a moderator
-            val membership = getMembership(userId, burrowId) ?: throw InvalidAuthorization()
-
-            if (membership.role == BurrowRole.MEMBER) {
-                throw InvalidAuthorization()
-            }
-
-            val count = getPendingRequestCount(burrowId)
-            call.respond(mapOf("count" to count))
-        }
-    }
-
-    // Routes under /requests (not scoped to a specific burrow)
-    route("/requests") {
-        // GET /requests
-        // Get all join requests for the authenticated user
-        get {
-            val userId = call.userID
-            val status = call.optionalEnumQueryParameter<JoinRequestStatus>("status")
-
-            val requests = getJoinRequestsForUser(userId, status)
-            call.respond(requests)
         }
     }
 }

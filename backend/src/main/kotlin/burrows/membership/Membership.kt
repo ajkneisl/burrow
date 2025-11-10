@@ -1,8 +1,10 @@
 package app.burrow.burrows.membership
 
 import app.burrow.Error
+import app.burrow.InvalidAuthorization
 import app.burrow.account.Users
 import app.burrow.account.models.User
+import app.burrow.account.models.userID
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
 import app.burrow.burrows.Burrow
@@ -19,6 +21,7 @@ import app.burrow.notifications.createNotification
 import app.burrow.notifications.onUserJoinedMeeting
 import app.burrow.notifications.onUserLeaveMeeting
 import app.burrow.query
+import io.ktor.server.application.ApplicationCall
 import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -163,12 +166,24 @@ suspend fun getMembership(userId: String, meetingId: String): Membership? = quer
 }
 
 /**
- * CHeck if a user is a member of [meetingID].
+ * CHeck if a user is a member of [burrowID].
  *
- * @param meetingID The ID of the meeting to check.
+ * @param burrowID The ID of the meeting to check.
  */
-suspend infix fun String.isMemberOf(meetingID: String): Boolean =
-    getMembership(this, meetingID) != null
+suspend infix fun String.isMemberOf(burrowID: String): Boolean =
+    getMembership(this, burrowID) != null
+
+/** Check if a user is a moderator of [burrowID] */
+suspend infix fun String.isModeratorOf(burrowID: String): Boolean {
+    val role = getMembership(this, burrowID)?.role
+
+    return role == BurrowRole.MEMBER || role == BurrowRole.HOST
+}
+
+/** Require that the authorized user is at least a moderator of [burrowID]. */
+suspend fun ApplicationCall.requireModerator(burrowID: String) {
+    if (!(userID isModeratorOf burrowID)) throw InvalidAuthorization()
+}
 
 /**
  * Get all a [userId]'s [Membership]s.
