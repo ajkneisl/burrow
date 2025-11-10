@@ -48,8 +48,9 @@ abstract class Block(val blockId: String, val meetingId: String) {
         val meetingId: String,
         val data: HashMap<String, String>,
     ) {
-
         companion object {
+            const val EMPTY = "{}"
+
             /**
              * Form a [BlockState] from a [row].
              *

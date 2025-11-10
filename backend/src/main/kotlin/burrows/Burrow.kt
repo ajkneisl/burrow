@@ -1,11 +1,15 @@
 package app.burrow.burrows
 
+import app.burrow.NotFound
 import app.burrow.account.Users
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
 import app.burrow.burrows.bookmarks.Bookmarks
+import app.burrow.burrows.invites.JoinRequestStatus
+import app.burrow.burrows.invites.getJoinRequest
 import app.burrow.burrows.membership.Membership
 import app.burrow.burrows.membership.Memberships
+import app.burrow.burrows.membership.isMemberOf
 import app.burrow.burrows.models.BurrowMemberStatus
 import app.burrow.burrows.models.BurrowResponse
 import app.burrow.burrows.models.BurrowRole
@@ -13,6 +17,7 @@ import app.burrow.burrows.models.BurrowType
 import app.burrow.burrows.models.BurrowVisibility
 import app.burrow.burrows.models.Burrows
 import app.burrow.burrows.models.SubmittedBurrow
+import app.burrow.burrows.sync.block.Block
 import app.burrow.burrows.sync.block.BlockStates
 import app.burrow.notifications.rescheduleNotificationsForMeeting
 import app.burrow.query
@@ -75,6 +80,12 @@ data class Burrow(
     /** The visibility. */
     val visibility: BurrowVisibility,
 
+    /**
+     * If the user must request to join. This is overridden by [visibility] when it's
+     * [BurrowVisibility.PRIVATE].
+     */
+    val requestToJoin: Boolean,
+
     /** How many people are in the meeting. */
     val joined: Long,
 
@@ -103,6 +114,7 @@ data class Burrow(
                 capacity = row[Burrows.capacity],
                 tags = Json.decodeFromString<Set<String>>(row[Burrows.tags]),
                 visibility = row[Burrows.visibility],
+                requestToJoin = row[Burrows.requestToJoin],
                 joined = joined,
                 waiting = waiting,
             )
@@ -130,11 +142,13 @@ suspend fun createStudyBurrow(userID: String, meeting: SubmittedBurrow): Burrow 
             creationDate = getTimeMillis(),
             capacity = meeting.capacity,
             visibility = meeting.visibility,
+            requestToJoin = meeting.requestToJoin,
             waiting = 0,
             joined = 0,
         )
 
     query {
+        // insert burrow
         Burrows.insert {
             it[Burrows.id] = groupMeeting.id
             it[ownerID] = groupMeeting.ownerID
@@ -147,10 +161,13 @@ suspend fun createStudyBurrow(userID: String, meeting: SubmittedBurrow): Burrow 
             it[tags] = Json.encodeToString(groupMeeting.tags)
             it[creationDate] = groupMeeting.creationDate
             it[capacity] = groupMeeting.capacity
+            it[visibility] = groupMeeting.visibility
+            it[requestToJoin] = groupMeeting.requestToJoin
         }
 
+        // insert membership for host
         Memberships.insert {
-            it[Memberships.meetingID] = groupMeeting.id
+            it[Memberships.burrowID] = groupMeeting.id
             it[Memberships.userID] = groupMeeting.ownerID
             it[Memberships.role] = BurrowRole.HOST
             it[Memberships.status] = BurrowMemberStatus.JOINED
@@ -161,7 +178,7 @@ suspend fun createStudyBurrow(userID: String, meeting: SubmittedBurrow): Burrow 
         BlockStates.insert {
             it[BlockStates.meetingId] = groupMeeting.id
             it[BlockStates.block] = "CHAT"
-            it[BlockStates.data] = "{}"
+            it[BlockStates.data] = Block.BlockState.EMPTY
         }
     }
 
@@ -172,24 +189,22 @@ suspend fun createStudyBurrow(userID: String, meeting: SubmittedBurrow): Burrow 
 }
 
 /**
- * Get a meeting by its [id].
+ * Get a meeting by its [burrowID].
  *
- * @param id The ID of the meeting.
+ * @param burrowID The ID of the meeting.
  */
-suspend fun getBurrow(id: String): Burrow? = query {
-    Burrows.selectAll().where { Burrows.id eq id }.firstOrNull()?.let { Burrow.fromRow(it) }
+suspend fun getBurrow(burrowID: String): Burrow? = query {
+    Burrows.selectAll().where { Burrows.id eq burrowID }.firstOrNull()?.let { Burrow.fromRow(it) }
 }
 
 /**
- * Get a [app.burrow.groups.models.BurrowResponse] by its ID.
+ * Get a [BurrowResponse] by its ID.
  *
- * @param meetingId The ID of the meeting.
+ * @param burrowID The ID of the Burrow.
  * @param requestingUserID The ID of the user requesting, to combine the membership information.
- * @return A [app.burrow.groups.models.BurrowResponse] with all meeting and user-specific data, or
- *   null if meeting not found.
+ * @return A [BurrowResponse] with all meeting and user-specific data, or null if meeting not found.
  */
-suspend fun getMeetingResponse(meetingId: String, requestingUserID: String?): BurrowResponse? {
-    // Fetch the meeting with owner info, profile, and member counts in a single query
+suspend fun getMeetingResponse(burrowID: String, requestingUserID: String?): BurrowResponse? {
     val meetingData =
         query {
             val joinedAlias = Memberships.alias("m_joined")
@@ -202,7 +217,7 @@ suspend fun getMeetingResponse(meetingId: String, requestingUserID: String?): Bu
                 .leftJoin(
                     joinedAlias,
                     { Burrows.id },
-                    { joinedAlias[Memberships.meetingID] },
+                    { joinedAlias[Memberships.burrowID] },
                     additionalConstraint = {
                         joinedAlias[Memberships.status] eq BurrowMemberStatus.JOINED
                     },
@@ -210,7 +225,7 @@ suspend fun getMeetingResponse(meetingId: String, requestingUserID: String?): Bu
                 .leftJoin(
                     waitingAlias,
                     { Burrows.id },
-                    { waitingAlias[Memberships.meetingID] },
+                    { waitingAlias[Memberships.burrowID] },
                     additionalConstraint = {
                         waitingAlias[Memberships.status] eq BurrowMemberStatus.WAITLISTED
                     },
@@ -221,7 +236,7 @@ suspend fun getMeetingResponse(meetingId: String, requestingUserID: String?): Bu
                         Profiles.columns +
                         listOf(Users.username, Users.id, joinedCountExpr, waitingCountExpr)
                 )
-                .where { Burrows.id eq meetingId }
+                .where { Burrows.id eq burrowID }
                 .groupBy(
                     *Burrows.columns.toTypedArray(),
                     *Profiles.columns.toTypedArray(),
@@ -242,7 +257,14 @@ suspend fun getMeetingResponse(meetingId: String, requestingUserID: String?): Bu
 
     val (burrow, authorUsername, authorProfile) = meetingData
 
-    // Return response without user-specific data if no userId provided
+    // if the meeting is private do some checks
+    if (burrow.visibility == BurrowVisibility.PRIVATE) {
+        val isMember = requestingUserID?.isMemberOf(burrow.id) ?: false
+
+        if (!isMember) throw NotFound()
+    }
+
+    // return response without user-specific data if no userID provided
     if (requestingUserID.isNullOrBlank()) {
         return BurrowResponse(
             burrow = burrow,
@@ -265,7 +287,7 @@ suspend fun getMeetingResponse(meetingId: String, requestingUserID: String?): Bu
                 Memberships.selectAll()
                     .where {
                         (Memberships.userID eq requestingUserID) and
-                            (Memberships.meetingID eq meetingId)
+                            (Memberships.burrowID eq burrowID)
                     }
                     .map { Membership.fromRow(it) }
                     .singleOrNull()
@@ -273,13 +295,20 @@ suspend fun getMeetingResponse(meetingId: String, requestingUserID: String?): Bu
             val bookmarked =
                 Bookmarks.selectAll()
                     .where {
-                        (Bookmarks.userID eq requestingUserID) and
-                            (Bookmarks.meetingID eq meetingId)
+                        (Bookmarks.userID eq requestingUserID) and (Bookmarks.meetingID eq burrowID)
                     }
                     .firstOrNull() != null
 
             Triple(profile, membership, bookmarked)
         }
+
+    val requestedToJoin =
+        if (
+            membership?.status != BurrowMemberStatus.JOINED &&
+                membership?.status != BurrowMemberStatus.WAITLISTED
+        ) {
+            getJoinRequest(requestingUserID, burrowID)?.status == JoinRequestStatus.PENDING
+        } else null
 
     // Build highlighted tags based on user's classes
     val highlightedTags = buildList {
@@ -299,6 +328,7 @@ suspend fun getMeetingResponse(meetingId: String, requestingUserID: String?): Bu
         burrowAuthor = authorUsername,
         burrowAuthorProfile = authorProfile,
         membership = membership,
+        requestedToJoin = requestedToJoin,
         bookmarked = bookmarked,
         highlightedTags = highlightedTags,
     )
@@ -326,6 +356,8 @@ suspend fun updatedBurrow(meetingId: String, meeting: SubmittedBurrow) = query {
         it[Burrows.endTime] = meeting.endTime
         it[Burrows.tags] = Json.encodeToString(meeting.tags)
         it[Burrows.capacity] = meeting.capacity
+        it[Burrows.visibility] = meeting.visibility
+        it[Burrows.requestToJoin] = meeting.requestToJoin
     }
 
     rescheduleNotificationsForMeeting(meetingId)

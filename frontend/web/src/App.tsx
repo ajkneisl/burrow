@@ -8,8 +8,8 @@ import useUser from "@features/auth/hooks/useUser.ts"
 import NotFound from "@pages/NotFound.view.tsx"
 import { useAtom } from "jotai"
 import Footer from "@features/layout/components/Footer.tsx"
-import CreateStudyGroupModal from "@features/create/components/CreateStudyGroupModal.tsx"
-import { studyGroupModal } from "@features/create/create.atom.ts"
+import CreateBurrowModal from "@features/burrows/create/components/CreateBurrowModal.tsx"
+import { studyGroupModal } from "@features/burrows/create/create.atom.ts"
 import { themeAtom } from "@api/theme.atom.ts"
 import Privacy from "@pages/Privacy.view.tsx"
 import ToS from "@pages/ToS.view.tsx"
@@ -92,7 +92,7 @@ function RootLayout() {
             />
 
             <main className="mx-4 mb-8 max-w-screen flex-grow md:m-auto md:min-w-xl">
-                <CreateStudyGroupModal
+                <CreateBurrowModal
                     open={modalOpen}
                     onClose={() => setModalOpen(false)}
                     title="Create a Study Group"

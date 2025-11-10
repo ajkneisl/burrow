@@ -92,19 +92,6 @@ suspend fun Application.module() {
     initDb()
     notificationWorker()
 
-    // convert current users to have profiles
-    query {
-        Users.selectAll().collect { row ->
-            query {
-                if (Profiles.selectAll().where { Profiles.userID eq row[Users.id] }.count() == 0L)
-                    Profiles.insert {
-                        it[Profiles.userID] = row[Users.id]
-                        it[Profiles.name] = row[Users.username]
-                    }
-            }
-        }
-    }
-
     install(SSE)
     install(WebSockets) {
         pingPeriod = 15.seconds

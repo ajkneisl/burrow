@@ -19,9 +19,9 @@ import useToken from "@features/auth/hooks/useToken.ts"
 import { blockStatus } from "@features/sync/sync.atom.ts"
 import { Badge, Card, Hover } from "@umnburrow/core"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
-import BurrowJoinRequests from "@features/burrows/components/moderator/BurrowJoinRequests.tsx"
+import BurrowJoinRequests from "@features/burrows/invites/components/BurrowJoinRequests.tsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
-import BurrowInvites from "@features/burrows/components/moderator/BurrowInvites.tsx"
+import BurrowInvites from "@features/burrows/invites/components/BurrowInvites.tsx"
 import ShareMeeting from "@features/burrows/components/ShareMeeting.tsx"
 import BookmarkMeeting from "@features/burrows/components/BookmarkMeeting.tsx"
 
@@ -40,7 +40,7 @@ export default function Meeting() {
     const { data, isLoading, error } = useQuery({
         queryKey: [`meeting`, id],
         enabled: id !== null,
-        queryFn: () => (id ? getMeeting(id, auth) : null)
+        queryFn: async () => await getMeeting(id!)
     })
 
     useSync(data)

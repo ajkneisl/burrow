@@ -1,12 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useParams } from "react-router"
-import { useAtom } from "jotai"
-import { authToken } from "@features/auth/auth.atom.ts"
 import {
     getInvites,
     cancelInvite,
     createInvite
-} from "@features/burrows/burrows.api.ts"
+} from "@features/burrows/invites/invites.api.ts"
 import type { InviteWithUsers } from "@features/burrows/burrows.types.ts"
 import { Button, Card, Input } from "@umnburrow/core"
 import { formatTimeAgo } from "@api/util.ts"
@@ -20,14 +18,13 @@ import { getUserByUsername } from "@features/profile/profile.api.ts"
  */
 function InviteItem({ invite }: { invite: InviteWithUsers }) {
     const { id } = useParams<{ id: string }>()
-    const [auth] = useAtom(authToken)
     const queryClient = useQueryClient()
     const nav = useNavigate()
 
     // Cancel invite mutation
     const cancelMutation = useMutation({
         mutationFn: async () =>
-            await cancelInvite(auth!, id!, invite.invite.inviteeID),
+            await cancelInvite(id!, invite.invite.inviteeID),
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: ["invites", id]
@@ -109,7 +106,6 @@ function InviteItem({ invite }: { invite: InviteWithUsers }) {
  */
 function CreateInviteForm() {
     const { id } = useParams<{ id: string }>()
-    const [auth] = useAtom(authToken)
     const queryClient = useQueryClient()
     const [username, setUsername] = useState("")
     const [error, setError] = useState<string | null>(null)
@@ -117,9 +113,9 @@ function CreateInviteForm() {
     const createInviteMutation = useMutation({
         mutationFn: async (inviteeUsername: string) => {
             // First, look up the user by username to get their ID
-            const user = await getUserByUsername(auth!, inviteeUsername)
+            const user = await getUserByUsername(inviteeUsername)
             // Then create the invite using the user ID
-            await createInvite(auth!, id!, user.user.id)
+            await createInvite(id!, user.user.id)
         },
         onSuccess: async () => {
             await queryClient.invalidateQueries({
@@ -182,12 +178,11 @@ function CreateInviteForm() {
  */
 export default function BurrowInvites() {
     const { id } = useParams<{ id: string }>()
-    const [auth] = useAtom(authToken)
 
     const { data, isLoading, isError, error } = useQuery<InviteWithUsers[]>({
         queryKey: ["invites", id],
-        queryFn: async () => await getInvites(auth!, id!),
-        enabled: !!auth && !!id
+        queryFn: async () => await getInvites(id!),
+        enabled: !!id
     })
 
     if (isLoading) {

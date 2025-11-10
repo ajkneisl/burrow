@@ -3,14 +3,15 @@ package app.burrow.burrows
 import app.burrow.account.Users
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
-import app.burrow.burrows.models.Burrows
 import app.burrow.burrows.bookmarks.Bookmark
 import app.burrow.burrows.bookmarks.Bookmarks
 import app.burrow.burrows.membership.Membership
 import app.burrow.burrows.membership.Memberships
+import app.burrow.burrows.models.BurrowMemberStatus
 import app.burrow.burrows.models.BurrowResponse
 import app.burrow.burrows.models.BurrowType
-import app.burrow.burrows.models.BurrowMemberStatus
+import app.burrow.burrows.models.BurrowVisibility
+import app.burrow.burrows.models.Burrows
 import app.burrow.models.PaginatedResponse
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
@@ -40,7 +41,7 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 /**
  * The amount of meetings per page.
  *
- * @see aggregateMeetings
+ * @see searchMeetings
  */
 private const val PAGE_COUNT = 50
 
@@ -60,25 +61,25 @@ private data class UserSearchContext(
 /**
  * Fetch user profile, memberships, and bookmarks in a single database transaction.
  *
- * @param userId The ID of the user to fetch data for.
+ * @param userID The ID of the user to fetch data for.
  * @return A [UserSearchContext] containing all user data needed for search results.
  */
-private suspend fun getUserSearchContext(userId: String): UserSearchContext = query {
+private suspend fun getUserSearchContext(userID: String): UserSearchContext = query {
     val profile =
         Profiles.selectAll()
-            .where { Profiles.userID eq userId }
+            .where { Profiles.userID eq userID }
             .map { Profile.fromRow(it) }
             .singleOrNull()
 
     val memberships =
         Memberships.selectAll()
-            .where { Memberships.userID eq userId }
+            .where { Memberships.userID eq userID }
             .toList()
-            .associate { row -> row[Memberships.meetingID] to Membership.fromRow(row) }
+            .associate { row -> row[Memberships.burrowID] to Membership.fromRow(row) }
 
     val bookmarks =
         Bookmarks.selectAll()
-            .where { Bookmarks.userID eq userId }
+            .where { Bookmarks.userID eq userID }
             .toList()
             .associate { row -> row[Bookmarks.meetingID] to Bookmark.fromRow(row) }
 
@@ -88,17 +89,21 @@ private suspend fun getUserSearchContext(userId: String): UserSearchContext = qu
 /**
  * Search through all Burrows.
  *
- * @param query The search query. This will search through tags, title, description, location, etc..
  * @param page The page of results.
+ * @param kind The kind of Burrow.
+ * @param search The search query. This will search through tags, title, description, location,
+ *   etc..
  * @param dateRange The range of dates to search through.
+ * @param forceAuthorName Force the author of the retrieved meetings to be a specific name.
  * @param requestingUserID The ID of the user searching. This allows for the implementation of
  *   bookmarks and memberships.
  * @return A list of [BurrowResponse]. The bookmark will be false and membership be null if there's
  *   no [requestingUserID].
+ * @see BurrowType
  */
 suspend fun searchMeetings(
     page: Int = 1,
-    type: BurrowType? = null,
+    kind: BurrowType? = null,
     search: String? = null,
     dateRange: LongRange? = null,
     forceAuthorName: String? = null,
@@ -133,7 +138,11 @@ suspend fun searchMeetings(
                 (Burrows.tags.lowerCase() like pattern))
         } else Op.TRUE
 
-    val typeExpr = if (type != null) (Burrows.kind eq type) else Op.TRUE
+    // ensure the kind of burrow
+    val kindExpr = if (kind != null) (Burrows.kind eq kind) else Op.TRUE
+
+    // ensure only public
+    val privacyExpr = (Burrows.visibility eq BurrowVisibility.PUBLIC)
 
     val (meetingsCount, meetings) =
         query {
@@ -144,14 +153,14 @@ suspend fun searchMeetings(
             val waitingCountExpr = waitingAlias[Memberships.userID].countDistinct()
 
             val meetingsCount =
-                Burrows.select(Burrows.id).where { dateExpr and searchExpr and typeExpr }.count()
+                Burrows.select(Burrows.id).where { dateExpr and searchExpr and kindExpr }.count()
 
             val meetings =
                 Burrows.innerJoin(Users, { Burrows.ownerID }, { Users.id })
                     .leftJoin(
                         joinedAlias,
                         { Burrows.id },
-                        { joinedAlias[Memberships.meetingID] },
+                        { joinedAlias[Memberships.burrowID] },
                         additionalConstraint = {
                             joinedAlias[Memberships.status] eq BurrowMemberStatus.JOINED
                         },
@@ -159,7 +168,7 @@ suspend fun searchMeetings(
                     .leftJoin(
                         waitingAlias,
                         { Burrows.id },
-                        { waitingAlias[Memberships.meetingID] },
+                        { waitingAlias[Memberships.burrowID] },
                         additionalConstraint = {
                             waitingAlias[Memberships.status] eq BurrowMemberStatus.WAITLISTED
                         },
@@ -172,7 +181,7 @@ suspend fun searchMeetings(
                     )
                     .offset(PAGE_COUNT * (page - 1L))
                     .limit(PAGE_COUNT)
-                    .where { dateExpr and searchExpr and typeExpr }
+                    .where { dateExpr and searchExpr and kindExpr and privacyExpr }
                     .groupBy(
                         *Burrows.columns.toTypedArray(),
                         *Profiles.columns.toTypedArray(),

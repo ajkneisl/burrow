@@ -36,23 +36,9 @@ export interface Burrow {
     tags: string[]
     capacity: number
     visibility: BurrowVisibility
+    requestToJoin: boolean
     joined: number
     waiting: number
-}
-
-/**
- * A group meeting created by a form.
- */
-export type SubmittedGroupMeeting = {
-    title: string
-    description: string
-    location: string
-    kind: BurrowType
-    beginningTime: number // epoch millis
-    endTime: number // epoch millis
-    tags: string[]
-    capacity: number
-    visibility: BurrowVisibility
 }
 
 /**
@@ -94,6 +80,7 @@ export interface BurrowResponse {
     burrowAuthor?: string
     burrowAuthorProfile?: Profile
     membership?: BurrowMembership
+    requestedToJoin: boolean
     bookmarked: boolean
     highlightedTags: number[]
 }

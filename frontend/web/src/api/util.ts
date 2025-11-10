@@ -255,3 +255,15 @@ export function convertGraduationYear(year: number | null) {
             return `'${year.toString().slice(2, 4)}`
     }
 }
+
+/**
+ * Convert a HH:MM into milliseconds.
+ *
+ * @param dateMs The current date in milliseconds.
+ * @param time The HH:MM date.
+ */
+export function addTime(dateMs: number, time: string): number {
+    const timeSpl = time.split(":")
+
+    return dateMs + +timeSpl[0] * 60 * 60 * 1000 + +timeSpl[1] * 60 * 1000
+}

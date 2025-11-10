@@ -1,17 +1,20 @@
 package app.burrow.burrows.membership
 
+import app.burrow.Error
 import app.burrow.account.Users
 import app.burrow.account.models.User
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
-import app.burrow.Error
-import app.burrow.burrows.models.Burrows
-import app.burrow.burrows.bookmarks.Bookmarks
 import app.burrow.burrows.Burrow
-import app.burrow.burrows.models.BurrowResponse
-import app.burrow.burrows.models.BurrowMemberStatus
-import app.burrow.burrows.models.BurrowRole
+import app.burrow.burrows.bookmarks.Bookmarks
 import app.burrow.burrows.getBurrow
+import app.burrow.burrows.invites.JoinRequests
+import app.burrow.burrows.invites.createJoinRequest
+import app.burrow.burrows.models.BurrowMemberStatus
+import app.burrow.burrows.models.BurrowResponse
+import app.burrow.burrows.models.BurrowRole
+import app.burrow.burrows.models.BurrowVisibility
+import app.burrow.burrows.models.Burrows
 import app.burrow.notifications.createNotification
 import app.burrow.notifications.onUserJoinedMeeting
 import app.burrow.notifications.onUserLeaveMeeting
@@ -28,15 +31,16 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.innerJoin
-import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
+import org.jetbrains.exposed.v1.r2dbc.upsert
 
 /** A membership to a [Burrow]. */
 @Serializable
 data class Membership(
-    val meetingID: String,
+    val burrowID: String,
     val userID: String,
     val role: BurrowRole,
     val status: BurrowMemberStatus,
@@ -51,7 +55,7 @@ data class Membership(
          */
         fun fromRow(row: ResultRow) =
             Membership(
-                meetingID = row[Memberships.meetingID],
+                burrowID = row[Memberships.burrowID],
                 userID = row[Memberships.userID],
                 role = row[Memberships.role],
                 status = row[Memberships.status],
@@ -88,7 +92,7 @@ data class MembershipResponse(val membership: Membership, val user: User, val pr
  */
 suspend fun getUserSchedule(user: String): List<BurrowResponse> {
     val result = query {
-        Memberships.innerJoin(Burrows, { Memberships.meetingID }, { Burrows.id })
+        Memberships.innerJoin(Burrows, { Memberships.burrowID }, { Burrows.id })
             .innerJoin(Users, { Burrows.ownerID }, { Users.id })
             .selectAll()
             .where {
@@ -119,9 +123,9 @@ suspend fun getUserSchedule(user: String): List<BurrowResponse> {
  */
 suspend fun getUserBookmarks(user: String): List<BurrowResponse> {
     val result = query {
-        Memberships.innerJoin(Burrows, { Memberships.meetingID }, { Burrows.id })
+        Memberships.innerJoin(Burrows, { Memberships.burrowID }, { Burrows.id })
             .innerJoin(Users, { Burrows.ownerID }, { Users.id })
-            .innerJoin(Bookmarks, { Memberships.meetingID }, { Bookmarks.meetingID })
+            .innerJoin(Bookmarks, { Memberships.burrowID }, { Bookmarks.meetingID })
             .selectAll()
             .where {
                 (Memberships.userID eq user) and // the user's meetings
@@ -153,10 +157,18 @@ suspend fun getUserBookmarks(user: String): List<BurrowResponse> {
  */
 suspend fun getMembership(userId: String, meetingId: String): Membership? = query {
     Memberships.selectAll()
-        .where { Memberships.userID eq userId and (Memberships.meetingID eq meetingId) }
+        .where { Memberships.userID eq userId and (Memberships.burrowID eq meetingId) }
         .firstOrNull()
         ?.let { Membership.fromRow(it) }
 }
+
+/**
+ * CHeck if a user is a member of [meetingID].
+ *
+ * @param meetingID The ID of the meeting to check.
+ */
+suspend infix fun String.isMemberOf(meetingID: String): Boolean =
+    getMembership(this, meetingID) != null
 
 /**
  * Get all a [userId]'s [Membership]s.
@@ -168,7 +180,7 @@ suspend fun getMemberships(userId: String): Map<String, Membership> = query {
     Memberships.selectAll()
         .where { Memberships.userID eq userId }
         .toList()
-        .associate { row -> row[Memberships.meetingID] to Membership.fromRow(row) }
+        .associate { row -> row[Memberships.burrowID] to Membership.fromRow(row) }
 }
 
 /**
@@ -183,7 +195,7 @@ suspend fun unBanUser(user: String, meeting: String) {
         Memberships.selectAll()
             .where {
                 (Memberships.userID eq user) and
-                    (Memberships.meetingID eq meeting) and
+                    (Memberships.burrowID eq meeting) and
                     (Memberships.status eq BurrowMemberStatus.BANNED)
             }
             .firstOrNull()
@@ -207,22 +219,20 @@ suspend fun unBanUser(user: String, meeting: String) {
  * @param moderator The user requesting to ban [user].
  * @param user The ID of the user to ban in the meeting.
  * @param meeting The ID of the meeting to ban the user in.
- * @param Error If the user is not in the meeting, they're the host, or a moderator and [user]
- *   is a moderator.
+ * @param Error If the user is not in the meeting, they're the host, or a moderator and [user] is a
+ *   moderator.
  */
 suspend fun banUser(moderator: String, user: String, meeting: String) {
-    val userMembership =
-        query {
-                Memberships.selectAll().where {
-                    Memberships.userID eq user and (Memberships.meetingID eq meeting)
-                }
-            }
+    val userMembership = query {
+        Memberships.selectAll()
+            .where { Memberships.userID eq user and (Memberships.burrowID eq meeting) }
             .firstOrNull()
+    }
 
     val moderatorMembership =
         query {
                 Memberships.selectAll().where {
-                    Memberships.userID eq moderator and (Memberships.meetingID eq meeting)
+                    Memberships.userID eq moderator and (Memberships.burrowID eq meeting)
                 }
             }
             .firstOrNull()
@@ -255,7 +265,7 @@ suspend fun banUser(moderator: String, user: String, meeting: String) {
 suspend fun changeRole(meetingId: String, userId: String, role: BurrowRole) {
     val userMembership = query {
         Memberships.selectAll()
-            .where { Memberships.userID eq userId and (Memberships.meetingID eq meetingId) }
+            .where { Memberships.userID eq userId and (Memberships.burrowID eq meetingId) }
             .firstOrNull()
     }
 
@@ -269,21 +279,21 @@ suspend fun changeRole(meetingId: String, userId: String, role: BurrowRole) {
 }
 
 /**
- * Have a [userId] leave a [meetingId].
+ * Have a [userID] leave a [meetingID].
  *
- * @param userId The ID of the user leaving the meeting.
- * @param meetingId The ID of the meeting to leave.
+ * @param userID The ID of the user leaving the Burrow.
+ * @param meetingID The ID of the Burrow to leave.
  * @throws Error If the user is not in the meeting or they're the host.
  */
-suspend fun leaveMeeting(userId: String, meetingId: String) {
-    val meeting = getBurrow(meetingId) ?: throw Error(404, "Meeting not found!")
+suspend fun leaveBurrow(userID: String, meetingID: String) {
+    val meeting = getBurrow(meetingID) ?: throw Error(404, "Meeting not found!")
 
     // ensure meeting hasn't ended
     if (getTimeMillis() > meeting.endTime) throw Error(400, "This meeting has already ended.")
 
     val existingMembership = query {
         Memberships.selectAll()
-            .where { (Memberships.userID eq userId) and (Memberships.meetingID eq meetingId) }
+            .where { (Memberships.userID eq userID) and (Memberships.burrowID eq meetingID) }
             .firstOrNull()
     }
 
@@ -303,15 +313,17 @@ suspend fun leaveMeeting(userId: String, meetingId: String) {
     // allow the user to leave
     query {
         Memberships.update(
-            where = { (Memberships.userID eq userId) and (Memberships.meetingID eq meetingId) }
+            where = { (Memberships.userID eq userID) and (Memberships.burrowID eq meetingID) }
         ) {
             it[role] = BurrowRole.MEMBER
             it[status] = BurrowMemberStatus.LEFT
             it[leftAt] = getTimeMillis()
         }
 
+        JoinRequests.deleteWhere { JoinRequests.requesterID eq userID }
+
         // un-schedule their notification
-        onUserLeaveMeeting(userId, meetingId)
+        onUserLeaveMeeting(userID, meetingID)
     }
 
     // the user who was waitlisted last gets first dibs
@@ -319,7 +331,7 @@ suspend fun leaveMeeting(userId: String, meetingId: String) {
         val earliestWaitlist =
             Memberships.selectAll()
                 .where {
-                    (Memberships.meetingID eq meetingId) and
+                    (Memberships.burrowID eq meetingID) and
                         (Memberships.status eq BurrowMemberStatus.WAITLISTED)
                 }
                 .orderBy(Memberships.joinedAt, SortOrder.DESC)
@@ -329,7 +341,7 @@ suspend fun leaveMeeting(userId: String, meetingId: String) {
             val waitingUser = earliestWaitlist[Memberships.userID]
 
             Memberships.update({
-                (Memberships.userID eq waitingUser) and (Memberships.meetingID eq meetingId)
+                (Memberships.userID eq waitingUser) and (Memberships.burrowID eq meetingID)
             }) {
                 // welcome to the club :)
                 it[Memberships.status] = BurrowMemberStatus.JOINED
@@ -339,38 +351,48 @@ suspend fun leaveMeeting(userId: String, meetingId: String) {
             createNotification("Joined Meeting", "You've been moved off the waitlist!", waitingUser)
 
             // schedule their upcoming meeting notification
-            onUserJoinedMeeting(userId, meetingId)
+            onUserJoinedMeeting(userID, meetingID)
         }
     }
 }
 
 /**
- * Have [userId] join a [meetingId].
+ * Have [userID] join a [burrowID].
  *
- * @param userId The ID of the user joining the meeting.
- * @param meetingId The ID of the meeting to join.
+ * @param userID The ID of the user joining the Burrow.
+ * @param burrowID The ID of the Burrow to join.
  * @throws Error If the user is banned or already joined/waitlisted.
  */
-suspend fun joinMeeting(userId: String, meetingId: String) {
-    val meeting = getBurrow(meetingId) ?: throw Error(404, "Meeting does not exist.")
+suspend fun joinBurrow(userID: String, burrowID: String) {
+    val meeting = getBurrow(burrowID) ?: throw Error(404, "Burrow does not exist.")
+
+    // cannot join
+    if (meeting.visibility == BurrowVisibility.PRIVATE) {
+        throw Error(404, "Burrow does not exist.")
+    }
+
+    if (meeting.requestToJoin) {
+        createJoinRequest(userID, burrowID)
+        return
+    }
 
     // ensure meeting hasn't ended
     if (getTimeMillis() > meeting.endTime) throw Error(400, "This meeting has already ended.")
 
     val existingMembership = query {
         Memberships.selectAll()
-            .where { (Memberships.userID eq userId) and (Memberships.meetingID eq meetingId) }
+            .where { (Memberships.userID eq userID) and (Memberships.burrowID eq burrowID) }
             .firstOrNull()
     }
 
     val count = query {
-        Memberships.selectAll().where { (Memberships.meetingID eq meetingId) }.count()
+        Memberships.selectAll().where { (Memberships.burrowID eq burrowID) }.count()
     }
 
     // if capacity = 0, then there's no limit >:)
     val capacity = query {
         Burrows.select(Burrows.id, Burrows.capacity)
-            .where { Burrows.id eq meetingId }
+            .where { Burrows.id eq burrowID }
             .first()[Burrows.capacity]
     }
 
@@ -379,40 +401,13 @@ suspend fun joinMeeting(userId: String, meetingId: String) {
     val atCapacity = count >= capacity && capacity != 0
 
     // the user has previously joined this meeting
-    if (existingMembership != null) {
+    if (
+        existingMembership != null &&
+            existingMembership[Memberships.status] != BurrowMemberStatus.LEFT
+    ) {
         // they're banned from the meeting
         if (existingMembership[Memberships.status] == BurrowMemberStatus.BANNED) {
             throw Error(401, "You are not authorized to join this meeting.")
-        }
-
-        if (existingMembership[Memberships.status] == BurrowMemberStatus.LEFT) {
-            // meeting is full
-            if (atCapacity) {
-                query {
-                    Memberships.update({
-                        (Memberships.userID eq userId) and (Memberships.meetingID eq meetingId)
-                    }) {
-                        it[status] = BurrowMemberStatus.WAITLISTED
-                        it[leftAt] = null
-                        it[joinedAt] = getTimeMillis()
-                    }
-                }
-            } else {
-                query {
-                    Memberships.update({
-                        (Memberships.userID eq userId) and (Memberships.meetingID eq meetingId)
-                    }) {
-                        it[status] = BurrowMemberStatus.JOINED
-                        it[leftAt] = null
-                        it[joinedAt] = getTimeMillis()
-                    }
-                }
-
-                // schedule notification
-                onUserJoinedMeeting(userId, meetingId)
-            }
-
-            return
         }
 
         // they're either already joined, or they're waitlisted; let them know we don't deal
@@ -420,9 +415,9 @@ suspend fun joinMeeting(userId: String, meetingId: String) {
         throw Error(400, "You currently cannot join this meeting!")
     } else {
         val status = query {
-            Memberships.insert {
-                it[this.userID] = userId
-                it[this.meetingID] = meetingId
+            Memberships.upsert {
+                it[this.userID] = userID
+                it[this.burrowID] = burrowID
                 it[this.joinedAt] = getTimeMillis()
                 it[this.role] = BurrowRole.MEMBER
 
@@ -432,7 +427,7 @@ suspend fun joinMeeting(userId: String, meetingId: String) {
             } get (Memberships.status)
         }
 
-        if (status == BurrowMemberStatus.JOINED) onUserJoinedMeeting(userId, meetingId)
+        if (status == BurrowMemberStatus.JOINED) onUserJoinedMeeting(userID, burrowID)
     }
 }
 
@@ -446,7 +441,7 @@ suspend fun getAttendees(meetingID: String): List<MembershipResponse> {
         Memberships.innerJoin(Users, { Memberships.userID }, { Users.id })
             .innerJoin(Profiles, { Memberships.userID }, { Profiles.userID })
             .selectAll()
-            .where { Memberships.meetingID eq meetingID }
+            .where { Memberships.burrowID eq meetingID }
             .map { row ->
                 MembershipResponse(Membership.fromRow(row), User.fromRow(row), Profile.fromRow(row))
             }
@@ -464,6 +459,6 @@ suspend fun getAttendees(meetingID: String): List<MembershipResponse> {
  */
 suspend fun userInMeeting(userId: String, meetingId: String): Boolean = query {
     Memberships.selectAll()
-        .where { (Memberships.userID eq userId) and (Memberships.meetingID eq meetingId) }
+        .where { (Memberships.userID eq userId) and (Memberships.burrowID eq meetingId) }
         .firstOrNull() != null
 }

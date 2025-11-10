@@ -6,7 +6,11 @@ import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
 import kotlinx.serialization.Serializable
 
-/** A meeting submission, un-checked. */
+/**
+ * A meeting submission.
+ *
+ * @see app.burrow.burrows.Burrow
+ */
 @Serializable
 data class SubmittedBurrow(
     val title: String,
@@ -18,6 +22,7 @@ data class SubmittedBurrow(
     val tags: Set<String>,
     val capacity: Int,
     val visibility: BurrowVisibility,
+    val requestToJoin: Boolean,
 ) {
     /** Validate the Burrow. */
     fun validateSubmittedGroupMeeting(): List<String> {

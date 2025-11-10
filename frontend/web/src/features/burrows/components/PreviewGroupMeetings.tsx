@@ -6,7 +6,7 @@ import type { BurrowType } from "@features/burrows/burrows.types.ts"
 import { getMeetings } from "@features/burrows/burrows.api.ts"
 import { Badge, Button, Card } from "@umnburrow/core"
 import { useAtom } from "jotai"
-import { studyGroupModal } from "@features/create/create.atom.ts"
+import { studyGroupModal } from "@features/burrows/create/create.atom.ts"
 
 /**
  * When there's an error loading the preview.

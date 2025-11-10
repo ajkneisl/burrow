@@ -1,12 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useParams } from "react-router"
-import { useAtom } from "jotai"
-import { authToken } from "@features/auth/auth.atom.ts"
 import {
     getJoinRequests,
     acceptJoinRequest,
     denyJoinRequest
-} from "@features/burrows/burrows.api.ts"
+} from "@features/burrows/invites/invites.api.ts"
 import type { JoinRequestWithUser } from "@features/burrows/burrows.types.ts"
 import { Button, Card } from "@umnburrow/core"
 import { formatTimeAgo } from "@api/util.ts"
@@ -18,14 +16,13 @@ import { useNavigate } from "react-router"
  */
 function JoinRequestItem({ request }: { request: JoinRequestWithUser }) {
     const { id } = useParams<{ id: string }>()
-    const [auth] = useAtom(authToken)
     const queryClient = useQueryClient()
     const nav = useNavigate()
 
     // Accept request mutation
     const acceptMutation = useMutation({
         mutationFn: async () =>
-            await acceptJoinRequest(auth!, id!, request.request.requesterID),
+            await acceptJoinRequest(id!, request.request.requesterID),
         onSuccess: async () => {
             await Promise.all([
                 queryClient.invalidateQueries({
@@ -44,7 +41,7 @@ function JoinRequestItem({ request }: { request: JoinRequestWithUser }) {
     // Deny request mutation
     const denyMutation = useMutation({
         mutationFn: async () =>
-            await denyJoinRequest(auth!, id!, request.request.requesterID),
+            await denyJoinRequest(id!, request.request.requesterID),
         onSuccess: async () =>
             await queryClient.invalidateQueries({
                 queryKey: ["joinRequests", id]
@@ -129,13 +126,12 @@ function JoinRequestItem({ request }: { request: JoinRequestWithUser }) {
  */
 export default function BurrowJoinRequests() {
     const { id } = useParams<{ id: string }>()
-    const [auth] = useAtom(authToken)
 
     const { data, isLoading, isError, error } = useQuery<JoinRequestWithUser[]>(
         {
             queryKey: ["joinRequests", id],
-            queryFn: async () => await getJoinRequests(auth!, id!),
-            enabled: !!auth && !!id
+            queryFn: async () => await getJoinRequests(id!),
+            enabled: !!id
         }
     )
 

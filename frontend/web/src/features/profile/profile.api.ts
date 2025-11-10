@@ -4,27 +4,17 @@ import type {
     UserResponse
 } from "@features/profile/profile.model.ts"
 import { BASE_URL } from "@api/util.ts"
+import { get } from "@api/api.ts"
 
 /**
  * Get a user by their username.
  *
- * @param auth The authorization token.
  * @param username The username.
  */
 export async function getUserByUsername(
-    auth: string | null,
     username: string
 ): Promise<UserResponse> {
-    const request = await fetch(`${BASE_URL}/user/username/${username}`, {
-        method: "GET",
-        headers: {
-            Authorization: "Bearer " + auth
-        }
-    })
-
-    if (!request.ok) return Promise.reject("Failed to load profile.")
-
-    return await request.json()
+    return get(`/user/username/${username}`)
 }
 
 /**

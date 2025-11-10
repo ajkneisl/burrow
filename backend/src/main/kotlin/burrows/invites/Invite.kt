@@ -124,7 +124,7 @@ suspend fun createInvite(
         // Check for existing membership
         val existingMembership =
             Memberships.selectAll()
-                .where { (Memberships.userID eq inviteeId) and (Memberships.meetingID eq burrowId) }
+                .where { (Memberships.userID eq inviteeId) and (Memberships.burrowID eq burrowId) }
                 .firstOrNull()
 
         if (existingMembership != null) {
@@ -420,7 +420,7 @@ suspend fun acceptInvite(inviteeId: String, burrowId: String, inviterId: String?
         val count =
             Memberships.selectAll()
                 .where {
-                    (Memberships.meetingID eq burrowId) and
+                    (Memberships.burrowID eq burrowId) and
                         (Memberships.status eq BurrowMemberStatus.JOINED)
                 }
                 .count()
@@ -435,7 +435,7 @@ suspend fun acceptInvite(inviteeId: String, burrowId: String, inviterId: String?
         // Check if user already has a membership
         val existingMembership =
             Memberships.selectAll()
-                .where { (Memberships.userID eq inviteeId) and (Memberships.meetingID eq burrowId) }
+                .where { (Memberships.userID eq inviteeId) and (Memberships.burrowID eq burrowId) }
                 .firstOrNull()
 
         val membershipStatus =
@@ -445,7 +445,7 @@ suspend fun acceptInvite(inviteeId: String, burrowId: String, inviterId: String?
         if (existingMembership != null) {
             // Update existing membership
             Memberships.update({
-                (Memberships.userID eq inviteeId) and (Memberships.meetingID eq burrowId)
+                (Memberships.userID eq inviteeId) and (Memberships.burrowID eq burrowId)
             }) {
                 it[status] = membershipStatus
                 it[joinedAt] = now
@@ -456,7 +456,7 @@ suspend fun acceptInvite(inviteeId: String, burrowId: String, inviterId: String?
             // Create new membership
             Memberships.insert {
                 it[Memberships.userID] = inviteeId
-                it[Memberships.meetingID] = burrowId
+                it[Memberships.burrowID] = burrowId
                 it[Memberships.joinedAt] = now
                 it[Memberships.role] = BurrowRole.MEMBER
                 it[Memberships.status] = membershipStatus

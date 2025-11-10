@@ -88,7 +88,7 @@ data class JoinRequestWithUser(
 suspend fun createJoinRequest(userID: String, burrowID: String) {
     val burrow = getBurrow(burrowID).throwIfNull()
 
-    // Check if burrow has ended
+    // make sure it hasn't ended
     if (getTimeMillis() > burrow.endTime) {
         throw Error(400, "This Burrow has already ended.")
     }
@@ -97,17 +97,17 @@ suspend fun createJoinRequest(userID: String, burrowID: String) {
         // Check for existing membership
         val existingMembership =
             Memberships.selectAll()
-                .where { (Memberships.userID eq userID) and (Memberships.meetingID eq burrowID) }
+                .where { (Memberships.userID eq userID) and (Memberships.burrowID eq burrowID) }
                 .firstOrNull()
 
         if (existingMembership != null) {
             when (existingMembership[Memberships.status]) {
                 BurrowMemberStatus.BANNED ->
-                    throw Error(403, "You are banned from this burrow.")
+                    throw Error(403, "You are banned from this Burrow.")
 
                 BurrowMemberStatus.JOINED,
                 BurrowMemberStatus.WAITLISTED ->
-                    throw Error(400, "You are already a member of this burrow.")
+                    throw Error(400, "You are already a member of this Burrow.")
 
                 else -> {}
             }
@@ -268,7 +268,7 @@ suspend fun acceptJoinRequest(userId: String, burrowId: String, reviewerId: Stri
         val count =
             Memberships.selectAll()
                 .where {
-                    (Memberships.meetingID eq burrowId) and
+                    (Memberships.burrowID eq burrowId) and
                         (Memberships.status eq BurrowMemberStatus.JOINED)
                 }
                 .count()
@@ -278,7 +278,7 @@ suspend fun acceptJoinRequest(userId: String, burrowId: String, reviewerId: Stri
         // check if they're got an existing membership (previously left)
         val existingMembership =
             Memberships.selectAll()
-                .where { (Memberships.userID eq userId) and (Memberships.meetingID eq burrowId) }
+                .where { (Memberships.userID eq userId) and (Memberships.burrowID eq burrowId) }
                 .firstOrNull()
 
         val membershipStatus =
@@ -287,7 +287,7 @@ suspend fun acceptJoinRequest(userId: String, burrowId: String, reviewerId: Stri
         if (existingMembership != null) {
             // Update existing membership
             Memberships.update({
-                (Memberships.userID eq userId) and (Memberships.meetingID eq burrowId)
+                (Memberships.userID eq userId) and (Memberships.burrowID eq burrowId)
             }) {
                 it[status] = membershipStatus
                 it[joinedAt] = now
@@ -298,7 +298,7 @@ suspend fun acceptJoinRequest(userId: String, burrowId: String, reviewerId: Stri
             // Create new membership
             Memberships.insert {
                 it[Memberships.userID] = userId
-                it[Memberships.meetingID] = burrowId
+                it[Memberships.burrowID] = burrowId
                 it[Memberships.joinedAt] = now
                 it[Memberships.role] = BurrowRole.MEMBER
                 it[Memberships.status] = membershipStatus

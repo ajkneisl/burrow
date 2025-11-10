@@ -235,7 +235,7 @@ private suspend fun upsertUpcomingForUser(
 private suspend fun attendeeIds(meetingId: String): List<String> = query {
     Memberships.select(Memberships.userID)
         .where {
-            (Memberships.meetingID eq meetingId) and
+            (Memberships.burrowID eq meetingId) and
                 (Memberships.status eq BurrowMemberStatus.JOINED)
         }
         .map { it[Memberships.userID] }
@@ -302,7 +302,7 @@ suspend fun onUserLeaveMeeting(userId: String, meetingId: String) {
  */
 suspend fun onUserSettingsChanged(userId: String, nowMs: Long = getTimeMillis()) {
     query {
-        Burrows.leftJoin(Memberships, { Burrows.id }, { Memberships.meetingID })
+        Burrows.leftJoin(Memberships, { Burrows.id }, { Memberships.burrowID })
             .select(
                 Burrows.id,
                 Burrows.beginningTime,

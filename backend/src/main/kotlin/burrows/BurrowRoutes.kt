@@ -1,8 +1,8 @@
 package app.burrow.burrows
 
+import app.burrow.Error
 import app.burrow.InvalidArguments
 import app.burrow.InvalidAuthorization
-import app.burrow.Error
 import app.burrow.account.models.userID
 import app.burrow.burrows.bookmarks.bookmarkRoutes
 import app.burrow.burrows.invites.inviteRoutes
@@ -48,7 +48,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
         val page = call.optionalIntQueryParameter("page") ?: 1
         val type = call.enumQueryParameter<BurrowType>("type")
 
-        call.respond(searchMeetings(page = page, type = type, requestingUserID = call.userID))
+        call.respond(searchMeetings(page = page, kind = type, requestingUserID = call.userID))
     }
 
     // GET /groups/heatmap
@@ -108,7 +108,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
         call.respond(
             searchMeetings(
                 page = page,
-                type = type,
+                kind = type,
                 search = searchQuery,
                 dateRange = range,
                 forceAuthorName = call.userID,

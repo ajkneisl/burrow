@@ -1,12 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useAtom } from "jotai"
-import { authToken } from "@features/auth/auth.atom.ts"
 import {
     getReceivedInvites,
     acceptInvite,
-    declineInvite,
-    getMeeting
-} from "@features/burrows/burrows.api.ts"
+    declineInvite
+} from "@features/burrows/invites/invites.api.ts"
+import { getMeeting } from "@features/burrows/burrows.api.ts"
 import type { InviteWithUsers } from "@features/burrows/burrows.types.ts"
 import { Button, Card, Modal } from "@umnburrow/core"
 import { formatTimeAgo } from "@api/util.ts"
@@ -18,21 +17,18 @@ import {myInvitesModalOpen} from "@features/layout/layout.atom.ts";
  * Component to display a single received invite.
  */
 function ReceivedInviteItem({ invite }: { invite: InviteWithUsers }) {
-    const [auth] = useAtom(authToken)
     const queryClient = useQueryClient()
     const nav = useNavigate()
 
     // get burrow details
     const { data: burrowData } = useQuery({
         queryKey: ["meeting", invite.invite.burrowID],
-        queryFn: async () => await getMeeting(invite.invite.burrowID, auth!),
-        enabled: !!auth
+        queryFn: async () => await getMeeting(invite.invite.burrowID)
     })
 
     // accept the invitation
     const acceptMutation = useMutation({
-        mutationFn: async () =>
-            await acceptInvite(auth!, invite.invite.burrowID),
+        mutationFn: async () => await acceptInvite(invite.invite.burrowID),
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: ["receivedInvites"]
@@ -45,8 +41,7 @@ function ReceivedInviteItem({ invite }: { invite: InviteWithUsers }) {
 
     // decline invitation
     const declineMutation = useMutation({
-        mutationFn: async () =>
-            await declineInvite(auth!, invite.invite.burrowID),
+        mutationFn: async () => await declineInvite(invite.invite.burrowID),
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: ["receivedInvites"]
@@ -144,13 +139,12 @@ function ReceivedInviteItem({ invite }: { invite: InviteWithUsers }) {
  * Modal to display all received invites for the authenticated user.
  */
 export default function MyInvitesModal() {
-    const [auth] = useAtom(authToken)
     const [open, setOpen] = useAtom(myInvitesModalOpen)
 
     const { data, isLoading, isError, error } = useQuery<InviteWithUsers[]>({
         queryKey: ["receivedInvites"],
-        queryFn: async () => await getReceivedInvites(auth!, "PENDING"),
-        enabled: !!auth && open
+        queryFn: async () => await getReceivedInvites("PENDING"),
+        enabled: open
     })
 
     return (

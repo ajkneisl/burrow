@@ -1,5 +1,5 @@
 import type { Burrow } from "@features/burrows/burrows.types.ts"
-import EditStudyGroupModal from "@features/create/components/EditStudyGroupModal.tsx"
+import EditBurrowModal from "@features/burrows/create/components/EditBurrowModal.tsx"
 import { useMemo, useState } from "react"
 import { Button } from "@umnburrow/core"
 
@@ -15,7 +15,7 @@ type EditMeetingProps = {
  *
  * @param meeting The meeting to edit.
  *
- * @see EditStudyGroupModal
+ * @see EditBurrowModal
  */
 export default function EditMeeting({ meeting }: EditMeetingProps) {
     const [open, setOpen] = useState(false)
@@ -26,7 +26,7 @@ export default function EditMeeting({ meeting }: EditMeetingProps) {
 
     return (
         <>
-            <EditStudyGroupModal
+            <EditBurrowModal
                 open={open}
                 onClose={() => setOpen(false)}
                 meeting={meeting}

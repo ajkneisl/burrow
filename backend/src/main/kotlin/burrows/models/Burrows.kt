@@ -46,6 +46,9 @@ object Burrows : Table("group_meetings") {
             .index("ix_burrows_visibility")
             .default(BurrowVisibility.PUBLIC)
 
+    /** [app.burrow.burrows.Burrow.requestToJoin] */
+    val requestToJoin = bool("request_to_join").default(false)
+
     override val primaryKey = PrimaryKey(id)
 
     init {

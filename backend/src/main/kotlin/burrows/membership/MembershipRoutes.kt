@@ -43,7 +43,7 @@ fun Route.membershipRoutes() {
     post("/join") {
         val id = call.urlParameter("id")
 
-        joinMeeting(call.userID, id)
+        joinBurrow(call.userID, id)
 
         call.respond(HttpStatusCode.OK)
     }
@@ -53,7 +53,7 @@ fun Route.membershipRoutes() {
     post("/leave") {
         val id = call.urlParameter("id")
 
-        leaveMeeting(call.userID, id)
+        leaveBurrow(call.userID, id)
 
         call.respond(HttpStatusCode.OK)
     }

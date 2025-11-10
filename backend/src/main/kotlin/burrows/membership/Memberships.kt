@@ -9,8 +9,8 @@ import org.jetbrains.exposed.v1.core.Table
 
 /** [Membership] */
 object Memberships : Table("memberships") {
-    /** [Membership.meetingID] */
-    val meetingID =
+    /** [Membership.burrowID] */
+    val burrowID =
         reference("meeting_id", Burrows.id, onDelete = ReferenceOption.CASCADE)
             .index("ix_membership_meetingID")
 
@@ -32,9 +32,9 @@ object Memberships : Table("memberships") {
     /** [Membership.leftAt] */
     val leftAt = long("left_at").nullable()
 
-    override val primaryKey = PrimaryKey(meetingID, userID, name = "pk_membership")
+    override val primaryKey = PrimaryKey(burrowID, userID, name = "pk_membership")
 
     init {
-        index("ix_membership_meetingID_userID", false, meetingID, userID)
+        index("ix_membership_meetingID_userID", false, burrowID, userID)
     }
 }

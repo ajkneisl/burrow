@@ -67,7 +67,7 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
         val members = query {
             Memberships.innerJoin(Users, { Memberships.userID }, { Users.id })
                 .select(Memberships.userID, Users.username)
-                .where { Memberships.meetingID eq meetingId }
+                .where { Memberships.burrowID eq meetingId }
                 .map { member -> ChatMember(member[Memberships.userID], member[Users.username]) }
                 .toList()
         }
