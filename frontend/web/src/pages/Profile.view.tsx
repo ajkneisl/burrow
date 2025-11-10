@@ -33,8 +33,7 @@ export default function ProfileView() {
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["profile", username],
-        enabled: auth !== null,
-        queryFn: async () => await getUserByUsername(auth, username)
+        queryFn: async () => await getUserByUsername(username)
     })
 
     const followText =

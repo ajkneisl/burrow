@@ -4,6 +4,7 @@ import app.burrow.account.Authorization
 import app.burrow.account.Users
 import app.burrow.account.profile.Profiles
 import app.burrow.Error
+import app.burrow.client
 import app.burrow.query
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -61,9 +62,6 @@ data class User(
             )
     }
 }
-
-private val client =
-    HttpClient(CIO) { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
 
 /**
  * Using a Google JWT token, verify that they have te proper domain then either create an account or

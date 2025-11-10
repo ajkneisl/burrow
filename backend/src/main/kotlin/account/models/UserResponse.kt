@@ -1,15 +1,15 @@
 package app.burrow.account.models
 
+import app.burrow.Error
 import app.burrow.account.Users
 import app.burrow.account.profile.FollowResponse
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
 import app.burrow.account.profile.getFollowing
-import app.burrow.Error
-import app.burrow.burrows.models.Burrows
-import app.burrow.burrows.membership.Memberships
 import app.burrow.burrows.Burrow
+import app.burrow.burrows.membership.Memberships
 import app.burrow.burrows.models.BurrowRole
+import app.burrow.burrows.models.Burrows
 import app.burrow.query
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
@@ -39,6 +39,7 @@ data class UserResponse(
     val following: FollowResponse,
     val recentJoinedGroups: List<Burrow>,
     val recentHostedGroups: List<Burrow>,
+    val email: String? = null,
 )
 
 /**
@@ -113,5 +114,6 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
         following = following,
         recentJoinedGroups = if (cannotSee) emptyList() else joinedMeetings,
         recentHostedGroups = if (cannotSee) emptyList() else hostedMeetings,
+        email = if (requestingUserID == userID) userRow[Users.email] else null,
     )
 }

@@ -35,6 +35,7 @@ export type UserResponse = {
     following: Following
     recentJoinedGroups: Burrow[]
     recentHostedGroups: Burrow[]
+    email?: string
 }
 
 /**

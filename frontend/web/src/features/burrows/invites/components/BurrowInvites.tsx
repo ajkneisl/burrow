@@ -112,9 +112,7 @@ function CreateInviteForm() {
 
     const createInviteMutation = useMutation({
         mutationFn: async (inviteeUsername: string) => {
-            // First, look up the user by username to get their ID
             const user = await getUserByUsername(inviteeUsername)
-            // Then create the invite using the user ID
             await createInvite(id!, user.user.id)
         },
         onSuccess: async () => {
