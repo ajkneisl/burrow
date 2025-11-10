@@ -30,13 +30,16 @@ export function BurrowFeatures({ inPast }: MeetingFeaturesProps) {
     )
 
     // toggle enable a key
-    function toggle(key: Blocks) {
-        if (isEnabled(key)) {
-            setBlocks((prev) => prev.filter((blockName) => blockName !== key))
-        } else {
-            setBlocks((prev) => [...prev, key])
-        }
-    }
+    const toggle = useCallback(
+        (key: Blocks, checked: boolean) => {
+            if (checked) {
+                setBlocks((prev) => [...prev, key])
+            } else {
+                setBlocks((prev) => prev.filter((blockName) => blockName !== key))
+            }
+        },
+        [setBlocks]
+    )
 
     // save state
     async function save() {
@@ -78,14 +81,14 @@ export function BurrowFeatures({ inPast }: MeetingFeaturesProps) {
                         title="Meeting Chat"
                         description="A live chat for meeting members."
                         checked={isEnabled("CHAT")}
-                        onChange={() => toggle("CHAT")}
+                        onChange={(checked) => toggle("CHAT", checked)}
                     />
 
                     <Toggle
                         title="Pomodoro"
                         description="A synced timer for enhanced studying."
                         checked={isEnabled("POMODORO")}
-                        onChange={() => toggle("POMODORO")}
+                        onChange={(checked) => toggle("POMODORO", checked)}
                     />
                 </div>
             </Modal>

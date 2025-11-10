@@ -102,13 +102,14 @@ export default function BurrowModal({
         setServerErrors(errs)
         const fieldMap: Record<string, string> = {}
         errs.forEach((msg) => {
-            // Try to parse patterns like "field: message" or "field = message"
             const m = msg.match(/^\s*([A-Za-z][\w.-]*)\s*[:=-]\s*(.+)$/)
+
             if (m) {
                 const field = m[1]
                 fieldMap[field] = m[2]
             }
         })
+
         if (Object.keys(fieldMap).length > 0) {
             setErrors((prev) => ({ ...prev, ...fieldMap }))
         }
