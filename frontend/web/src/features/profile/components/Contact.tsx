@@ -46,13 +46,24 @@ export default function Contact({ user, profile }: ContactProps) {
                     }
                 />
 
+                {/* linkedin */}
+                <ContactRow
+                    label="LinkedIn"
+                    value={profile.linkedIn ?? ""}
+                    href={
+                        profile.instagram
+                            ? `https://linkedin.com${profile.linkedIn}`
+                            : undefined
+                    }
+                />
+
                 {/* instagram */}
                 <ContactRow
                     label="Instagram"
                     value={profile.instagram ?? ""}
                     href={
                         profile.instagram
-                            ? `https://instagram.com/${profile.instagram}`
+                            ? `https://instagram.com/${profile.instagram.substring(1)}`
                             : undefined
                     }
                 />
@@ -100,10 +111,27 @@ export default function Contact({ user, profile }: ContactProps) {
                 }
                 placeholder="@you"
             />
+
+            {/* linkedin */}
+            <Input
+                text={"LinkedIn"}
+                value={edits.linkedIn ?? ""}
+                onChange={(e) =>
+                    setEdits((prev) => ({
+                        ...prev,
+                        linkedIn: e.target.value
+                    }))
+                }
+                placeholder="/in/you"
+            />
         </form>
     )
 
-    return <Card title="Contact">{editing ? editingView : normalView}</Card>
+    return (
+        <Card title="Contact" className="min-w-xs">
+            {editing ? editingView : normalView}
+        </Card>
+    )
 }
 
 /**

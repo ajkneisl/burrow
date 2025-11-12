@@ -1,6 +1,6 @@
 import { useParams } from "react-router"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Badge, Button, Card } from "@umnburrow/core"
+import { Badge, Button, Card, ViewErrors } from "@umnburrow/core"
 import {
     followUser,
     getUserByUsername,
@@ -18,6 +18,8 @@ import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
 import { convertGraduationYear } from "@api/util.ts"
 import Relations from "@features/profile/components/Relations.tsx"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
+import { useAtom } from "jotai"
+import { profileEditErrors } from "@features/profile/profile.atom.ts"
 
 /**
  * The view of a profile.
@@ -28,6 +30,8 @@ export default function ProfileView() {
 
     const { username = "me" } = useParams()
     const queryClient = useQueryClient()
+
+    const [errors, setErrors] = useAtom(profileEditErrors)
 
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -222,6 +226,8 @@ export default function ProfileView() {
                         )}
                     </div>
                 </div>
+
+                <ViewErrors errors={errors} clearErrors={() => setErrors([])} />
 
                 {/* main profile content*/}
                 {isPrivate ? (

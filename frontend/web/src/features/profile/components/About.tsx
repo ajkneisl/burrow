@@ -30,11 +30,31 @@ export default function About({ profile }: AboutProps) {
             <p
                 className={clsx(
                     "mt-3 leading-relaxed",
-                    !profile.bio && "opacity-60 italic"
+                    !profile.bio && "italic opacity-60"
                 )}
             >
                 {profile.bio || "No bio provided."}
             </p>
+
+            <div className="mt-6 flex flex-row justify-between gap-2">
+                {/* school */}
+                <div className="flex flex-col">
+                    <h3 className="text-sm font-semibold">School</h3>
+
+                    <p className="text-text/70 text-sm">
+                        {profile.school ?? "Not declared."}
+                    </p>
+                </div>
+
+                {/* major */}
+                <div className="flex flex-col">
+                    <h3 className="text-sm font-semibold">Major</h3>
+
+                    <p className="text-text/70 text-sm">
+                        {profile.major ?? "Not declared."}
+                    </p>
+                </div>
+            </div>
 
             {/* classes */}
             <div className="mt-6">
@@ -47,7 +67,7 @@ export default function About({ profile }: AboutProps) {
                         {profile.classes.map((cls) => (
                             <span
                                 key={cls}
-                                className="rounded-md underline hover:text-text/70 bg-card py-1 text-sm font-mono"
+                                className="hover:text-text/70 bg-card rounded-md py-1 font-mono text-sm underline"
                                 title={cls}
                             >
                                 <Link
@@ -60,7 +80,7 @@ export default function About({ profile }: AboutProps) {
                         ))}
                     </div>
                 ) : (
-                    <p className="mt-2 opacity-60 italic">No classes listed.</p>
+                    <p className="mt-2 italic opacity-60">No classes listed.</p>
                 )}
             </div>
         </>
@@ -118,8 +138,38 @@ export default function About({ profile }: AboutProps) {
                 }
                 placeholder="2028"
             />
+
+            {/* school */}
+            <Input
+                text={"School"}
+                value={edits.school}
+                onChange={(e) =>
+                    setEdits((prev) => ({
+                        ...prev,
+                        school: e.target.value
+                    }))
+                }
+                placeholder="School of Science and Engineering"
+            />
+
+            {/* major */}
+            <Input
+                text={"Major"}
+                value={edits.major}
+                onChange={(e) =>
+                    setEdits((prev) => ({
+                        ...prev,
+                        major: e.target.value
+                    }))
+                }
+                placeholder="Computer Science"
+            />
         </form>
     )
 
-    return <Card title="About">{isEditing ? editView : normalView}</Card>
+    return (
+        <Card title="About" className="min-w-lg">
+            {isEditing ? editView : normalView}
+        </Card>
+    )
 }

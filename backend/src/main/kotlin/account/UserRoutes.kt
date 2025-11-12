@@ -103,13 +103,16 @@ val USER_ROUTES: Route.() -> Unit = {
                 val phoneNumber: String? = null,
                 val gradYear: Int? = null,
                 val classes: List<String>? = null,
+                val school: String? = null,
+                val major: String? = null,
                 val instagram: String? = null,
+                val linkedIn: String? = null,
             )
 
             // POST /user/profile
             // update your profile
             post {
-                val (name, visibility, bio, phoneNumber, gradYear, classes, instagram) =
+                val (name, visibility, bio, phoneNumber, gradYear, classes, school, major, instagram, linkedIn) =
                     call.receive<UpdateProfileRequest>()
 
                 val profile =
@@ -120,8 +123,11 @@ val USER_ROUTES: Route.() -> Unit = {
                         bio,
                         gradYear,
                         classes,
+                        school,
+                        major,
                         phoneNumber,
                         instagram,
+                        linkedIn,
                     )
 
                 profile.validate()

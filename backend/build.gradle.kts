@@ -57,6 +57,10 @@ dependencies {
 
     implementation("io.minio:minio:8.6.0")
 
+    testImplementation("io.kotest:kotest-runner-junit5:6.0.4")
+    testImplementation("io.kotest:kotest-assertions-core:6.0.4")
+    testImplementation("io.kotest:kotest-property:6.0.4")
+    testImplementation("io.kotest:kotest-assertions-ktor:6.0.4")
 
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
@@ -69,8 +73,10 @@ repositories {
 }
 
 val compileKotlin: KotlinCompile by tasks
+val compileTestKotlin: KotlinCompile by tasks
 
 compileKotlin.compilerOptions { freeCompilerArgs.set(listOf("-Xnested-type-aliases")) }
+compileTestKotlin.compilerOptions { freeCompilerArgs.set(listOf("-Xnested-type-aliases", "-Xskip-prerelease-check")) }
 
 ktor {
     development = false

@@ -80,8 +80,11 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
                 bio = null,
                 gradYear = null,
                 classes = null,
+                school = null,
+                major = null,
                 phoneNumber = null,
                 instagram = null,
+                linkedIn = null,
             )
     }
 

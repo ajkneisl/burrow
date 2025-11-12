@@ -105,7 +105,7 @@ fun Route.inviteRoutes() {
             // POST /invites/{id}/accept
             // accept an invitation
             post("/accept") {
-                val burrowId = call.queryParameter("id")
+                val burrowId = call.urlParameter("id")
                 val userId = call.userID
 
                 acceptInvite(userId, burrowId)
@@ -116,7 +116,7 @@ fun Route.inviteRoutes() {
             // POST /invites/{id}/decline
             // decline an invitation
             post("/decline") {
-                val burrowId = call.queryParameter("id")
+                val burrowId = call.urlParameter("id")
                 val userId = call.userID
 
                 declineInvite(userId, burrowId)

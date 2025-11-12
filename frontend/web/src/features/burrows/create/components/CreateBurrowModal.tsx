@@ -1,5 +1,4 @@
 import BurrowModal from "./BurrowModal.tsx"
-import useToken from "@features/auth/hooks/useToken.ts"
 import { createMeeting } from "@features/burrows/create/create.api.ts"
 
 /**
@@ -14,8 +13,6 @@ export default function CreateBurrowModal({
     onClose: () => void
     title?: string
 }) {
-    const auth = useToken()
-
     return (
         <BurrowModal
             open={open}
@@ -23,7 +20,7 @@ export default function CreateBurrowModal({
             mode="create"
             modalTitle={title}
             onSubmit={async (payload) => {
-                return await createMeeting(auth!, payload)
+                return await createMeeting(payload)
             }}
         />
     )

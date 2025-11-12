@@ -10,8 +10,11 @@ export type Profile = {
     visibility: "PUBLIC" | "FRIENDS" | "PRIVATE"
     gradYear: number | null
     classes: string[] | null
+    school: string | null
+    major: string | null
     bio: string | null
     instagram: string | null
+    linkedIn: string | null
     phoneNumber: string | null
 }
 

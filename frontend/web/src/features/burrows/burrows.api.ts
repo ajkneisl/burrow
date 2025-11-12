@@ -135,28 +135,28 @@ export async function getAttendees(
 /**
  * Search through meetings with a query.
  *
- * @param auth The authorization token.
  * @param type The type of group.
  * @param query The search query.
+ * @param page The page number (defaults to 1).
  * @param startDate The beginning of a time range to search through.
  * @param endDate The ending of a time range to search through.
  */
 export async function searchMeetings(
-    auth: string,
     type: BurrowType | null,
     query: string,
+    page: number = 1,
     startDate?: number,
     endDate?: number
 ): Promise<PaginatedResponse<BurrowResponse>> {
-    const params = `?query=${encodeURIComponent(query)}&type=${type}&start=${startDate}&end=${endDate}`
-
-    const res = await fetch(`${BASE_URL}/burrows/search${params}`, {
-        headers: {
-            Authorization: `Bearer ${auth}`
+    return await get("/burrows/search", {
+        query: {
+            query,
+            type: type ?? undefined,
+            page,
+            start: startDate,
+            end: endDate
         }
     })
-
-    return await res.json()
 }
 
 /**

@@ -1,14 +1,11 @@
 package app.burrow.account.models
 
+import app.burrow.Error
 import app.burrow.account.Authorization
 import app.burrow.account.Users
 import app.burrow.account.profile.Profiles
-import app.burrow.Error
 import app.burrow.client
 import app.burrow.query
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.serialization.kotlinx.json.json

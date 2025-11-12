@@ -5,6 +5,69 @@ export const BASE_URL = import.meta.env.VITE_BASE_URL
 export const CDN_URL = import.meta.env.VITE_CDN_URL
 
 /**
+ * Convert a date into a more readable one.
+ *
+ * @param key The readable date.
+ */
+export function humanDateLabel(key: string): string {
+    const today = new Date()
+    const tomorrow = new Date()
+    tomorrow.setDate(today.getDate() + 1)
+    const keyDate = new Date(key)
+
+    const isSame = (a: Date, b: Date) =>
+        a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate()
+
+    if (isSame(keyDate, today)) return "Today"
+    if (isSame(keyDate, tomorrow)) return "Tomorrow"
+
+    return keyDate.toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "short",
+        day: "numeric"
+    })
+}
+
+/**
+ * Turn a date into a week range label.
+ *
+ * @param dateMs
+ */
+export function weekRangeLabel(dateMs: number): string {
+    const d = new Date(dateMs)
+    d.setHours(0, 0, 0, 0)
+    // Make Monday = 0, Sunday = 6
+    const day = d.getDay()
+    const offsetToMonday = (day + 6) % 7
+
+    const start = new Date(d)
+    start.setDate(d.getDate() - offsetToMonday)
+    start.setHours(0, 0, 0, 0)
+
+    const end = new Date(start)
+    end.setDate(start.getDate() + 6)
+    end.setHours(23, 59, 59, 999)
+
+    const formatDay = (date: Date) => {
+        const monthName = date.toLocaleString("default", { month: "long" })
+        const day = date.getDate()
+        const suffix =
+            day % 10 === 1 && day !== 11
+                ? "st"
+                : day % 10 === 2 && day !== 12
+                  ? "nd"
+                  : day % 10 === 3 && day !== 13
+                    ? "rd"
+                    : "th"
+        return `${monthName} ${day}${suffix}`
+    }
+
+    return `${formatDay(start)} — ${formatDay(end)}`
+}
+
+/**
  * Label a date.
  *
  * @param ts The time.
@@ -269,5 +332,5 @@ export function addTime(dateMs: number, time: string): number {
 }
 
 export function capitalizeFirstLetter(val: string) {
-    return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+    return String(val).charAt(0).toUpperCase() + String(val).slice(1)
 }

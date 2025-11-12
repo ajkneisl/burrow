@@ -2,13 +2,15 @@ package app.burrow
 
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
-import app.burrow.account.Users
 import app.burrow.account.models.getUserByUsername
-import app.burrow.account.profile.Profiles
 import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.burrows.BURROW_ROUTES
+import app.burrow.burrows.createStudyBurrow
 import app.burrow.burrows.getBurrow
 import app.burrow.burrows.getMeetingResponse
+import app.burrow.burrows.models.BurrowType
+import app.burrow.burrows.models.BurrowVisibility
+import app.burrow.burrows.models.SubmittedBurrow
 import app.burrow.burrows.sync.Sync
 import app.burrow.notifications.NOTIFICATION_ROUTES
 import app.burrow.notifications.notificationWorker
@@ -38,14 +40,15 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.ktor.server.websocket.*
+import io.ktor.util.date.getTimeMillis
 import java.io.File
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.coroutineScope
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.r2dbc.insert
-import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 
@@ -118,10 +121,12 @@ suspend fun Application.module() {
     install(StatusPages) {
         exception<CancellationException> { _, _ -> }
 
+        @Serializable data class ErrorResponse<T>(val error: String?, val message: T?)
+
         exception<BadRequestException> { call, ex ->
             call.respond(
                 HttpStatusCode.BadRequest,
-                hashMapOf("code" to "400", "message" to "Invalid request body."),
+                ErrorResponse("MalformedBody", "Invalid request body."),
             )
         }
 
@@ -130,7 +135,7 @@ suspend fun Application.module() {
         exception<ServerError> { call, cause ->
             call.respond(
                 HttpStatusCode.fromValue(cause.code),
-                hashMapOf("error" to cause::class.simpleName, "message" to cause.message),
+                ErrorResponse(cause::class.simpleName, cause.message),
             )
         }
 
@@ -138,7 +143,7 @@ suspend fun Application.module() {
         exception<MultiError> { call, cause ->
             call.respond(
                 HttpStatusCode.fromValue(cause.code),
-                hashMapOf("error" to cause::class.simpleName, "message" to cause.messages),
+                ErrorResponse(cause::class.simpleName, cause.messages),
             )
         }
 

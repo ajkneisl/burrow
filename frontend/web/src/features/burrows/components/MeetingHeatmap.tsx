@@ -1,9 +1,8 @@
 import { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
-import useToken from "@features/auth/hooks/useToken.ts"
-import { BASE_URL } from "@api/util.ts"
 import { Card, Hover } from "@umnburrow/core"
 import clsx from "clsx"
+import { get } from "@api/api.ts"
 
 type MonthCounts = Record<number, number>
 type HeatmapData = Record<string, MonthCounts> // { "YYYY-MM": { day: count } }
@@ -52,7 +51,9 @@ function findClass(value: number, max: number): string {
  * Generate unique legend steps for the heatmap.
  * Returns an array of { label, value } objects without duplicates.
  */
-function generateLegendSteps(max: number): Array<{ label: string; value: number }> {
+function generateLegendSteps(
+    max: number
+): Array<{ label: string; value: number }> {
     if (max === 0) {
         return [{ label: "0 Burrows", value: 0 }]
     }
@@ -69,14 +70,17 @@ function generateLegendSteps(max: number): Array<{ label: string; value: number 
     const q3 = Math.max(3, Math.ceil(max * 0.75))
 
     // Collect all unique values in order
-    const values = Array.from(new Set([0, q1, q2, q3, max])).sort((a, b) => a - b)
+    const values = Array.from(new Set([0, q1, q2, q3, max])).sort(
+        (a, b) => a - b
+    )
 
     return values.map((val) => ({
-        label: val === 0
-            ? "0 Burrows"
-            : val === max
-              ? `${val} Burrow${val === 1 ? "" : "s"}`
-              : `${val} Burrow${val === 1 ? "" : "s"}`,
+        label:
+            val === 0
+                ? "0 Burrows"
+                : val === max
+                  ? `${val} Burrow${val === 1 ? "" : "s"}`
+                  : `${val} Burrow${val === 1 ? "" : "s"}`,
         value: val
     }))
 }
@@ -121,26 +125,19 @@ function monthLabel(date: Date): { monthName: string; year: number } {
  * A heatmap of how many Burrows were made on what day.
  * @constructor
  */
-export default function MeetingHeatmap({ range = 0, onSelectDate }: { range?: number; onSelectDate?: (date: Date) => void }) {
-    const token = useToken()
-
+export default function MeetingHeatmap({
+    range = 0,
+    onSelectDate
+}: {
+    range?: number
+    onSelectDate?: (date: Date) => void
+}) {
     const { monthName, year } = useMemo(() => monthMeta(new Date()), [])
 
     // request for the heatmap data
     const { data, isLoading, error } = useQuery<HeatmapData>({
         queryKey: ["groups", "heatmap", monthName, year, range],
-        queryFn: async () => {
-            const res = await fetch(
-                `${BASE_URL}/groups/heatmap?range=${range}`,
-                {
-                    headers: token
-                        ? { Authorization: `Bearer ${token}` }
-                        : undefined
-                }
-            )
-            if (!res.ok) throw new Error("Failed to load heatmap")
-            return (await res.json()) as HeatmapData
-        }
+        queryFn: async () => await get("/burrows/heatmap", { query: { range } })
     })
 
     const monthKeys = useMemo(() => {
@@ -287,7 +284,10 @@ export default function MeetingHeatmap({ range = 0, onSelectDate }: { range?: nu
                                                     )
                                                 }
 
-                                                const colorClass = findClass(day.count, m.max)
+                                                const colorClass = findClass(
+                                                    day.count,
+                                                    m.max
+                                                )
                                                 const tooltipText = `${day.count} Burrow${day.count === 1 ? "" : "s"} on ${m.label.monthName} ${day.day}`
 
                                                 return (
@@ -298,14 +298,22 @@ export default function MeetingHeatmap({ range = 0, onSelectDate }: { range?: nu
                                                         <div
                                                             role="button"
                                                             tabIndex={0}
-                                                            onClick={() => onSelectDate?.(day.date)}
+                                                            onClick={() =>
+                                                                onSelectDate?.(
+                                                                    day.date
+                                                                )
+                                                            }
                                                             onKeyDown={(e) => {
                                                                 if (
-                                                                    e.key === "Enter" ||
-                                                                    e.key === " "
+                                                                    e.key ===
+                                                                        "Enter" ||
+                                                                    e.key ===
+                                                                        " "
                                                                 ) {
                                                                     e.preventDefault()
-                                                                    onSelectDate?.(day.date)
+                                                                    onSelectDate?.(
+                                                                        day.date
+                                                                    )
                                                                 }
                                                             }}
                                                             className={clsx(
@@ -313,7 +321,9 @@ export default function MeetingHeatmap({ range = 0, onSelectDate }: { range?: nu
                                                                 "focus:ring-secondary/60 focus:ring-2 focus:outline-none",
                                                                 colorClass
                                                             )}
-                                                            aria-label={tooltipText}
+                                                            aria-label={
+                                                                tooltipText
+                                                            }
                                                         />
                                                     </Hover>
                                                 )

@@ -136,13 +136,13 @@ export default function Attendee({
         <li
             onClick={() => nav(`/user/${user.username}`)}
             key={`${membership.meetingID}-${membership.userID}`}
-            className="cursor-pointer rounded-2xl bg-background/60 border border-background/80 p-4"
+            className="bg-background/60 border-background/80 cursor-pointer rounded-2xl border p-4"
         >
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div>
                         <div className="flex items-center gap-2">
-                            <div className="flex flex-row items-center gap-2 mb-4">
+                            <div className="group mb-4 flex flex-row items-center gap-2">
                                 <ProfilePicture
                                     name={profile.name}
                                     userID={user.id}
@@ -154,13 +154,13 @@ export default function Attendee({
                                         {profile.name}
 
                                         {isSelf && (
-                                            <span className="ml-1 text-[10px] font-normal text-text/60">
+                                            <span className="text-text/60 ml-1 text-[10px] font-normal">
                                                 (you)
                                             </span>
                                         )}
                                     </span>
 
-                                    <span className="text-xs text-text/70">
+                                    <span className="text-text/70 text-xs">
                                         {user.username}
                                     </span>
                                 </div>
@@ -181,7 +181,7 @@ export default function Attendee({
                             )}
                         </div>
 
-                        <div className="text-xs text-text/50">
+                        <div className="text-text/50 text-xs">
                             Joined {formatTimeAgo(membership.joinedAt)}
                         </div>
                     </div>
@@ -199,7 +199,7 @@ export default function Attendee({
             </div>
 
             {(canPromote || canDemote || canBan) && (
-                <div className="flex flex-row items-center justify-center mt-4 gap-2">
+                <div className="mt-4 flex flex-row items-center justify-center gap-2">
                     {canBan && membership.status !== "BANNED" && (
                         <Button
                             thin

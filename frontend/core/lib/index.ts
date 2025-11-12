@@ -11,6 +11,7 @@ import TextArea from "./components/TextArea"
 import Toggle from "./components/Toggle"
 import Hover from "./components/Hover"
 import useDateRangePicker from "./hooks/useDateRangePicker"
+import ViewErrors from "./components/ViewErrors"
 
 export {
     Button,
@@ -24,5 +25,6 @@ export {
     TextArea,
     Toggle,
     Hover,
+    ViewErrors,
     useDateRangePicker
 }

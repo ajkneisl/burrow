@@ -41,11 +41,10 @@ export default function SelectInput({
                 {...props}
                 aria-invalid={error || undefined}
                 className={clsx(
-                    "border border-neutral-300 bg-hero-50/80 focus:border-secondary focus:bg-hero-50/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/30",
-                    "w-full rounded-lg px-3 py-3 text-[15px] shadow-inner transition",
-                    error &&
-                        "border-red-300 focus:border-red-500 focus:ring-red-300/40",
-                    props.disabled && "cursor-not-allowed text-text/60",
+                    "select-input",
+                    "w-full rounded-lg px-3 py-3 text-[15px] transition",
+                    error && "select-input-error",
+                    props.disabled && "cursor-not-allowed opacity-60",
                     props.className
                 )}
             >

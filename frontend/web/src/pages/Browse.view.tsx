@@ -5,71 +5,13 @@ import type {
     BurrowResponse,
     BurrowType
 } from "@features/burrows/burrows.types.ts"
-import { useAtom } from "jotai"
-import { authToken } from "@features/auth/auth.atom.ts"
 import { GroupMeetingCard } from "@features/burrows/components/GroupMeetingCard.tsx"
 import { searchMeetings } from "@features/burrows/burrows.api.ts"
 import MeetingHeatmap from "@features/burrows/components/MeetingHeatmap.tsx"
 import { Input, useDateRangePicker } from "@umnburrow/core"
 import clsx from "clsx"
-
-/**
- * Convert a date into a more readable one.
- *
- * @param key The readable date.
- */
-function humanDateLabel(key: string): string {
-    const today = new Date()
-    const tomorrow = new Date()
-    tomorrow.setDate(today.getDate() + 1)
-    const keyDate = new Date(key)
-
-    const isSame = (a: Date, b: Date) =>
-        a.getFullYear() === b.getFullYear() &&
-        a.getMonth() === b.getMonth() &&
-        a.getDate() === b.getDate()
-
-    if (isSame(keyDate, today)) return "Today"
-    if (isSame(keyDate, tomorrow)) return "Tomorrow"
-
-    return keyDate.toLocaleDateString(undefined, {
-        weekday: "long",
-        month: "short",
-        day: "numeric"
-    })
-}
-
-function weekRangeLabel(dateMs: number): string {
-    const d = new Date(dateMs)
-    d.setHours(0, 0, 0, 0)
-    // Make Monday = 0, Sunday = 6
-    const day = d.getDay()
-    const offsetToMonday = (day + 6) % 7
-
-    const start = new Date(d)
-    start.setDate(d.getDate() - offsetToMonday)
-    start.setHours(0, 0, 0, 0)
-
-    const end = new Date(start)
-    end.setDate(start.getDate() + 6)
-    end.setHours(23, 59, 59, 999)
-
-    const formatDay = (date: Date) => {
-        const monthName = date.toLocaleString("default", { month: "long" })
-        const day = date.getDate()
-        const suffix =
-            day % 10 === 1 && day !== 11
-                ? "st"
-                : day % 10 === 2 && day !== 12
-                  ? "nd"
-                  : day % 10 === 3 && day !== 13
-                    ? "rd"
-                    : "th"
-        return `${monthName} ${day}${suffix}`
-    }
-
-    return `${formatDay(start)} — ${formatDay(end)}`
-}
+import { humanDateLabel, weekRangeLabel } from "@api/util.ts"
+import Paginator from "@components/Paginator.tsx"
 
 /**
  * {@link Browse}
@@ -85,11 +27,10 @@ type AllMeetingsProps = {
  */
 export default function Browse({ type }: AllMeetingsProps) {
     const [query, setQuery] = useState("")
-    const [auth] = useAtom(authToken)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set())
 
     const [startDate, endDate, picker] = useDateRangePicker()
-
-    const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set())
 
     const toggleWeek = (label: string) => {
         setExpandedWeeks((prev) => {
@@ -108,13 +49,18 @@ export default function Browse({ type }: AllMeetingsProps) {
         return d.getTime()
     }, [startDate])
 
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [query, startDate, endDate, type])
+
     const { data, isLoading, isFetching, error } = useQuery({
-        queryKey: ["meetings", type, query, startDate, endDate],
+        queryKey: ["meetings", type, query, currentPage, startDate, endDate],
         queryFn: async () =>
             await searchMeetings(
-                auth,
                 type,
-                query,
+                query || "",
+                currentPage,
                 startDate as number | undefined,
                 endDate as number | undefined
             ),
@@ -269,97 +215,121 @@ export default function Browse({ type }: AllMeetingsProps) {
                         </p>
                     </div>
                 ) : (
-                    <div className="space-y-10">
-                        {groupedByDate.map(
-                            ({ key: dateKey, list: meetings, week }, idx) => {
-                                const isFirstOfWeek =
-                                    idx === 0 ||
-                                    groupedByDate[idx - 1].week !== week
-                                const isExpanded = expandedWeeks.has(week)
+                    <>
+                        <div className="space-y-10">
+                            {groupedByDate.map(
+                                (
+                                    { key: dateKey, list: meetings, week },
+                                    idx
+                                ) => {
+                                    const isFirstOfWeek =
+                                        idx === 0 ||
+                                        groupedByDate[idx - 1].week !== week
+                                    const isExpanded = expandedWeeks.has(week)
 
-                                return (
-                                    <React.Fragment key={dateKey}>
-                                        {/* Week header - only show at start of new week */}
-                                        {isFirstOfWeek && (
-                                            <button
-                                                onClick={() => toggleWeek(week)}
-                                                className="group text-text/60 hover:text-text mb-6 flex w-full cursor-pointer items-center gap-3 text-xs font-semibold tracking-wider uppercase transition-colors"
-                                                aria-expanded={isExpanded}
-                                            >
-                                                <svg
-                                                    className={clsx(
-                                                        "h-4 w-4 transition-transform duration-200",
-                                                        isExpanded
-                                                            ? "rotate-90"
-                                                            : "rotate-0"
-                                                    )}
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
+                                    return (
+                                        <React.Fragment key={dateKey}>
+                                            {/* Week header - only show at start of new week */}
+                                            {isFirstOfWeek && (
+                                                <button
+                                                    onClick={() =>
+                                                        toggleWeek(week)
+                                                    }
+                                                    className="group text-text/60 hover:text-text mb-6 flex w-full cursor-pointer items-center gap-3 text-xs font-semibold tracking-wider uppercase transition-colors"
+                                                    aria-expanded={isExpanded}
                                                 >
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                </svg>
-                                                <span>{week}</span>
-                                                <span className="bg-text/20 h-px flex-1" />
-                                            </button>
-                                        )}
-
-                                        {/* Day section */}
-                                        <AnimatePresence initial={false}>
-                                            {isExpanded && (
-                                                <motion.div
-                                                    key={`day-${dateKey}`}
-                                                    initial={{
-                                                        height: 0,
-                                                        opacity: 0
-                                                    }}
-                                                    animate={{
-                                                        height: "auto",
-                                                        opacity: 1
-                                                    }}
-                                                    exit={{
-                                                        height: 0,
-                                                        opacity: 0
-                                                    }}
-                                                    transition={{
-                                                        duration: 0.2,
-                                                        ease: "easeOut"
-                                                    }}
-                                                    className="space-y-4 overflow-hidden"
-                                                >
-                                                    {/* Day label */}
-                                                    <h3 className="text-text mb-4 flex items-center gap-3 text-base font-semibold">
-                                                        {humanDateLabel(
-                                                            dateKey
+                                                    <svg
+                                                        className={clsx(
+                                                            "h-4 w-4 transition-transform duration-200",
+                                                            isExpanded
+                                                                ? "rotate-90"
+                                                                : "rotate-0"
                                                         )}
-                                                        <span className="bg-text/10 h-px flex-1" />
-                                                    </h3>
-
-                                                    {/* Meetings for this day */}
-                                                    <div className="space-y-3 pb-4">
-                                                        {meetings.map((m) => (
-                                                            <GroupMeetingCard
-                                                                details={true}
-                                                                key={
-                                                                    m.burrow.id
-                                                                }
-                                                                meetingResponse={
-                                                                    m
-                                                                }
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                </motion.div>
+                                                        viewBox="0 0 20 20"
+                                                        fill="currentColor"
+                                                    >
+                                                        <path
+                                                            fillRule="evenodd"
+                                                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                                            clipRule="evenodd"
+                                                        />
+                                                    </svg>
+                                                    <span>{week}</span>
+                                                    <span className="bg-text/20 h-px flex-1" />
+                                                </button>
                                             )}
-                                        </AnimatePresence>
-                                    </React.Fragment>
-                                )
-                            }
+
+                                            {/* Day section */}
+                                            <AnimatePresence initial={false}>
+                                                {isExpanded && (
+                                                    <motion.div
+                                                        key={`day-${dateKey}`}
+                                                        initial={{
+                                                            height: 0,
+                                                            opacity: 0
+                                                        }}
+                                                        animate={{
+                                                            height: "auto",
+                                                            opacity: 1
+                                                        }}
+                                                        exit={{
+                                                            height: 0,
+                                                            opacity: 0
+                                                        }}
+                                                        transition={{
+                                                            duration: 0.2,
+                                                            ease: "easeOut"
+                                                        }}
+                                                        className="space-y-4 overflow-hidden"
+                                                    >
+                                                        {/* Day label */}
+                                                        <h3 className="text-text mb-4 flex items-center gap-3 text-base font-semibold">
+                                                            {humanDateLabel(
+                                                                dateKey
+                                                            )}
+                                                            <span className="bg-text/10 h-px flex-1" />
+                                                        </h3>
+
+                                                        {/* Meetings for this day */}
+                                                        <div className="space-y-3 pb-4">
+                                                            {meetings.map(
+                                                                (m) => (
+                                                                    <GroupMeetingCard
+                                                                        details={
+                                                                            true
+                                                                        }
+                                                                        key={
+                                                                            m
+                                                                                .burrow
+                                                                                .id
+                                                                        }
+                                                                        meetingResponse={
+                                                                            m
+                                                                        }
+                                                                    />
+                                                                )
+                                                            )}
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </React.Fragment>
+                                    )
+                                }
+                            )}
+                        </div>
+
+                        {/* Pagination controls */}
+                        {data && (
+                            <Paginator
+                                currentPage={currentPage}
+                                totalPages={data.totalPages}
+                                totalResults={data.totalResults}
+                                onPageChange={setCurrentPage}
+                                isLoading={isFetching}
+                            />
                         )}
-                    </div>
+                    </>
                 )}
             </section>
 

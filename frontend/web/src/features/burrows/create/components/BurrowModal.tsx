@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router"
 import type { Burrow } from "@features/burrows/burrows.types.ts"
 import { useQueryClient } from "@tanstack/react-query"
-import { Button, Modal } from "@umnburrow/core"
+import { Button, Modal, ViewErrors } from "@umnburrow/core"
 import ScheduleStep from "@features/burrows/create/components/steps/ScheduleStep.tsx"
 import {
     initialFormState,
@@ -194,49 +194,53 @@ export default function BurrowModal({
             requestToJoin: formState.requestToJoin
         }
 
-        const response = await onSubmit(payload)
+        try {
+            const response = await onSubmit(payload)
 
-        // no matter what, this means there's errors in the response
-        if (Array.isArray(response)) {
-            applyServerErrors(response as string[])
-            return
-        }
+            // if updating, update query data and close
+            if (mode === "update" && meeting) {
+                setServerErrors([])
+                onClose()
 
-        // if updating, update query data and close
-        if (mode === "update" && meeting) {
-            setServerErrors([])
-            onClose()
-
-            queryClient.setQueryData(
-                [`meeting`, meeting.id],
-                (old: unknown) => {
-                    return {
-                        ...(old as Record<string, unknown>),
-                        meeting: {
-                            ...((old as Record<string, unknown>)
-                                .meeting as Record<string, unknown>),
-                            ...payload
+                queryClient.setQueryData(
+                    [`meeting`, meeting.id],
+                    (old: unknown) => {
+                        return {
+                            ...(old as Record<string, unknown>),
+                            meeting: {
+                                ...((old as Record<string, unknown>)
+                                    .meeting as Record<string, unknown>),
+                                ...payload
+                            }
                         }
                     }
-                }
-            )
+                )
 
-            return
-        }
+                return
+            }
 
-        // if creating, go to the new meeting
-        if (
-            response &&
-            typeof response === "object" &&
-            !Array.isArray(response) &&
-            "id" in response
-        ) {
-            setServerErrors([])
+            // if creating, go to the new meeting
+            if (
+                response &&
+                typeof response === "object" &&
+                !Array.isArray(response) &&
+                "id" in response
+            ) {
+                setServerErrors([])
 
-            const updated = response as Burrow
-            nav(`/${updated.id}`)
+                const updated = response as Burrow
+                nav(`/${updated.id}`)
 
-            onClose()
+                onClose()
+                return
+            }
+        } catch (error) {
+            if (Array.isArray(error)) {
+                applyServerErrors(error as string[])
+            } else {
+                applyServerErrors([error])
+            }
+            
             return
         }
 
@@ -305,23 +309,14 @@ export default function BurrowModal({
                     : "Create Study Group")
             }
             footer={footer}
-            widthClass="lg:min-w-xl max-w-xl"
+            widthClass="md:min-w-xl max-w-xl"
         >
             <form id="study-form" onSubmit={handleSubmit}>
                 {/* errors.. uh oh! */}
-                {serverErrors.length > 0 && (
-                    <div className="mx-0 mt-0 mb-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">
-                        <p className="mb-1 font-medium">
-                            Please fix the following:
-                        </p>
-
-                        <ul className="list-disc space-y-1 pl-5">
-                            {serverErrors.map((err, i) => (
-                                <li key={i}>{err}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
+                <ViewErrors
+                    errors={serverErrors}
+                    clearErrors={() => setServerErrors([])}
+                />
 
                 {/* basic info */}
                 {currentStep === 1 && (

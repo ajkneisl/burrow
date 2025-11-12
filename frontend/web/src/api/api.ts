@@ -77,6 +77,7 @@ export async function request<T = unknown, R = unknown>(
     if (!response.ok) {
         try {
             const body = await response.json()
+
             return Promise.reject(body.message || body)
         } catch {
             return Promise.reject(

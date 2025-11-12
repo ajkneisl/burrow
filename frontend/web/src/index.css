@@ -16,20 +16,14 @@ body {
     /*body::before {*/
     /*    @apply bg-contain bg-no-repeat bg-center absolute top-[612px] left-[-64px] bottom-0;*/
     /*    content: "";*/
-
     /*    background-image: url("/standing_gopher.png");*/
-
-
     /*    width: 30%;*/
     /*    height: 50%;*/
-
     /*    filter: grayscale(100%);*/
     /*    opacity: 0.15;*/
-
     /*    pointer-events: none;*/
     /*    z-index: -1;*/
     /*}*/
-
     /* Standing Gopher on the Left Side of the Page */
     body::after {
         @apply bg-contain bg-no-repeat bg-center absolute top-0 left-0 right-0 bottom-0;
