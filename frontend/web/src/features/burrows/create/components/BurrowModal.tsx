@@ -238,9 +238,9 @@ export default function BurrowModal({
             if (Array.isArray(error)) {
                 applyServerErrors(error as string[])
             } else {
-                applyServerErrors([error])
+                applyServerErrors([error as string])
             }
-            
+
             return
         }
 

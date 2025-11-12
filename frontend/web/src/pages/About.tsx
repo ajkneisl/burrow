@@ -35,7 +35,7 @@ const faqItems = [
         answer: "You can find a study group by searching for it on the home page. You can also search for a specific course by clicking the 'Search' button, and searching for relevant coursework or topics."
     },
     {
-        id:"ta-led",
+        id: "ta-led",
         question: "Can I find out if a TA is leading a study group?",
         answer: "The leader of any Study Group will be stated on the banner, if it is a TA, they will have a badge next to their name and profile."
     },
@@ -55,8 +55,9 @@ const faqItems = [
                     the 'Delete Group' button on the group's page. You will be
                     prompted to confirm your action.
                 </p>
+
                 <img
-                    src="/delete-group.png"
+                    src="/image/delete-group.png"
                     alt="Delete group screenshot"
                     className="border-border rounded-lg border"
                 />
@@ -75,8 +76,9 @@ const faqItems = [
     },
     {
         id: "how-leave",
-        question: "If I leave a group, will I be removed from the waiting list?",
-        answer:"Yes, leaving a group will remove you from the waiting list. If you are the leader of the group, you will be removed from the group."
+        question:
+            "If I leave a group, will I be removed from the waiting list?",
+        answer: "Yes, leaving a group will remove you from the waiting list. If you are the leader of the group, you will be removed from the group."
     },
     {
         id: "how-cancel",
@@ -88,24 +90,23 @@ const faqItems = [
         question: "How do I report a member?",
         answer: "Navigate to the member's page and click the 'Report Member' button. You will be prompted to confirm your action, and if applicable, the University will be contacted for further action."
     }
-
 ]
 
 export default function About() {
     return (
-        <div className="flex flex-col justify-center items-center mx-auto w-full p-4">
+        <div className="mx-auto flex w-full flex-col items-center justify-center p-4">
             {/* big gohher */}
-            <div className="lg:min-w-6xl relative mt-8 w-full overflow-hidden rounded-2xl">
-                <div className="h-[16rem] w-full bg-[url('/realgopher.png')] bg-[position:center_calc(100%+300px)]" />
+            <div className="relative mt-8 w-full overflow-hidden rounded-2xl lg:min-w-6xl">
+                <div className="h-[16rem] w-full bg-[url('/image/banner.png')] bg-[position:center_calc(100%+300px)]" />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 <div className="absolute inset-0 flex flex-col items-center justify-end pb-8 text-center">
-                    <h1 className="figtree text-7xl font-extrabold tracking-tight text-secondary drop-shadow-md">
+                    <h1 className="figtree text-secondary text-7xl font-extrabold tracking-tight drop-shadow-md">
                         Burrow
                     </h1>
                 </div>
             </div>
 
-            <p className="text-lg text-center mb-12 mt-8 text-gray-400 max-w-xl">
+            <p className="mt-8 mb-12 max-w-xl text-center text-lg text-gray-400">
                 Burrow is a website built by students at the University of
                 Minnesota, for students at the University of Minnesota to make
                 studying and connecting with one another easier. Our goal is to
@@ -113,11 +114,11 @@ export default function About() {
                 session, a club meeting, or even a function, Burrow was designed
                 to help keep things organized.
             </p>
-            <Heading className="text-3xl font-bold text-center mb-8">
+            <Heading className="mb-8 text-center text-3xl font-bold">
                 Frequently Asked Questions
             </Heading>
 
-            <DisclosureGroup className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-w-7xl">
+            <DisclosureGroup className="grid max-w-7xl grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {faqItems.map((item) => (
                     <Disclosure
                         key={item.id}
