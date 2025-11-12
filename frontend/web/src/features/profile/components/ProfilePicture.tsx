@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from "react"
+import { useMemo, useState, useRef, useEffect } from "react"
 import clsx from "clsx"
 import { CDN_URL, BASE_URL } from "@api/util.ts"
 import useToken from "@features/auth/hooks/useToken"
@@ -34,7 +34,13 @@ export default function ProfilePicture({
     const [imageError, setImageError] = useState(false)
     const [uploading, setUploading] = useState(false)
     const [showHover, setShowHover] = useState(false)
+    const [isHovering, setIsHoveringImage] = useState(false)
+    const [isGif, setIsGif] = useState(false)
+    const [staticImageData, setStaticImageData] = useState<ImageData | null>(
+        null
+    )
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const staticCanvasRef = useRef<HTMLCanvasElement>(null)
     const token = useToken()
 
     const initials = useMemo(
@@ -49,10 +55,65 @@ export default function ProfilePicture({
         [name]
     )
 
+    // Base avatar URL
     const avatarUrl = useMemo(
         () => `${CDN_URL}/avatars/user/${userID}/avatar`,
         [userID]
     )
+
+    // Check if image is a GIF and extract first frame
+    useEffect(() => {
+        const checkAndProcessGif = async () => {
+            try {
+                const response = await fetch(avatarUrl, { method: "HEAD" })
+                const contentType = response.headers.get("content-type")
+                const gifDetected = contentType === "image/gif"
+                setIsGif(gifDetected)
+
+                // If it's a GIF, load it to extract the first frame
+                if (gifDetected) {
+                    const img = new Image()
+                    img.crossOrigin = "anonymous"
+                    img.onload = () => {
+                        // Create a temporary canvas to extract image data
+                        const tempCanvas = document.createElement("canvas")
+                        tempCanvas.width = img.naturalWidth
+                        tempCanvas.height = img.naturalHeight
+                        const ctx = tempCanvas.getContext("2d")
+                        if (ctx) {
+                            ctx.drawImage(img, 0, 0)
+                            // Store the image data for later use
+                            const imageData = ctx.getImageData(
+                                0,
+                                0,
+                                tempCanvas.width,
+                                tempCanvas.height
+                            )
+                            setStaticImageData(imageData)
+                        }
+                    }
+                    img.src = avatarUrl
+                }
+            } catch {
+                setIsGif(false)
+            }
+        }
+
+        checkAndProcessGif()
+    }, [avatarUrl])
+
+    // Draw the static image data to canvas when available
+    useEffect(() => {
+        if (staticImageData && staticCanvasRef.current) {
+            const canvas = staticCanvasRef.current
+            canvas.width = staticImageData.width
+            canvas.height = staticImageData.height
+            const ctx = canvas.getContext("2d")
+            if (ctx) {
+                ctx.putImageData(staticImageData, 0, 0)
+            }
+        }
+    }, [staticImageData])
 
     const [sizeStyle, textStyle] = useMemo(() => {
         switch (size) {
@@ -72,10 +133,17 @@ export default function ProfilePicture({
         if (!file || !token) return
 
         // file type
-        const validTypes = ["image/png", "image/jpeg", "image/gif", "image/webp"]
+        const validTypes = [
+            "image/png",
+            "image/jpeg",
+            "image/gif",
+            "image/webp"
+        ]
 
         if (!validTypes.includes(file.type)) {
-            toast.error("Invalid file type. Please upload PNG, JPEG, GIF, or WebP.")
+            toast.error(
+                "Invalid file type. Please upload PNG, JPEG, GIF, or WebP."
+            )
             return
         }
 
@@ -131,17 +199,43 @@ export default function ProfilePicture({
                     sizeStyle,
                     editable && "cursor-pointer"
                 )}
-                onMouseEnter={() => editable && setShowHover(true)}
-                onMouseLeave={() => editable && setShowHover(false)}
+                onMouseEnter={() => {
+                    if (editable) setShowHover(true)
+                    setIsHoveringImage(true)
+                }}
+                onMouseLeave={() => {
+                    if (editable) setShowHover(false)
+                    setIsHoveringImage(false)
+                }}
                 onClick={() => editable && handleEditClick()}
             >
                 {!imageError ? (
-                    <img
-                        src={avatarUrl}
-                        alt={`${name}'s profile picture`}
-                        className="h-full w-full object-cover"
-                        onError={() => setImageError(true)}
-                    />
+                    <>
+                        {/* Show canvas (first frame) when GIF is not hovered */}
+                        {isGif && (
+                            <canvas
+                                ref={staticCanvasRef}
+                                className={clsx(
+                                    "h-full w-full object-cover",
+                                    isHovering && "hidden",
+                                    !isHovering &&
+                                        "group-hover:hidden hover:hidden"
+                                )}
+                            />
+                        )}
+
+                        {/* Show animated GIF when hovering or not a GIF */}
+                        <img
+                            src={avatarUrl}
+                            alt={`${name}'s profile picture`}
+                            className={clsx(
+                                "h-full w-full object-cover",
+                                isGif && "hidden group-hover:block hover:block",
+                                isHovering && isGif && "!block"
+                            )}
+                            onError={() => setImageError(true)}
+                        />
+                    </>
                 ) : (
                     <div
                         className={clsx(
@@ -159,7 +253,11 @@ export default function ProfilePicture({
                         <svg
                             className={clsx(
                                 "text-white",
-                                size === "sm" ? "h-4 w-4" : size === "md" ? "h-6 w-6" : "h-8 w-8"
+                                size === "sm"
+                                    ? "h-4 w-4"
+                                    : size === "md"
+                                      ? "h-6 w-6"
+                                      : "h-8 w-8"
                             )}
                             fill="none"
                             stroke="currentColor"

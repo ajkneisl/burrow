@@ -20,7 +20,7 @@ export default function Index() {
 
 function HomeScreen() {
     const {
-        data: groups = [],
+        data: burrows = [],
         isLoading,
         isError,
         error,
@@ -41,7 +41,7 @@ function HomeScreen() {
             >
                 <Header/>
                 <Hero/>
-                <SectionTitle label="Upcoming study groups"/>
+                <SectionTitle label="Upcoming study burrows"/>
                 <View className="px-4 gap-3">
                     {isLoading ? (
                         <LoadingList/>
@@ -82,7 +82,7 @@ function Hero() {
             <View className="rounded-2xl p-4 overflow-hidden" style={{backgroundColor: MAROON}}>
                 <Text className="text-white/90 text-xs tracking-wide">University of Minnesota</Text>
                 <Text className="text-white text-2xl font-extrabold mt-1">Find your study crew</Text>
-                <Text className="text-white/80 mt-1">Create or join groups, plan sessions, and collaborate
+                <Text className="text-white/80 mt-1">Create or join burrows, plan sessions, and collaborate
                     faster.</Text>
 
                 <View className="mt-4 bg-white/95 rounded-xl px-3 py-2 flex-row items-center">
@@ -198,7 +198,7 @@ function EmptyState() {
     return (
         <View
             className="rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
-            <Text className="text-black dark:text-white font-semibold mb-1">No groups yet</Text>
+            <Text className="text-black dark:text-white font-semibold mb-1">No burrows yet</Text>
             <Text className="text-neutral-600 dark:text-neutral-400">Be the first to create a study group for your
                 course.</Text>
         </View>

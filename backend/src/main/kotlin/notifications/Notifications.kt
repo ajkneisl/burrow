@@ -1,7 +1,7 @@
 package app.burrow.notifications
 
 import app.burrow.account.Users
-import app.burrow.groups.Meetings
+import app.burrow.burrows.models.Burrows
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 
@@ -15,7 +15,7 @@ object Notifications : Table("notifications") {
 
     /** The ID of the meeting associated with */
     val meetingId =
-        reference("meeting_id", Meetings.id, onDelete = ReferenceOption.CASCADE)
+        reference("meeting_id", Burrows.id, onDelete = ReferenceOption.CASCADE)
             .nullable()
             .default(null)
 

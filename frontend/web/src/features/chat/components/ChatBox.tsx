@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import Chat from "@features/chat/components/Chat.tsx"
 import useUser from "@features/auth/hooks/useUser.ts"
-import type { GroupMeetingResponse } from "@features/groups/groups.types.ts"
+import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
 import type { ChatMember, ChatMessage } from "@features/chat/chat.types.ts"
 import {
     type SyncIncomingEvent,
@@ -15,7 +15,7 @@ import { Button, Card, Input } from "@umnburrow/core"
  * {@link ChatBox}
  */
 type ChatBoxProps = {
-    meeting: GroupMeetingResponse
+    meeting: BurrowResponse
 }
 
 /**
@@ -35,7 +35,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
     const listRef = useRef<HTMLDivElement | null>(null)
 
     const user = useUser()
-    const meetingId = meeting.meeting.id
+    const meetingId = meeting.burrow.id
 
     const moderator = useMemo(() => {
         return (

@@ -1,76 +1,69 @@
-import useUser from "@features/auth/hooks/useUser.ts"
-import useToken from "@features/auth/hooks/useToken.ts"
 import { useEffect, useState } from "react"
-import { updateUser } from "@features/auth/user.api.ts"
+import { getUser, updateUsername } from "@features/auth/user.api.ts"
 import { useAtom } from "jotai"
 import { settingsSaveLoading } from "@features/sync/settings/settings.atom.ts"
 import toast from "react-hot-toast"
 import { Card, Input } from "@umnburrow/core"
+import { useQuery } from "@tanstack/react-query"
 
 /**
  * Settings involving a user's account.
  */
 export default function AccountSettings() {
-    const user = useUser()
-    const auth = useToken()
+    const { data } = useQuery({
+        queryKey: ["user"],
+        queryFn: async () => await getUser()
+    })
 
     const [name, setName] = useState<string>("")
-    const [phoneNumber, setPhoneNumber] = useState<string>("")
     const [errors, setErrors] = useState<string[]>([])
     const [, setLoading] = useAtom(settingsSaveLoading)
 
-    // auto load in user and phone
+    // Load user data when available
     useEffect(() => {
-        if (user) {
-            setName(user.username ?? "")
-            setPhoneNumber(user.phoneNumber ?? "")
+        if (data?.user?.username) {
+            setName(data.user.username)
         }
-    }, [user])
+    }, [data?.user?.username])
 
-    // submit the stuff
+    // Submit form
     async function onSubmit() {
-        if (!user) return
+        if (!data?.user) return
 
         const nextErrors: string[] = []
         setErrors([])
 
-        // Basic client-side validation (optional, keep minimal)
+        // Validate name
         if (name.trim().length === 0) {
             nextErrors.push("Name cannot be empty.")
         }
 
-        try {
-            if (nextErrors.length === 0 && auth != null) {
-                // if number has been changed
-                if (phoneNumber !== (user.phoneNumber ?? "")) {
-                    await updateUser(auth, "phone", phoneNumber)
-                }
-
-                // if name has been changed
-                if (name !== (user.username ?? "")) {
-                    await updateUser(auth, "name", name)
-                }
-            }
-        } catch (e: any) {
-            nextErrors.push(e?.message || "Failed to save settings.")
-        } finally {
-            if (nextErrors.length > 0) {
-                setErrors(nextErrors)
-            } else {
+        // Update username if changed
+        if (nextErrors.length === 0 && name !== data.user.username) {
+            try {
+                setLoading(true)
+                await updateUsername(name)
                 toast.success("Successfully saved preferences")
+            } catch (error) {
+                const message =
+                    error instanceof Error
+                        ? error.message
+                        : "Failed to save settings."
+                nextErrors.push(message)
+                setErrors(nextErrors)
+            } finally {
+                setLoading(false)
             }
-
-            setLoading(false)
+        } else if (nextErrors.length > 0) {
+            setErrors(nextErrors)
         }
     }
 
     return (
         <Card className="flex flex-col gap-4">
-
             {/* errors provided by backend */}
             {errors.length > 0 && (
-                <div className="mb-2 rounded-lg border border-error/30 bg-error/10 p-3 text-sm text-error">
-
+                <div className="border-error/30 bg-error/10 text-error mb-2 rounded-lg border p-3 text-sm">
                     <p className="mb-1 font-medium">
                         Please fix the following:
                     </p>
@@ -82,7 +75,7 @@ export default function AccountSettings() {
                 </div>
             )}
 
-            {user == null ? (
+            {data?.user == null ? (
                 <div className="flex h-40 items-center justify-center text-gray-500">
                     Loading...
                 </div>
@@ -110,20 +103,11 @@ export default function AccountSettings() {
                             text="Email"
                             id="email"
                             type="email"
-                            value={user.email}
+                            value={data?.email}
                             remark={
                                 "This account is connected to your Google account."
                             }
                             readOnly
-                        />
-
-                        {/* user's phone */}
-                        <Input
-                            text={"Phone Number (optional)"}
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                            id="phoneNumber"
-                            type="tel"
                         />
                     </form>
                 </>

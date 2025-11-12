@@ -1,23 +1,25 @@
 import { useParams } from "react-router"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Badge, Button, Card } from "@umnburrow/core"
+import { Badge, Button, Card, ViewErrors } from "@umnburrow/core"
 import {
     followUser,
     getUserByUsername,
     unFollowUser
 } from "@features/profile/profile.api.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
-import { GroupMeetingCard } from "@features/groups/components/GroupMeetingCard.tsx"
+import { GroupMeetingCard } from "@features/burrows/components/GroupMeetingCard.tsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useMemo, useState } from "react"
 import useUser from "@features/auth/hooks/useUser.ts"
 import About from "@features/profile/components/About.tsx"
 import Contact from "@features/profile/components/Contact.tsx"
 import EditProfile from "@features/profile/components/EditProfile.tsx"
-import type { GroupMeetingResponse } from "@features/groups/groups.types.ts"
+import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
 import { convertGraduationYear } from "@api/util.ts"
 import Relations from "@features/profile/components/Relations.tsx"
-import useMetaTags from "@features/layout/useMetaTags.ts"
+import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
+import { useAtom } from "jotai"
+import { profileEditErrors } from "@features/profile/profile.atom.ts"
 
 /**
  * The view of a profile.
@@ -29,12 +31,13 @@ export default function ProfileView() {
     const { username = "me" } = useParams()
     const queryClient = useQueryClient()
 
+    const [errors, setErrors] = useAtom(profileEditErrors)
+
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["profile", username],
-        enabled: auth !== null,
-        queryFn: async () => await getUserByUsername(auth, username)
+        queryFn: async () => await getUserByUsername(username)
     })
 
     const followText =
@@ -224,6 +227,8 @@ export default function ProfileView() {
                     </div>
                 </div>
 
+                <ViewErrors errors={errors} clearErrors={() => setErrors([])} />
+
                 {/* main profile content*/}
                 {isPrivate ? (
                     <Card className="mb-4 text-center">
@@ -255,9 +260,9 @@ export default function ProfileView() {
                                     <GroupMeetingCard
                                         meetingResponse={
                                             {
-                                                meeting,
+                                                burrow: meeting,
                                                 bookmarked: false
-                                            } as GroupMeetingResponse
+                                            } as BurrowResponse
                                         }
                                         details={false}
                                     />
@@ -280,9 +285,9 @@ export default function ProfileView() {
                                     <GroupMeetingCard
                                         meetingResponse={
                                             {
-                                                meeting,
+                                                burrow: meeting,
                                                 bookmarked: false
-                                            } as GroupMeetingResponse
+                                            } as BurrowResponse
                                         }
                                         details={false}
                                     />

@@ -4,27 +4,17 @@ import type {
     UserResponse
 } from "@features/profile/profile.model.ts"
 import { BASE_URL } from "@api/util.ts"
+import { get, post } from "@api/api.ts"
 
 /**
  * Get a user by their username.
  *
- * @param auth The authorization token.
  * @param username The username.
  */
 export async function getUserByUsername(
-    auth: string | null,
     username: string
 ): Promise<UserResponse> {
-    const request = await fetch(`${BASE_URL}/user/username/${username}`, {
-        method: "GET",
-        headers: {
-            Authorization: "Bearer " + auth
-        }
-    })
-
-    if (!request.ok) return Promise.reject("Failed to load profile.")
-
-    return await request.json()
+    return get(`/user/username/${username}`)
 }
 
 /**
@@ -92,13 +82,9 @@ export async function unFollowUser(auth: string, userID: string) {
 /**
  * Save an updated profile.
  *
- * @param auth The authorization token.
  * @param profile The updated attributes of the profile.
  */
-export async function saveProfile(
-    auth: string,
-    profile: Record<keyof Profile, string>
-) {
+export async function saveProfile(profile: Record<keyof Profile, string>) {
     let parsedProfile: Partial<Profile> = {
         ...profile,
         visibility: profile.visibility.toUpperCase() as
@@ -129,22 +115,7 @@ export async function saveProfile(
         }
     })
 
-    const request = await fetch(`${BASE_URL}/user/profile`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + auth
-        },
-        body: JSON.stringify(parsedProfile)
-    })
-
-    if (!request.ok) {
-        const error = await request.json()
-
-        return Promise.reject(error.message)
-    }
-
-    return await request.json()
+    return post("/user/profile", parsedProfile)
 }
 
 /**

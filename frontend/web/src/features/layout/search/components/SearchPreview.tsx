@@ -1,4 +1,4 @@
-import type { GroupMeeting } from "@features/groups/groups.types.ts"
+import type { Burrow } from "@features/burrows/burrows.types.ts"
 import { useNavigate } from "react-router"
 import { formatDateTime } from "@api/util.ts"
 import clsx from "clsx"
@@ -8,7 +8,7 @@ import { Badge } from "@umnburrow/core"
  * {@link SearchPreview}
  */
 type PreviewProps = {
-    meeting: GroupMeeting
+    meeting: Burrow
     onClick: () => void
 }
 

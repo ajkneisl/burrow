@@ -1,7 +1,7 @@
 package app.burrow.photo
 
 import app.burrow.account.models.userID
-import app.burrow.errors.ServerError
+import app.burrow.Error
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.header
 import io.ktor.server.request.receive
@@ -38,22 +38,22 @@ val USER_PHOTO_ROUTES: Route.() -> Unit = {
         // find the content type
         val contentType =
             call.request.header("Content-Type")
-                ?: throw ServerError(400, "Content-Type header is required!")
+                ?: throw Error(400, "Content-Type header is required!")
 
         // validate
         when {
             bytes.isEmpty() -> {
-                throw ServerError(400, "Image cannot be empty!")
+                throw Error(400, "Image cannot be empty!")
             }
 
             // validate size
             bytes.size > MAX_IMAGE_SIZE -> {
-                throw ServerError(400, "Your avatar must be under 3 MB!")
+                throw Error(400, "Your avatar must be under 3 MB!")
             }
 
             // validate content type
             contentType !in VALID_CONTENT_TYPES -> {
-                throw ServerError(400, "Invalid photo type. Allowed types: PNG, JPEG, GIF, WebP")
+                throw Error(400, "Invalid photo type. Allowed types: PNG, JPEG, GIF, WebP")
             }
         }
 
@@ -61,19 +61,19 @@ val USER_PHOTO_ROUTES: Route.() -> Unit = {
         try {
             ByteArrayInputStream(bytes).use { inputStream ->
                 val image = ImageIO.read(inputStream)
-                    ?: throw ServerError(400, "File is not a valid image!")
+                    ?: throw Error(400, "File is not a valid image!")
 
                 if (image.width > MAX_IMAGE_DIMENSIONS || image.height > MAX_IMAGE_DIMENSIONS) {
-                    throw ServerError(
+                    throw Error(
                         400,
                         "Image dimensions too large! Maximum: ${MAX_IMAGE_DIMENSIONS}x${MAX_IMAGE_DIMENSIONS}px"
                     )
                 }
             }
-        } catch (e: ServerError) {
+        } catch (e: Error) {
             throw e
         } catch (_: Exception) {
-            throw ServerError(400, "Invalid or corrupted image file!")
+            throw Error(400, "Invalid or corrupted image file!")
         }
 
         val key = "user/${call.userID}/avatar"
@@ -88,7 +88,7 @@ val USER_PHOTO_ROUTES: Route.() -> Unit = {
                     .build()
             )
         } catch (_: Exception) {
-            throw ServerError(500, "Failed to upload image.")
+            throw Error(500, "Failed to upload image.")
         }
 
         // find the URL
