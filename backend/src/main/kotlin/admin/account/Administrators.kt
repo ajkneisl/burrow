@@ -1,9 +1,9 @@
 package app.burrow.admin.account
 
-import app.burrow.errors.ServerError
+import app.burrow.Error
 import app.burrow.account.Authorization
 import app.burrow.admin.account.TOTP.secretGenerator
-import app.burrow.groups.sync.chat.ChatMessage
+import app.burrow.burrows.sync.chat.ChatMessage
 import app.burrow.query
 import dev.samstevens.totp.code.CodeGenerator
 import dev.samstevens.totp.code.CodeVerifier
@@ -99,13 +99,13 @@ suspend fun adminLogin(
     val row =
         query {
             Administrators.selectAll().where { Administrators.username eq username }.singleOrNull()
-        } ?: throw ServerError(401, "Invalid username or password.")
+        } ?: throw Error(401, "Invalid username or password.")
 
     val id = row[Administrators.id].value
     val lockedUntil = row[Administrators.lockedUntil]
 
     if (lockedUntil != null && now < lockedUntil) {
-        throw ServerError(401, "Account locked. Try again later.")
+        throw Error(401, "Account locked. Try again later.")
     }
 
     val passwordHash = row[Administrators.passwordHash]
@@ -133,7 +133,7 @@ suspend fun adminLogin(
             }
         }
 
-        throw ServerError(401, "Invalid username, password, or TOTP.")
+        throw Error(401, "Invalid username, password, or TOTP.")
     }
 
     // reset failed stuff and update last login date
@@ -170,14 +170,14 @@ suspend fun createAdministrator(
     }
 
     if (existingByUsername != null) {
-        throw ServerError(409, "Username or email already exists.")
+        throw Error(409, "Username or email already exists.")
     }
 
     val passwordHash =
         try {
             BCrypt.hashpw(password, BCrypt.gensalt(12))
         } catch (_: Exception) {
-            throw ServerError(400, "Invalid password.")
+            throw Error(400, "Invalid password.")
         }
 
     val totpSecret = secretGenerator.generate()
@@ -228,7 +228,7 @@ fun Administrator.requirePermissions(vararg permissions: Long) {
     val hasAll = permissions.all { permission -> (permissionBits and permission) == permission }
 
     if (!hasAll) {
-        throw ServerError(403, "Missing required permissions.")
+        throw Error(403, "Missing required permissions.")
     }
 }
 

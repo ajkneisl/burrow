@@ -1,12 +1,12 @@
 import { useEffect, useMemo } from "react"
 import { useNavigate, useSearchParams } from "react-router"
 import useToken from "@features/auth/hooks/useToken.ts"
-import PreviewGroupMeetings from "@features/groups/components/PreviewGroupMeetings.tsx"
+import PreviewGroupMeetings from "@features/burrows/components/PreviewGroupMeetings.tsx"
 import { useAtom } from "jotai"
 import { newUser } from "@features/auth/auth.atom.ts"
 import NewUserIntro from "@features/auth/components/NewUserIntro.tsx"
-import MeetingsSection from "@features/groups/components/MeetingsSection.tsx"
-import { getSchedule } from "@features/groups/groups.api.ts"
+import MeetingsSection from "@features/burrows/components/MeetingsSection.tsx"
+import { getSchedule } from "@features/burrows/burrows.api.ts"
 import MyProfile from "@features/profile/components/MyProfile.tsx"
 
 /**

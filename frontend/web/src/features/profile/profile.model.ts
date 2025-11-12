@@ -1,5 +1,5 @@
 import type { User } from "@features/auth/user.types.ts"
-import type { GroupMeeting } from "@features/groups/groups.types.ts"
+import type { Burrow } from "@features/burrows/burrows.types.ts"
 
 /**
  * A user's profile.
@@ -10,8 +10,11 @@ export type Profile = {
     visibility: "PUBLIC" | "FRIENDS" | "PRIVATE"
     gradYear: number | null
     classes: string[] | null
+    school: string | null
+    major: string | null
     bio: string | null
     instagram: string | null
+    linkedIn: string | null
     phoneNumber: string | null
 }
 
@@ -33,8 +36,9 @@ export type UserResponse = {
     user: User
     profile: Profile
     following: Following
-    recentJoinedGroups: GroupMeeting[]
-    recentHostedGroups: GroupMeeting[]
+    recentJoinedGroups: Burrow[]
+    recentHostedGroups: Burrow[]
+    email?: string
 }
 
 /**

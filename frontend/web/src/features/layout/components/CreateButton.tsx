@@ -1,6 +1,6 @@
 import { motion, AnimatePresence, type Variants } from "framer-motion"
 import { useAtom } from "jotai"
-import { studyGroupModal } from "@features/create/create.atom.ts"
+import { studyGroupModal } from "@features/burrows/create/create.atom.ts"
 import React, { useEffect, useRef, useState, useCallback } from "react"
 import toast from "react-hot-toast"
 import clsx from "clsx"

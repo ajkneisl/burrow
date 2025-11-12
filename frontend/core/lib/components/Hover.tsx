@@ -1,4 +1,9 @@
-import {PropsWithChildren, ReactNode, useState, useCallback, useMemo, useEffect, useRef} from "react";
+import { type PropsWithChildren, type ReactNode, useMemo } from "react"
+import {
+    TooltipTrigger,
+    Tooltip as AriaTooltip,
+    Button
+} from "react-aria-components"
 
 /**
  * {@see Hover}
@@ -8,65 +13,46 @@ type HoverProps = {
 } & PropsWithChildren
 
 /**
- * A hover component.
+ * A hover/tooltip component with react-aria for accessibility.
+ * Automatically adapts between hover (desktop) and press (touch) interactions.
+ * Handles ESC key and focus management automatically.
  *
- * @param content The content that invokes the hover.
- * @param children The content to view on hover.
- * @constructor
+ * @param content The tooltip content to show on hover/press.
+ * @param children The trigger element that invokes the tooltip.
  */
-export default function Hover({content, children}: HoverProps) {
+export default function Hover({ content, children }: HoverProps) {
+    // Detect if device is touch-like (mobile/tablet)
     const isTouchLike = useMemo(() => {
-        if (typeof window === "undefined" || !("matchMedia" in window)) return false
+        if (typeof window === "undefined" || !("matchMedia" in window))
+            return false
         let supportsHover = false
         let coarse = false
-        try { supportsHover = window.matchMedia("(hover: hover)").matches } catch {}
-        try { coarse = window.matchMedia("(pointer: coarse)").matches } catch {}
+        try {
+            supportsHover = window.matchMedia("(hover: hover)").matches
+        } catch {}
+        try {
+            coarse = window.matchMedia("(pointer: coarse)").matches
+        } catch {}
         return !supportsHover && coarse
     }, [])
 
-    const [open, setOpen] = useState(false)
-    const toggle = useCallback(() => setOpen((o) => !o), [])
-    const rootRef = useRef<HTMLDivElement | null>(null)
-
-    useEffect(() => {
-        if (!isTouchLike || !open) return
-
-        const handler = (e: Event) => {
-            if (!rootRef.current) return
-            const target = e.target as Node | null
-            if (target && !rootRef.current.contains(target)) {
-                setOpen(false)
-            }
-        }
-
-        document.addEventListener("pointerdown", handler, true)
-        document.addEventListener("click", handler, true)
-
-        return () => {
-            document.removeEventListener("pointerdown", handler, true)
-            document.removeEventListener("click", handler, true)
-        }
-    }, [isTouchLike, open])
-
     return (
-        <div
-            ref={rootRef}
-            className="relative inline-block group"
-            onClick={isTouchLike ? toggle : undefined}
+        <TooltipTrigger
+            delay={200}
+            closeDelay={0}
+            trigger={isTouchLike ? "focus" : undefined}
         >
-            {children}
-            <div
-                className={
-                    isTouchLike
-                        ? `cursor-pointer absolute -top-1.5 left-1/2 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md bg-background px-2 py-1 text-xs text-base-100 shadow-md transition-opacity duration-150 ${
-                            open ? "opacity-100" : "opacity-0 pointer-events-none"
-                        }`
-                        : "pointer-events-none absolute -top-1.5 left-1/2 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md bg-background px-2 py-1 text-xs text-base-100 opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100"
-                }
-                role="tooltip"
+            <Button className="inline-block cursor-default outline-none">
+                {children}
+            </Button>
+
+            <AriaTooltip
+                offset={6}
+                placement="top"
+                className="absolute z-50 whitespace-nowrap rounded-md bg-background px-2 py-1 text-xs text-text/70 shadow-md outline-none animate-in fade-in duration-150"
             >
                 {content}
-            </div>
-        </div>
+            </AriaTooltip>
+        </TooltipTrigger>
     )
 }

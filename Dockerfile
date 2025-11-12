@@ -9,6 +9,7 @@ WORKDIR /frontend
 COPY frontend/web /frontend
 
 ENV VITE_BASE_URL="https://umn.app/api"
+ENV VITE_CDN_URL="https://cdn.umn.app"
 
 RUN npm install --force
 RUN npm run build

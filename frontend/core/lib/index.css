@@ -96,3 +96,60 @@ footer {
     font-weight: 800;
     font-style: normal;
 }
+
+/* ~ select input styles ~ */
+.select-input {
+    background-color: var(--card-background-color);
+    border: 1px solid var(--card-border-color);
+    color: var(--text-color);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.select-input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.1);
+}
+
+.select-input:hover:not(:disabled) {
+    border-color: var(--secondary-hover-color);
+}
+
+.select-input-error {
+    border-color: var(--error-color);
+}
+
+.select-input-error:focus {
+    border-color: var(--error-color);
+    box-shadow: 0 0 0 3px rgba(191, 30, 46, 0.1);
+}
+
+/* Style the dropdown arrow for both themes */
+.select-input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23212121' d='M4.427 6.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 6H4.604a.25.25 0 00-.177.427z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px;
+    padding-right: 2.5rem;
+}
+
+/* Dark theme dropdown arrow */
+[data-theme="dark"] .select-input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23F3F4F6' d='M4.427 6.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 6H4.604a.25.25 0 00-.177.427z'/%3E%3C/svg%3E");
+}
+
+/* Style the option elements */
+.select-input option {
+    background-color: var(--card-background-color);
+    color: var(--text-color);
+}
+
+/* Dark theme focus ring adjustment */
+[data-theme="dark"] .select-input:focus {
+    box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.15);
+}
+
+[data-theme="dark"] .select-input-error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 83, 80, 0.15);
+}

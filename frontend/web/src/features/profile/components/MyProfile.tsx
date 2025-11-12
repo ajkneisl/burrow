@@ -111,6 +111,7 @@ export default function MyProfile() {
                     name={profile?.name}
                     userID={user?.id}
                     size={"lg"}
+                    editable={true}
                 />
 
                 <div className="min-w-0">

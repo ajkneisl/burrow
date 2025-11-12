@@ -1,16 +1,15 @@
 import { Button } from "@umnburrow/core"
 import { useQueryClient } from "@tanstack/react-query"
-import useToken from "@features/auth/hooks/useToken.ts"
 import { useState } from "react"
 import { useAtom } from "jotai"
 import {
     isEditingProfile,
+    profileEditErrors,
     profileEdits
 } from "@features/profile/profile.atom.ts"
 import { saveProfile } from "@features/profile/profile.api.ts"
 import type { User } from "@features/auth/user.types.ts"
-import type { Profile, UserResponse } from "@features/profile/profile.model.ts"
-import toast from "react-hot-toast"
+import type { Profile } from "@features/profile/profile.model.ts"
 
 /**
  * {@see EditProfile}
@@ -29,8 +28,8 @@ type EditProfileProps = {
  */
 export default function EditProfile({ user, profile }: EditProfileProps) {
     const queryClient = useQueryClient()
-    const auth = useToken()
 
+    const [, setErrors] = useAtom(profileEditErrors)
     const [edits, setEdits] = useAtom(profileEdits)
     const [isEditing, setIsEditing] = useAtom(isEditingProfile)
 
@@ -70,38 +69,20 @@ export default function EditProfile({ user, profile }: EditProfileProps) {
     }
 
     async function saveProfileEdits() {
-        if (auth === null) return
         setIsSubmitting(true)
 
         try {
-            await saveProfile(auth, edits)
+            await saveProfile(edits)
 
-            queryClient.setQueryData(
-                ["profile", user.username],
-                (prev: UserResponse) => {
-                    if (!prev) return prev
-                    return {
-                        ...prev,
-                        profile: {
-                            ...prev.profile,
-                            ...edits,
-                            gradYear: edits.gradYear
-                                ? parseInt(edits.gradYear)
-                                : null,
-                            classes: edits.classes
-                                ? edits.classes
-                                      .split(",")
-                                      .map((s) => s.trim())
-                                      .filter((s) => s.length > 0)
-                                : []
-                        }
-                    }
-                }
-            )
+            // invalidate since backend may do some fixes
+            await queryClient.invalidateQueries({
+                queryKey: ["profile", user.username]
+            })
 
+            setErrors([])
             setIsEditing(false)
-        } catch (e) {
-            toast.error(e as string)
+        } catch (e: any) {
+            setErrors(e as string[])
         } finally {
             setIsSubmitting(false)
         }

@@ -1,6 +1,6 @@
 package app.burrow.report
 
-import app.burrow.groups.sync.chat.ChatMessage
+import app.burrow.burrows.sync.chat.ChatMessage
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID

@@ -1,15 +1,15 @@
 package app.burrow.account.models
 
+import app.burrow.Error
 import app.burrow.account.Users
 import app.burrow.account.profile.FollowResponse
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
 import app.burrow.account.profile.getFollowing
-import app.burrow.errors.ServerError
-import app.burrow.groups.Meetings
-import app.burrow.groups.membership.Memberships
-import app.burrow.groups.models.GroupMeeting
-import app.burrow.groups.models.MeetingRole
+import app.burrow.burrows.Burrow
+import app.burrow.burrows.membership.Memberships
+import app.burrow.burrows.models.BurrowRole
+import app.burrow.burrows.models.Burrows
 import app.burrow.query
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
@@ -37,8 +37,9 @@ data class UserResponse(
     val user: User,
     val profile: Profile,
     val following: FollowResponse,
-    val recentJoinedGroups: List<GroupMeeting>,
-    val recentHostedGroups: List<GroupMeeting>,
+    val recentJoinedGroups: List<Burrow>,
+    val recentHostedGroups: List<Burrow>,
+    val email: String? = null,
 )
 
 /**
@@ -51,11 +52,11 @@ data class UserResponse(
 suspend fun getUserResponse(userID: String, requestingUserID: String): UserResponse = query {
     val userRow =
         Users.selectAll().where { Users.id eq userID }.singleOrNull()
-            ?: throw ServerError(404, "User not found")
+            ?: throw Error(404, "User not found")
 
     val profileRow =
         Profiles.selectAll().where { Profiles.userID eq userID }.singleOrNull()
-            ?: throw ServerError(404, "Profile not found")
+            ?: throw Error(404, "Profile not found")
 
     val following = getFollowing(userID, requestingUserID)
     val isFriends = following.theyFollow && following.youFollow
@@ -79,32 +80,35 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
                 bio = null,
                 gradYear = null,
                 classes = null,
+                school = null,
+                major = null,
                 phoneNumber = null,
                 instagram = null,
+                linkedIn = null,
             )
     }
 
     val now = System.currentTimeMillis()
 
     val hostedMeetings =
-        Meetings.selectAll()
-            .where { (Meetings.owner eq userID) and (Meetings.beginningTime greater now) }
-            .orderBy(Meetings.beginningTime to SortOrder.ASC)
+        Burrows.selectAll()
+            .where { (Burrows.ownerID eq userID) and (Burrows.beginningTime greater now) }
+            .orderBy(Burrows.beginningTime to SortOrder.ASC)
             .limit(3)
-            .map { GroupMeeting.fromRow(it) }
+            .map { Burrow.fromRow(it) }
             .toList()
 
     val joinedMeetings =
-        (Memberships innerJoin Meetings)
-            .select(Meetings.columns)
+        (Memberships innerJoin Burrows)
+            .select(Burrows.columns)
             .where {
                 (Memberships.userID eq userID) and
-                    (Meetings.beginningTime greater now) and
-                    (Memberships.role neq MeetingRole.HOST)
+                    (Burrows.beginningTime greater now) and
+                    (Memberships.role neq BurrowRole.HOST)
             }
-            .orderBy(Meetings.beginningTime to SortOrder.ASC)
+            .orderBy(Burrows.beginningTime to SortOrder.ASC)
             .limit(3)
-            .map { GroupMeeting.fromRow(it) }
+            .map { Burrow.fromRow(it) }
             .toList()
 
     UserResponse(
@@ -113,5 +117,6 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
         following = following,
         recentJoinedGroups = if (cannotSee) emptyList() else joinedMeetings,
         recentHostedGroups = if (cannotSee) emptyList() else hostedMeetings,
+        email = if (requestingUserID == userID) userRow[Users.email] else null,
     )
 }

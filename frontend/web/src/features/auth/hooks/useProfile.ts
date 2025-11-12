@@ -12,7 +12,7 @@ export default function useProfile(): Profile | null {
     const { data, error } = useQuery({
         queryKey: ["user"],
         enabled: auth !== "",
-        queryFn: async () => await getUser(auth)
+        queryFn: async () => await getUser()
     })
 
     // if the request fails, log the user out

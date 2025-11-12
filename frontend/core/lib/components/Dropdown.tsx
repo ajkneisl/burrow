@@ -26,13 +26,13 @@ type DropdownProps = {
  * @param children The contents of a dropdown, {@link DropdownItem}.
  */
 export default function Dropdown({
-    align = "end",
-    className = "",
-    btnRef,
-    onClose,
-    open,
-    children
-}: DropdownProps) {
+                                     align = "end",
+                                     className = "",
+                                     btnRef,
+                                     onClose,
+                                     open,
+                                     children
+                                 }: DropdownProps) {
     const menuRef = useRef<HTMLDivElement | null>(null)
 
     // outside click / escape

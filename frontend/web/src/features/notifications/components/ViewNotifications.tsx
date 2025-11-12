@@ -37,44 +37,54 @@ function Notification({ n, clearOne, toggleReadOne }: NotificationProps) {
     return (
         <article
             className={clsx(
-                "text-text relative flex cursor-pointer select-none items-start gap-3 rounded-2xl border px-3 py-3 transition-colors",
-                !n.read &&
-                    "border-secondary bg-card hover:bg-hero/30 border-l-8"
+                "border-background/80 bg-background/60 text-text group hover:border-primary/40 relative flex flex-col gap-3 rounded-2xl border p-4 transition-all select-none",
+                !n.read && "border-l-secondary border-l-4"
             )}
         >
-            <div className="min-w-0 flex-1 pl-4">
-                <h3 className="truncate text-sm font-semibold">{n.title}</h3>
-                <p className="mt-0.5 line-clamp-2 text-sm text-text/60">
-                    {n.content}
-                </p>
-                <div className="mt-1 text-xs text-text/60">
-                    {formatTimeAgo(n.date)}
+            <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-start gap-2">
+                        <h3 className="text-sm leading-tight font-semibold">
+                            {n.title}
+                        </h3>
+                        {!n.read && (
+                            <span className="bg-secondary mt-0.5 h-2 w-2 shrink-0 rounded-full" />
+                        )}
+                    </div>
+                    <p className="text-text/70 mt-1.5 line-clamp-2 text-sm">
+                        {n.content}
+                    </p>
+                    <div className="text-text/50 mt-2 text-xs">
+                        {formatTimeAgo(n.date)}
+                    </div>
                 </div>
             </div>
 
-            <div className="flex shrink-0 items-center gap-1 self-center">
+            <div className="flex items-center justify-end gap-2 opacity-0 transition-opacity group-hover:opacity-100">
                 {!n.read && (
-                    <button
+                    <Button
+                        thin
+                        color="SUCCESS"
                         onClick={(e) => {
                             e.stopPropagation()
                             toggleReadOne(n.id)
                         }}
-                        title="Mark as read"
-                        className="invisible rounded-lg border border-gray-200 px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-50 group-hover:visible"
+                        aria-label="Mark as read"
                     >
-                        Read
-                    </button>
+                        Mark as Read
+                    </Button>
                 )}
-                <button
+                <Button
+                    thin
+                    color="ERROR"
                     onClick={(e) => {
                         e.stopPropagation()
                         clearOne(n.id)
                     }}
-                    title="Clear"
-                    className="invisible rounded-lg border border-gray-200 px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-50 group-hover:visible"
+                    aria-label="Clear notification"
                 >
                     Clear
-                </button>
+                </Button>
             </div>
         </article>
     )
@@ -186,7 +196,7 @@ export default function ViewNotifications() {
                 {unreadCount > 0 && (
                     <span
                         aria-label={`${unreadCount} unread`}
-                        className="absolute -right-1 -top-1 inline-flex min-w-5 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white shadow ring-2 ring-white"
+                        className="absolute -top-1 -right-1 inline-flex min-w-5 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] leading-none font-semibold text-white shadow ring-2 ring-white"
                     >
                         {unreadCount > 99 ? "99+" : unreadCount}
                     </span>
@@ -201,7 +211,7 @@ export default function ViewNotifications() {
                             ref={panelRef}
                             role="dialog"
                             aria-label="Notifications"
-                            className="absolute right-0 z-50 mt-2 w-[28rem] max-w-[92vw] origin-top-right border border-primary/30 rounded-2xl bg-card shadow-2xl"
+                            className="bg-card border-card-border/30 absolute right-0 z-50 mt-2 w-[28rem] max-w-[92vw] origin-top-right rounded-2xl border shadow-2xl"
                             initial={{ opacity: 0, y: -8, scale: 0.98 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -6, scale: 0.98 }}
@@ -212,40 +222,42 @@ export default function ViewNotifications() {
                                 mass: 0.6
                             }}
                         >
-                            <div className="text-text flex items-center justify-between gap-3 rounded-t-2xl px-4 py-3">
+                            <div className="text-text border-card-border/20 flex items-center justify-between gap-3 border-b px-5 py-4">
                                 {/* header */}
                                 <div className="flex items-center gap-2">
-                                    <div className="text-sm font-semibold">
+                                    <h2 className="text-base font-bold">
                                         Notifications
-                                    </div>
+                                    </h2>
 
-                                    <span className="ml-1 rounded-full px-2 py-0.5 text-xs font-medium">
-                                        {items.length}
-                                    </span>
+                                    {items.length > 0 && (
+                                        <span className="bg-primary/20 text-text/70 rounded-full px-2 py-0.5 text-xs font-semibold">
+                                            {items.length}
+                                        </span>
+                                    )}
                                 </div>
 
                                 {/* clear all */}
                                 <div className="flex items-center gap-2">
                                     <Button
-                                        color={"SECONDARY"}
+                                        thin
+                                        color={"ERROR"}
                                         onClick={clearAll}
                                         disabled={items.length === 0}
                                     >
-                                        Clear all
+                                        Clear All
                                     </Button>
                                 </div>
                             </div>
 
                             {/* notifications */}
-                            <div className="text-text max-h-[60vh] overflow-y-auto px-1 py-2">
+                            <div className="text-text max-h-[60vh] overflow-y-auto px-3 py-3">
                                 {items.length === 0 ? (
                                     <EmptyState />
                                 ) : (
-                                    <ul className="space-y-1.5">
+                                    <ul className="space-y-3">
                                         {items.map((n, idx) => (
                                             <motion.li
                                                 key={n.id}
-                                                className="group"
                                                 initial={{ opacity: 0, y: -6 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: -6 }}
@@ -278,10 +290,10 @@ export default function ViewNotifications() {
 
 function EmptyState() {
     return (
-        <div className="px-4 py-10 text-center">
-            <div className="text-sm font-semibold">You're all caught up</div>
-            <p className="mt-1 text-sm text-text/60">
-                New notifications will appear here.
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="text-base font-bold">You're all caught up!</div>
+            <p className="text-text/70 mt-2 text-sm">
+                New notifications will appear here when you receive them.
             </p>
         </div>
     )

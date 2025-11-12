@@ -2,3 +2,5 @@
 backend/.kotlin
 Burrow.yml
 key
+dist
+.claude

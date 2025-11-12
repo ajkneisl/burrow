@@ -1,5 +1,12 @@
-import React, { useId } from "react"
+import React from "react"
 import { AnimatePresence, motion } from "framer-motion"
+import {
+    Modal as AriaModal,
+    ModalOverlay,
+    Dialog,
+    Heading,
+    Button
+} from "react-aria-components"
 
 /**
  * {@see Modal}
@@ -14,7 +21,7 @@ type ModalProps = {
 }
 
 /**
- * A reusable modal element.
+ * A reusable modal element with react-aria for accessibility.
  *
  * @param open If the modal is open.
  * @param onClose When the modal is closed. This should modify `open`.
@@ -31,78 +38,89 @@ export default function Modal({
     footer,
     widthClass = "max-w-lg"
 }: ModalProps) {
-    const id = useId()
     return (
         <AnimatePresence>
             {open && (
-                <div className="fixed inset-0 z-50 overflow-y-scroll">
+                <ModalOverlay
+                    isOpen={open}
+                    onOpenChange={(isOpen) => !isOpen && onClose()}
+                    isDismissable
+                    className="fixed inset-0 z-50 overflow-y-auto"
+                >
                     <motion.div
                         className="absolute inset-0 bg-black/30 backdrop-blur-sm"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={onClose}
-                        aria-hidden
+                        transition={{ duration: 0.2 }}
                     />
 
-                    <motion.div
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby={title ? `${id}-title` : undefined}
-                        className="absolute inset-0 grid place-items-center p-4"
-                        initial={{ opacity: 0, scale: 0.96, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.98, y: 6 }}
-                        transition={{
-                            type: "spring",
-                            stiffness: 380,
-                            damping: 28
-                        }}
-                    >
-                        <div
-                            className={`text-text w-full ${widthClass} rounded-2xl border border-background/80 bg-background shadow-xl ring-1 ring-black/5 backdrop-blur`}
-                        >
-                            {title && (
-                                <header className="flex items-center justify-between gap-4 px-6 py-5 border-b">
-                                    {title ? (
-                                        <h2
-                                            id={`${id}-title`}
-                                            className="text-xl font-semibold tracking-tight"
-                                        >
-                                            {title}
-                                        </h2>
-                                    ) : (
-                                        <span />
-                                    )}
-
-                                    <button
-                                        className="grid cursor-pointer place-items-center h-9 w-9 rounded-full hover:bg-neutral-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
-                                        onClick={onClose}
-                                        aria-label="Close"
+                    <div className="absolute inset-0 grid place-items-center p-4">
+                        <AriaModal className="outline-none">
+                            <Dialog className="outline-none">
+                                {({ close }) => (
+                                    <motion.div
+                                        className={`text-text w-full ${widthClass} rounded-2xl border border-background/80 bg-background shadow-xl ring-1 ring-black/5 backdrop-blur`}
+                                        initial={{
+                                            opacity: 0,
+                                            scale: 0.96,
+                                            y: 10
+                                        }}
+                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                        exit={{
+                                            opacity: 0,
+                                            scale: 0.98,
+                                            y: 6
+                                        }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 380,
+                                            damping: 28
+                                        }}
                                     >
-                                        <svg
-                                            viewBox="0 0 24 24"
-                                            className="w-5 h-5"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth={2}
-                                        >
-                                            <path d="M6 6l12 12M18 6 6 18" />
-                                        </svg>
-                                    </button>
-                                </header>
-                            )}
+                                        {title && (
+                                            <header className="flex items-center justify-between gap-4 border-b px-6 py-5">
+                                                <Heading
+                                                    slot="title"
+                                                    className="text-xl font-semibold tracking-tight"
+                                                >
+                                                    {title}
+                                                </Heading>
 
-                            <div className="px-6 py-6">{children}</div>
+                                                <Button
+                                                    onPress={close}
+                                                    className="text-text/60 hover:text-text hover:bg-text/10 focus-visible:ring-primary -mr-2 grid h-9 w-9 cursor-pointer place-items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                                                    aria-label="Close modal"
+                                                >
+                                                    <svg
+                                                        viewBox="0 0 24 24"
+                                                        className="h-5 w-5"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth={2.5}
+                                                        strokeLinecap="round"
+                                                    >
+                                                        <path d="M6 6l12 12M18 6 6 18" />
+                                                    </svg>
+                                                </Button>
+                                            </header>
+                                        )}
 
-                            {footer && (
-                                <footer className="flex items-center justify-end gap-3 px-6 py-4 border-t rounded-b-2xl">
-                                    {footer}
-                                </footer>
-                            )}
-                        </div>
-                    </motion.div>
-                </div>
+                                        <div className="px-6 py-6">
+                                            {children}
+                                        </div>
+
+                                        {footer && (
+                                            <footer className="flex items-center justify-end gap-3 rounded-b-2xl border-t px-6 py-4">
+                                                {footer}
+                                            </footer>
+                                        )}
+                                    </motion.div>
+                                )}
+                            </Dialog>
+                        </AriaModal>
+                    </div>
+                </ModalOverlay>
             )}
         </AnimatePresence>
     )

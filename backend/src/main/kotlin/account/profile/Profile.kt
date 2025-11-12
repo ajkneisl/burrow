@@ -1,14 +1,15 @@
 package app.burrow.account.profile
 
+import app.burrow.MultiError
 import app.burrow.account.Users
-import app.burrow.errors.ServerError
 import app.burrow.json
 import app.burrow.query
+import io.ktor.client.request.get
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.v1.core.Alias
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.Table
@@ -22,21 +23,39 @@ import org.jetbrains.exposed.v1.r2dbc.update
  * @see Profile
  */
 object Profiles : Table("profiles") {
-    val userID = reference("user_id", Users.id, ReferenceOption.CASCADE)
+    /** [Profile.userID] */
+    val userID = reference("user_id", Users.id, ReferenceOption.CASCADE).uniqueIndex()
 
-    // DEFAULT
+    /** [Profile.name] */
     val name = varchar("name", 64)
+
+    /** [Profile.visibility] */
     val visibility =
         enumeration<Profile.Visibility>("visibility").default(Profile.Visibility.PUBLIC)
+
+    /** [Profile.bio] */
     val bio = varchar("bio", 512).nullable().default(null)
 
-    // CONTACT
+    /** [Profile.phoneNumber] */
     val phoneNumber = varchar("phone_number", 128).nullable().default(null)
+
+    /** [Profile.instagram] */
     val instagram = varchar("instagram", 32).nullable().default(null)
 
-    // SCHOOL
+    /** [Profile.linkedIn] */
+    val linkedIn = varchar("linkedIn", 64).nullable().default(null)
+
+    /** [Profile.gradYear] */
     val gradYear = integer("grad_year").nullable().default(null)
+
+    /** [Profile.classes] */
     val classes = text("classes").nullable().default(null)
+
+    /** [Profile.school] */
+    val school = varchar("school", 255).nullable().default(null)
+
+    /** [Profile.major] */
+    val major = varchar("major", 255).nullable().default(null)
 }
 
 /**
@@ -51,14 +70,38 @@ object Profiles : Table("profiles") {
  */
 @Serializable
 data class Profile(
+    /** The user's ID. */
     val userID: String,
+
+    /** The user's chosen name. */
     val name: String,
+
+    /** The visibility of the profile. */
     val visibility: Visibility,
+
+    /** The user's bio. If `null`, the user has not set one. */
     val bio: String?,
+
+    /** The user's graduation year. If `null`, the user has not set one. */
     val gradYear: Int?,
+
+    /** The user's classes. If `null`, the user has not set one. */
     val classes: List<String>?,
+
+    /** The user's school. If `null`, the user has not set one. */
+    var school: String?,
+
+    /** The user's major. If `null`, the user has not set one. */
+    var major: String?,
+
+    /** The user's phone number. If `null`, the user has not set one. */
     val phoneNumber: String?,
+
+    /** The user's Instagram. If `null`, the user has not set one. */
     val instagram: String?,
+
+    /** The user's LinkedIn. If `null`, the user has not set one. */
+    val linkedIn: String?,
 ) {
     /** Profile visibility. */
     enum class Visibility {
@@ -67,60 +110,191 @@ data class Profile(
         FRIENDS,
     }
 
-    /** Validate this profile. */
+    /**
+     * Validate this profile.
+     *
+     * @throws MultiError If there's any issues with the profile
+     */
     fun validate() {
+        val errors = mutableListOf<String>()
+
         // validate name
         if (name.isBlank() || name.length > 64)
-            throw ServerError(400, "Name must be between 1 and 64 characters.")
+            errors.add("Name must be between 1 and 64 characters.")
 
-        if (!nameRegex.matches(name)) throw ServerError(400, "Name contains invalid characters.")
+        // validate name characters
+        if (!nameRegex.matches(name)) errors.add("Invalid characters in name.")
 
+        // validate classes
         if (classes != null && classes.isNotEmpty()) {
             val normalized = classes.map { it.trim() }
             val invalid = normalized.filterNot(::isValidUmnClass)
+
             if (invalid.isNotEmpty()) {
-                throw ServerError(400, "Invalid UMN class codes: ${invalid.joinToString(", ")}.")
+                errors.add("Invalid UMN class codes: ${invalid.joinToString(", ")}.")
             }
         }
 
         // todo: does this need to be different?
-        if (gradYear != null && gradYear !in 2020..2035)
-            throw ServerError(400, "Invalid graduation year!")
+        if (gradYear != null && gradYear !in 2020..2035) errors.add("Invalid graduation year.")
+
+        // validate school
+        school.also {
+            if (it != null) {
+                // regular school name
+                if (it.lowercase() in validSchools) {
+                    val schoolName =
+                        schoolsData
+                            .find { schoolProfile -> schoolProfile.name.equals(it, true) }
+                            ?.name
+
+                    if (schoolName != null) {
+                        school = schoolName
+                        return@also
+                    }
+                }
+
+                // school is shorthand (like CSE, CBAS etc)
+                if (it.lowercase() in validShorthands) {
+                    val schoolName =
+                        schoolsData
+                            .find { schoolProfile -> schoolProfile.shorthand.equals(it, true) }
+                            ?.name
+
+                    if (schoolName != null) {
+                        school = schoolName
+                        return@also
+                    }
+                }
+
+                school = null
+                errors.add("Invalid school.")
+            }
+        }
+
+        // validate major
+        (major to school).also { (ma, sc) ->
+            if (ma != null) {
+                if (sc == null) {
+                    errors.add("To pick a major, you must have already chosen a school.")
+                    return@also
+                }
+
+                if (ma.lowercase() !in validMajors) {
+                    errors.add("Invalid major.")
+                    return@also
+                }
+
+                val majorInSchool =
+                    schoolsData
+                        .single { profile -> profile.name == sc }
+                        .majors
+                        .find { majorName -> majorName.equals(ma, true) }
+
+                if (majorInSchool == null) {
+                    errors.add("That major is not in that school.")
+                    return@also
+                }
+
+                major = majorInSchool
+            }
+        }
 
         // validate bio
-        if (bio != null && bio.length > 512)
-            throw ServerError(400, "Bio must be under 512 characters.")
+        if (bio != null && bio.length > 512) errors.add("Bio must be under 512 characters.")
 
+        // validate instagram
         if (instagram != null) {
-            if (instagram.isBlank() || instagram.length > 32) {
-                throw ServerError(400, "Instagram handle must be between 1 and 32 characters.")
+            when {
+                instagram.isBlank() || instagram.length > 32 -> {
+                    errors.add("Instagram handle must be between 1 and 32 characters.")
+                }
+                !instagram.startsWith("@") -> {
+                    errors.add("Instagram handle must start with '@'.")
+                }
+                !instaRegex.matches(instagram) -> {
+                    errors.add("Instagram handle contains invalid characters.")
+                }
             }
+        }
 
-            if (!instagram.startsWith("@")) {
-                throw ServerError(400, "Instagram handle must start with '@'.")
-            }
-
-            if (!instaRegex.matches(instagram)) {
-                throw ServerError(400, "Instagram handle contains invalid characters.")
+        // validate linkedin
+        if (linkedIn != null) {
+            when {
+                linkedIn.isBlank() || linkedIn.length > 64 -> {
+                    errors.add("LinkedIn username must be between 1 and 64 characters.")
+                }
+                !linkedInRegex.matches(linkedIn.removePrefix("/in/")) -> {
+                    errors.add("LinkedIn username contains invalid characters.")
+                }
             }
         }
 
         // validate phone number
         if (phoneNumber != null && !phoneRegex.matches(phoneNumber)) {
-            throw ServerError(400, "Invalid phone number format.")
+            errors.add("Invalid phone number format.")
         }
+
+        if (errors.isNotEmpty()) throw MultiError(400, errors)
     }
 
     companion object {
         private val instaRegex = Regex("^@[A-Za-z0-9._]+$")
+        private val linkedInRegex = Regex("^[A-Za-z0-9\\-]+$")
         private val nameRegex = Regex("^[A-Za-z\\-\\s']+$")
         private val phoneRegex = Regex("^\\+?[0-9. ()-]{7,25}$")
-
         private val umnClassRegex = Regex("^[A-Z]{2,4}\\s[1-8][0-9]{3}[A-Z]?$")
 
+        @Serializable
+        private data class SchoolData(
+            val name: String,
+            val shorthand: String,
+            val majors: List<String>,
+        )
+
         /**
-         * Returns true if [course] looks like a valid UMN course code (e.g., `CSCI 2021`, `MATH
-         * 1271`, `CSCI 1933H`).
+         * Information on which school has which major. This uses the `majors.json` file in the
+         * `resources` folder.
+         *
+         * @see validSchools
+         * @see validMajors
+         */
+        private val schoolsData: List<SchoolData> by lazy {
+            val jsonText =
+                this::class
+                    .java
+                    .classLoader
+                    .getResourceAsStream("majors.json")
+                    ?.bufferedReader()
+                    ?.use { it.readText() }
+                    ?: throw IllegalStateException("Could not load majors.json from resources")
+
+            Json.decodeFromString<List<SchoolData>>(jsonText)
+        }
+
+        /** All valid schools at the University of Minnesota in lowercase. */
+        private val validSchools: Set<String> by lazy {
+            schoolsData.map { it.name.lowercase() }.toSet()
+        }
+
+        /** All valid school shorthands in the University of Minnesota in lowercase. */
+        private val validShorthands by lazy { schoolsData.map { it.shorthand.lowercase() }.toSet() }
+
+        /** All valid schools with their respective majors in lowercase. */
+        private val schoolMajors: Map<String, Set<String>> by lazy {
+            schoolsData.associate { profile ->
+                profile.name to profile.majors.map { it.lowercase() }.toSet()
+            }
+        }
+
+        /** All valid majors at the University of Minnesota. */
+        private val validMajors: Set<String> by lazy {
+            schoolsData.flatMap { it.majors }.map { it.lowercase() }.toSet()
+        }
+
+        /**
+         * Checks if [course] looks like a valid University of Minnesota course. Like `CSCI 2021`,
+         * `ABC 123` etc.
          */
         private fun isValidUmnClass(course: String): Boolean {
             val canonical = course.trim().uppercase().replace(Regex("\\s+"), " ")
@@ -135,9 +309,28 @@ data class Profile(
                 bio = row[Profiles.bio],
                 gradYear = row[Profiles.gradYear],
                 classes = row[Profiles.classes]?.let { Json.decodeFromString(it) },
+                school = row[Profiles.school],
+                major = row[Profiles.major],
                 instagram = row[Profiles.instagram],
                 phoneNumber = row[Profiles.phoneNumber],
+                linkedIn = row[Profiles.linkedIn],
                 visibility = row[Profiles.visibility],
+            )
+
+        /** Get a [Profile] from a [row] using an aliased table */
+        fun fromRow(row: ResultRow, alias: Alias<Profiles>): Profile =
+            Profile(
+                userID = row[alias[Profiles.userID]],
+                name = row[alias[Profiles.name]],
+                bio = row[alias[Profiles.bio]],
+                gradYear = row[alias[Profiles.gradYear]],
+                classes = row[alias[Profiles.classes]]?.let { Json.decodeFromString(it) },
+                school = row[alias[Profiles.school]],
+                major = row[alias[Profiles.major]],
+                instagram = row[alias[Profiles.instagram]],
+                phoneNumber = row[alias[Profiles.phoneNumber]],
+                linkedIn = row[alias[Profiles.linkedIn]],
+                visibility = row[alias[Profiles.visibility]],
             )
     }
 }
@@ -158,7 +351,10 @@ suspend fun updateProfile(profile: Profile) = query {
         it[phoneNumber] = profile.phoneNumber
         it[gradYear] = profile.gradYear
         it[classes] = json.encodeToString(profile.classes)
+        it[school] = profile.school
+        it[major] = profile.major
         it[instagram] = profile.instagram
+        it[linkedIn] = profile.linkedIn
         it[visibility] = profile.visibility
     }
 }

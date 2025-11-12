@@ -2,16 +2,16 @@ package app.burrow
 
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
-import app.burrow.account.Users
-import app.burrow.account.profile.Profiles
+import app.burrow.account.models.getUserByUsername
 import app.burrow.admin.ADMIN_ROUTES
-import app.burrow.errors.ServerError
-import app.burrow.groups.GROUP_ROUTES
-import app.burrow.groups.models.GroupType
-import app.burrow.groups.models.SubmittedGroupMeeting
-import app.burrow.groups.models.createGroupMeeting
-import app.burrow.groups.models.getMeetingResponse
-import app.burrow.groups.sync.Sync
+import app.burrow.burrows.BURROW_ROUTES
+import app.burrow.burrows.createStudyBurrow
+import app.burrow.burrows.getBurrow
+import app.burrow.burrows.getMeetingResponse
+import app.burrow.burrows.models.BurrowType
+import app.burrow.burrows.models.BurrowVisibility
+import app.burrow.burrows.models.SubmittedBurrow
+import app.burrow.burrows.sync.Sync
 import app.burrow.notifications.NOTIFICATION_ROUTES
 import app.burrow.notifications.notificationWorker
 import app.burrow.report.REPORT_ROUTES
@@ -40,13 +40,15 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.ktor.server.websocket.*
+import io.ktor.util.date.getTimeMillis
+import java.io.File
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.coroutineScope
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.r2dbc.insert
-import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 
@@ -61,6 +63,8 @@ val burrowLogger = LoggerFactory.getLogger("Burrow")
 const val PRIMARY_AUTH = "primary"
 const val ADMIN_AUTH = "administrator"
 
+lateinit var FRONTEND_DIR: String
+
 fun main(args: Array<String>) {
     // debug stuff
     args.forEach { arg ->
@@ -70,7 +74,17 @@ fun main(args: Array<String>) {
 
                 burrowLogger.info("Generated Token: {}", Authorization.generateToken(userId))
             }
+
+            arg.startsWith("--use-frontend=") -> {
+                FRONTEND_DIR = arg.removePrefix("--use-frontend=")
+
+                burrowLogger.info("Using frontend: {}", FRONTEND_DIR)
+            }
         }
+    }
+
+    if (!::FRONTEND_DIR.isInitialized) {
+        FRONTEND_DIR = "frontend"
     }
 
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
@@ -80,19 +94,6 @@ fun main(args: Array<String>) {
 suspend fun Application.module() {
     initDb()
     notificationWorker()
-
-    // convert current users to have profiles
-    query {
-        Users.selectAll().collect { row ->
-            query {
-                if (Profiles.selectAll().where { Profiles.userID eq row[Users.id] }.count() == 0L)
-                    Profiles.insert {
-                        it[Profiles.userID] = row[Users.id]
-                        it[Profiles.name] = row[Users.username]
-                    }
-            }
-        }
-    }
 
     install(SSE)
     install(WebSockets) {
@@ -120,19 +121,29 @@ suspend fun Application.module() {
     install(StatusPages) {
         exception<CancellationException> { _, _ -> }
 
-        exception<BadRequestException> { call, ex ->
-            ex.printStackTrace()
+        @Serializable data class ErrorResponse<T>(val error: String?, val message: T?)
 
+        exception<BadRequestException> { call, ex ->
             call.respond(
                 HttpStatusCode.BadRequest,
-                hashMapOf("code" to "400", "message" to "Invalid request body."),
+                ErrorResponse("MalformedBody", "Invalid request body."),
             )
         }
 
+        // this is the default error
+        // contains invalid args, etc
         exception<ServerError> { call, cause ->
             call.respond(
                 HttpStatusCode.fromValue(cause.code),
-                hashMapOf("code" to "${cause.code}", "message" to cause.message),
+                ErrorResponse(cause::class.simpleName, cause.message),
+            )
+        }
+
+        // multiple errors
+        exception<MultiError> { call, cause ->
+            call.respond(
+                HttpStatusCode.fromValue(cause.code),
+                ErrorResponse(cause::class.simpleName, cause.messages),
             )
         }
 
@@ -182,7 +193,7 @@ suspend fun Application.module() {
             realm = "burrow"
             verifier(Authorization.getVerifier())
 
-            challenge { _, _ -> throw ServerError(401, "Token is invalid or expired.") }
+            challenge { _, _ -> throw Error(401, "Token is invalid or expired.") }
             validate { credential ->
                 if (credential.payload.audience.contains(Authorization.PUBLIC_AUDIENCE))
                     JWTPrincipal(credential.payload)
@@ -197,7 +208,7 @@ suspend fun Application.module() {
             realm = "burrow/administrator"
             verifier(Authorization.getVerifier(Authorization.ADMIN_AUDIENCE))
 
-            challenge { _, _ -> throw ServerError(401, "Token is invalid or expired.") }
+            challenge { _, _ -> throw Error(401, "Token is invalid or expired.") }
             validate { credential ->
                 if (credential.payload.audience.contains(Authorization.ADMIN_AUDIENCE))
                     JWTPrincipal(credential.payload)
@@ -209,19 +220,17 @@ suspend fun Application.module() {
         routing {
             route("/admin") { singlePageApplication { react("admin") } }
 
-            singlePageApplication { react("frontend") }
-
             route("/api") {
                 route("/admin", ADMIN_ROUTES)
 
                 route("/notifications", NOTIFICATION_ROUTES)
-                route("/groups/{id}", Sync.SYNC_ROUTES)
+                route("/burrows/{id}", Sync.SYNC_ROUTES)
                 route("/user", USER_ROUTES)
 
                 // GET /groups/{id}
                 // retrieve an individual meeting
                 authenticate(PRIMARY_AUTH, optional = true) {
-                    get("/groups/{id}") {
+                    get("/burrows/{id}") {
                         val userId = call.principal<JWTPrincipal>()?.subject
                         val id =
                             call.parameters["id"]
@@ -236,9 +245,72 @@ suspend fun Application.module() {
                 }
 
                 authenticate(PRIMARY_AUTH) {
-                    route("/groups", GROUP_ROUTES)
+                    route("/burrows", BURROW_ROUTES)
                     route("/report", REPORT_ROUTES)
                 }
+
+                // GET *
+                // 404
+                get("{...}") { throw NotFound("That page could not be found.") }
+            }
+
+            val baseHtml =
+                runCatching { File("${FRONTEND_DIR}/index.html").readText() }.getOrNull()
+                    ?: "hello!"
+
+            val defaultMeta =
+                MetaTags(
+                    title = "Burrow — Study Together @ UMN",
+                    description =
+                        "Host and discover your next study group. Learn better with Burrow.",
+                    image = "/image/burrow.png",
+                )
+
+            staticFiles("/assets", File("$FRONTEND_DIR/assets"))
+            staticFiles("/image", File("$FRONTEND_DIR/image"))
+
+            // GET /*
+            // retrieve the frontend and inject SEO information
+            get("{...}") {
+                val path = call.request.uri
+
+                // retrieve the meta depending on the URI
+                val metaTags =
+                    when {
+                        // when they're requesting a meeting page
+                        path.startsWith("/meeting/") || path.length == 9 -> {
+                            val burrowID =
+                                if (path.length == 9) path.removePrefix("/")
+                                else path.removePrefix("/meeting/")
+
+                            val burrow = getBurrow(burrowID)
+
+                            defaultMeta.copy(
+                                title = burrow?.title ?: defaultMeta.title,
+                                description = burrow?.description ?: defaultMeta.description,
+                                url = "https://umn.app$path",
+                            )
+                        }
+
+                        // when they're requesting a user page
+                        path.startsWith("/user/") -> {
+                            val user =
+                                path.removePrefix("/user/").split("/").firstOrNull()?.let {
+                                    getUserByUsername(it)
+                                }
+
+                            defaultMeta.copy(
+                                title = "${user?.username} on Burrow",
+                                description = "View ${user?.username}'s profile on Burrow",
+                                url = "https://umn.app$path",
+                            )
+                        }
+
+                        else -> defaultMeta.copy(url = "https://umn.app$path")
+                    }
+
+                val htmlWithMeta = injectMetaTags(baseHtml, metaTags)
+                call.respondText(htmlWithMeta, ContentType.Text.Html)
             }
         }
     } catch (t: Throwable) {
@@ -246,16 +318,3 @@ suspend fun Application.module() {
         throw t
     }
 }
-
-fun ApplicationCall.queryParameter(name: String): String =
-    request.queryParameters[name] ?: throw ServerError(400, "Missing parameter: $name")
-
-fun ApplicationCall.longQueryParameter(name: String): Long =
-    request.queryParameters[name]?.toLongOrNull()
-        ?: throw ServerError(400, "Missing parameter: $name")
-
-fun ApplicationCall.urlParameter(name: String): String =
-    parameters[name] ?: throw ServerError(400, "Missing parameter: $name")
-
-fun ApplicationCall.optionalLongQueryParameter(name: String): Long? =
-    request.queryParameters[name]?.toLongOrNull()

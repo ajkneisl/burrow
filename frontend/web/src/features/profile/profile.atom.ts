@@ -17,8 +17,16 @@ export const profileEdits = atom<Record<keyof Profile, string>>({
     phoneNumber: "",
     userID: "",
     instagram: "",
-    visibility: "Public"
+    linkedIn: "",
+    visibility: "Public",
+    major: "",
+    school: ""
 })
+
+/**
+ * The errors when attempting to save the profile.
+ */
+export const profileEditErrors = atom<string[]>([])
 
 /**
  * If the relations modal is visible.

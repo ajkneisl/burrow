@@ -5,13 +5,13 @@ import app.burrow.account.profile.Following
 import app.burrow.account.profile.Profiles
 import app.burrow.account.settings.Settings
 import app.burrow.admin.account.Administrators
-import app.burrow.admin.account.Permissions
-import app.burrow.admin.account.createAdministrator
-import app.burrow.groups.Meetings
-import app.burrow.groups.bookmarks.Bookmarks
-import app.burrow.groups.membership.Memberships
-import app.burrow.groups.sync.block.BlockStates
-import app.burrow.groups.sync.chat.ChatMessages
+import app.burrow.burrows.bookmarks.Bookmarks
+import app.burrow.burrows.invites.Invites
+import app.burrow.burrows.invites.JoinRequests
+import app.burrow.burrows.membership.Memberships
+import app.burrow.burrows.models.Burrows
+import app.burrow.burrows.sync.block.BlockStates
+import app.burrow.burrows.sync.chat.ChatMessages
 import app.burrow.notifications.NotificationPreferences
 import app.burrow.notifications.Notifications
 import app.burrow.report.Reports
@@ -74,18 +74,20 @@ suspend fun initDb() {
     query {
         SchemaUtils.createMissingTablesAndColumns(
             Users,
-            Meetings,
+            Burrows,
             Settings,
             NotificationPreferences,
             Notifications,
             Bookmarks,
             Memberships,
+            Invites,
+            JoinRequests,
             BlockStates,
             ChatMessages,
             Reports,
             Administrators,
             Profiles,
-            Following
+            Following,
         )
     }
 

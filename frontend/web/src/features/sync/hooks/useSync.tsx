@@ -8,12 +8,12 @@ import {
     SyncIncomingEvent,
     type SyncOutgoingEvent
 } from "../sync.types.ts"
-import type { GroupMeetingResponse } from "@features/groups/groups.types.ts"
+import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
 
-export default function useSync(meeting?: GroupMeetingResponse | null) {
+export default function useSync(meeting?: BurrowResponse | null) {
     const auth = useToken()
 
-    const meetingId = meeting?.meeting?.id
+    const meetingId = meeting?.burrow?.id
     const isJoined =
         meeting?.membership !== undefined &&
         meeting?.membership?.status !== "LEFT"
@@ -30,7 +30,7 @@ export default function useSync(meeting?: GroupMeetingResponse | null) {
             "http://",
             "ws://"
         )
-        const ws = new WebSocket(`${base}/groups/${meetingId}/sync`)
+        const ws = new WebSocket(`${base}/burrows/${meetingId}/sync`)
 
         socketRef.current = ws
 

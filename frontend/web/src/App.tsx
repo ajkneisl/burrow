@@ -1,6 +1,6 @@
 import HomeView from "@pages/Home.view.tsx"
 import Meeting from "@pages/Meeting.view.tsx"
-import AllMeetings from "@pages/AllMeetings.view.tsx"
+import Browse from "@pages/Browse.view.tsx"
 import LandingView from "@pages/Landing.view.tsx"
 import Header from "@features/layout/components/Header.tsx"
 import About from "@pages/About.tsx"
@@ -8,14 +8,15 @@ import useUser from "@features/auth/hooks/useUser.ts"
 import NotFound from "@pages/NotFound.view.tsx"
 import { useAtom } from "jotai"
 import Footer from "@features/layout/components/Footer.tsx"
-import CreateStudyGroupModal from "@features/create/components/CreateStudyGroupModal.tsx"
-import { studyGroupModal } from "@features/create/create.atom.ts"
+import CreateBurrowModal from "@features/burrows/create/components/CreateBurrowModal.tsx"
+import { studyGroupModal } from "@features/burrows/create/create.atom.ts"
 import { themeAtom } from "@api/theme.atom.ts"
 import Privacy from "@pages/Privacy.view.tsx"
 import ToS from "@pages/ToS.view.tsx"
 import { Toaster } from "react-hot-toast"
 import SettingsModal from "@features/sync/settings/SettingsModal.tsx"
 import ReportProblemModal from "@features/problem/components/ReportProblemModal.tsx"
+import MyInvitesModal from "@features/layout/components/MyInvitesModal.tsx"
 import ProfileView from "@pages/Profile.view.tsx"
 import { useEffect } from "react"
 import {
@@ -26,6 +27,7 @@ import {
     useRouteError
 } from "react-router"
 import ViewRelations from "@features/profile/components/ViewRelations.tsx"
+import MetaTags from "@features/layout/components/MetaTags.tsx"
 
 function ErrorElement() {
     const error = useRouteError() as Error | undefined
@@ -70,6 +72,9 @@ function RootLayout() {
 
     return (
         <div className="gopher-stand text-text flex min-h-screen w-full flex-col bg-transparent transition-colors duration-300">
+            {/* Centralized meta tags - updated via useMetaTags hook in pages */}
+            <MetaTags />
+
             {/* don't show header on welcome */}
             {window.location.pathname !== "/welcome" && <Header />}
 
@@ -87,7 +92,7 @@ function RootLayout() {
             />
 
             <main className="mx-4 mb-8 max-w-screen flex-grow md:m-auto md:min-w-xl">
-                <CreateStudyGroupModal
+                <CreateBurrowModal
                     open={modalOpen}
                     onClose={() => setModalOpen(false)}
                     title="Create a Study Group"
@@ -96,6 +101,7 @@ function RootLayout() {
                 <ViewRelations />
                 <ReportProblemModal />
                 <SettingsModal />
+                <MyInvitesModal />
 
                 {/* Child routes render here */}
                 <Outlet />
@@ -115,7 +121,7 @@ const router = createBrowserRouter([
             { index: true, element: <HomeView /> },
             { path: "about", element: <About /> },
             { path: "welcome", element: <LandingView /> },
-            { path: "study", element: <AllMeetings type="STUDY" /> },
+            { path: "study", element: <Browse type="STUDY" /> },
             { path: "user/:username", element: <ProfileView /> },
             { path: "privacy", element: <Privacy /> },
             { path: "tos", element: <ToS /> },

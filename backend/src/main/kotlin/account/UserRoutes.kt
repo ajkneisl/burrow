@@ -15,7 +15,8 @@ import app.burrow.account.profile.getFollowingRelations
 import app.burrow.account.profile.getFriends
 import app.burrow.account.profile.unFollowUser
 import app.burrow.account.profile.updateProfile
-import app.burrow.errors.InvalidAuthorization
+import app.burrow.InvalidAuthorization
+import app.burrow.photo.USER_PHOTO_ROUTES
 import app.burrow.queryParameter
 import app.burrow.urlParameter
 import io.ktor.http.HttpStatusCode
@@ -34,6 +35,8 @@ import kotlinx.serialization.Serializable
 /** All routes relating to [User] */
 val USER_ROUTES: Route.() -> Unit = {
     authenticate("primary") {
+        route("/photo", USER_PHOTO_ROUTES)
+
         // GET /user
         // get the user's information
         get { call.respond(getUserResponse(call.userID, call.userID)) }
@@ -71,23 +74,26 @@ val USER_ROUTES: Route.() -> Unit = {
             get("/followers") { call.respond(getFollowersRelations(call.userID)) }
         }
 
-        // routes involving the profile
+        /** A request to update the account details. */
+        @Serializable data class UpdateAccountRequest(
+            val username: String
+        )
+
+        // POST /user
+        // update user details
+        post {
+            val (username) = call.receive<UpdateAccountRequest>()
+
+            validateUsername(username)
+
+            updateUsername(call.userID, username)
+
+            call.respond(HttpStatusCode.OK)
+        }
+
+        // ROUTE /user/profile
+        // manage profile
         route("/profile") {
-            /** A request to update the username. */
-            @Serializable data class UpdateUsernameRequest(val username: String)
-
-            // POST /profile/name
-            // specifically update the user
-            post("/username") {
-                val (username) = call.receive<UpdateUsernameRequest>()
-
-                validateUsername(username)
-
-                updateUsername(call.userID, username)
-
-                call.respond(HttpStatusCode.OK)
-            }
-
             /** A request to update a user's profile. */
             @Serializable
             data class UpdateProfileRequest(
@@ -97,13 +103,16 @@ val USER_ROUTES: Route.() -> Unit = {
                 val phoneNumber: String? = null,
                 val gradYear: Int? = null,
                 val classes: List<String>? = null,
+                val school: String? = null,
+                val major: String? = null,
                 val instagram: String? = null,
+                val linkedIn: String? = null,
             )
 
-            // POST /profile
+            // POST /user/profile
             // update your profile
             post {
-                val (name, visibility, bio, phoneNumber, gradYear, classes, instagram) =
+                val (name, visibility, bio, phoneNumber, gradYear, classes, school, major, instagram, linkedIn) =
                     call.receive<UpdateProfileRequest>()
 
                 val profile =
@@ -114,8 +123,11 @@ val USER_ROUTES: Route.() -> Unit = {
                         bio,
                         gradYear,
                         classes,
+                        school,
+                        major,
                         phoneNumber,
                         instagram,
+                        linkedIn,
                     )
 
                 profile.validate()
@@ -124,8 +136,9 @@ val USER_ROUTES: Route.() -> Unit = {
                 call.respond(HttpStatusCode.OK, profile)
             }
 
-            // routes involving following
+            // ROUTE /user/profile/follow
             route("/follow") {
+            // manage following
                 // POST /user/profile/follow
                 // follow a user
                 post {
@@ -149,7 +162,8 @@ val USER_ROUTES: Route.() -> Unit = {
         }
     }
 
-    /** Log in with a Google authentication token. */
+    // PUT /user/login
+    // login
     put("/login") {
         val body = call.receiveText()
         val user = retrieveUser(body) ?: throw InvalidAuthorization()
