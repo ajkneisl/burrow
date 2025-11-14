@@ -8,7 +8,7 @@ import useUser from "@features/auth/hooks/useUser.ts"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button } from "@umnburrow/core"
 import { useMemo } from "react"
-import { cancelJoinRequest } from "@features/burrows/invites/invites.api.ts"
+import { cancelJoinRequest } from "@features/burrows/attendees/attendees.api.ts"
 
 /**
  * {@see JoinMeeting}

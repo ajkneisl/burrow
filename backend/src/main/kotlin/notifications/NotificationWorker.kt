@@ -250,15 +250,7 @@ private suspend fun attendeeIds(meetingId: String): List<String> = query {
  */
 suspend fun rescheduleNotificationsForMeeting(meetingId: String, nowMs: Long = getTimeMillis()) {
     LOGGER.debug("Scheduling notifications for $meetingId")
-
-    val meetingRow =
-        query { Burrows.selectAll().where { Burrows.id eq meetingId }.firstOrNull() } ?: return
-
-    val attendees = getAttendees(meetingId)
-
-    println(attendees)
-
-    attendees.forEach { userId -> upsertUpcomingForUser(meetingRow, userId.user.id, nowMs) }
+    //TODO
 }
 
 /**

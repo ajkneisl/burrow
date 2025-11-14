@@ -4,7 +4,7 @@ import {
     deleteBookmark
 } from "@features/burrows/burrows.api.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
-import MeetingButton from "@features/burrows/components/MeetingButton.tsx"
+import MeetingButton from "@features/burrows/controls/MeetingButton.tsx"
 
 /**
  * {@see BookmarkMeeting}

@@ -5,13 +5,13 @@ import useUser from "@features/auth/hooks/useUser.ts"
 import { useMemo } from "react"
 import { getMeeting } from "@features/burrows/burrows.api.ts"
 import MeetingLocation from "@features/burrows/components/MeetingLocation.tsx"
-import DeleteMeeting from "@features/burrows/components/DeleteMeeting.tsx"
+import DeleteMeeting from "@features/burrows/controls/DeleteMeeting.tsx"
 import { formatDateTime } from "@api/util.ts"
 import JoinMeeting from "@features/burrows/components/JoinMeeting.tsx"
 import MeetingCapacityBadges from "@features/burrows/components/MeetingCapacityBadges.tsx"
-import EditMeeting from "@features/burrows/components/EditMeeting.tsx"
+import EditMeeting from "@features/burrows/controls/EditMeeting.tsx"
 import ChatBox from "@features/chat/components/ChatBox.tsx"
-import ViewAttendees from "@features/burrows/components/attendees/ViewAttendees.tsx"
+import ViewAttendees from "@features/burrows/attendees/components/ViewAttendees.tsx"
 import Pomodoro from "@features/sync/components/Pomodoro.tsx"
 import useSync from "@features/sync/hooks/useSync.tsx"
 import { BurrowFeatures } from "@features/sync/components/BurrowFeatures.tsx"
@@ -19,11 +19,9 @@ import useToken from "@features/auth/hooks/useToken.ts"
 import { blockStatus } from "@features/sync/sync.atom.ts"
 import { Badge, Card, Hover } from "@umnburrow/core"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
-import BurrowJoinRequests from "@features/burrows/invites/components/BurrowJoinRequests.tsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
-import BurrowInvites from "@features/burrows/invites/components/BurrowInvites.tsx"
-import ShareMeeting from "@features/burrows/components/ShareMeeting.tsx"
-import BookmarkMeeting from "@features/burrows/components/BookmarkMeeting.tsx"
+import ShareMeeting from "@features/burrows/controls/ShareMeeting.tsx"
+import BookmarkMeeting from "@features/burrows/controls/BookmarkMeeting.tsx"
 
 /**
  * View an individual meeting.
@@ -51,11 +49,6 @@ export default function Meeting() {
         [auth, data?.burrow?.ownerID, user]
     )
 
-    const isModerator = useMemo(
-        () => isOwner || data?.membership?.role === "MODERATOR",
-        [isOwner, data?.membership?.role]
-    )
-
     // if the user is in the meeting
     const inMeeting = useMemo(
         () => data?.membership?.status === "JOINED" || isOwner,
@@ -81,14 +74,71 @@ export default function Meeting() {
 
     if (isLoading)
         return (
-            <main className="bg-card-background/70 min-h-screen animate-pulse px-4 py-8 md:px-8">
-                <div className="space-y-4">
-                    <div className="bg-text/10 h-10 w-2/3 rounded-lg" />
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                        <div className="bg-text/10 h-64 rounded-2xl" />
-                        <div className="bg-text/10 h-64 rounded-2xl lg:col-span-2" />
+            <main className="min-h-screen">
+                <section className="relative isolate">
+                    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                            {/* Header skeleton */}
+                            <Card className="order-first col-span-1 p-6 lg:col-span-3">
+                                <div className="animate-pulse space-y-4">
+                                    <div className="bg-text/10 h-8 w-3/4 rounded-lg" />
+                                    <div className="flex items-center gap-2">
+                                        <div className="bg-text/10 h-10 w-10 rounded-full" />
+                                        <div className="bg-text/10 h-4 w-48 rounded" />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <div className="bg-text/10 h-6 w-20 rounded-full" />
+                                        <div className="bg-text/10 h-6 w-20 rounded-full" />
+                                        <div className="bg-text/10 h-6 w-20 rounded-full" />
+                                    </div>
+                                </div>
+                            </Card>
+
+                            {/* Main content skeleton */}
+                            <div className="col-span-1 space-y-6 lg:col-span-2">
+                                <Card className="p-6">
+                                    <div className="animate-pulse">
+                                        <div className="bg-text/10 mb-3 h-5 w-32 rounded" />
+                                        <div className="space-y-2">
+                                            <div className="bg-text/10 h-4 w-full rounded" />
+                                            <div className="bg-text/10 h-4 w-full rounded" />
+                                            <div className="bg-text/10 h-4 w-3/4 rounded" />
+                                        </div>
+                                    </div>
+                                </Card>
+                            </div>
+
+                            {/* Sidebar skeleton */}
+                            <div className="order-[-1] col-span-1 space-y-6 md:order-2">
+                                <Card className="p-6">
+                                    <div className="animate-pulse">
+                                        <div className="bg-text/10 mb-3 h-5 w-24 rounded" />
+                                        <div className="bg-text/10 h-4 w-full rounded" />
+                                    </div>
+                                </Card>
+                                <Card className="p-6">
+                                    <div className="animate-pulse">
+                                        <div className="bg-text/10 mb-3 h-5 w-32 rounded" />
+                                        <div className="space-y-3">
+                                            <div className="flex items-center gap-2">
+                                                <div className="bg-text/10 h-10 w-10 rounded-full" />
+                                                <div className="bg-text/10 h-4 w-32 rounded" />
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="bg-text/10 h-10 w-10 rounded-full" />
+                                                <div className="bg-text/10 h-4 w-32 rounded" />
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="bg-text/10 h-10 w-10 rounded-full" />
+                                                <div className="bg-text/10 h-4 w-32 rounded" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Card>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </section>
             </main>
         )
 
@@ -286,12 +336,6 @@ export default function Meeting() {
                             {inMeeting && blocks.includes("CHAT") && (
                                 <ChatBox meeting={data} />
                             )}
-
-                            {/* join requests */}
-                            {isModerator && <BurrowJoinRequests />}
-
-                            {/* invites*/}
-                            {isModerator && <BurrowInvites />}
                         </div>
 
                         <div className="order-[-1] col-span-1 space-y-6 md:order-2">
@@ -299,11 +343,7 @@ export default function Meeting() {
                                 <MeetingLocation location={burrow.location} />
                             )}
 
-                            {inMeeting && (
-                                <Card title={"Attendees"}>
-                                    <ViewAttendees />
-                                </Card>
-                            )}
+                            {inMeeting && <ViewAttendees />}
 
                             {inMeeting &&
                                 blocks.includes("POMODORO") &&

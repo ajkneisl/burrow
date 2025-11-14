@@ -4,7 +4,7 @@ import {
     getReceivedInvites,
     acceptInvite,
     declineInvite
-} from "@features/burrows/invites/invites.api.ts"
+} from "@features/burrows/attendees/attendees.api.ts"
 import { getMeeting } from "@features/burrows/burrows.api.ts"
 import type { InviteWithUsers } from "@features/burrows/burrows.types.ts"
 import { Button, Card, Modal } from "@umnburrow/core"

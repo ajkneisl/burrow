@@ -62,7 +62,7 @@ export default function LandingView() {
                 <div className="h-[22rem] w-full bg-[url('/image/banner.png')] bg-[position:center_calc(100%+225px)]" />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 <div className="absolute inset-0 flex flex-col items-center justify-end pb-8 text-center">
-                    <h1 className="figtree text-7xl font-extrabold tracking-tight text-secondary drop-shadow-md">
+                    <h1 className="figtree text-secondary text-7xl font-extrabold tracking-tight drop-shadow-md">
                         Burrow
                     </h1>
 
@@ -75,7 +75,7 @@ export default function LandingView() {
 
             <div className="mx-auto mt-10 grid w-full max-w-5xl grid-cols-1 gap-4 px-4 md:grid-cols-3">
                 <Card>
-                    <div className="mb-2 flex items-center gap-2 font-semibold text-secondary">
+                    <div className="text-secondary mb-2 flex items-center gap-2 font-semibold">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
@@ -92,7 +92,7 @@ export default function LandingView() {
                 </Card>
 
                 <Card>
-                    <div className="mb-2 flex items-center gap-2 font-semibold text-secondary">
+                    <div className="text-secondary mb-2 flex items-center gap-2 font-semibold">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
@@ -108,7 +108,7 @@ export default function LandingView() {
                 </Card>
 
                 <Card>
-                    <div className="mb-2 flex items-center gap-2 font-semibold text-secondary">
+                    <div className="text-secondary mb-2 flex items-center gap-2 font-semibold">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
@@ -144,7 +144,7 @@ export default function LandingView() {
 
                 <div className="mt-5">
                     <Card>
-                        <div className="flex flex-col items-center gap-3 max-w-screen">
+                        <div className="flex max-w-screen flex-col items-center gap-3">
                             <GoogleOAuthProvider clientId="808386876282-4s7060hmt21b2i069tkea6fddsumj86o.apps.googleusercontent.com">
                                 <GoogleLogin
                                     shape="pill"
@@ -164,7 +164,7 @@ export default function LandingView() {
                         </div>
                     </Card>
 
-                    <p className="mt-3 text-center text-sm text-text/40">
+                    <p className="text-text/40 mt-3 text-center text-xs">
                         By signing in with Google, you agree to Burrow's{" "}
                         <a href="/privacy" className="text-text/60 hover:text-text/50 underline">
                             Privacy Policy

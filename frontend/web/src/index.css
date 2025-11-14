@@ -43,3 +43,13 @@ body {
         z-index: -1;
     }
 }
+
+
+/* Border style transition for invite button */
+.invite-border-dashed {
+    border-style: dashed;
+}
+
+.invite-border-dashed:hover {
+    border-style: solid;
+}

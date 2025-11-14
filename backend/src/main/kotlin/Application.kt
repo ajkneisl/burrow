@@ -95,7 +95,10 @@ suspend fun Application.module() {
     initDb()
     notificationWorker()
 
+    // sse
     install(SSE)
+
+    // websockets
     install(WebSockets) {
         pingPeriod = 15.seconds
         timeout = 15.seconds
@@ -168,8 +171,6 @@ suspend fun Application.module() {
         allowHeader(HttpHeaders.Accept)
         allowHeader(HttpHeaders.LastEventID)
 
-        anyHost()
-
         allowCredentials = true
         allowNonSimpleContentTypes = true
         allowSameOrigin = true
@@ -181,8 +182,9 @@ suspend fun Application.module() {
     }
 
     install(DefaultHeaders) { header("X-Engine", "Burrow") }
-    install(KHealth)
     install(ContentNegotiation) { json(json) }
+
+    install(KHealth)
 
     authentication {
         // PRIMARY
@@ -218,13 +220,21 @@ suspend fun Application.module() {
     }
     try {
         routing {
-            route("/admin") { singlePageApplication { react("admin") } }
-
             route("/api") {
+                // ROUTE /api/admin
+                // all
                 route("/admin", ADMIN_ROUTES)
 
+                // ROUTE /api/notifications
+                // manage notifications
                 route("/notifications", NOTIFICATION_ROUTES)
+
+                // ROUTE /burrows/{id}
+                // webhook sync
                 route("/burrows/{id}", Sync.SYNC_ROUTES)
+
+                // ROUTE /api/user
+                // manage users / login
                 route("/user", USER_ROUTES)
 
                 // GET /groups/{id}
@@ -245,7 +255,12 @@ suspend fun Application.module() {
                 }
 
                 authenticate(PRIMARY_AUTH) {
+                    // ROUTE /api/burrows
+                    // manage burrows
                     route("/burrows", BURROW_ROUTES)
+
+                    // ROUTE /api/report
+                    // manage reports
                     route("/report", REPORT_ROUTES)
                 }
 
@@ -253,6 +268,10 @@ suspend fun Application.module() {
                 // 404
                 get("{...}") { throw NotFound("That page could not be found.") }
             }
+
+            // ROUTE /admin
+            // all administrator frontend page
+            route("/admin") { singlePageApplication { react("admin") } }
 
             val baseHtml =
                 runCatching { File("${FRONTEND_DIR}/index.html").readText() }.getOrNull()

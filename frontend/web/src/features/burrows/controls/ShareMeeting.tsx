@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import type { Burrow } from "@features/burrows/burrows.types.ts"
 import { QRCodeSVG } from "qrcode.react"
-import MeetingButton from "@features/burrows/components/MeetingButton.tsx"
+import MeetingButton from "@features/burrows/controls/MeetingButton.tsx"
 import { Dropdown, DropdownItem, Modal } from "@umnburrow/core"
 
 /**

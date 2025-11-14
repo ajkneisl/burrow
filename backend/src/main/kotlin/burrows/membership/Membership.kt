@@ -17,12 +17,14 @@ import app.burrow.burrows.models.BurrowResponse
 import app.burrow.burrows.models.BurrowRole
 import app.burrow.burrows.models.BurrowVisibility
 import app.burrow.burrows.models.Burrows
+import app.burrow.models.PaginatedResponse
 import app.burrow.notifications.createNotification
 import app.burrow.notifications.onUserJoinedMeeting
 import app.burrow.notifications.onUserLeaveMeeting
 import app.burrow.query
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.date.getTimeMillis
+import kotlin.math.ceil
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -155,12 +157,12 @@ suspend fun getUserBookmarks(user: String): List<BurrowResponse> {
 /**
  * Get a [Membership] instance.
  *
- * @param userId The ID of the user.
- * @param meetingId The ID of the meeting.
+ * @param userID The ID of the user.
+ * @param burrowID The ID of the Burrow.
  */
-suspend fun getMembership(userId: String, meetingId: String): Membership? = query {
+suspend fun getMembership(userID: String, burrowID: String): Membership? = query {
     Memberships.selectAll()
-        .where { Memberships.userID eq userId and (Memberships.burrowID eq meetingId) }
+        .where { Memberships.userID eq userID and (Memberships.burrowID eq burrowID) }
         .firstOrNull()
         ?.let { Membership.fromRow(it) }
 }
@@ -229,40 +231,28 @@ suspend fun unBanUser(user: String, meeting: String) {
 }
 
 /**
- * Ban a [user] from a [meeting]
+ * Ban a [userID] from a [burrowID]
  *
- * @param moderator The user requesting to ban [user].
- * @param user The ID of the user to ban in the meeting.
- * @param meeting The ID of the meeting to ban the user in.
- * @param Error If the user is not in the meeting, they're the host, or a moderator and [user] is a
- *   moderator.
+ * @param requestingUserID The user requesting to ban [userID].
+ * @param userID The ID of the user to ban in the meeting.
+ * @param burrowID The ID of the meeting to ban the user in.
+ * @param Error If the user is not in the meeting, they're the host, or a moderator and [userID] is
+ *   a moderator.
  */
-suspend fun banUser(moderator: String, user: String, meeting: String) {
-    val userMembership = query {
-        Memberships.selectAll()
-            .where { Memberships.userID eq user and (Memberships.burrowID eq meeting) }
-            .firstOrNull()
-    }
-
-    val moderatorMembership =
-        query {
-                Memberships.selectAll().where {
-                    Memberships.userID eq moderator and (Memberships.burrowID eq meeting)
-                }
-            }
-            .firstOrNull()
+suspend fun banUser(requestingUserID: String, userID: String, burrowID: String) {
+    val userMembership = getMembership(userID, burrowID)
+    val moderatorMembership = getMembership(requestingUserID, burrowID)
 
     if (userMembership == null || moderatorMembership == null) {
         throw Error(400, "User is not in this meeting!")
     }
 
-    // moderators cannot ban moderators
-    if (moderatorMembership[Memberships.role] == userMembership[Memberships.role]) {
+    if (moderatorMembership.role == userMembership.role) {
         throw Error(400, "You cannot ban other moderators!")
     }
 
     query {
-        Memberships.update(where = { Memberships.userID eq user }) {
+        Memberships.update(where = { Memberships.userID eq userID }) {
             it[role] = BurrowRole.MEMBER
             it[status] = BurrowMemberStatus.BANNED
             it[leftAt] = getTimeMillis()
@@ -446,25 +436,45 @@ suspend fun joinBurrow(userID: String, burrowID: String) {
     }
 }
 
+/** The size of pages in [getAttendees]. */
+private const val ATTENDEES_PAGE_SIZE = 5
+
 /**
  * Retrieve all attendees for a meeting.
  *
- * @param meetingID The meeting to retrieve the attendees.
+ * @param burrowID The Burrow to retrieve the attendees.
+ * @param page The page of attendees.
  */
-suspend fun getAttendees(meetingID: String): List<MembershipResponse> {
-    val attendees = query {
-        Memberships.innerJoin(Users, { Memberships.userID }, { Users.id })
-            .innerJoin(Profiles, { Memberships.userID }, { Profiles.userID })
-            .selectAll()
-            .where { Memberships.burrowID eq meetingID }
-            .map { row ->
-                MembershipResponse(Membership.fromRow(row), User.fromRow(row), Profile.fromRow(row))
-            }
-            .toList()
-    }
+suspend fun getAttendees(burrowID: String, page: Int = 1): PaginatedResponse<MembershipResponse> =
+    query {
+        val query =
+            Memberships.innerJoin(Users, { Memberships.userID }, { Users.id })
+                .innerJoin(Profiles, { Memberships.userID }, { Profiles.userID })
+                .selectAll()
+                .where { Memberships.burrowID eq burrowID }
 
-    return attendees
-}
+        val itemCount = query.count()
+
+        val attendees =
+            query
+                .limit(ATTENDEES_PAGE_SIZE)
+                .offset(ATTENDEES_PAGE_SIZE * (page - 1L))
+                .map { row ->
+                    MembershipResponse(
+                        Membership.fromRow(row),
+                        User.fromRow(row),
+                        Profile.fromRow(row),
+                    )
+                }
+                .toList()
+
+        PaginatedResponse(
+            page,
+            ceil(itemCount / ATTENDEES_PAGE_SIZE.toDouble()).toInt(),
+            itemCount,
+            attendees,
+        )
+    }
 
 /**
  * Check if a [userId] is in a [meetingId].
