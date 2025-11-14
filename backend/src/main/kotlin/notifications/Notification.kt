@@ -1,10 +1,12 @@
 package app.burrow.notifications
 
 import app.burrow.burrows.sync.chat.ChatMessage
+import app.burrow.models.PaginatedResponse
 import app.burrow.notifications.delivery.deliver
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
+import kotlin.math.ceil
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
@@ -12,7 +14,6 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.greater
 import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.core.not
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
@@ -60,16 +61,40 @@ data class Notification(
 }
 
 /**
+ * The amount of notifications to show per page.
+ *
+ * @see getNotifications
+ */
+private const val NOTIFICATIONS_PER_PAGE = 20
+
+/**
  * Get a user's notifications.
  *
- * @param userId The user to retrieve the notifications for.
+ * @param userID The user to retrieve the notifications for.
+ * @param page The page of notifications to retrieve.
+ * @see NOTIFICATIONS_PER_PAGE
  */
-suspend fun getNotifications(userId: String): List<Notification> = query {
-    Notifications.selectAll()
-        .where { (Notifications.userId eq userId) and (Notifications.sentDate neq null) }
-        .orderBy(Notifications.sentDate, SortOrder.DESC)
-        .map { Notification.fromRow(it) }
-        .toList()
+suspend fun getNotifications(userID: String, page: Int): PaginatedResponse<Notification> = query {
+    val notificationsQuery =
+        Notifications.selectAll().where {
+            (Notifications.userId eq userID) and (Notifications.sentDate neq null)
+        }
+
+    val totalNotifications = notificationsQuery.count()
+    val notifications =
+        notificationsQuery
+            .offset((page - 1L) * NOTIFICATIONS_PER_PAGE)
+            .limit(NOTIFICATIONS_PER_PAGE)
+            .orderBy(Notifications.sentDate, SortOrder.DESC)
+            .map { Notification.fromRow(it) }
+            .toList()
+
+    PaginatedResponse(
+        page,
+        ceil(totalNotifications.toDouble() / NOTIFICATIONS_PER_PAGE).toInt(),
+        totalNotifications,
+        notifications,
+    )
 }
 
 /**

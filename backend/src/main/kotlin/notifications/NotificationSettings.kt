@@ -9,6 +9,7 @@ enum class NotificationKind {
     UPCOMING_MEETING,
     NEW_MEETING,
     MEETING_MESSAGE,
+    INVITE_RECEIVED,
 }
 
 /** Per-notification-type overrides for a user. */

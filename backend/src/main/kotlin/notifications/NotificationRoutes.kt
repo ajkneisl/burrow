@@ -1,6 +1,8 @@
 package app.burrow.notifications
 
+import app.burrow.account.models.userID
 import app.burrow.notifications.delivery.channels.Sse
+import app.burrow.optionalIntQueryParameter
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal
@@ -19,11 +21,11 @@ val NOTIFICATION_ROUTES: Route.() -> Unit = {
         // GET /notifications
         // retrieve all a user's notifications
         get {
-            val userId =
-                call.principal<JWTPrincipal>()?.subject
-                    ?: return@get call.respond(HttpStatusCode.Forbidden)
+            val page = call.optionalIntQueryParameter("page") ?: 1
 
-            call.respond(HttpStatusCode.OK, getNotifications(userId))
+            val notifications = getNotifications(call.userID, page)
+
+            call.respond(notifications)
         }
 
         // DELETE /notifications
