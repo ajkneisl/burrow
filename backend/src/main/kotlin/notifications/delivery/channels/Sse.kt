@@ -69,6 +69,6 @@ object Sse : DeliveryChannel {
     override val onDelivery: Delivery = {
         val notificationJson = Json.encodeToString(this)
 
-        broadcastTo(userId, notificationJson)
+        broadcastTo(userID, notificationJson)
     }
 }

@@ -30,32 +30,24 @@ export default function AccountSettings() {
     async function onSubmit() {
         if (!data?.user) return
 
-        const nextErrors: string[] = []
         setErrors([])
 
-        // Validate name
         if (name.trim().length === 0) {
-            nextErrors.push("Name cannot be empty.")
+            setErrors(["Name cannot be empty."])
+            return
         }
 
-        // Update username if changed
-        if (nextErrors.length === 0 && name !== data.user.username) {
+        if (errors.length === 0 && name !== data.user.username) {
             try {
                 setLoading(true)
                 await updateUsername(name)
+
                 toast.success("Successfully saved preferences")
             } catch (error) {
-                const message =
-                    error instanceof Error
-                        ? error.message
-                        : "Failed to save settings."
-                nextErrors.push(message)
-                setErrors(nextErrors)
+                setErrors([`${error}`])
             } finally {
                 setLoading(false)
             }
-        } else if (nextErrors.length > 0) {
-            setErrors(nextErrors)
         }
     }
 

@@ -19,6 +19,7 @@
         "cookie-store": "^3.0.0",
         "framer-motion": "^12.23.14",
         "jotai": "^2.14.0",
+        "lucide-react": "^0.554.0",
         "prettier": "^3.6.2",
         "qrcode.react": "^4.2.0",
         "react": "^19.2.0",

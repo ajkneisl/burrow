@@ -25,17 +25,19 @@ import org.jetbrains.exposed.v1.r2dbc.update
  * A notification for a user.
  *
  * @param id The ID of the notification.
- * @param userId The ID of the user.
+ * @param userID The ID of the user.
+ * @param burrowID The ID of the Burrow, if this notification relates to one.
  * @param title The title of the notification.
  * @param content The body of the notification.
- * @param date When the notification was created.
+ * @param sentDate The date when the notification was dispatched.
+ * @param scheduledDate The date when the notification is scheduled to be sent.
  * @param read If the user has read this notification.
  */
 @Serializable
 data class Notification(
     @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val id: UUID,
-    val userId: String,
-    val meetingId: String?,
+    val userID: String,
+    val burrowID: String?,
     val kind: NotificationKind?,
     val title: String,
     val content: String,
@@ -48,8 +50,8 @@ data class Notification(
         fun fromRow(row: ResultRow): Notification =
             Notification(
                 row[Notifications.id],
-                row[Notifications.userId],
-                row[Notifications.meetingId],
+                row[Notifications.userID],
+                row[Notifications.burrowID],
                 row[Notifications.kind],
                 row[Notifications.title],
                 row[Notifications.content],
@@ -77,7 +79,7 @@ private const val NOTIFICATIONS_PER_PAGE = 20
 suspend fun getNotifications(userID: String, page: Int): PaginatedResponse<Notification> = query {
     val notificationsQuery =
         Notifications.selectAll().where {
-            (Notifications.userId eq userID) and (Notifications.sentDate neq null)
+            (Notifications.userID eq userID) and (Notifications.sentDate neq null)
         }
 
     val totalNotifications = notificationsQuery.count()
@@ -105,7 +107,7 @@ suspend fun getNotifications(userID: String, page: Int): PaginatedResponse<Notif
  */
 suspend fun deleteNotification(userId: String, notificationId: UUID) = query {
     Notifications.deleteWhere {
-        (Notifications.id eq notificationId) and (Notifications.userId eq userId)
+        (Notifications.id eq notificationId) and (Notifications.userID eq userId)
     }
 }
 
@@ -115,7 +117,7 @@ suspend fun deleteNotification(userId: String, notificationId: UUID) = query {
  * @param userId The user to delete the notifications for.
  */
 suspend fun deleteAllNotifications(userId: String) = query {
-    Notifications.deleteWhere { Notifications.userId eq userId }
+    Notifications.deleteWhere { Notifications.userID eq userId }
 }
 
 /**
@@ -138,8 +140,8 @@ suspend fun createNotification(
     val obj =
         Notification(
             id = uuid,
-            userId = userId,
-            meetingId = meetingId,
+            userID = userId,
+            burrowID = meetingId,
             kind = kind,
             title = title,
             content = content,
@@ -151,8 +153,8 @@ suspend fun createNotification(
     query {
         Notifications.insert {
             it[Notifications.id] = uuid
-            it[Notifications.userId] = userId
-            it[Notifications.meetingId] = meetingId
+            it[Notifications.userID] = userId
+            it[Notifications.burrowID] = meetingId
             it[Notifications.kind] = obj.kind
             it[Notifications.title] = title
             it[Notifications.content] = content
@@ -173,7 +175,7 @@ suspend fun createNotification(
  */
 suspend fun toggleReadNotification(userId: String, notificationId: UUID) = query {
     Notifications.update({
-        (Notifications.userId eq userId) and (Notifications.id eq notificationId)
+        (Notifications.userID eq userId) and (Notifications.id eq notificationId)
     }) {
         it[Notifications.read] = not(Notifications.read)
     }

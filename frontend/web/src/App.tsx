@@ -14,7 +14,7 @@ import { themeAtom } from "@api/theme.atom.ts"
 import Privacy from "@pages/Privacy.view.tsx"
 import ToS from "@pages/ToS.view.tsx"
 import { Toaster } from "react-hot-toast"
-import SettingsModal from "@features/sync/settings/SettingsModal.tsx"
+import SettingsView from "@pages/Settings.view.tsx"
 import ReportProblemModal from "@features/problem/components/ReportProblemModal.tsx"
 import MyInvitesModal from "@features/layout/components/MyInvitesModal.tsx"
 import ProfileView from "@pages/Profile.view.tsx"
@@ -91,7 +91,7 @@ function RootLayout() {
                 }}
             />
 
-            <main className="mx-4 mb-8 max-w-screen flex-grow md:m-auto md:min-w-xl">
+            <main className="mb-8 max-w-screen flex-grow md:m-auto md:mx-4 md:min-w-xl">
                 <CreateBurrowModal
                     open={modalOpen}
                     onClose={() => setModalOpen(false)}
@@ -100,7 +100,6 @@ function RootLayout() {
 
                 <ViewRelations />
                 <ReportProblemModal />
-                <SettingsModal />
                 <MyInvitesModal />
 
                 {/* Child routes render here */}
@@ -123,6 +122,7 @@ const router = createBrowserRouter([
             { path: "welcome", element: <LandingView /> },
             { path: "study", element: <Browse type="STUDY" /> },
             { path: "user/:username", element: <ProfileView /> },
+            { path: "settings", element: <SettingsView /> },
             { path: "privacy", element: <Privacy /> },
             { path: "tos", element: <ToS /> },
             { path: "*", element: <NotFound /> },

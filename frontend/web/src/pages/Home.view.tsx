@@ -8,6 +8,7 @@ import NewUserIntro from "@features/auth/components/NewUserIntro.tsx"
 import MeetingsSection from "@features/burrows/components/MeetingsSection.tsx"
 import { getSchedule } from "@features/burrows/burrows.api.ts"
 import MyProfile from "@features/profile/components/MyProfile.tsx"
+import {PushNotificationToggle} from "@features/notifications/components/PushNotificationToggle.tsx";
 
 /**
  * The homepage `/`.
@@ -46,6 +47,8 @@ export default function HomeView() {
         <div className="mx-auto flex w-full grid-cols-4 flex-col gap-6 px-4 py-6 md:grid md:px-6">
             {/* show intro only if it's a new user*/}
             {showNewUser && <NewUserIntro />}
+
+            <PushNotificationToggle />
 
             {/* left side profile */}
             <aside className="col-span-1">

@@ -4,7 +4,6 @@ import { authToken } from "@features/auth/auth.atom.ts"
 import { themeAtom } from "@api/theme.atom.ts"
 import { Dropdown, DropdownItem } from "@umnburrow/core"
 import HeaderButton from "@features/layout/components/HeaderButton.tsx"
-import { settingsModalOpen } from "@features/sync/settings/settings.atom.ts"
 import { problemModalOpen } from "@features/problem/problem.atom.ts"
 import { useNavigate } from "react-router"
 import { myInvitesModalOpen } from "@features/layout/layout.atom.ts"
@@ -19,7 +18,6 @@ export default function HeaderDropdown() {
     const [, setAuth] = useAtom(authToken)
     const [theme, setTheme] = useAtom(themeAtom)
     const [open, setOpen] = useState(false)
-    const [, setSettingsOpen] = useAtom(settingsModalOpen)
     const [, setProblemOpen] = useAtom(problemModalOpen)
     const [, setMyInvitesOpen] = useAtom(myInvitesModalOpen)
 
@@ -64,7 +62,7 @@ export default function HeaderDropdown() {
                         label="Settings"
                         onSelect={() => {
                             setOpen(false)
-                            setSettingsOpen(true)
+                            nav("/settings")
                         }}
                         rightIcon={
                             <svg
