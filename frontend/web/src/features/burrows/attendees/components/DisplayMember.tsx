@@ -88,7 +88,7 @@ export default function DisplayMember(props: DisplayMemberProps) {
                                     return (
                                         <Button
                                             color="LINK"
-                                            className="text-text/50 m-0 p-0 text-xs"
+                                            className="text-text/50 ml-2 text-xs"
                                             onClick={() => func()}
                                         >
                                             {key}

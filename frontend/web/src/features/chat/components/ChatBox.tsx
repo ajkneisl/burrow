@@ -218,7 +218,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
     }
 
     return (
-        <Card className="mt-8 flex h-[512px] flex-col justify-between">
+        <Card className="flex h-[512px] flex-col justify-between">
             <header className="flex items-center justify-between">
                 <h3 className="font-semibold">Chat</h3>
                 <span className="text-xs font-semibold">

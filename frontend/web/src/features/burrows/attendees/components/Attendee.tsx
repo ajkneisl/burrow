@@ -136,7 +136,16 @@ export default function Attendee({
                     banMutation.mutate(membership.userID)
             })
         }
-    }, [isSelf, meetingRole, membership])
+    }, [
+        banMutation,
+        demoteModMutation,
+        isSelf,
+        meetingRole,
+        membership.role,
+        membership.status,
+        membership.userID,
+        modMutation
+    ])
 
     return (
         <DisplayMember

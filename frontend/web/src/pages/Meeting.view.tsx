@@ -43,17 +43,10 @@ export default function Burrow() {
 
     useSync(data)
 
-    // if the user is the owner
     const isOwner =
         auth !== "" && user !== null && user.id === data?.burrow?.ownerID
-
-    // if the user is in the meeting
     const inMeeting = data?.membership?.status === "JOINED" || isOwner
-
-    // if the meeting is in the past
     const inPast = (data?.burrow?.endTime ?? 0) < new Date().valueOf()
-
-    // if the user isn't logged in
     const isLoggedOut = auth === null
 
     // Set meta tags for this meeting
@@ -136,7 +129,7 @@ export default function Burrow() {
 
     if (error || !data || !id)
         return (
-            <div className="mt-4 flex justify-center items-center">
+            <div className="mt-4 flex items-center justify-center">
                 <div>
                     <ViewErrors errors={[`${error}`]} clearErrors={refetch} />
                 </div>
@@ -167,9 +160,9 @@ export default function Burrow() {
 
             <section className="relative isolate">
                 <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {/* header */}
-                        <Card className="relative order-first col-span-1 md:col-span-2 p-6 lg:col-span-3">
+                        <Card className="relative order-first col-span-1 p-6 md:col-span-2 lg:col-span-3">
                             <div className="flex flex-col gap-4">
                                 <div className="min-w-0">
                                     {/* archive notice*/}
@@ -222,6 +215,7 @@ export default function Burrow() {
                                         {/* date */}
                                         <div className="text-text/60 flex items-center gap-1.5 text-sm">
                                             <Clock className="h-4 w-4" />
+
                                             <span>
                                                 {formatDateTime(
                                                     burrow.beginningTime,
@@ -231,35 +225,15 @@ export default function Burrow() {
                                         </div>
                                     </div>
 
-                                    <div className="mt-4 flex flex-col items-center justify-between gap-2 md:flex-row">
-                                        <div className="flex flex-col items-center justify-center gap-2 md:flex-row">
-                                            <div className="flex flex-row gap-2">
-                                                <ShareMeeting
-                                                    meeting={data.burrow}
-                                                />
-                                                <BookmarkMeeting
-                                                    isBookmarked={
-                                                        data.bookmarked
-                                                    }
-                                                    inPast={inPast}
-                                                    meetingId={data.burrow.id}
-                                                />
-                                            </div>
+                                    <div className="mt-4 flex flex-row items-center justify-between gap-2 md:flex-row">
+                                        <div className="flex flex-row gap-2">
+                                            <ShareMeeting meeting={data.burrow} />
 
-                                            {/* tags */}
-                                            {tags.length > 0 && (
-                                                <div className="flex flex-wrap gap-2">
-                                                    {tags
-                                                        .slice(0, 6)
-                                                        .map((t) => (
-                                                            <Badge
-                                                                key={String(t)}
-                                                            >
-                                                                {String(t)}
-                                                            </Badge>
-                                                        ))}
-                                                </div>
-                                            )}
+                                            <BookmarkMeeting
+                                                isBookmarked={data.bookmarked}
+                                                inPast={inPast}
+                                                meetingId={data.burrow.id}
+                                            />
                                         </div>
 
                                         {/* user count badges */}
@@ -293,6 +267,17 @@ export default function Burrow() {
                                     {burrow.description ||
                                         "No description provided."}
                                 </p>
+
+                                {/* tags */}
+                                {tags.length > 0 && (
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {tags.slice(0, 6).map((t) => (
+                                            <Badge key={String(t)}>
+                                                {String(t)}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                )}
                             </Card>
 
                             {inMeeting && blocks.includes("CHAT") && (

@@ -46,7 +46,7 @@ export default function HomeView() {
                 </div>
             )}
 
-            <div className="mx-auto flex w-full grid-cols-3 flex-col gap-6 px-4 py-6 md:grid md:px-6 lg:grid-cols-4">
+            <div className="mx-auto flex w-full max-w-[2000px] grid-cols-3 flex-col gap-6 px-4 py-6 md:grid md:px-6 lg:grid-cols-4">
                 {/* profile */}
                 <aside className="md:col-span-2 md:row-start-1 lg:col-span-1 lg:row-start-1">
                     <MyProfile />

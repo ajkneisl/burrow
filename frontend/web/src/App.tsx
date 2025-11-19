@@ -101,7 +101,7 @@ function RootLayout() {
                 }}
             />
 
-            <main className="mb-8 max-w-screen flex-grow md:m-auto md:mx-4 md:min-w-xl">
+            <main className="mb-8 flex-grow md:m-auto md:mx-4 md:min-w-xl">
                 <CreateBurrowModal
                     open={modalOpen}
                     onClose={() => setModalOpen(false)}
