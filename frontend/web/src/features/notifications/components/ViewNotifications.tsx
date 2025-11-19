@@ -94,7 +94,6 @@ export default function ViewNotifications() {
         if (!data) return []
 
         return data.pages.flatMap((page) => {
-            console.log("%o", page)
             return page.contents
         })
     }, [data])

@@ -47,7 +47,7 @@ export default function SearchInput({
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search burrows, clubs, or tags..."
                 className={clsx(
-                    "border-card-border bg-background text-text w-full rounded-lg py-2 pr-3 pl-8 text-sm shadow-sm ring-secondary focus:ring-1 focus:outline-none",
+                    "border-card-border bg-background text-text ring-secondary w-full rounded-lg border py-2 pr-3 pl-8 text-sm shadow-sm focus:ring-1 focus:outline-none",
                     auth === null && "cursor-not-allowed"
                 )}
             />

@@ -7,7 +7,7 @@ import {
     unFollowUser
 } from "@features/profile/profile.api.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
-import { GroupMeetingCard } from "@features/burrows/components/GroupMeetingCard.tsx"
+import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useMemo, useState } from "react"
 import useUser from "@features/auth/hooks/useUser.ts"
@@ -257,7 +257,7 @@ export default function ProfileView() {
                                 </Card>
                             ) : (
                                 data.recentHostedGroups.map((meeting) => (
-                                    <GroupMeetingCard
+                                    <BurrowCard
                                         meetingResponse={
                                             {
                                                 burrow: meeting,
@@ -282,7 +282,7 @@ export default function ProfileView() {
                                 </Card>
                             ) : (
                                 data.recentJoinedGroups.map((meeting) => (
-                                    <GroupMeetingCard
+                                    <BurrowCard
                                         meetingResponse={
                                             {
                                                 burrow: meeting,

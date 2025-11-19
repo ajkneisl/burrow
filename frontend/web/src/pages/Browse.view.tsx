@@ -5,7 +5,7 @@ import type {
     BurrowResponse,
     BurrowType
 } from "@features/burrows/burrows.types.ts"
-import { GroupMeetingCard } from "@features/burrows/components/GroupMeetingCard.tsx"
+import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import { searchMeetings } from "@features/burrows/burrows.api.ts"
 import MeetingHeatmap from "@features/burrows/components/MeetingHeatmap.tsx"
 import { Input, useDateRangePicker, ViewErrors } from "@umnburrow/core"
@@ -267,7 +267,7 @@ export default function Browse({ type }: AllMeetingsProps) {
                                                         <div className="space-y-3 pb-4">
                                                             {meetings.map(
                                                                 (m) => (
-                                                                    <GroupMeetingCard
+                                                                    <BurrowCard
                                                                         details={
                                                                             true
                                                                         }

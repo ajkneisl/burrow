@@ -23,7 +23,7 @@ type GroupMeetingCardProps = {
  * @param meetingResponse The meeting details.
  * @param details If extra details should be shown.
  */
-export function GroupMeetingCard({
+export function BurrowCard({
     meetingResponse,
     details
 }: GroupMeetingCardProps) {
@@ -33,16 +33,8 @@ export function GroupMeetingCard({
     const { burrow } = meetingResponse
 
     const isPast = burrow.endTime < Date.now()
-
-    const isOwner = useMemo(
-        () => user !== null && burrow.ownerID === user.id,
-        [burrow.ownerID, user]
-    )
-
-    const isJoined = useMemo(
-        () => meetingResponse?.membership?.status === "JOINED",
-        [meetingResponse?.membership?.status]
-    )
+    const isOwner = user !== null && burrow.ownerID === user.id
+    const isJoined = meetingResponse?.membership?.status === "JOINED"
 
     const tags: Record<string, boolean> = useMemo(() => {
         const highlightedSet = new Set(meetingResponse.highlightedTags)
@@ -65,7 +57,7 @@ export function GroupMeetingCard({
         return tags
     }, [meetingResponse.highlightedTags, meetingResponse.burrow.tags])
 
-    // navigate to the club page :)
+    // navigate to the burrow page :)
     const onClick = () => {
         nav(`/burrow/${burrow.id}`)
     }
@@ -126,41 +118,38 @@ export function GroupMeetingCard({
                         )}
 
                         {/* is joined */}
-                        {isJoined && details && (
+                        {isJoined && !isOwner && details && (
                             <span
-                                className="bg-success/10 text-success ring-success/30 inline-flex items-center rounded-full px-2.5 py-1 ring-1 ring-inset"
+                                className="bg-success/10 text-success ring-success/30 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ring-1 ring-inset"
                                 title="You're a member"
                             >
-                                <span className="sr-only">Joined</span>
-
                                 {/* a checkmark */}
-                                <Check width="18" height="18" />
+                                <Check className="h-4 w-4" />
+                                Joined
                             </span>
                         )}
 
                         {/* is the owner */}
                         {isOwner && details && (
                             <span
-                                className="bg-warn/10 text-warn ring-warn/30 inline-flex items-center rounded-full px-2.5 py-1 ring-1 ring-inset"
+                                className="bg-warn/10 text-warn ring-warn/30 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ring-1 ring-inset"
                                 title="You are the host"
                             >
-                                <span className="sr-only">Host</span>
-
                                 {/* a star */}
-                                <Star width="18" height="18" fill="currentColor" />
+                                <Star className="h-4 w-4" />
+                                Host
                             </span>
                         )}
 
                         {/* is bookmarked :o */}
                         {meetingResponse.bookmarked && (
                             <span
-                                className="bg-secondary/10 text-secondary ring-secondary/30 inline-flex items-center rounded-full px-2.5 py-1 ring-1 ring-inset"
+                                className="bg-info/10 text-info ring-info/30 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ring-1 ring-inset"
                                 title="Bookmarked"
                             >
-                                <span className="sr-only">Bookmarked</span>
-
                                 {/* a bookmark */}
-                                <Bookmark width="18" height="18" fill="currentColor" />
+                                <Bookmark className="h-4 w-4" />
+                                {details && "Bookmarked"}
                             </span>
                         )}
 
@@ -168,8 +157,8 @@ export function GroupMeetingCard({
                         <div className="flex-shrink-0 self-start">
                             <ProfilePicture
                                 name={
-                                    meetingResponse.burrowAuthorProfile
-                                        ?.name ?? ""
+                                    meetingResponse.burrowAuthorProfile?.name ??
+                                    ""
                                 }
                                 userID={
                                     meetingResponse.burrowAuthorProfile
@@ -188,7 +177,11 @@ export function GroupMeetingCard({
                             {Object.keys(tags)
                                 .slice(0, 2)
                                 .map((tag: string) => (
-                                    <Badge size="medium" highlighted={tags[tag]} key={tag}>
+                                    <Badge
+                                        size="medium"
+                                        highlighted={tags[tag]}
+                                        key={tag}
+                                    >
                                         {tag}
                                     </Badge>
                                 ))}
@@ -196,8 +189,7 @@ export function GroupMeetingCard({
 
                         {isJoined && (
                             <p className="text-text/40 inline-flex gap-2 text-xs">
-                                Joined{" "}
-                                <Check width="18" height="18" />
+                                Joined <Check width="18" height="18" />
                             </p>
                         )}
                     </div>
@@ -214,7 +206,7 @@ export function GroupMeetingCard({
                         <div className="flex items-center gap-3 text-sm">
                             <div className="bg-hero text-text/80 ring-primary/15 hidden items-center gap-1 rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset sm:flex">
                                 {/* location pin icon */}
-                                <MapPin className="text-text/60 h-4 w-4 shrink-0" fill="currentColor" />
+                                <MapPin className="text-text/60 h-4 w-4 shrink-0" />
 
                                 {/* location pin */}
                                 <p className="truncate">

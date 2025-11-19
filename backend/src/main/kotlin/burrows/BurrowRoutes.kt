@@ -81,7 +81,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
     // get the most recent bookmarks
     get("/bookmarks") { call.respond(getUserBookmarks(call.userID)) }
 
-    // GET /groups/search
+    // GET /burrows/search
     // search among the stars
     //
     // query parameters:
@@ -111,7 +111,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
                 kind = type,
                 search = searchQuery,
                 dateRange = range,
-                forceAuthorName = call.userID,
+                requestingUserID = call.userID,
             )
         )
     }

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { GroupMeetingCard } from "@features/burrows/components/GroupMeetingCard.tsx"
+import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import { useNavigate } from "react-router"
 import type { BurrowType } from "@features/burrows/burrows.types.ts"
 import { getBurrows } from "@features/burrows/burrows.api.ts"
@@ -83,7 +83,7 @@ export default function PreviewBurrows({
                 data.contents
                     .slice(0, amount)
                     .map((meeting) => (
-                        <GroupMeetingCard meetingResponse={meeting} />
+                        <BurrowCard meetingResponse={meeting} />
                     ))}
 
             {/* no upcoming burrows */}

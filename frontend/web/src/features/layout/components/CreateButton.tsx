@@ -6,7 +6,9 @@ import toast from "react-hot-toast"
 import clsx from "clsx"
 
 /**
- * The `Create Burrow` button with a unique dropdown.
+ * The `Create Burrow`.
+ *
+ * @author AJ Kneisl
  */
 export default function CreateButton() {
     const [, setModalOpen] = useAtom(studyGroupModal)
@@ -22,19 +24,39 @@ export default function CreateButton() {
             value: "study",
             desc: "Create a study group",
             icon: (
-                <svg className="h-5 w-5 text-secondary" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m8-6H4" />
+                <svg
+                    className="text-secondary h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 6v12m8-6H4"
+                    />
                 </svg>
             ),
-            onClick: () => setModalOpen(true),
+            onClick: () => setModalOpen(true)
         },
         {
             label: "Group Project",
             value: "project",
             desc: "Collaborate with classmates on projects",
             icon: (
-                <svg className="h-5 w-5 text-secondary" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 110-8 4 4 0 010 8zm0 0v4" />
+                <svg
+                    className="text-secondary h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 110-8 4 4 0 010 8zm0 0v4"
+                    />
                 </svg>
             ),
             onClick: () => toast.error("this is coming soon :)")
@@ -44,8 +66,18 @@ export default function CreateButton() {
             value: "event",
             desc: "Plan or host an event",
             icon: (
-                <svg className="h-5 w-5 text-secondary" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10m-11 8h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                <svg
+                    className="text-secondary h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M8 7V3m8 4V3m-9 8h10m-11 8h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
                 </svg>
             ),
             onClick: () => toast.error("this is coming soon :)")
@@ -55,8 +87,18 @@ export default function CreateButton() {
             value: "club",
             desc: "Meet with your club",
             icon: (
-                <svg className="h-5 w-5 text-secondary" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4a2 2 0 002 2h3l4 8h5V3z" />
+                <svg
+                    className="text-secondary h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 3v4a2 2 0 002 2h3l4 8h5V3z"
+                    />
                 </svg>
             ),
             onClick: () => toast.error("this is coming soon :)")
@@ -66,7 +108,6 @@ export default function CreateButton() {
     const closeMenu = useCallback(() => {
         setOpen(false)
         setFocusIndex(0)
-        // Return focus to the button for accessibility
         buttonRef.current?.focus()
     }, [])
 
@@ -121,19 +162,12 @@ export default function CreateButton() {
     // Responsive: detect desktop for animation direction and panel placement
     const [isDesktop, setIsDesktop] = useState(false)
     useEffect(() => {
-        const mq = window.matchMedia('(min-width: 768px)')
+        const mq = window.matchMedia("(min-width: 768px)")
         const update = () => setIsDesktop(mq.matches)
         update()
-        if (mq.addEventListener) {
-            mq.addEventListener('change', update)
-            return () => mq.removeEventListener('change', update)
-        } else {
-            // Safari fallback
-            // @ts-ignore
-            mq.addListener(update)
-            // @ts-ignore
-            return () => mq.removeListener(update)
-        }
+
+        mq.addEventListener("change", update)
+        return () => mq.removeEventListener("change", update)
     }, [])
 
     // Motion variants for the dropdown panel and items
@@ -148,10 +182,15 @@ export default function CreateButton() {
                 stiffness: 420,
                 damping: 28,
                 mass: 0.8,
-                staggerChildren: 0.035,
-            },
+                staggerChildren: 0.035
+            }
         },
-        exit: { opacity: 0, y: isDesktop ? -6 : 6, scale: 0.98, transition: { duration: 0.12 } },
+        exit: {
+            opacity: 0,
+            y: isDesktop ? -6 : 6,
+            scale: 0.98,
+            transition: { duration: 0.12 }
+        }
     }
     const item = {
         hidden: { opacity: 0, y: -2 },
@@ -159,7 +198,7 @@ export default function CreateButton() {
     }
 
     return (
-        <div className="md:relative md:inline-block md:bottom-0 md:right-0 md:text-left fixed bottom-6 right-6 z-50">
+        <div className="fixed right-6 bottom-6 z-50 md:relative md:right-0 md:bottom-0 md:inline-block md:text-left">
             <motion.button
                 ref={buttonRef}
                 type="button"
@@ -168,7 +207,7 @@ export default function CreateButton() {
                 aria-controls="create-menu"
                 onClick={() => setOpen((v) => !v)}
                 onKeyDown={onButtonKeyDown}
-                className="cursor-pointer inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-sm font-medium text-neutral-900 hover:bg-secondary-hover transition-colors shadow-sm"
+                className="bg-secondary hover:bg-secondary-hover inline-flex cursor-pointer items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-neutral-900 shadow-sm transition-colors"
                 whileTap={{ scale: 0.97 }}
                 whileHover={{ scale: 1.03 }}
             >
@@ -187,7 +226,7 @@ export default function CreateButton() {
                         d="M12 4v16m8-8H4"
                     />
                 </svg>
-                <span className="md:block hidden">Create Burrow</span>
+                <span className="hidden md:block">Create</span>
             </motion.button>
 
             <AnimatePresence>
@@ -207,8 +246,8 @@ export default function CreateButton() {
                             // Mobile: open above (go up)
                             "bottom-full mb-2 origin-bottom-right",
                             // Desktop md+: open below (go down)
-                            "md:bottom-auto md:mb-0 md:top-full md:mt-2 md:origin-top-right",
-                            "border border-primary/20 bg-background shadow-xl ring-1 ring-black/5 focus:outline-none overflow-hidden"
+                            "md:top-full md:bottom-auto md:mt-2 md:mb-0 md:origin-top-right",
+                            "border-primary/20 bg-background overflow-hidden border shadow-xl ring-1 ring-black/5 focus:outline-none"
                         )}
                     >
                         <ul className="p-1.5" role="none">
@@ -231,14 +270,14 @@ export default function CreateButton() {
                                                 closeMenu()
                                                 opt.onClick()
                                             }}
-                                            className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm md:text-base text-text hover:bg-card transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                                            className="group text-text hover:bg-card focus-visible:ring-primary flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none md:text-base"
                                         >
                                             {opt.icon}
                                             <span className="flex-1 text-left">
                                                 <span className="block font-medium">
                                                     {opt.label}
                                                 </span>
-                                                <span className="block text-xs text-text/40">
+                                                <span className="text-text/40 block text-xs">
                                                     {opt.desc}
                                                 </span>
                                             </span>
