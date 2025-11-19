@@ -128,7 +128,7 @@ export default function Contact({ user, profile }: ContactProps) {
     )
 
     return (
-        <Card title="Contact" className="min-w-xs">
+        <Card title="Contact" className="lg:min-w-xs">
             {editing ? editingView : normalView}
         </Card>
     )

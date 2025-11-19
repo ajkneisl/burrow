@@ -168,7 +168,7 @@ export default function About({ profile }: AboutProps) {
     )
 
     return (
-        <Card title="About" className="min-w-lg">
+        <Card title="About" className="lg:min-w-lg">
             {isEditing ? editView : normalView}
         </Card>
     )
