@@ -2,24 +2,25 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Button, Card } from "@umnburrow/core"
 import type { BurrowMembership } from "@features/burrows/burrows.types.ts"
 import usePomodoroSync from "@features/sync/hooks/usePomodoroSync.tsx"
-import { clamp, msToClock } from "@api/util.ts"
+import { msToClock } from "@api/util.ts"
+import { PauseCircleIcon, PlayCircleIcon, RefreshCwIcon } from "lucide-react"
 
 /**
  * {@see Pomodoro}
  */
 type PomodoroProps = {
-    meetingId?: string
+    burrowID?: string
     membership: BurrowMembership
 }
 
 /**
- * The pomodoro feature block on a meeting.
+ * The pomodoro feature block on a Burrow.
  *
- * @param meetingId The meeting ID.
+ * @param burrowID The Burrow ID.
  * @param membership The membership of the viewing user.
  */
-export default function Pomodoro({ meetingId, membership }: PomodoroProps) {
-    const { state, send } = usePomodoroSync(meetingId)
+export default function Pomodoro({ burrowID, membership }: PomodoroProps) {
+    const { state, send } = usePomodoroSync(burrowID)
 
     const [now, setNow] = useState<number>(() => Date.now())
     const tickRef = useRef<number | null>(null)
@@ -71,76 +72,142 @@ export default function Pomodoro({ meetingId, membership }: PomodoroProps) {
 
     return (
         <Card title="Pomodoro">
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                    <span
-                        className={`px-2.5 py-1 rounded-full text-xs font-medium border ${state.isActive ? "bg-success/10 text-success border-success/20" : "bg-hero text-text/70 border-primary/10"}`}
-                    >
-                        {state.isActive ? "Active" : "Idle"}
-                    </span>
-
-                    <span
-                        className={`px-2.5 py-1 rounded-full text-xs font-medium border ${state.isBreak ? "bg-info/10 text-text border-info/20" : "bg-primary/10 text-text border-primary/20"}`}
-                    >
-                        {phaseLabel}
-                    </span>
-                </div>
-
-                <Button thin color={"INFO"} onClick={resync}>
-                    Resync
-                </Button>
-            </div>
-
-            <div className="flex flex-col items-center">
-                <div className="text-6xl font-bold tabular-nums tracking-tight select-none text-text">
-                    {msToClock(optimisticRemaining)}
-                </div>
-
-                <div className="w-full mt-4">
-                    <div className="h-2 rounded-full bg-hero/60 overflow-hidden">
-                        <div
-                            className="h-full bg-primary transition-[width] duration-300"
-                            style={{ width: `${clamp(progress, 0, 100)}%` }}
-                        />
+            <div className="flex flex-col items-center py-4">
+                {/* phase indicator */}
+                <div className="mb-6">
+                    <div className="flex items-center justify-center gap-3">
+                        <span
+                            className={`rounded-full border-2 px-4 py-2 text-sm font-semibold transition-all duration-300 ${
+                                state.isBreak
+                                    ? "bg-info/20 text-info border-info/40 shadow-info/20 shadow-lg"
+                                    : "bg-secondary/20 text-secondary border-secondary/40 shadow-secondary/20 shadow-lg"
+                            }`}
+                        >
+                            {phaseLabel} Phase
+                        </span>
+                        <button
+                            onClick={resync}
+                            className="hover:bg-hero/60 text-text/60 hover:text-text rounded-full p-2 transition-colors"
+                            title="Resync timer"
+                        >
+                            <RefreshCwIcon className="h-4 w-4" />
+                        </button>
                     </div>
                 </div>
 
-                <div className="text-xs text-text/60 mt-2">
-                    {state.isActive
-                        ? `Started ${new Date(state.startedAt).toLocaleTimeString()}`
-                        : "Timer stopped"}
+                {/* circular timer display */}
+                <div className="relative mb-6">
+                    {/* circular progress ring */}
+                    <svg className="h-64 w-64 -rotate-90" viewBox="0 0 256 256">
+                        {/* Background circle */}
+                        <circle
+                            cx="128"
+                            cy="128"
+                            r="112"
+                            className="stroke-hero/40"
+                            strokeWidth="12"
+                            fill="none"
+                        />
+
+                        {/* Progress circle */}
+                        <circle
+                            cx="128"
+                            cy="128"
+                            r="112"
+                            className={`transition-all duration-300 ${
+                                state.isBreak
+                                    ? "stroke-info"
+                                    : "stroke-secondary"
+                            }`}
+                            strokeWidth="12"
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeDasharray={`${2 * Math.PI * 112}`}
+                            strokeDashoffset={`${2 * Math.PI * 112 * (1 - progress / 100)}`}
+                            style={{
+                                filter: state.isActive
+                                    ? "drop-shadow(0 0 8px currentColor)"
+                                    : "none"
+                            }}
+                        />
+                    </svg>
+
+                    {/* timer text centered in circle */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <div className="text-text text-6xl font-bold tracking-tight tabular-nums select-none">
+                            {msToClock(optimisticRemaining)}
+                        </div>
+
+                        <div className="mt-3 flex items-center gap-2">
+                            <div
+                                className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                                    state.isActive
+                                        ? "bg-success animate-pulse"
+                                        : "bg-text/30"
+                                }`}
+                            />
+
+                            <span className="text-text/60 text-sm font-medium">
+                                {state.isActive ? "Active" : "Paused"}
+                            </span>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {/* show buttons to moderators */}
-            {membership.role !== "MEMBER" && (
-                <>
-                    <div className="flex flex-row justify-center items-center gap-2 mt-2">
-                        <Button
-                            color="INFO"
-                            onClick={togglePhase}
-                            disabled={state.isActive}
-                        >
-                            {state.isBreak ? "Work" : "Break"}
-                        </Button>
+                {/* status text */}
+                <div className="text-text/50 mb-6 text-sm">
+                    {state.isActive
+                        ? `Started at ${new Date(state.startedAt).toLocaleTimeString()}`
+                        : "Timer is stopped"}
+                </div>
 
+                {/* control buttons for moderators */}
+                {membership.role !== "MEMBER" && (
+                    <div className="w-full max-w-md space-y-3">
+                        {/* primary action */}
                         <Button
                             color="SUCCESS"
                             onClick={() =>
                                 state.isActive ? endTimer() : startTimer()
                             }
+                            className="w-full py-3 text-base font-semibold"
                         >
-                            {state.isActive ? "End Timer" : "Start Timer"}
+                            {state.isActive ? (
+                                <>
+                                    <PauseCircleIcon className="h-4 w-4" />{" "}
+                                    Pause Timer
+                                </>
+                            ) : (
+                                <>
+                                    <PlayCircleIcon className="h-4 w-4" /> Start
+                                    Timer
+                                </>
+                            )}
                         </Button>
-                    </div>
 
-                    <div className="flex flex-row justify-center mt-2 gap-2">
-                        <Button thin color="ERROR" onClick={resetTimer}>
-                            Reset
-                        </Button>
+                        {/* secondary actions */}
+                        <div className="flex gap-2">
+                            <Button
+                                color="INFO"
+                                onClick={togglePhase}
+                                disabled={state.isActive}
+                                className="flex-1"
+                            >
+                                Switch to {state.isBreak ? "Work" : "Break"}
+                            </Button>
+
+                            <Button
+                                thin
+                                color="ERROR"
+                                onClick={resetTimer}
+                                className="px-6"
+                            >
+                                Reset
+                            </Button>
+                        </div>
                     </div>
-                </>
-            )}
+                )}
+            </div>
         </Card>
     )
 }
