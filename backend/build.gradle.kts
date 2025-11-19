@@ -13,7 +13,7 @@ plugins {
 
 group = "app.burrow"
 
-version = "0.3.0DB-1"
+version = "0.3.0"
 
 application { mainClass = "app.burrow.ApplicationKt" }
 
