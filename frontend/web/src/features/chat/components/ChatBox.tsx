@@ -7,8 +7,8 @@ import {
     type SyncIncomingEvent,
     SyncOutgoingEvent
 } from "@features/sync/sync.types.ts"
-import { useAtom } from "jotai"
-import { syncStatus } from "@features/sync/sync.atom.ts"
+import { useAtomValue } from "jotai"
+import { syncRetry, syncStatus } from "@features/sync/sync.atom.ts"
 import { Button, Card, Input } from "@umnburrow/core"
 
 /**
@@ -25,9 +25,11 @@ type ChatBoxProps = {
  * @constructor
  */
 export default function ChatBox({ meeting }: ChatBoxProps) {
+    const status = useAtomValue(syncStatus)
+    const retry = useAtomValue(syncRetry)
+
     const [messages, setMessages] = useState<ChatMessage[]>([])
     const [text, setText] = useState("")
-    const [status] = useAtom(syncStatus)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editingOriginal, setEditingOriginal] = useState<string>("")
     const [members, setMembers] = useState<Record<string, ChatMember>>({})
@@ -216,20 +218,21 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
     }
 
     return (
-        <Card className="mt-8 h-[512px] flex flex-col justify-between">
+        <Card className="mt-8 flex h-[512px] flex-col justify-between">
             <header className="flex items-center justify-between">
                 <h3 className="font-semibold">Chat</h3>
                 <span className="text-xs font-semibold">
                     {status === "CONNECTING" && "Connecting…"}
                     {status === "LIVE" && "Live"}
-                    {status === "DISCONNECTED" && "Disconnected"}
+                    {status === "DISCONNECTED" &&
+                        (retry === "" ? "Disconnected" : retry)}
                     {status === "ERROR" && "Error"}
                 </span>
             </header>
 
-            <div ref={listRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto p-4">
                 {messages.length === 0 ? (
-                    <p className="text-sm text-text/60 text-center">
+                    <p className="text-text/60 text-center text-sm">
                         No messages yet. Start the conversation.
                     </p>
                 ) : (
@@ -249,23 +252,23 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
             </div>
 
             <div
-                className={`py-2 ${!editingId && `border-t border-background/80`}`}
+                className={`py-2 ${!editingId && `border-background/80 border-t`}`}
             >
                 {editingId && (
-                    <div className="relative mb-2 flex flex-col items-center rounded-t-lg border border-background bg-base-100 px-3 py-1.5 text-xs text-base-content/80 shadow-sm">
+                    <div className="border-background bg-base-100 text-base-content/80 relative mb-2 flex flex-col items-center rounded-t-lg border px-3 py-1.5 text-xs shadow-sm">
                         <div className="flex items-center gap-4">
                             <span className="font-medium">Editing message</span>
                             <button
                                 type="button"
                                 onClick={cancelEdit}
-                                className="cursor-pointer inline-flex items-center rounded-md border border-background bg-base-200 px-2 py-0.5 text-[11px] font-medium text-base-content/70 hover:bg-base-300"
+                                className="border-background bg-base-200 text-base-content/70 hover:bg-base-300 inline-flex cursor-pointer items-center rounded-md border px-2 py-0.5 text-[11px] font-medium"
                             >
                                 Cancel
                             </button>
                         </div>
 
-                        <div className="absolute left-1/2 top-full -translate-x-1/2 h-0 w-0 border-x-6 border-t-6 border-x-transparent border-t-base-300" />
-                        <div className="absolute left-1/2 top-[calc(100%_-_1px)] -translate-x-1/2 h-0 w-0 border-x-5 border-t-5 border-x-transparent border-t-base-100" />
+                        <div className="border-t-base-300 absolute top-full left-1/2 h-0 w-0 -translate-x-1/2 border-x-6 border-t-6 border-x-transparent" />
+                        <div className="border-t-base-100 absolute top-[calc(100%_-_1px)] left-1/2 h-0 w-0 -translate-x-1/2 border-x-5 border-t-5 border-x-transparent" />
                     </div>
                 )}
 

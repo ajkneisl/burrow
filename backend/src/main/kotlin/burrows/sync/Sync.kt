@@ -1,7 +1,6 @@
 package app.burrow.burrows.sync
 
 import app.burrow.account.Authorization
-import app.burrow.burrows.sync.block.findRegisteredBlocks
 import app.burrow.burrows.membership.isModerator
 import app.burrow.burrows.membership.userInMeeting
 import app.burrow.burrows.sync.block.Block
@@ -63,6 +62,7 @@ object Sync {
     /** The responses from [Sync]. */
     enum class Responses {
         NOT_AUTHORIZED,
+        ALREADY_CONNECTED,
         NO_PERMISSION,
         INVALID_TOKEN,
         INVALID_BLOCK,
@@ -169,9 +169,9 @@ object Sync {
         // WS /groups/{id}/sync
         // sync live attributes about a specific meeting.
         webSocket("/sync") {
-            val meetingId =
+            val burrowID =
                 call.parameters["id"] ?: return@webSocket call.respond(HttpStatusCode.BadRequest)
-            var userId: String? = null
+            var userID: String? = null
 
             suspend fun send(type: Enum<*>, message: String) {
                 sendSerialized(Response("SYNC", type, message))
@@ -190,54 +190,63 @@ object Sync {
                             when {
                                 (incomingMsg.block != "SYNC" &&
                                     incomingMsg.action != "AUTHORIZE" &&
-                                    userId == null) ->
+                                    userID == null) ->
                                     send(Responses.NOT_AUTHORIZED, "You are not authorized.")
 
                                 incomingMsg.action == "AUTHORIZE" -> {
                                     val token = incomingMsg.data["token"]
-                                    val authorizedUserId =
+                                    val authorizedUserID =
                                         runCatching { Authorization.getVerifier().verify(token) }
                                             .getOrNull()
                                             ?.subject
 
-                                    if (authorizedUserId == null) {
+                                    if (authorizedUserID == null) {
                                         send(Responses.INVALID_TOKEN, "Invalid token.")
                                     } else {
-                                        userId = authorizedUserId
+                                        userID = authorizedUserID
 
-                                        if (!userInMeeting(userId, meetingId)) {
+                                        // make sure they have permission to be here
+                                        if (!userInMeeting(userID, burrowID)) {
                                             return@consumeEach send(
                                                 Responses.NO_PERMISSION,
                                                 "You do not have permission for this meeting.",
                                             )
                                         }
 
-                                        join(
-                                            meetingId,
-                                            Session(authorizedUserId, this, getTimeMillis()),
-                                        )
+                                        val joinResult =
+                                            join(
+                                                burrowID,
+                                                Session(authorizedUserID, this, getTimeMillis()),
+                                            )
+
+                                        if (!joinResult) {
+                                            return@consumeEach send(
+                                                Responses.ALREADY_CONNECTED,
+                                                "You are connected to this meeting somewhere else.",
+                                            )
+                                        }
 
                                         send(
                                             Responses.WELCOME,
-                                            "Welcome. There's currently ${meetings[meetingId]?.size} user(s) online.",
+                                            "Welcome. There's currently ${meetings[burrowID]?.size} user(s) online.",
                                         )
 
                                         sendSerialized(
                                             Response(
                                                 "SYNC",
                                                 Responses.BLOCKS,
-                                                getEnabledBlocks(meetingId),
+                                                getEnabledBlocks(burrowID),
                                             )
                                         )
                                     }
                                 }
 
-                                userId != null -> {
-                                    val meetingBlocks = getMeetingBlockState(meetingId)
+                                userID != null -> {
+                                    val meetingBlocks = getMeetingBlockState(burrowID)
 
                                     meetingBlocks[incomingMsg.block]?.onIncoming(
                                         Block.UserBlockRequestState(
-                                            userId,
+                                            userID,
                                             incomingMsg.action,
                                             incomingMsg.data,
                                         )
@@ -252,11 +261,11 @@ object Sync {
                     }
                 }
             } finally {
-                val joinedUserId = userId
+                val joinedUserId = userID
 
                 // if the user never actually authorized, this isn't run
                 if (joinedUserId != null) {
-                    leave(meetingId, joinedUserId)
+                    leave(burrowID, joinedUserId)
                 }
             }
         }
@@ -271,40 +280,48 @@ object Sync {
     private val guard = Mutex()
 
     /**
-     * Have a [session] join a [meetingId].
+     * Have a [session] join a [burrowID].
      *
-     * @param meetingId The meeting to join.
+     * @param burrowID The Burrow to join.
      * @param session The session that's joining.
      */
-    suspend fun join(meetingId: String, session: Session) {
+    suspend fun join(burrowID: String, session: Session): Boolean {
+        // check if user has an existing session
+        val alreadyInMeeting =
+            meetings[burrowID]?.any { existingSession -> existingSession.userID == session.userID }
+
+        if (alreadyInMeeting == true) return false
+
         guard.withLock {
-            val set = meetings.getOrPut(meetingId) { mutableSetOf() }
+            val set = meetings.getOrPut(burrowID) { mutableSetOf() }
             set.add(session)
         }
+
+        return true
     }
 
     /**
-     * Have a [userId] leave a [meetingId].
+     * Have a [userID] leave a [burrowID].
      *
-     * @param meetingId The meeting to leave.
-     * @param userId The user who's leaving.
+     * @param burrowID The Burrow to leave.
+     * @param userID The user who's leaving.
      */
-    suspend fun leave(meetingId: String, userId: String) {
+    suspend fun leave(burrowID: String, userID: String) {
         guard.withLock {
-            meetings[meetingId]?.removeIf { (chatUserID) -> chatUserID == userId }
+            meetings[burrowID]?.removeIf { (chatUserID) -> chatUserID == userID }
 
-            if (meetings[meetingId]?.isEmpty() == true) meetings.remove(meetingId)
+            if (meetings[burrowID]?.isEmpty() == true) meetings.remove(burrowID)
         }
     }
 
     /**
-     * Send a [ChatMessage] to a [meetingId].
+     * Send a [ChatMessage] to a [burrowID].
      *
-     * @param meetingId The meeting to change.
+     * @param burrowID The Burrow to change.
      * @param payload The message to broadcast.
      */
-    suspend inline fun <reified T> broadcast(meetingId: String, payload: Response<T>) {
-        val targets = meetings[meetingId]?.toList().orEmpty()
+    suspend inline fun <reified T> broadcast(burrowID: String, payload: Response<T>) {
+        val targets = meetings[burrowID]?.toList().orEmpty()
         val payloadStr = Json.encodeToString(serializer(typeOf<Response<T>>()), payload)
 
         for (session in targets) {
@@ -313,20 +330,20 @@ object Sync {
     }
 
     /**
-     * Send an [Action] to a [userId] in a [meetingId].
+     * Send an [Action] to a [userID] in a [meetingID].
      *
-     * @param userId The ID of the user to send the message to
-     * @param meetingId The meeting to change.
+     * @param userID The ID of the user to send the message to
+     * @param meetingID The meeting to change.
      * @param payload The message to broadcast.
      */
     suspend inline fun <reified T> broadcast(
-        userId: String,
-        meetingId: String,
+        userID: String,
+        meetingID: String,
         payload: Response<T>,
     ) {
         val target =
-            meetings[meetingId]?.toList().orEmpty().singleOrNull { session ->
-                session.userID == userId
+            meetings[meetingID]?.toList().orEmpty().singleOrNull { session ->
+                session.userID == userID
             }
 
         val payloadStr = Json.encodeToString(serializer(typeOf<Response<T>>()), payload)

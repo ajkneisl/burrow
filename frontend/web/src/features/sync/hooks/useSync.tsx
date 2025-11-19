@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react"
 import { BASE_URL } from "@api/util.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
-import { useAtom } from "jotai"
-import { blockStatus, syncStatus } from "@features/sync/sync.atom.ts"
+import { useAtom, useSetAtom } from "jotai"
+import { blockStatus, syncRetry, syncStatus } from "@features/sync/sync.atom.ts"
 import {
     type Response,
     SyncIncomingEvent,
@@ -10,10 +10,16 @@ import {
 } from "../sync.types.ts"
 import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
 
+/**
+ * Sync to a Burrow.
+ * This enables Chat and other meeting features.
+ *
+ * @param meeting The meeting to sync with.
+ */
 export default function useSync(meeting?: BurrowResponse | null) {
     const auth = useToken()
 
-    const meetingId = meeting?.burrow?.id
+    const burrowID = meeting?.burrow?.id
     const isJoined =
         meeting?.membership !== undefined &&
         meeting?.membership?.status !== "LEFT"
@@ -21,65 +27,88 @@ export default function useSync(meeting?: BurrowResponse | null) {
     const socketRef = useRef<WebSocket | null>(null)
 
     const [status, setStatus] = useAtom(syncStatus)
-    const [, setBlocks] = useAtom(blockStatus)
+    const setBlocks = useSetAtom(blockStatus)
+    const [retry, setRetry] = useAtom(syncRetry)
+
+    const WS_BASE = BASE_URL.replaceAll("http", "ws")
 
     useEffect(() => {
-        if (auth === null || auth === "" || !meetingId || !isJoined) return
+        if (auth === null || auth === "" || !burrowID || !isJoined) return
 
-        const base = BASE_URL.replaceAll("https://", "wss://").replaceAll(
-            "http://",
-            "ws://"
-        )
-        const ws = new WebSocket(`${base}/burrows/${meetingId}/sync`)
+        function connectSync() {
+            const ws = new WebSocket(`${WS_BASE}/burrows/${burrowID}/sync`)
 
-        socketRef.current = ws
+            socketRef.current = ws
 
-        setStatus("CONNECTING")
+            setRetry("")
+            setStatus("CONNECTING")
 
-        ws.onopen = () => {
-            setStatus("LIVE")
+            ws.onopen = () => {
+                setStatus("LIVE")
 
-            ws.send(
-                JSON.stringify({
-                    block: "SYNC",
-                    action: "AUTHORIZE",
-                    data: {
-                        token: auth
+                ws.send(
+                    JSON.stringify({
+                        block: "SYNC",
+                        action: "AUTHORIZE",
+                        data: {
+                            token: auth
+                        }
+                    })
+                )
+            }
+
+            ws.onmessage = (ev) => {
+                try {
+                    const payload: Response = JSON.parse(ev.data)
+                    const block = payload.block
+
+                    if (block === "SYNC") {
+                        switch (payload.type) {
+                            case "BLOCKS":
+                                setBlocks(payload.payload)
+                                break
+                            case "ALREADY_CONNECTED":
+                                setRetry("Connected elsewhere")
+                                break
+                        }
+
+                        return
                     }
-                })
-            )
-        }
 
-        ws.onmessage = (ev) => {
-            try {
-                const payload: Response = JSON.parse(ev.data)
-                const block = payload.block
+                    window.dispatchEvent(
+                        new SyncIncomingEvent({
+                            block,
+                            type: payload.type,
+                            payload: payload.payload
+                        })
+                    )
+                } catch {
+                    /* empty */
+                }
+            }
 
-                if (block === "SYNC") {
-                    switch (payload.type) {
-                        case "BLOCKS":
-                            setBlocks(payload.payload)
-                            break
-                    }
+            ws.onerror = () => setStatus("ERROR")
+            ws.onclose = () => {
+                setStatus("DISCONNECTED")
 
+                // don't retry if they're connecting in multiple places
+                if (retry === "Connected elsewhere") {
                     return
                 }
 
-                window.dispatchEvent(
-                    new SyncIncomingEvent({
-                        block,
-                        type: payload.type,
-                        payload: payload.payload
-                    })
-                )
-            } catch {
-                /* empty */
+                setRetry(`Attempting to reconnect...`)
+
+                // retry connection after 10 seconds
+                setTimeout(() => {
+                    connectSync()
+                }, 10_000)
             }
         }
 
-        ws.onerror = () => setStatus("ERROR")
-        ws.onclose = () => setStatus("DISCONNECTED")
+        connectSync()
+    }, [WS_BASE, auth, burrowID, isJoined])
 
+    useEffect(() => {
         const onSyncOutgoing = (event: SyncOutgoingEvent) => {
             const response = event.action
 
@@ -97,7 +126,7 @@ export default function useSync(meeting?: BurrowResponse | null) {
         )
 
         return () => {
-            ws.close()
+            socketRef.current?.close()
             socketRef.current = null
 
             window.removeEventListener(
@@ -105,7 +134,7 @@ export default function useSync(meeting?: BurrowResponse | null) {
                 onSyncOutgoing as EventListener
             )
         }
-    }, [auth, meetingId, isJoined])
+    }, [auth, burrowID, isJoined])
 
     return status
 }
