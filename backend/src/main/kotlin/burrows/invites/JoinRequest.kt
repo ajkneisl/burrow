@@ -8,6 +8,7 @@ import app.burrow.burrows.getBurrow
 import app.burrow.burrows.membership.Memberships
 import app.burrow.burrows.models.BurrowMemberStatus
 import app.burrow.burrows.models.BurrowRole
+import app.burrow.models.PaginatedResponse
 import app.burrow.notifications.onUserJoinedMeeting
 import app.burrow.query
 import app.burrow.throwIfNull
@@ -18,6 +19,7 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import kotlin.math.ceil
 import org.jetbrains.exposed.v1.core.innerJoin
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insert
@@ -157,20 +159,29 @@ suspend fun createJoinRequest(userID: String, burrowID: String) {
     }
 }
 
+private const val JOIN_REQUESTS_PAGE_SIZE = 5
+
 /**
  * Get all pending join requests for a Burrow with user information.
  *
  * @param burrowID The ID of the burrow.
- * @return List of join requests with user information.
+ * @param page The page number (defaults to 1).
+ * @return Paginated response of join requests with user information.
  */
-suspend fun getJoinRequests(burrowID: String): List<JoinRequestWithUser> = query {
-    JoinRequests.innerJoin(Users, { JoinRequests.requesterID }, { Users.id })
+suspend fun getJoinRequests(burrowID: String, page: Int = 1): PaginatedResponse<JoinRequestWithUser> = query {
+    val query = JoinRequests.innerJoin(Users, { JoinRequests.requesterID }, { Users.id })
         .innerJoin(Profiles, { JoinRequests.requesterID }, { Profiles.userID })
         .selectAll()
         .where {
             (JoinRequests.burrowID eq burrowID) and
                 (JoinRequests.status eq JoinRequestStatus.PENDING)
         }
+
+    val itemCount = query.count()
+
+    val requests = query
+        .limit(JOIN_REQUESTS_PAGE_SIZE)
+        .offset(JOIN_REQUESTS_PAGE_SIZE * (page - 1L))
         .toList()
         .map { row ->
             JoinRequestWithUser(
@@ -179,6 +190,13 @@ suspend fun getJoinRequests(burrowID: String): List<JoinRequestWithUser> = query
                 requesterProfile = Profile.fromRow(row),
             )
         }
+
+    PaginatedResponse(
+        page,
+        ceil(itemCount / JOIN_REQUESTS_PAGE_SIZE.toDouble()).toInt(),
+        itemCount,
+        requests,
+    )
 }
 
 /**

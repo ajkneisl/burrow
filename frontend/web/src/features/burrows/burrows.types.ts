@@ -55,7 +55,7 @@ export type BurrowMemberStatus = "JOINED" | "LEFT" | "WAITLISTED" | "BANNED"
  * The relationship between a user and a meeting.
  */
 export interface BurrowMembership {
-    meetingID: string
+    burrowID: string
     userID: string
     role: BurrowRole
     status: BurrowMemberStatus

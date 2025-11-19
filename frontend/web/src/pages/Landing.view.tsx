@@ -1,57 +1,63 @@
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google"
-import { useState } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router"
-import { useAtom } from "jotai"
+import {useAtom, useSetAtom } from "jotai"
 import toast from "react-hot-toast"
-import type { AuthorizedUser } from "@features/auth/user.types.ts"
-import {
-    authToken,
-    newUser,
-    userDetails
-} from "@features/auth/auth.atom.ts"
-import { BASE_URL } from "@api/util.ts"
+import { useMutation } from "@tanstack/react-query"
+import { Users, CalendarClock, Sparkles } from "lucide-react"
+import { authToken, newUser, userDetails } from "@features/auth/auth.atom.ts"
 import { Card } from "@umnburrow/core"
+import { login } from "@features/auth/user.api.ts"
 
-/**
- * Burrow landing page.
- */
 export default function LandingView() {
     const nav = useNavigate()
-    const [error, setError] = useState<string | null>(null)
+    const googleLoginContainer = useRef<HTMLDivElement>(null)
 
-    const [isNewUser, setNewUser] = useAtom(newUser)
-    const [token, setAuthToken] = useAtom(authToken)
-    const [, setUser] = useAtom(userDetails)
+    const [googleLoginWidth, setGoogleLoginWidth] = useState(
+        (googleLoginContainer?.current?.clientWidth ?? 128) - 16
+    )
 
-    async function attemptRegister(credentials: string) {
-        const request = await fetch(`${BASE_URL}/user/login`, {
-            method: "PUT",
-            body: credentials
-        })
-
-        if (!request.ok) {
-            setError(
-                "There was an issue logging into your account. Please ensure it's an official UMN account!"
+    // update the size of the google login depending on it's parent
+    useLayoutEffect(() => {
+        function onSizeChange() {
+            setGoogleLoginWidth(
+                (googleLoginContainer?.current?.clientWidth ?? 128) - 16
             )
-            return
         }
 
-        const body: AuthorizedUser = await request.json()
+        onSizeChange()
 
-        await setAuthToken(body.token)
-        setUser(body.user)
+        window.addEventListener("resize", onSizeChange)
+        return () => window.removeEventListener("resize", onSizeChange)
+    }, [])
 
-        if (body.newUser) {
-            setNewUser(true)
-            toast.success("Welcome to Burrow!")
-        } else {
-            toast.success("Welcome back to Burrow!")
+    const [auth, setAuthToken] = useAtom(authToken)
+    const setNewUser = useSetAtom(newUser)
+    const setUser = useSetAtom(userDetails)
+
+    // login
+    const loginMutation = useMutation({
+        mutationFn: login,
+        onSuccess: (data) => {
+            void setAuthToken(data.token)
+            void setUser(data.user)
+
+            if (data.newUser) {
+                setNewUser(true)
+
+                toast.success("Welcome to Burrow!")
+            } else {
+                toast.success("Welcome back to Burrow!")
+            }
+
+            nav("/")
+        },
+        onError: (error: Error) => {
+            toast.error(error.message)
         }
+    })
 
-        nav("/")
-    }
-
-    if (token && !isNewUser) {
+    if (auth && auth !== "") {
         nav("/")
     }
 
@@ -62,7 +68,7 @@ export default function LandingView() {
                 <div className="h-[22rem] w-full bg-[url('/image/banner.png')] bg-[position:center_calc(100%+225px)]" />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 <div className="absolute inset-0 flex flex-col items-center justify-end pb-8 text-center">
-                    <h1 className="figtree text-7xl font-extrabold tracking-tight text-secondary drop-shadow-md">
+                    <h1 className="figtree text-secondary text-7xl font-extrabold tracking-tight drop-shadow-md">
                         Burrow
                     </h1>
 
@@ -73,104 +79,91 @@ export default function LandingView() {
                 </div>
             </div>
 
-            <div className="mx-auto mt-10 grid w-full max-w-5xl grid-cols-1 gap-4 px-4 md:grid-cols-3">
-                <Card>
-                    <div className="mb-2 flex items-center gap-2 font-semibold text-secondary">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            className="h-5 w-5"
-                        >
-                            <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm1 14.59L9.7 13.29a1 1 0 1 1 1.4-1.42l1.3 1.3 3.5-3.5a1 1 0 0 1 1.4 1.42Z" />
-                        </svg>
-                        Find study groups
+            <div className="mx-auto mt-10 grid w-full max-w-5xl grid-cols-1 gap-6 px-4 md:grid-cols-3">
+                <Card className="group transition-all hover:shadow-lg">
+                    <div className="mb-3 flex items-center gap-3">
+                        <div className="bg-secondary/10 text-secondary flex h-10 w-10 items-center justify-center rounded-lg transition-transform group-hover:scale-110">
+                            <Users className="h-5 w-5" />
+                        </div>
+                        <h3 className="text-lg font-bold">Connect with peers</h3>
                     </div>
-
-                    Search by course, topic, or club and see who's active right
-                    now.
+                    <p className="text-text/70 text-sm leading-relaxed">
+                        Discover and join study sessions with students in your courses. Find the perfect study group that fits your schedule.
+                    </p>
                 </Card>
 
-                <Card>
-                    <div className="mb-2 flex items-center gap-2 font-semibold text-secondary">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            className="h-5 w-5"
-                        >
-                            <path d="M7 2h10a2 2 0 0 1 2 2v16l-7-3-7 3V4a2 2 0 0 1 2-2Z" />
-                        </svg>
-                        Smart, personal schedule
+                <Card className="group transition-all hover:shadow-lg">
+                    <div className="mb-3 flex items-center gap-3">
+                        <div className="bg-secondary/10 text-secondary flex h-10 w-10 items-center justify-center rounded-lg transition-transform group-hover:scale-110">
+                            <CalendarClock className="h-5 w-5" />
+                        </div>
+                        <h3 className="text-lg font-bold">Smart scheduling</h3>
                     </div>
-                    Burrow highlights times that fit your classes and existing
-                    meetings.
+                    <p className="text-text/70 text-sm leading-relaxed">
+                        Burrow ensures everyone stays in sync and on the same schedule. No more back and forth.
+                    </p>
                 </Card>
 
-                <Card>
-                    <div className="mb-2 flex items-center gap-2 font-semibold text-secondary">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            className="h-5 w-5"
-                        >
-                            <path d="M12 3a9 9 0 1 0 9 9 9.01 9.01 0 0 0-9-9Zm1 5h-2v5h5v-2h-3Z" />
-                        </svg>
-                        Join in seconds
+                <Card className="group transition-all hover:shadow-lg">
+                    <div className="mb-3 flex items-center gap-3">
+                        <div className="bg-secondary/10 text-secondary flex h-10 w-10 items-center justify-center rounded-lg transition-transform group-hover:scale-110">
+                            <Sparkles className="h-5 w-5" />
+                        </div>
+                        <h3 className="text-lg font-bold">Instant access</h3>
                     </div>
-                    Use your UMN Google account to sign in and you're ready to
-                    go.
+                    <p className="text-text/70 text-sm leading-relaxed">
+                        Sign in with your UMN Google account and start collaborating immediately. Built exclusively for Gophers.
+                    </p>
                 </Card>
             </div>
 
-            {/* if there's an error logging in*/}
-            {error && (
-                <div
-                    className="mx-auto mt-6 w-full max-w-lg px-4"
-                    aria-live="polite"
-                >
-                    <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">
-                        <p className="text-sm font-medium">{error}</p>
-                    </div>
-                </div>
-            )}
-
             {/* log in area */}
-            <div className="mx-auto mt-12 mb-12 flex w-full max-w-lg flex-col items-center px-4">
+            <div className="mx-4 mt-12 mb-12 flex w-full max-w-lg flex-col items-center px-4">
                 <h2 className="text-center text-xl font-semibold">
                     Sign in with your University of Minnesota account
                 </h2>
 
                 <div className="mt-5">
                     <Card>
-                        <div className="flex flex-col items-center gap-3 max-w-screen">
+                        <div
+                            ref={googleLoginContainer}
+                            className="flex max-w-screen flex-col items-center gap-3"
+                        >
                             <GoogleOAuthProvider clientId="808386876282-4s7060hmt21b2i069tkea6fddsumj86o.apps.googleusercontent.com">
                                 <GoogleLogin
+                                    width={googleLoginWidth}
                                     shape="pill"
                                     size="large"
                                     text="continue_with"
                                     theme="filled_blue"
                                     onSuccess={(response) =>
-                                        attemptRegister(
+                                        loginMutation.mutate(
                                             response.credential ?? ""
                                         )
                                     }
-                                    onError={() =>
-                                        console.log("failure failure :(")
-                                    }
+                                    onError={() => {
+                                        toast.error(
+                                            "Failed to authenticate with Google"
+                                        )
+                                    }}
                                 />
                             </GoogleOAuthProvider>
                         </div>
                     </Card>
 
-                    <p className="mt-3 text-center text-sm text-text/40">
+                    <p className="text-text/40 mt-3 text-center text-xs">
                         By signing in with Google, you agree to Burrow's{" "}
-                        <a href="/privacy" className="text-text/60 hover:text-text/50 underline">
+                        <a
+                            href="/privacy"
+                            className="text-text/60 hover:text-text/50 underline"
+                        >
                             Privacy Policy
                         </a>{" "}
                         and{" "}
-                        <a href="/tos" className="text-text/60 hover:text-text/50 underline">
+                        <a
+                            href="/tos"
+                            className="text-text/60 hover:text-text/50 underline"
+                        >
                             Terms of Service
                         </a>
                         .

@@ -3,115 +3,103 @@ import { useQuery } from "@tanstack/react-query"
 import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
 import { useMemo } from "react"
 import { useNavigate } from "react-router"
-import { Card } from "@umnburrow/core"
+import { Button, Card, ViewErrors } from "@umnburrow/core"
+import { getSchedule } from "@features/burrows/burrows.api.ts"
 
+/**
+ * A group of burrows.
+ *
+ * @param label The day the burrows occur.
+ * @param items The burrows themselves.
+ *
+ * @see Schedule
+ */
 type Group = { label: string; items: BurrowResponse[] }
 
 /**
- * Skeleton row for loading
+ * The schedule section on the home page.
  *
- * @see MeetingsSection
+ * @author AJ Kneisl
  */
-function SkeletonRow() {
-    return (
-        <Card>
-            <div className="animate-pulse space-y-2">
-                <div className="bg-text/10 h-4 w-1/2 rounded" />
-                <div className="bg-text/10 h-3 w-1/3 rounded" />
-                <div className="bg-text/10 h-3 w-40 rounded" />
-            </div>
-        </Card>
-    )
-}
-
-/**
- * @see MeetingsSection
- */
-type MeetingsSectionProps = {
-    queryKey: (string | number)[]
-    queryFn: () => Promise<BurrowResponse[]>
-    emptyText?: string
-    skeletonCount?: number
-}
-
-/**
- * A reusable meetings section, used for `My Bookmarks` and `My Schedule`
- *
- * @param queryKey The key to reuse data if possible.
- * @param queryFn The function to retrieve the data.
- * @param emptyText When there's no elements
- * @param skeletonCount How many skeletons to load when loading
- * @constructor
- */
-export default function MeetingsSection({
-    queryKey,
-    queryFn,
-    emptyText = "Nothing upcoming.",
-    skeletonCount = 3
-}: MeetingsSectionProps) {
+export default function Schedule() {
     const nav = useNavigate()
 
-    const { data, isLoading, error, refetch, isFetching } = useQuery<
-        BurrowResponse[]
-    >({
-        queryKey,
-        queryFn
+    const { data, isLoading, error, refetch } = useQuery<BurrowResponse[]>({
+        queryKey: ["schedule"],
+        queryFn: getSchedule
     })
 
-    const onClick = (meetingId: string) => nav(`/meeting/${meetingId}`)
+    const onClick = (burrowID: string) => nav(`/burrow/${burrowID}`)
 
+    // load burrows into day by day groups
     const groups = useMemo(() => {
         if (!data) return []
 
         return data.reduce<Group[]>((acc, item) => {
             const label = dayLabel(item.burrow.beginningTime)
             const last = acc[acc.length - 1]
+
             if (!last || last.label !== label)
                 acc.push({ label, items: [item] })
             else last.items.push(item)
+
             return acc
         }, [])
     }, [data])
 
     return (
         <section className="w-full">
+            {/* errors */}
             {error && (
-                <div className="border-error/30 bg-error/10 text-error mb-4 rounded-2xl border p-4 text-sm">
-                    Couldn't load data.{" "}
-                    <button onClick={() => refetch()} className="underline">
-                        Retry
-                    </button>
-                    {isFetching && <span className="ml-1 opacity-70">…</span>}
-                </div>
+                <ViewErrors clearErrors={refetch} errors={[`${error}`]} />
             )}
 
+            {/* loading skeleton */}
             {isLoading && (
                 <div className="flex flex-col gap-3">
-                    {Array.from({ length: skeletonCount }).map((_, i) => (
-                        <SkeletonRow key={i} />
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <Card key={i}>
+                            <div className="animate-pulse space-y-2">
+                                <div className="bg-text/10 h-4 w-1/2 rounded" />
+                                <div className="bg-text/10 h-3 w-1/3 rounded" />
+                                <div className="bg-text/10 h-3 w-40 rounded" />
+                            </div>
+                        </Card>
                     ))}
                 </div>
             )}
 
+            {/* empty schedule */}
             {!isLoading && groups.length === 0 && !error && (
                 <Card
                     aria-live="polite"
                     aria-label="No upcoming meetings"
-                    className="border-text/40 text-text/50 flex h-24 w-full items-center justify-center border-2 border-dashed opacity-50 md:mt-8"
+                    className="border-text/40 text-text/50 flex h-24 w-full flex-col items-center justify-center border-2 border-dashed opacity-50 md:mt-8"
                 >
                     <p className="text-center text-sm tracking-wide">
-                        {emptyText}
+                        Your schedule is empty.
                     </p>
+
+                    <Button
+                        color="LINK"
+                        className="!m-0 !p-0 !text-sm"
+                        onClick={() => nav("/browse")}
+                    >
+                        Browse
+                    </Button>
                 </Card>
             )}
 
+            {/* content */}
             {!isLoading && groups.length > 0 && (
-                <div className="bg-background/30 flex min-w-[240px] flex-col gap-6 rounded-xl pt-1">
+                <div className="bg-background/30 flex min-w-[240px] flex-col gap-6 rounded-xl">
                     {groups.map((group) => (
+                        // individual burrows
                         <section key={group.label}>
                             <h3 className="text-text/60 mb-2 text-sm font-semibold tracking-wide uppercase">
                                 {group.label}
                             </h3>
+
                             <ul className="flex flex-col gap-3">
                                 {group.items.map((it) => (
                                     <Card
@@ -121,6 +109,7 @@ export default function MeetingsSection({
                                         onClick={() => onClick(it.burrow.id)}
                                     >
                                         <div className="flex flex-col gap-1">
+                                            {/* burrow title */}
                                             <div className="flex items-center justify-between">
                                                 <h4 className="text-text truncate text-base font-semibold">
                                                     {it.burrow.title}
@@ -132,6 +121,7 @@ export default function MeetingsSection({
                                                 )}
                                             </div>
 
+                                            {/* date of burrow */}
                                             <time
                                                 className="text-text/80 text-sm"
                                                 aria-label="Time range"

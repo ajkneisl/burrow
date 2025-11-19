@@ -6,26 +6,7 @@ import {
     Heading
 } from "react-aria-components"
 import clsx from "clsx"
-
-// A simple chevron icon for the disclosure
-function ChevronDownIcon(props) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="m6 9 6 6 6-6" />
-        </svg>
-    )
-}
+import { ChevronDown } from "lucide-react"
 
 // An array to hold the FAQ content
 const faqItems = [
@@ -135,7 +116,7 @@ export default function About() {
                                outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                                     >
                                         {item.question}
-                                        <ChevronDownIcon
+                                        <ChevronDown
                                             className={`h-5 w-5 transition-transform duration-200 ease-in-out ${
                                                 isExpanded ? "rotate-180" : ""
                                             }`}

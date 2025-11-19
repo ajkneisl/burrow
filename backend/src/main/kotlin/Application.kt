@@ -3,16 +3,16 @@ package app.burrow
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
 import app.burrow.account.models.getUserByUsername
+import app.burrow.account.models.userID
+import app.burrow.account.settings.SETTINGS_ROUTES
 import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.burrows.BURROW_ROUTES
-import app.burrow.burrows.createStudyBurrow
 import app.burrow.burrows.getBurrow
 import app.burrow.burrows.getMeetingResponse
-import app.burrow.burrows.models.BurrowType
-import app.burrow.burrows.models.BurrowVisibility
-import app.burrow.burrows.models.SubmittedBurrow
 import app.burrow.burrows.sync.Sync
 import app.burrow.notifications.NOTIFICATION_ROUTES
+import app.burrow.notifications.NotificationKind
+import app.burrow.notifications.createNotification
 import app.burrow.notifications.notificationWorker
 import app.burrow.report.REPORT_ROUTES
 import dev.hayden.KHealth
@@ -40,24 +40,16 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.ktor.server.websocket.*
-import io.ktor.util.date.getTimeMillis
 import java.io.File
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 
-/** General, reusable HTTPClient */
 val client = HttpClient(CIO)
-
 val json = Json { ignoreUnknownKeys = true }
-
-/** Burrow logger! */
 val burrowLogger = LoggerFactory.getLogger("Burrow")
 
 const val PRIMARY_AUTH = "primary"
@@ -66,28 +58,38 @@ const val ADMIN_AUTH = "administrator"
 lateinit var FRONTEND_DIR: String
 
 fun main(args: Array<String>) {
+    var port = 8080
+
     // debug stuff
     args.forEach { arg ->
         when {
+            // generate a token for a given user ID
             arg.startsWith("--gen-token=") -> {
-                val userId = arg.removePrefix("--gen-token=")
+                val userID = arg.removePrefix("--gen-token=")
 
-                burrowLogger.info("Generated Token: {}", Authorization.generateToken(userId))
+                burrowLogger.info("Generated Token: {}", Authorization.generateToken(userID))
             }
 
+            // change frontend folder
             arg.startsWith("--use-frontend=") -> {
                 FRONTEND_DIR = arg.removePrefix("--use-frontend=")
 
                 burrowLogger.info("Using frontend: {}", FRONTEND_DIR)
             }
+
+            // override port
+            arg.startsWith("--use-port=") -> {
+                port = arg.removePrefix("--use-port=").toInt()
+            }
         }
     }
 
+    // if not custom just use "frontend" folder
     if (!::FRONTEND_DIR.isInitialized) {
         FRONTEND_DIR = "frontend"
     }
 
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
+    embeddedServer(Netty, port = port, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
 }
 
@@ -95,7 +97,10 @@ suspend fun Application.module() {
     initDb()
     notificationWorker()
 
+    // sse
     install(SSE)
+
+    // websockets
     install(WebSockets) {
         pingPeriod = 15.seconds
         timeout = 15.seconds
@@ -104,6 +109,7 @@ suspend fun Application.module() {
         contentConverter = KotlinxWebsocketSerializationConverter(Json)
     }
 
+    // call logging
     install(CallLogging) {
         level = Level.INFO
         logger = burrowLogger
@@ -117,7 +123,11 @@ suspend fun Application.module() {
         }
     }
 
+    // auto head
     install(AutoHeadResponse)
+
+    // status page
+    // handles errors
     install(StatusPages) {
         exception<CancellationException> { _, _ -> }
 
@@ -153,6 +163,7 @@ suspend fun Application.module() {
         }
     }
 
+    // CORS
     install(CORS) {
         allowMethod(HttpMethod.Options)
         allowMethod(HttpMethod.Put)
@@ -168,8 +179,6 @@ suspend fun Application.module() {
         allowHeader(HttpHeaders.Accept)
         allowHeader(HttpHeaders.LastEventID)
 
-        anyHost()
-
         allowCredentials = true
         allowNonSimpleContentTypes = true
         allowSameOrigin = true
@@ -180,9 +189,14 @@ suspend fun Application.module() {
         allowHost("umn.app", schemes = listOf("http", "https"))
     }
 
+    // default headers
     install(DefaultHeaders) { header("X-Engine", "Burrow") }
-    install(KHealth)
+
+    // json serialization
     install(ContentNegotiation) { json(json) }
+
+    // health routes
+    install(KHealth)
 
     authentication {
         // PRIMARY
@@ -216,105 +230,144 @@ suspend fun Application.module() {
             }
         }
     }
-    try {
-        routing {
-            route("/admin") { singlePageApplication { react("admin") } }
 
-            route("/api") {
-                route("/admin", ADMIN_ROUTES)
+    routing {
+        route("/api") {
+            // ROUTE /api/admin
+            // all admin functionality
+            route("/admin", ADMIN_ROUTES)
 
-                route("/notifications", NOTIFICATION_ROUTES)
-                route("/burrows/{id}", Sync.SYNC_ROUTES)
-                route("/user", USER_ROUTES)
+            // ROUTE /api/notifications
+            // manage notifications
+            route("/notifications", NOTIFICATION_ROUTES)
 
-                // GET /groups/{id}
-                // retrieve an individual meeting
-                authenticate(PRIMARY_AUTH, optional = true) {
-                    get("/burrows/{id}") {
-                        val userId = call.principal<JWTPrincipal>()?.subject
-                        val id =
-                            call.parameters["id"]
-                                ?: return@get call.respond(HttpStatusCode.BadRequest)
+            // ROUTE /api/settings
+            // manage user settings
+            route("/settings", SETTINGS_ROUTES)
 
-                        val meeting =
-                            getMeetingResponse(id, userId)
-                                ?: return@get call.respond(HttpStatusCode.NotFound)
+            // ROUTE /burrows/{id}
+            // webhook sync
+            route("/burrows/{id}", Sync.SYNC_ROUTES)
 
-                        call.respond(meeting)
+            // ROUTE /api/user
+            // manage users / login
+            route("/user", USER_ROUTES)
+
+            // GET /groups/{id}
+            // retrieve an individual meeting
+            authenticate(PRIMARY_AUTH, optional = true) {
+                get("/burrows/{id}") {
+                    val userId = call.principal<JWTPrincipal>()?.subject
+                    val id =
+                        call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+
+                    val meeting =
+                        getMeetingResponse(id, userId)
+                            ?: return@get call.respond(HttpStatusCode.NotFound)
+
+                    call.respond(meeting)
+                }
+            }
+
+            authenticate(PRIMARY_AUTH) {
+                // ROUTE /debug
+                // debug functionality
+                route("/debug") {
+                    // GET /debug/notification
+                    // send a debug notification
+                    get("/notification") {
+                        createNotification(
+                            "Debug Notification",
+                            "This is a debug notification",
+                            call.userID,
+                            null,
+                            NotificationKind.NEWSLETTER,
+                        )
+
+                        call.respond(HttpStatusCode.OK)
                     }
                 }
 
-                authenticate(PRIMARY_AUTH) {
-                    route("/burrows", BURROW_ROUTES)
-                    route("/report", REPORT_ROUTES)
-                }
+                // ROUTE /api/burrows
+                // manage burrows
+                route("/burrows", BURROW_ROUTES)
 
-                // GET *
-                // 404
-                get("{...}") { throw NotFound("That page could not be found.") }
+                // ROUTE /api/report
+                // manage reports
+                route("/report", REPORT_ROUTES)
             }
 
-            val baseHtml =
-                runCatching { File("${FRONTEND_DIR}/index.html").readText() }.getOrNull()
-                    ?: "hello!"
-
-            val defaultMeta =
-                MetaTags(
-                    title = "Burrow — Study Together @ UMN",
-                    description =
-                        "Host and discover your next study group. Learn better with Burrow.",
-                    image = "/image/burrow.png",
-                )
-
-            staticFiles("/assets", File("$FRONTEND_DIR/assets"))
-            staticFiles("/image", File("$FRONTEND_DIR/image"))
-
-            // GET /*
-            // retrieve the frontend and inject SEO information
-            get("{...}") {
-                val path = call.request.uri
-
-                // retrieve the meta depending on the URI
-                val metaTags =
-                    when {
-                        // when they're requesting a meeting page
-                        path.startsWith("/meeting/") || path.length == 9 -> {
-                            val burrowID =
-                                if (path.length == 9) path.removePrefix("/")
-                                else path.removePrefix("/meeting/")
-
-                            val burrow = getBurrow(burrowID)
-
-                            defaultMeta.copy(
-                                title = burrow?.title ?: defaultMeta.title,
-                                description = burrow?.description ?: defaultMeta.description,
-                                url = "https://umn.app$path",
-                            )
-                        }
-
-                        // when they're requesting a user page
-                        path.startsWith("/user/") -> {
-                            val user =
-                                path.removePrefix("/user/").split("/").firstOrNull()?.let {
-                                    getUserByUsername(it)
-                                }
-
-                            defaultMeta.copy(
-                                title = "${user?.username} on Burrow",
-                                description = "View ${user?.username}'s profile on Burrow",
-                                url = "https://umn.app$path",
-                            )
-                        }
-
-                        else -> defaultMeta.copy(url = "https://umn.app$path")
-                    }
-
-                val htmlWithMeta = injectMetaTags(baseHtml, metaTags)
-                call.respondText(htmlWithMeta, ContentType.Text.Html)
-            }
+            // GET *
+            // 404
+            get("{...}") { throw NotFound("That page could not be found.") }
         }
-    } catch (t: Throwable) {
-        burrowLogger.error("Unhandled in ${coroutineContext[CoroutineName]?.name}", t)
-        throw t
+
+        // ROUTE /admin
+        // all administrator frontend page
+        route("/admin") { singlePageApplication { react("admin") } }
+
+        val baseHtml =
+            runCatching { File("${FRONTEND_DIR}/index.html").readText() }.getOrNull() ?: "hello!"
+
+        val defaultMeta =
+            MetaTags(
+                title = "Burrow — Study Together @ UMN",
+                description = "Host and discover your next study group. Learn better with Burrow.",
+                image = "/image/burrow.png",
+            )
+
+        // GET /assets/*
+        // frontend assets
+        staticFiles("/assets", File("$FRONTEND_DIR/assets"))
+
+        // GET /image/*
+        // frontend images
+        staticFiles("/image", File("$FRONTEND_DIR/image"))
+
+        // GET /*
+        // retrieve the frontend and inject SEO information
+        get("{...}") {
+            val path = call.request.uri
+
+            // retrieve the meta depending on the URI
+            val metaTags =
+                when {
+                    // when they're requesting a meeting page
+                    path.startsWith("/meeting/") || path.length == 9 -> {
+                        val burrowID =
+                            if (path.length == 9) path.removePrefix("/")
+                            else path.removePrefix("/meeting/")
+
+                        val burrow = burrowID.runCatching { getBurrow(this) }.getOrNull()
+
+                        if (burrow == null) defaultMeta.copy(url = "https://umn.app$path")
+                        else
+                            defaultMeta.copy(
+                                title = "Burrow — ${burrow.title}",
+                                description = "View ${burrow.title} on Burrow.",
+                                url = "https://umn.app$path",
+                            )
+                    }
+
+                    // when they're requesting a user page
+                    path.startsWith("/user/") -> {
+                        val username = path.removePrefix("/user/").split("/").firstOrNull()
+                        val user = username?.runCatching { getUserByUsername(this) }?.getOrNull()
+
+                        if (user == null) defaultMeta.copy(url = "https://umn.app$path")
+                        else
+                            defaultMeta.copy(
+                                title = "Burrow — ${user.username}",
+                                description = "View ${user.username}'s profile on Burrow",
+                                url = "https://umn.app$path",
+                            )
+                    }
+
+                    else -> defaultMeta.copy(url = "https://umn.app$path")
+                }
+
+            val htmlWithMeta = injectMetaTags(baseHtml, metaTags)
+            call.respondText(htmlWithMeta, ContentType.Text.Html)
+        }
     }
 }

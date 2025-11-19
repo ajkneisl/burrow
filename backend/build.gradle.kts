@@ -13,7 +13,7 @@ plugins {
 
 group = "app.burrow"
 
-version = "0.2.0"
+version = "0.3.0"
 
 application { mainClass = "app.burrow.ApplicationKt" }
 
@@ -56,6 +56,16 @@ dependencies {
     implementation("dev.samstevens.totp:totp:1.7.1")
 
     implementation("io.minio:minio:8.6.0")
+
+    // Google OAuth verification
+    implementation("com.google.api-client:google-api-client:2.7.0")
+
+    // AWS SES for email notifications
+    implementation(platform("software.amazon.awssdk:bom:2.29.29"))
+    implementation("software.amazon.awssdk:ses")
+
+    // Web Push for browser notifications
+    implementation("nl.martijndwars:web-push:5.1.1")
 
     testImplementation("io.kotest:kotest-runner-junit5:6.0.4")
     testImplementation("io.kotest:kotest-assertions-core:6.0.4")

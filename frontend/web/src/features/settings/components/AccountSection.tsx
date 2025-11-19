@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react"
 import { getUser, updateUsername } from "@features/auth/user.api.ts"
 import { useAtom } from "jotai"
-import { settingsSaveLoading } from "@features/sync/settings/settings.atom.ts"
+import { settingsSaveLoading } from "@features/settings/settings.atom.ts"
 import toast from "react-hot-toast"
 import { Card, Input } from "@umnburrow/core"
 import { useQuery } from "@tanstack/react-query"
 
 /**
  * Settings involving a user's account.
+ *
+ * @author AJ Kneisl
  */
-export default function AccountSettings() {
+export default function AccountSection() {
     const { data } = useQuery({
         queryKey: ["user"],
         queryFn: async () => await getUser()
@@ -19,43 +21,33 @@ export default function AccountSettings() {
     const [errors, setErrors] = useState<string[]>([])
     const [, setLoading] = useAtom(settingsSaveLoading)
 
-    // Load user data when available
     useEffect(() => {
         if (data?.user?.username) {
             setName(data.user.username)
         }
     }, [data?.user?.username])
 
-    // Submit form
     async function onSubmit() {
         if (!data?.user) return
 
-        const nextErrors: string[] = []
         setErrors([])
 
-        // Validate name
         if (name.trim().length === 0) {
-            nextErrors.push("Name cannot be empty.")
+            setErrors(["Name cannot be empty."])
+            return
         }
 
-        // Update username if changed
-        if (nextErrors.length === 0 && name !== data.user.username) {
+        if (errors.length === 0 && name !== data.user.username) {
             try {
                 setLoading(true)
                 await updateUsername(name)
+
                 toast.success("Successfully saved preferences")
             } catch (error) {
-                const message =
-                    error instanceof Error
-                        ? error.message
-                        : "Failed to save settings."
-                nextErrors.push(message)
-                setErrors(nextErrors)
+                setErrors([`${error}`])
             } finally {
                 setLoading(false)
             }
-        } else if (nextErrors.length > 0) {
-            setErrors(nextErrors)
         }
     }
 

@@ -48,44 +48,6 @@ function findClass(value: number, max: number): string {
 }
 
 /**
- * Generate unique legend steps for the heatmap.
- * Returns an array of { label, value } objects without duplicates.
- */
-function generateLegendSteps(
-    max: number
-): Array<{ label: string; value: number }> {
-    if (max === 0) {
-        return [{ label: "0 Burrows", value: 0 }]
-    }
-
-    if (max === 1) {
-        return [
-            { label: "0 Burrows", value: 0 },
-            { label: "1 Burrow", value: 1 }
-        ]
-    }
-
-    const q1 = Math.max(1, Math.ceil(max * 0.25))
-    const q2 = Math.max(2, Math.ceil(max * 0.5))
-    const q3 = Math.max(3, Math.ceil(max * 0.75))
-
-    // Collect all unique values in order
-    const values = Array.from(new Set([0, q1, q2, q3, max])).sort(
-        (a, b) => a - b
-    )
-
-    return values.map((val) => ({
-        label:
-            val === 0
-                ? "0 Burrows"
-                : val === max
-                  ? `${val} Burrow${val === 1 ? "" : "s"}`
-                  : `${val} Burrow${val === 1 ? "" : "s"}`,
-        value: val
-    }))
-}
-
-/**
  * Parse a yyyy-mm into numbers.
  *
  * @param key The yyyy-mm string.
@@ -126,7 +88,7 @@ function monthLabel(date: Date): { monthName: string; year: number } {
  * @constructor
  */
 export default function MeetingHeatmap({
-    range = 0,
+    range = 1,
     onSelectDate
 }: {
     range?: number
@@ -223,8 +185,8 @@ export default function MeetingHeatmap({
     }, [data, monthKeys])
 
     return (
-        <Card>
-            <div className="flex flex-row justify-evenly gap-6 md:flex-col">
+        <Card className="flex flex-col gap-6">
+            <div className="flex flex-row justify-evenly gap-6 lg:flex-col">
                 {months.map((m) => (
                     <div
                         key={m.key}
@@ -332,36 +294,53 @@ export default function MeetingHeatmap({
                                     ))}
                                 </div>
                             )}
-                            {/* Legend (right of heatmap) */}
-                            <div className="text-muted-foreground flex min-w-[8rem] flex-col items-start text-xs">
-                                <div className="flex flex-col gap-2">
-                                    {generateLegendSteps(m.max).map((step) => {
-                                        const cls = findClass(step.value, m.max)
-                                        return (
-                                            <div
-                                                key={step.value}
-                                                className="flex items-center gap-2"
-                                            >
-                                                <div
-                                                    className={clsx(
-                                                        "h-3 w-3 rounded-sm",
-                                                        cls
-                                                    )}
-                                                />
-                                                <span>{step.label}</span>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            </div>
                         </div>
                     </div>
                 ))}
+
                 {error && (
                     <div className="text-error text-sm">
                         Failed to load heatmap.
                     </div>
                 )}
+            </div>
+
+            {/* legend */}
+            <div className="text-text/70 flex flex-row gap-2 self-center text-xs">
+                <span>More</span>
+                <div
+                    role="button"
+                    tabIndex={0}
+                    className={clsx(
+                        "h-4 w-4 cursor-pointer rounded-sm",
+                        "focus:ring-secondary/60 bg-secondary focus:ring-2 focus:outline-none"
+                    )}
+                />
+                <div
+                    role="button"
+                    tabIndex={0}
+                    className={clsx(
+                        "h-4 w-4 cursor-pointer rounded-sm",
+                        "focus:ring-secondary/60 bg-secondary/60 focus:ring-2 focus:outline-none"
+                    )}
+                />
+                <div
+                    role="button"
+                    tabIndex={0}
+                    className={clsx(
+                        "h-4 w-4 cursor-pointer rounded-sm",
+                        "focus:ring-secondary/60 bg-secondary/40 focus:ring-2 focus:outline-none"
+                    )}
+                />
+                <div
+                    role="button"
+                    tabIndex={0}
+                    className={clsx(
+                        "h-4 w-4 cursor-pointer rounded-sm",
+                        "focus:ring-secondary/60 bg-secondary/20 focus:ring-2 focus:outline-none"
+                    )}
+                />
+                <span>Less</span>
             </div>
         </Card>
     )

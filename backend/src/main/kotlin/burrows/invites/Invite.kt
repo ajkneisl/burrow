@@ -1,6 +1,7 @@
 package app.burrow.burrows.invites
 
 import app.burrow.Error
+import app.burrow.NotFound
 import app.burrow.account.Users
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
@@ -9,6 +10,9 @@ import app.burrow.burrows.membership.Memberships
 import app.burrow.burrows.models.BurrowMemberStatus
 import app.burrow.burrows.models.BurrowRole
 import app.burrow.burrows.models.Burrows
+import app.burrow.models.PaginatedResponse
+import app.burrow.notifications.createNotification
+import app.burrow.notifications.NotificationKind
 import app.burrow.notifications.onUserJoinedMeeting
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
@@ -18,6 +22,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.alias
+import kotlin.math.ceil
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.innerJoin
@@ -149,9 +154,9 @@ suspend fun createInvite(
         if (existingInvite != null) {
             when (existingInvite[Invites.status]) {
                 InviteStatus.PENDING ->
-                    throw Error(400, "This user already has a pending invite to this burrow.")
+                    throw Error(400, "This user already has a pending invite to this Burrow.")
                 InviteStatus.ACCEPTED ->
-                    throw Error(400, "This user already accepted an invite to this burrow.")
+                    throw Error(400, "This user already accepted an invite to this Burrow.")
                 InviteStatus.DECLINED,
                 InviteStatus.EXPIRED -> {
                     // Check if this specific inviter already invited them
@@ -168,6 +173,16 @@ suspend fun createInvite(
                             it[Invites.expiresAt] =
                                 expiresAt ?: (getTimeMillis() + DEFAULT_INVITE_EXPIRATION_MS)
                         }
+
+                        // Create notification for the invitee
+                        createNotification(
+                            title = "Burrow Invite",
+                            content = "You've been invited to join ${burrow.title}",
+                            userID = inviteeId,
+                            burrowID = burrowId,
+                            kind = NotificationKind.INVITE_RECEIVED
+                        )
+
                         return@query
                     }
                     // If it was a different inviter, allow creating a new invite (will be a
@@ -189,6 +204,15 @@ suspend fun createInvite(
             it[Invites.expiresAt] = expiration
         }
     }
+
+    // Create notification for the invitee
+    createNotification(
+        title = "Burrow Invite",
+        content = "You've been invited to join ${burrow.title}",
+        userID = inviteeId,
+        burrowID = burrowId,
+        kind = NotificationKind.INVITE_RECEIVED
+    )
 }
 
 /**
@@ -197,13 +221,15 @@ suspend fun createInvite(
  * @param burrowId The ID of the burrow.
  * @return List of invites with user information.
  */
-suspend fun getInvitesForBurrow(burrowId: String): List<InviteWithUsers> = query {
+private const val INVITES_PAGE_SIZE = 5
+
+suspend fun getInvitesForBurrow(burrowId: String, page: Int = 1): PaginatedResponse<InviteWithUsers> = query {
     val inviterAlias = Users.alias("inviter")
     val inviteeAlias = Users.alias("invitee")
     val inviterProfileAlias = Profiles.alias("inviter_profile")
     val inviteeProfileAlias = Profiles.alias("invitee_profile")
 
-    Invites.innerJoin(inviterAlias, { Invites.inviterID }, { inviterAlias[Users.id] })
+    val query = Invites.innerJoin(inviterAlias, { Invites.inviterID }, { inviterAlias[Users.id] })
         .innerJoin(inviteeAlias, { Invites.inviteeID }, { inviteeAlias[Users.id] })
         .innerJoin(
             inviterProfileAlias,
@@ -217,6 +243,12 @@ suspend fun getInvitesForBurrow(burrowId: String): List<InviteWithUsers> = query
         )
         .selectAll()
         .where { (Invites.burrowID eq burrowId) and (Invites.status eq InviteStatus.PENDING) }
+
+    val itemCount = query.count()
+
+    val invites = query
+        .limit(INVITES_PAGE_SIZE)
+        .offset(INVITES_PAGE_SIZE * (page - 1L))
         .toList()
         .map { row ->
             InviteWithUsers(
@@ -227,6 +259,13 @@ suspend fun getInvitesForBurrow(burrowId: String): List<InviteWithUsers> = query
                 inviteeProfile = Profile.fromRow(row, inviteeProfileAlias),
             )
         }
+
+    PaginatedResponse(
+        page,
+        ceil(itemCount / INVITES_PAGE_SIZE.toDouble()).toInt(),
+        itemCount,
+        invites,
+    )
 }
 
 /**
@@ -372,11 +411,10 @@ suspend fun hasPendingInvite(inviteeId: String, burrowId: String): Boolean = que
  * @throws Error If the invite doesn't exist, is not pending, or the burrow doesn't exist.
  */
 suspend fun acceptInvite(inviteeId: String, burrowId: String, inviterId: String? = null) {
-    val burrow = getBurrow(burrowId) ?: throw Error(404, "Burrow does not exist.")
+    val burrow = getBurrow(burrowId) ?: throw NotFound("That Burrow could not be found.")
 
-    // Check if burrow has ended
     if (getTimeMillis() > burrow.endTime) {
-        throw Error(400, "This burrow has already ended.")
+        throw Error(400, "This Burrow has already ended.")
     }
 
     query {

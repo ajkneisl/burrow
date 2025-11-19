@@ -2,7 +2,6 @@ package app.burrow.notifications
 
 import app.burrow.account.settings.Settings
 import app.burrow.burrows.membership.Memberships
-import app.burrow.burrows.membership.getAttendees
 import app.burrow.burrows.models.BurrowMemberStatus
 import app.burrow.burrows.models.Burrows
 import app.burrow.notifications.delivery.deliver
@@ -63,9 +62,13 @@ fun notificationWorker() {
     }
 }
 
-/** Find all notifications that should be sent and send them. */
+/**
+ * Find all notifications that should be sent and send them.
+ *
+ * @param nowMs The current time in milliseconds
+ * @return Flow of notifications ready to be sent
+ */
 suspend fun pollNotifications(nowMs: Long): Flow<Notification> {
-    return emptyFlow()
     val items: List<Notification> = query {
         val notifReq =
             """
@@ -81,7 +84,7 @@ suspend fun pollNotifications(nowMs: Long): Flow<Notification> {
             SET sent_date = $nowMs
             FROM claimed c
             WHERE n.notifications_id = c.notifications_id
-            RETURNING n.notifications_id, n.user_id, n.title, n.content, n.scheduled_date, n.sent_date, n.read, n.meeting_id
+            RETURNING n.notifications_id, n.user_id, n.title, n.content, n.scheduled_date, n.sent_date, n.read, n.meeting_id, n.kind
         """
                 .trimIndent()
 
@@ -89,9 +92,9 @@ suspend fun pollNotifications(nowMs: Long): Flow<Notification> {
             exec(notifReq) { rs ->
                 Notification(
                     id = rs.get("notifications_id") as UUID,
-                    userId = rs.get("user_id") as String,
-                    meetingId = rs.get("meeting_id") as String,
-                    kind = NotificationKind.valueOf(rs.get("kind") as String),
+                    userID = rs.get("user_id") as String,
+                    burrowID = rs.get("meeting_id") as? String,
+                    kind = (rs.get("kind") as? String)?.let { NotificationKind.valueOf(it) },
                     title = rs.get("title") as String,
                     content = rs.get("content") as String,
                     sentDate = rs.get("sent_date") as Long,
@@ -107,28 +110,45 @@ suspend fun pollNotifications(nowMs: Long): Flow<Notification> {
 }
 
 /** The default preferences. This only has SSE delivery. */
-private const val DEFAULT_NOTIFICATION_DELIVERY: Short = 0b0000_0001
+const val DEFAULT_NOTIFICATION_DELIVERY: Short = 0b0000_0001
 
 /** The default lead for a notification. 30 minutes. */
-private const val DEFAULT_NOTIFICATION_LEAD: Short = 30
+const val DEFAULT_NOTIFICATION_LEAD: Short = 30
+
+/**
+ * Get the delivery channels for a user and notification kind.
+ *
+ * @param userID The user ID.
+ * @param kind The notification kind (can be null for general notifications).
+ * @return Bitmask of enabled delivery channels.
+ */
+suspend fun getDeliveryChannels(userID: String, kind: NotificationKind?): Short {
+    if (kind == null) {
+        return DEFAULT_NOTIFICATION_DELIVERY
+    }
+
+    val (_, _, deliveryChannels) = getNotificationPreferences(userID, kind)
+
+    return deliveryChannels
+}
 
 /**
  * Get a user's notification preferences on a given notification kind.
  *
- * @param userId The ID of the user.
+ * @param userID The ID of the user.
  * @param kind The notification kind.
  * @return Triple (if it's enabled, the amount of time to delay the notification for, the delivery
  *   channels)
  * @see NotificationKind
  */
-private suspend fun getNotificationPreferences(
-    userId: String,
+suspend fun getNotificationPreferences(
+    userID: String,
     kind: NotificationKind,
 ): Triple<Boolean, Short, Short> = query {
     // global preferences
     val globalEnabled =
         Settings.select(Settings.notificationsEnabled)
-            .where { Settings.userId eq userId }
+            .where { Settings.userID eq userID }
             .limit(1)
             .firstOrNull()
             ?.get(Settings.notificationsEnabled) ?: true
@@ -137,7 +157,7 @@ private suspend fun getNotificationPreferences(
     val kindPreferences =
         NotificationPreferences.selectAll()
             .where {
-                (NotificationPreferences.userId eq userId) and
+                (NotificationPreferences.userID eq userID) and
                     (NotificationPreferences.kind eq kind)
             }
             .limit(1)
@@ -149,7 +169,7 @@ private suspend fun getNotificationPreferences(
     val deliveryChannels: Short =
         (kindPreferences?.get(NotificationPreferences.deliveryChannels)
             ?: Settings.select(Settings.defaultNotificationDelivery)
-                .where { Settings.userId eq userId }
+                .where { Settings.userID eq userID }
                 .limit(1)
                 .firstOrNull()
                 ?.get(Settings.defaultNotificationDelivery)
@@ -197,14 +217,14 @@ private suspend fun upsertUpcomingForUser(
     // when this notification should be sent
     val scheduleDate = (meetingRow[Burrows.beginningTime] - leadMin * 60_000L)
 
-    LOGGER.debug("Scheduling notification for $userId for $meetingId at $scheduleDate")
+    LOGGER.debug("Scheduling notification for {} for {} at {}", userId, meetingId, scheduleDate)
 
     // if this is going to be scheduled in the past or the notification type is disabled.
-    if (!enabled || scheduleDate <= nowMs) {
+    if (!enabled || scheduleDate < nowMs) {
         // remove any pending unsent UPCOMING_MEETING notifications for this user/meeting
         Notifications.deleteWhere {
-            (Notifications.userId eq userId) and
-                (Notifications.meetingId eq meetingId) and
+            (Notifications.userID eq userId) and
+                (Notifications.burrowID eq meetingId) and
                 (Notifications.kind eq NotificationKind.UPCOMING_MEETING) and
                 (Notifications.sentDate.isNull())
         }
@@ -213,10 +233,10 @@ private suspend fun upsertUpcomingForUser(
     }
 
     // update or insert
-    Notifications.upsert(Notifications.userId, Notifications.meetingId, Notifications.kind) {
+    Notifications.upsert(Notifications.userID, Notifications.burrowID, Notifications.kind) {
         it[id] = UUID.randomUUID()
-        it[Notifications.userId] = userId
-        it[Notifications.meetingId] = meetingId
+        it[Notifications.userID] = userId
+        it[Notifications.burrowID] = meetingId
         it[kind] = NotificationKind.UPCOMING_MEETING
         it[Notifications.title] = title
         it[Notifications.content] = content
@@ -250,15 +270,7 @@ private suspend fun attendeeIds(meetingId: String): List<String> = query {
  */
 suspend fun rescheduleNotificationsForMeeting(meetingId: String, nowMs: Long = getTimeMillis()) {
     LOGGER.debug("Scheduling notifications for $meetingId")
-
-    val meetingRow =
-        query { Burrows.selectAll().where { Burrows.id eq meetingId }.firstOrNull() } ?: return
-
-    val attendees = getAttendees(meetingId)
-
-    println(attendees)
-
-    attendees.forEach { userId -> upsertUpcomingForUser(meetingRow, userId.user.id, nowMs) }
+    // TODO
 }
 
 /**
@@ -285,8 +297,8 @@ suspend fun onUserJoinedMeeting(userId: String, meetingId: String, nowMs: Long =
 suspend fun onUserLeaveMeeting(userId: String, meetingId: String) {
     query {
         Notifications.deleteWhere {
-            (Notifications.userId eq userId) and
-                (Notifications.meetingId eq meetingId) and
+            (Notifications.userID eq userId) and
+                (Notifications.burrowID eq meetingId) and
                 (Notifications.kind eq NotificationKind.UPCOMING_MEETING) and
                 (Notifications.sentDate.isNull())
         }

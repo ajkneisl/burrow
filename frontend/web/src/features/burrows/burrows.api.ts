@@ -6,7 +6,7 @@ import type {
     BurrowRole
 } from "./burrows.types.ts"
 import type { PaginatedResponse } from "@api/api.types.ts"
-import { get, post } from "@api/api.ts"
+import { get, patch, post } from "@api/api.ts"
 
 /**
  * Get a {@link BurrowResponse} by its ID.
@@ -21,21 +21,13 @@ export async function getMeeting(id: string): Promise<BurrowResponse> {
 /**
  * Get list of {@link BurrowResponse}.
  *
- * @param auth The authorization token.
  * @param type The type of meetings to get.
  * @return The meeting response, including membership and meeting information.
  */
-export async function getMeetings(
-    auth: string,
+export async function getBurrows(
     type: BurrowType | null
 ): Promise<PaginatedResponse<BurrowResponse>> {
-    const request = await fetch(`${BASE_URL}/burrows?type=${type}`, {
-        headers: {
-            Authorization: `Bearer ${auth}`
-        }
-    })
-
-    return await request.json()
+    return get(`/burrows`, { query: { type: `${type}` } })
 }
 
 /**
@@ -116,20 +108,16 @@ export async function deleteBookmark(auth: string, id: string) {
 /**
  * Get the attendees of a group.
  *
- * @param auth The authorization token.
  * @param meetingId The ID of the meeting to view attendees for.
+ * @param page The page number (defaults to 1).
  */
 export async function getAttendees(
-    auth: string,
-    meetingId: string
-): Promise<BurrowMembershipResponse[]> {
-    const request = await fetch(`${BASE_URL}/burrows/${meetingId}/attendees`, {
-        headers: {
-            Authorization: `Bearer ${auth}`
-        }
+    meetingId: string,
+    page: number = 1
+): Promise<PaginatedResponse<BurrowMembershipResponse>> {
+    return await get(`/burrows/${meetingId}/attendees`, {
+        query: { page }
     })
-
-    return await request.json()
 }
 
 /**
@@ -162,27 +150,18 @@ export async function searchMeetings(
 /**
  * Change the role of a user.
  *
- * @param auth The authorization token.
- * @param meetingId The meeting to adjust the role in.
- * @param userId The user to adjust the role of.
+ * @param burrowID The meeting to adjust the role in.
+ * @param userID The user to adjust the role of.
  * @param role The new role for the user.
  */
 export async function changeRole(
-    auth: string,
-    meetingId: string,
-    userId: string,
+    burrowID: string,
+    userID: string,
     role: BurrowRole
 ) {
-    await fetch(`${BASE_URL}/burrows/${meetingId}/role`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${auth}`
-        },
-        body: JSON.stringify({
-            userId,
-            role
-        })
+    return await patch(`/burrows/${burrowID}/role`, {
+        userID,
+        role
     })
 }
 
@@ -213,47 +192,21 @@ export async function changeStatus(
 /**
  * Toggle the ban status on a member.
  *
- * @param auth The authorization token.
- * @param meetingId The ID of the meeting.
- * @param userId The ID of the user to ban / unban.
+ * @param burrowID The ID of the meeting.
+ * @param userID The ID of the user to ban / unban.
  */
 export async function toggleBanMember(
-    auth: string,
-    meetingId: string,
-    userId: string
+    burrowID: string,
+    userID: string
 ): Promise<void> {
-    const res = await fetch(`${BASE_URL}/burrows/${meetingId}/status`, {
-        method: "PATCH",
-        headers: {
-            Authorization: `Bearer ${auth}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            userId
-        })
-    })
-
-    if (!res.ok) {
-        const message = await res.text().catch(() => "Failed to ban member")
-        throw new Error(message || "Failed to ban member")
-    }
+    return await patch(`/burrows/${burrowID}/status`, { userID })
 }
 
 /**
  * Get the schedule.
- *
- * @param auth The authorization token.
  */
-export async function getSchedule(auth: string): Promise<BurrowResponse[]> {
-    const request = await fetch(`${BASE_URL}/burrows/schedule`, {
-        headers: {
-            Authorization: `Bearer ${auth}`
-        }
-    })
-
-    if (!request.ok) return Promise.reject("Failed to load schedule.")
-
-    return await request.json()
+export async function getSchedule(): Promise<BurrowResponse[]> {
+    return await get(`/burrows/schedule`)
 }
 
 /**

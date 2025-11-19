@@ -9,17 +9,19 @@
 export type ChatMessage = {
     date: number
     message: string
-    messageId: string
-    userId: string
+    messageID: string
+    userID: string
 }
 
 /**
  * A member of the chat.
  *
  * @param userId The ID of the user.
+ * @param username The username of the user.
  * @param name The name of the user.
  */
 export type ChatMember = {
-    userId: string
+    userID: string
+    username: string
     name: string
 }

@@ -3,16 +3,22 @@ import type {
     InviteWithUsers,
     JoinRequestWithUser
 } from "@features/burrows/burrows.types.ts"
+import type { PaginatedResponse } from "@api/api.types.ts"
 
 /**
  * Get all pending join requests for a burrow.
  *
  * @param burrowId The ID of the burrow.
+ * @param page The page number (defaults to 1).
  */
 export async function getJoinRequests(
-    burrowId: string
-): Promise<JoinRequestWithUser[]> {
-    return get<JoinRequestWithUser[]>(`/burrows/${burrowId}/requests`)
+    burrowId: string,
+    page: number = 1
+): Promise<PaginatedResponse<JoinRequestWithUser>> {
+    return get<PaginatedResponse<JoinRequestWithUser>>(
+        `/burrows/${burrowId}/requests`,
+        { query: { page } }
+    )
 }
 
 /**
@@ -45,11 +51,16 @@ export async function denyJoinRequest(
  * Get all pending invites for a burrow.
  *
  * @param burrowId The ID of the burrow.
+ * @param page The page number (defaults to 1).
  */
 export async function getInvites(
-    burrowId: string
-): Promise<InviteWithUsers[]> {
-    return get<InviteWithUsers[]>(`/burrows/${burrowId}/invites`)
+    burrowId: string,
+    page: number = 1
+): Promise<PaginatedResponse<InviteWithUsers>> {
+    return get<PaginatedResponse<InviteWithUsers>>(
+        `/burrows/${burrowId}/invites`,
+        { query: { page } }
+    )
 }
 
 /**
@@ -96,19 +107,19 @@ export async function getReceivedInvites(
 /**
  * Accept an invite to a burrow.
  *
- * @param burrowId The ID of the burrow.
+ * @param burrowID The ID of the burrow.
  */
-export async function acceptInvite(burrowId: string): Promise<void> {
-    return post(`/burrows/invites/${burrowId}/accept`)
+export async function acceptInvite(burrowID: string): Promise<void> {
+    return post(`/burrows/invites/${burrowID}/accept`)
 }
 
 /**
  * Decline an invite to a burrow.
  *
- * @param burrowId The ID of the burrow.
+ * @param burrowID The ID of the burrow.
  */
-export async function declineInvite(burrowId: string): Promise<void> {
-    return post(`/burrows/invites/${burrowId}/decline`)
+export async function declineInvite(burrowID: string): Promise<void> {
+    return post(`/burrows/invites/${burrowID}/decline`)
 }
 
 /**

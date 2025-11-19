@@ -1,12 +1,13 @@
 package app.burrow.burrows.membership
 
-import app.burrow.account.models.userID
+import app.burrow.Error
 import app.burrow.InvalidAuthorization
 import app.burrow.NotFound
-import app.burrow.Error
+import app.burrow.account.models.userID
+import app.burrow.burrows.getBurrow
 import app.burrow.burrows.models.BurrowMemberStatus
 import app.burrow.burrows.models.BurrowRole
-import app.burrow.burrows.getBurrow
+import app.burrow.optionalIntQueryParameter
 import app.burrow.urlParameter
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
@@ -20,22 +21,17 @@ import kotlinx.serialization.Serializable
 /** Routes relating to a user's membership. */
 fun Route.membershipRoutes() {
     // GET /groups/{id}/attendees
-    // get all attendees for this group
+    // get all attendees for this burrow
     get("/attendees") {
-        val id = call.urlParameter("id")
-        val attendees = getAttendees(id)
+        val burrowID = call.urlParameter("id")
+        val page = call.optionalIntQueryParameter("page") ?: 1
 
-        // must be in the group to see the members!
-        val inGroup =
-            attendees.any { (membership) ->
-                membership.userID == call.userID && membership.status == BurrowMemberStatus.JOINED
-            }
+        val requesterMembership = getMembership(call.userID, burrowID)
 
-        if (!inGroup) {
-            return@get call.respond(HttpStatusCode.Forbidden)
-        }
+        if (requesterMembership == null || requesterMembership.status != BurrowMemberStatus.JOINED)
+            throw InvalidAuthorization()
 
-        call.respond(getAttendees(id))
+        call.respond(getAttendees(burrowID, page))
     }
 
     // POST /groups/{id}/join
@@ -61,10 +57,10 @@ fun Route.membershipRoutes() {
     /**
      * Payload for updating a user's role.
      *
-     * @param userId The user to update the role for.
+     * @param userID The user to update the role for.
      * @param role The updated role.
      */
-    @Serializable data class UpdateRolePayload(val userId: String, val role: BurrowRole)
+    @Serializable data class UpdateRolePayload(val userID: String, val role: BurrowRole)
 
     // PATCH /groups/{id}/role
     // adjust the role of a user
@@ -77,7 +73,7 @@ fun Route.membershipRoutes() {
 
         val payload = call.receive<UpdateRolePayload>()
 
-        changeRole(id, payload.userId, payload.role)
+        changeRole(id, payload.userID, payload.role)
 
         call.respond(HttpStatusCode.OK)
     }
@@ -85,9 +81,9 @@ fun Route.membershipRoutes() {
     /**
      * Payload for updating a user's status.
      *
-     * @param userId The user to update the status for.
+     * @param userID The user to update the status for.
      */
-    @Serializable data class UpdateStatusPayload(val userId: String)
+    @Serializable data class UpdateStatusPayload(val userID: String)
 
     // PATCH /groups/{id}/status
     // ban or unban a user
@@ -100,13 +96,12 @@ fun Route.membershipRoutes() {
             throw InvalidAuthorization()
 
         val membership =
-            getMembership(payload.userId, id)
-                ?: throw Error(400, "User is not in the meeting.")
+            getMembership(payload.userID, id) ?: throw Error(400, "User is not in the meeting.")
 
         if (membership.status == BurrowMemberStatus.BANNED) {
-            unBanUser(payload.userId, id)
+            unBanUser(payload.userID, id)
         } else {
-            banUser(call.userID, payload.userId, id)
+            banUser(call.userID, payload.userID, id)
         }
 
         call.respond(HttpStatusCode.OK)

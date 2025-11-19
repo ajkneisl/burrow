@@ -69,7 +69,7 @@ export default function ReportProblemModal() {
                 userAgent: context.userAgent
             })
 
-            toast.success(`Submitted report. ReportView ID: ${id}`)
+            toast.success(`Submitted report. Report ID: ${id}`)
 
             setOpen(false)
         } catch {
@@ -163,7 +163,7 @@ export default function ReportProblemModal() {
                         loading={loading}
                         disabled={!canSubmit}
                     >
-                        Send ReportView
+                        Send Report
                     </Button>
                 </div>
             </form>

@@ -12,17 +12,17 @@ import org.jetbrains.exposed.v1.core.ResultRow
 /**
  * A chat message.
  *
- * @param messageId The unique ID of the message.
- * @param meetingId The ID of the meeting where the message was sent.
- * @param userId The ID of the user who created the message.
+ * @param messageID The unique ID of the message.
+ * @param burrowID The ID of the Burrow where the message was sent.
+ * @param userID The ID of the user who created the message.
  * @param message The contents of the message.
  * @param date When the message was created.
  */
 @Serializable
 data class ChatMessage(
-    @Serializable(with = UUIDSerializer::class) val messageId: UUID,
-    val meetingId: String,
-    val userId: String,
+    @Serializable(with = UUIDSerializer::class) val messageID: UUID,
+    val burrowID: String,
+    val userID: String,
     val message: String,
     val date: Long,
 ) {
@@ -34,11 +34,11 @@ data class ChatMessage(
          */
         fun fromRow(row: ResultRow): ChatMessage =
             ChatMessage(
-                messageId = row[ChatMessages.messageId],
+                messageID = row[ChatMessages.messageID],
                 date = row[ChatMessages.date],
                 message = row[ChatMessages.message],
-                meetingId = row[ChatMessages.meetingId],
-                userId = row[ChatMessages.userId],
+                burrowID = row[ChatMessages.burrowID],
+                userID = row[ChatMessages.userID],
             )
 
         /** Serializes a UUID. */

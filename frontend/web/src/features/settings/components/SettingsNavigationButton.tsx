@@ -1,6 +1,6 @@
 import { useAtom } from "jotai"
 import clsx from "clsx"
-import { settingsSection } from "@features/sync/settings/settings.atom.ts"
+import { settingsSection } from "@features/settings/settings.atom.ts"
 import type { ReactNode } from "react"
 
 /**
@@ -16,6 +16,8 @@ type SettingsNavigationButtonProps = {
  *
  * @param name The name of the section.
  * @param icon An optional icon for the button.
+ *
+ * @author AJ Kneisl
  */
 export default function SettingsNavigationButton({
     name,
@@ -28,7 +30,7 @@ export default function SettingsNavigationButton({
             type="button"
             onClick={() => setSection(name)}
             className={clsx(
-                `inline-flex items-center flex-row justify-between gap-2 cursor-pointer flex-1 rounded-lg px-3 py-3 text-sm`,
+                `inline-flex flex-1 cursor-pointer flex-row items-center justify-between gap-2 rounded-lg px-3 py-3 text-xs md:text-sm`,
                 section === name ? "bg-hero" : "hover:bg-hero/60"
             )}
         >

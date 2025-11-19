@@ -4,7 +4,7 @@ import {
     getReceivedInvites,
     acceptInvite,
     declineInvite
-} from "@features/burrows/invites/invites.api.ts"
+} from "@features/burrows/attendees/attendees.api.ts"
 import { getMeeting } from "@features/burrows/burrows.api.ts"
 import type { InviteWithUsers } from "@features/burrows/burrows.types.ts"
 import { Button, Card, Modal } from "@umnburrow/core"
@@ -22,7 +22,7 @@ function ReceivedInviteItem({ invite }: { invite: InviteWithUsers }) {
 
     // get burrow details
     const { data: burrowData } = useQuery({
-        queryKey: ["meeting", invite.invite.burrowID],
+        queryKey: ["burrow", invite.invite.burrowID],
         queryFn: async () => await getMeeting(invite.invite.burrowID)
     })
 
@@ -34,7 +34,7 @@ function ReceivedInviteItem({ invite }: { invite: InviteWithUsers }) {
                 queryKey: ["receivedInvites"]
             })
             await queryClient.invalidateQueries({
-                queryKey: ["meeting", invite.invite.burrowID]
+                queryKey: ["burrow", invite.invite.burrowID]
             })
         }
     })

@@ -101,7 +101,7 @@ export default function ProfileView() {
 
     // Set meta tags for this profile
     useMetaTags({
-        title: data ? `${data.profile.name} on Burrow` : "Profile on Burrow",
+        title: data ? `Burrow — ${data.profile.name}` : "Burrow",
         description: data
             ? `View ${data.profile.name}'s profile on Burrow`
             : "View this profile on Burrow",

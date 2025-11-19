@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react"
 import type { Burrow } from "@features/burrows/burrows.types.ts"
 import { QRCodeSVG } from "qrcode.react"
-import MeetingButton from "@features/burrows/components/MeetingButton.tsx"
+import MeetingButton from "@features/burrows/controls/MeetingButton.tsx"
 import { Dropdown, DropdownItem, Modal } from "@umnburrow/core"
+import { Upload, QrCode } from "lucide-react"
 
 /**
  * {@link ShareMeeting}
@@ -66,22 +67,7 @@ export default function ShareMeeting({ meeting }: ShareMeetingProps) {
                     onClick={() => setOpen((v) => !v)}
                     ref={buttonRef}
                 >
-                    <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                        role="img"
-                    >
-                        <path d="M12 3v11" />
-                        <path d="M8.5 6.5L12 3l3.5 3.5" />
-                        <path d="M5 13v5a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-5" />
-                    </svg>
+                    <Upload width="20" height="20" />
                 </MeetingButton>
 
                 <Dropdown
@@ -97,19 +83,7 @@ export default function ShareMeeting({ meeting }: ShareMeetingProps) {
                                 setQrOpen(true)
                                 setOpen(false)
                             }}
-                            rightIcon={
-                                <svg
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="1.6"
-                                >
-                                    <path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3z" />
-                                    <path d="M17 13h4v4h-4zM15 19h2M19 21v-2" />
-                                </svg>
-                            }
+                            rightIcon={<QrCode width="18" height="18" />}
                         />
 
                         {/* native share */}
@@ -119,20 +93,7 @@ export default function ShareMeeting({ meeting }: ShareMeetingProps) {
                                 handleNativeShare()
                                 setOpen(false)
                             }}
-                            rightIcon={
-                                <svg
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="1.6"
-                                >
-                                    <path d="M12 3v11" />
-                                    <path d="M8.5 6.5L12 3l3.5 3.5" />
-                                    <path d="M5 13v5a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-5" />
-                                </svg>
-                            }
+                            rightIcon={<Upload width="18" height="18" />}
                         />
                 </Dropdown>
             </div>

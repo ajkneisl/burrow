@@ -1,0 +1,130 @@
+import type { Notification } from "@features/notifications/notifications.types.ts"
+import clsx from "clsx"
+import { formatTimeAgo } from "@api/util.ts"
+import { Button } from "@umnburrow/core"
+
+/**
+ * {@link ViewNotification}
+ */
+type ViewNotificationProps = {
+    notification: Notification
+    clearOne: (id: string) => void
+    toggleReadOne: (id: string) => void
+    onAcceptInvite?: (burrowId: string) => void
+    onDeclineInvite?: (burrowId: string) => void
+}
+
+/**
+ * View an individual notification
+ *
+ * @param notification The notification object.
+ * @param clearOne To clear the notification
+ * @param toggleReadOne To toggle the read status on a notification.
+ * @param onAcceptInvite To accept an invite notification.
+ * @param onDeclineInvite To decline an invite notification.
+ *
+ * @author AJ Kneisl
+ */
+export default function ViewNotification({
+    notification,
+    clearOne,
+    toggleReadOne,
+    onAcceptInvite,
+    onDeclineInvite
+}: ViewNotificationProps) {
+    const isInvite = notification.kind === "INVITE_RECEIVED"
+
+    return (
+        <article
+            className={clsx(
+                "border-background/80 bg-background/60 text-text group hover:border-primary/40 relative flex flex-col gap-3 rounded-2xl border p-4 transition-all select-none",
+                !notification?.read && "border-l-secondary border-l-4"
+            )}
+        >
+            <div className="flex items-start justify-between gap-3">
+                {/* header*/}
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-start gap-2">
+                        <h3 className="text-sm leading-tight font-semibold">
+                            {notification.title}
+                        </h3>
+
+                        {!notification.read && (
+                            <span className="bg-secondary mt-0.5 h-2 w-2 shrink-0 rounded-full" />
+                        )}
+                    </div>
+                    <p className="text-text/70 mt-1.5 line-clamp-2 text-sm">
+                        {notification.content}
+                    </p>
+                    <div className="text-text/50 mt-2 text-xs">
+                        {formatTimeAgo(
+                            notification.sentDate || notification.scheduledDate
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 transition-opacity">
+                {/* when it's invite, offer accept and decline */}
+                {isInvite &&
+                    notification.meetingId &&
+                    onAcceptInvite &&
+                    onDeclineInvite && (
+                        <>
+                            <Button
+                                thin
+                                color="SUCCESS"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    onAcceptInvite(notification.meetingId!)
+                                }}
+                                aria-label="Accept invite"
+                            >
+                                Accept
+                            </Button>
+
+                            <Button
+                                thin
+                                color="WARNING"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    onDeclineInvite(notification.meetingId!)
+                                }}
+                                aria-label="Decline invite"
+                            >
+                                Decline
+                            </Button>
+                        </>
+                    )}
+
+                {/* mark as read when it's not an invite */}
+                {!isInvite && !notification.read && (
+                    <Button
+                        thin
+                        color="SUCCESS"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            toggleReadOne(notification.id)
+                        }}
+                        aria-label="Mark as read"
+                    >
+                        Mark as Read
+                    </Button>
+                )}
+
+                {/* clear */}
+                <Button
+                    thin
+                    color="ERROR"
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        clearOne(notification.id)
+                    }}
+                    aria-label="Clear notification"
+                >
+                    Clear
+                </Button>
+            </div>
+        </article>
+    )
+}

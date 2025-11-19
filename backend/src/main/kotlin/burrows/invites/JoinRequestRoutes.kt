@@ -3,6 +3,7 @@ package app.burrow.burrows.invites
 import app.burrow.account.models.userID
 import app.burrow.burrows.membership.requireModerator
 import app.burrow.optionalEnumQueryParameter
+import app.burrow.optionalIntQueryParameter
 import app.burrow.urlParameter
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
@@ -23,10 +24,11 @@ fun Route.joinRequestRoutes() {
         // get all pending requests.
         get {
             val burrowID = call.urlParameter("id")
+            val page = call.optionalIntQueryParameter("page") ?: 1
 
             call.requireModerator(burrowID)
 
-            val requests = getJoinRequests(burrowID)
+            val requests = getJoinRequests(burrowID, page)
             call.respond(requests)
         }
 

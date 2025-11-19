@@ -1,13 +1,6 @@
 import { atom } from "jotai"
 
 /**
- * If the settings modal is open.
- *
- * @see SettingsModal
- */
-export const settingsModalOpen = atom(false)
-
-/**
  * If the `Save Preferences` button on the bottom of the settings modal is loading.
  *
  * @see Settings Modal

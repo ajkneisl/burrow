@@ -1,5 +1,5 @@
 import HomeView from "@pages/Home.view.tsx"
-import Meeting from "@pages/Meeting.view.tsx"
+import Burrow from "@pages/Meeting.view.tsx"
 import Browse from "@pages/Browse.view.tsx"
 import LandingView from "@pages/Landing.view.tsx"
 import Header from "@features/layout/components/Header.tsx"
@@ -14,7 +14,7 @@ import { themeAtom } from "@api/theme.atom.ts"
 import Privacy from "@pages/Privacy.view.tsx"
 import ToS from "@pages/ToS.view.tsx"
 import { Toaster } from "react-hot-toast"
-import SettingsModal from "@features/sync/settings/SettingsModal.tsx"
+import SettingsView from "@pages/Settings.view.tsx"
 import ReportProblemModal from "@features/problem/components/ReportProblemModal.tsx"
 import MyInvitesModal from "@features/layout/components/MyInvitesModal.tsx"
 import ProfileView from "@pages/Profile.view.tsx"
@@ -23,11 +23,13 @@ import {
     createBrowserRouter,
     Outlet,
     RouterProvider,
+    useLocation,
     useParams,
     useRouteError
 } from "react-router"
 import ViewRelations from "@features/profile/components/ViewRelations.tsx"
 import MetaTags from "@features/layout/components/MetaTags.tsx"
+import Yordanos from "@pages/Yordanos.view.tsx"
 
 function ErrorElement() {
     const error = useRouteError() as Error | undefined
@@ -45,7 +47,7 @@ function ErrorElement() {
 
 function MeetingReRoute() {
     const { id } = useParams()
-    if (id && id.length === 8) return <Meeting />
+    if (id && id.length === 8) return <Burrow />
     return <NotFound />
 }
 
@@ -64,6 +66,14 @@ function RootLayout() {
         mq.addEventListener("change", handler)
         return () => mq.removeEventListener("change", handler)
     }, [setDarkMode])
+
+    // go to top on page refresh
+    const location = useLocation()
+    useEffect(() => {
+        if (!location.hash) {
+            window.scrollTo(0, 0)
+        }
+    }, [location])
 
     useEffect(() => {
         const root = document.querySelector("html")
@@ -91,7 +101,7 @@ function RootLayout() {
                 }}
             />
 
-            <main className="mx-4 mb-8 max-w-screen flex-grow md:m-auto md:min-w-xl">
+            <main className="mb-8 flex-grow md:m-auto md:mx-4 md:min-w-xl">
                 <CreateBurrowModal
                     open={modalOpen}
                     onClose={() => setModalOpen(false)}
@@ -100,7 +110,6 @@ function RootLayout() {
 
                 <ViewRelations />
                 <ReportProblemModal />
-                <SettingsModal />
                 <MyInvitesModal />
 
                 {/* Child routes render here */}
@@ -120,14 +129,16 @@ const router = createBrowserRouter([
         children: [
             { index: true, element: <HomeView /> },
             { path: "about", element: <About /> },
+            { path: "yord", element: <Yordanos /> },
             { path: "welcome", element: <LandingView /> },
             { path: "study", element: <Browse type="STUDY" /> },
             { path: "user/:username", element: <ProfileView /> },
+            { path: "settings", element: <SettingsView /> },
             { path: "privacy", element: <Privacy /> },
             { path: "tos", element: <ToS /> },
-            { path: "*", element: <NotFound /> },
-            { path: "meeting/:id", element: <Meeting /> },
-            { path: ":id", element: <MeetingReRoute /> }
+            { path: "burrow/:id", element: <Burrow /> },
+            { path: ":id", element: <MeetingReRoute /> },
+            { path: "*", element: <NotFound /> }
         ]
     }
 ])

@@ -107,7 +107,7 @@ export default function Button({
             case "LINK":
                 return clsx(
                     "border-transparent bg-transparent text-text",
-                    "hover:underline",
+                    "underline hover:text-text/70",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                 )
             default:
@@ -127,11 +127,12 @@ export default function Button({
             ref={ref}
             aria-busy={loading || undefined}
             className={clsx(
-                "cursor-pointer inline-flex select-none items-center justify-center gap-1 rounded-xl px-4",
-                thin ? "py-1" : "py-2",
+                "cursor-pointer inline-flex select-none items-center justify-center gap-1",
+                color !== "LINK" && thin ? "py-1" : "py-2",
                 "text-sm transition",
                 "disabled:cursor-not-allowed disabled:opacity-60",
-                color !== "LINK" && "font-medium shadow-sm focus-visible:shadow-md",
+                color !== "LINK" &&
+                    "font-medium shadow-sm focus-visible:shadow-md rounded-xl px-4",
                 colors,
                 colorStyles,
                 className

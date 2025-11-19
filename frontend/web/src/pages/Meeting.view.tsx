@@ -1,35 +1,33 @@
 import { Link, useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
+import { Archive, Clock } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
-import { useMemo } from "react"
 import { getMeeting } from "@features/burrows/burrows.api.ts"
 import MeetingLocation from "@features/burrows/components/MeetingLocation.tsx"
-import DeleteMeeting from "@features/burrows/components/DeleteMeeting.tsx"
+import DeleteMeeting from "@features/burrows/controls/DeleteMeeting.tsx"
 import { formatDateTime } from "@api/util.ts"
 import JoinMeeting from "@features/burrows/components/JoinMeeting.tsx"
 import MeetingCapacityBadges from "@features/burrows/components/MeetingCapacityBadges.tsx"
-import EditMeeting from "@features/burrows/components/EditMeeting.tsx"
+import EditMeeting from "@features/burrows/controls/EditMeeting.tsx"
 import ChatBox from "@features/chat/components/ChatBox.tsx"
-import ViewAttendees from "@features/burrows/components/attendees/ViewAttendees.tsx"
+import ViewAttendees from "@features/burrows/attendees/components/ViewAttendees.tsx"
 import Pomodoro from "@features/sync/components/Pomodoro.tsx"
 import useSync from "@features/sync/hooks/useSync.tsx"
 import { BurrowFeatures } from "@features/sync/components/BurrowFeatures.tsx"
 import useToken from "@features/auth/hooks/useToken.ts"
 import { blockStatus } from "@features/sync/sync.atom.ts"
-import { Badge, Card, Hover } from "@umnburrow/core"
+import { Badge, Card, Hover, ViewErrors } from "@umnburrow/core"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
-import BurrowJoinRequests from "@features/burrows/invites/components/BurrowJoinRequests.tsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
-import BurrowInvites from "@features/burrows/invites/components/BurrowInvites.tsx"
-import ShareMeeting from "@features/burrows/components/ShareMeeting.tsx"
-import BookmarkMeeting from "@features/burrows/components/BookmarkMeeting.tsx"
+import ShareMeeting from "@features/burrows/controls/ShareMeeting.tsx"
+import BookmarkMeeting from "@features/burrows/controls/BookmarkMeeting.tsx"
 
 /**
  * View an individual meeting.
  * @constructor
  */
-export default function Meeting() {
+export default function Burrow() {
     const { id } = useParams<{ id: string }>()
 
     const auth = useToken()
@@ -37,71 +35,105 @@ export default function Meeting() {
 
     const [blocks] = useAtom(blockStatus)
 
-    const { data, isLoading, error } = useQuery({
-        queryKey: [`meeting`, id],
+    const { data, isLoading, error, refetch } = useQuery({
+        queryKey: ["burrow", id],
         enabled: id !== null,
         queryFn: async () => await getMeeting(id!)
     })
 
     useSync(data)
 
-    // if the user is the owner
-    const isOwner = useMemo(
-        () => auth !== "" && user !== null && user.id === data?.burrow?.ownerID,
-        [auth, data?.burrow?.ownerID, user]
-    )
-
-    const isModerator = useMemo(
-        () => isOwner || data?.membership?.role === "MODERATOR",
-        [isOwner, data?.membership?.role]
-    )
-
-    // if the user is in the meeting
-    const inMeeting = useMemo(
-        () => data?.membership?.status === "JOINED" || isOwner,
-        [data?.membership?.status, isOwner]
-    )
-
-    // if the meeting is in the past
-    const inPast = useMemo(
-        () => (data?.burrow?.endTime ?? 0) < new Date().valueOf(),
-        [data?.burrow?.endTime]
-    )
-
-    // if the user isn't logged in
-    const isLoggedOut = useMemo(() => auth === null, [auth])
+    const isOwner =
+        auth !== "" && user !== null && user.id === data?.burrow?.ownerID
+    const inMeeting = data?.membership?.status === "JOINED" || isOwner
+    const inPast = (data?.burrow?.endTime ?? 0) < new Date().valueOf()
+    const isLoggedOut = auth === null
 
     // Set meta tags for this meeting
     useMetaTags({
-        title: data?.burrow?.title,
-        description: data?.burrow.description || undefined,
+        title: `Burrow — ${data?.burrow?.title}`,
+        description: `View ${data?.burrow?.title} on Burrow`,
         url: `https://umn.app/${id}`,
         image: "https://umn.app/burrow.png"
     })
 
     if (isLoading)
         return (
-            <main className="bg-card-background/70 min-h-screen animate-pulse px-4 py-8 md:px-8">
-                <div className="space-y-4">
-                    <div className="bg-text/10 h-10 w-2/3 rounded-lg" />
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                        <div className="bg-text/10 h-64 rounded-2xl" />
-                        <div className="bg-text/10 h-64 rounded-2xl lg:col-span-2" />
+            <main className="min-h-screen">
+                <section className="relative isolate">
+                    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                            {/* Header skeleton */}
+                            <Card className="order-first col-span-1 p-6 lg:col-span-3">
+                                <div className="animate-pulse space-y-4">
+                                    <div className="bg-text/10 h-8 w-3/4 rounded-lg" />
+                                    <div className="flex items-center gap-2">
+                                        <div className="bg-text/10 h-10 w-10 rounded-full" />
+                                        <div className="bg-text/10 h-4 w-48 rounded" />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <div className="bg-text/10 h-6 w-20 rounded-full" />
+                                        <div className="bg-text/10 h-6 w-20 rounded-full" />
+                                        <div className="bg-text/10 h-6 w-20 rounded-full" />
+                                    </div>
+                                </div>
+                            </Card>
+
+                            {/* Main content skeleton */}
+                            <div className="col-span-1 space-y-6 lg:col-span-2">
+                                <Card className="p-6">
+                                    <div className="animate-pulse">
+                                        <div className="bg-text/10 mb-3 h-5 w-32 rounded" />
+                                        <div className="space-y-2">
+                                            <div className="bg-text/10 h-4 w-full rounded" />
+                                            <div className="bg-text/10 h-4 w-full rounded" />
+                                            <div className="bg-text/10 h-4 w-3/4 rounded" />
+                                        </div>
+                                    </div>
+                                </Card>
+                            </div>
+
+                            {/* Sidebar skeleton */}
+                            <div className="order-[-1] col-span-1 space-y-6 md:order-2">
+                                <Card className="p-6">
+                                    <div className="animate-pulse">
+                                        <div className="bg-text/10 mb-3 h-5 w-24 rounded" />
+                                        <div className="bg-text/10 h-4 w-full rounded" />
+                                    </div>
+                                </Card>
+                                <Card className="p-6">
+                                    <div className="animate-pulse">
+                                        <div className="bg-text/10 mb-3 h-5 w-32 rounded" />
+                                        <div className="space-y-3">
+                                            <div className="flex items-center gap-2">
+                                                <div className="bg-text/10 h-10 w-10 rounded-full" />
+                                                <div className="bg-text/10 h-4 w-32 rounded" />
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="bg-text/10 h-10 w-10 rounded-full" />
+                                                <div className="bg-text/10 h-4 w-32 rounded" />
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="bg-text/10 h-10 w-10 rounded-full" />
+                                                <div className="bg-text/10 h-4 w-32 rounded" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Card>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </section>
             </main>
         )
 
     if (error || !data || !id)
         return (
-            <main className="bg-background text-text min-h-screen px-4 py-8 md:px-8">
-                <div
-                    role="alert"
-                    className="border-error/30 bg-error/10 text-error rounded-md border p-4 text-sm"
-                >
-                    Error loading meeting.
+            <div className="mt-4 flex items-center justify-center">
+                <div>
+                    <ViewErrors errors={[`${error}`]} clearErrors={refetch} />
                 </div>
-            </main>
+            </div>
         )
 
     const { burrow, burrowAuthor } = data
@@ -128,9 +160,9 @@ export default function Meeting() {
 
             <section className="relative isolate">
                 <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {/* header */}
-                        <Card className="relative order-first col-span-1 p-6 lg:col-span-3">
+                        <Card className="relative order-first col-span-1 p-6 md:col-span-2 lg:col-span-3">
                             <div className="flex flex-col gap-4">
                                 <div className="min-w-0">
                                     {/* archive notice*/}
@@ -141,20 +173,7 @@ export default function Meeting() {
                                             }
                                         >
                                             <div className="bg-text/10 text-text/80 mt-2 inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-1 text-sm font-medium">
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    strokeWidth={1.5}
-                                                    stroke="currentColor"
-                                                    className="h-4 w-4"
-                                                >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V8.25a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 8.25v10.5M3 18.75A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75M3 18.75V8.25M21 18.75V8.25M8.25 12h7.5"
-                                                    />
-                                                </svg>
+                                                <Archive className="h-4 w-4" />
                                                 <span>
                                                     This meeting is archived
                                                 </span>
@@ -195,20 +214,7 @@ export default function Meeting() {
 
                                         {/* date */}
                                         <div className="text-text/60 flex items-center gap-1.5 text-sm">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                strokeWidth={1.5}
-                                                stroke="currentColor"
-                                                className="h-4 w-4"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                                />
-                                            </svg>
+                                            <Clock className="h-4 w-4" />
 
                                             <span>
                                                 {formatDateTime(
@@ -219,35 +225,15 @@ export default function Meeting() {
                                         </div>
                                     </div>
 
-                                    <div className="mt-4 flex flex-col items-center justify-between gap-2 md:flex-row">
-                                        <div className="flex flex-col items-center justify-center gap-2 md:flex-row">
-                                            <div className="flex flex-row gap-2">
-                                                <ShareMeeting
-                                                    meeting={data.burrow}
-                                                />
-                                                <BookmarkMeeting
-                                                    isBookmarked={
-                                                        data.bookmarked
-                                                    }
-                                                    inPast={inPast}
-                                                    meetingId={data.burrow.id}
-                                                />
-                                            </div>
+                                    <div className="mt-4 flex flex-row items-center justify-between gap-2 md:flex-row">
+                                        <div className="flex flex-row gap-2">
+                                            <ShareMeeting meeting={data.burrow} />
 
-                                            {/* tags */}
-                                            {tags.length > 0 && (
-                                                <div className="flex flex-wrap gap-2">
-                                                    {tags
-                                                        .slice(0, 6)
-                                                        .map((t) => (
-                                                            <Badge
-                                                                key={String(t)}
-                                                            >
-                                                                {String(t)}
-                                                            </Badge>
-                                                        ))}
-                                                </div>
-                                            )}
+                                            <BookmarkMeeting
+                                                isBookmarked={data.bookmarked}
+                                                inPast={inPast}
+                                                meetingId={data.burrow.id}
+                                            />
                                         </div>
 
                                         {/* user count badges */}
@@ -281,17 +267,22 @@ export default function Meeting() {
                                     {burrow.description ||
                                         "No description provided."}
                                 </p>
+
+                                {/* tags */}
+                                {tags.length > 0 && (
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {tags.slice(0, 6).map((t) => (
+                                            <Badge key={String(t)}>
+                                                {String(t)}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                )}
                             </Card>
 
                             {inMeeting && blocks.includes("CHAT") && (
                                 <ChatBox meeting={data} />
                             )}
-
-                            {/* join requests */}
-                            {isModerator && <BurrowJoinRequests />}
-
-                            {/* invites*/}
-                            {isModerator && <BurrowInvites />}
                         </div>
 
                         <div className="order-[-1] col-span-1 space-y-6 md:order-2">
@@ -299,11 +290,7 @@ export default function Meeting() {
                                 <MeetingLocation location={burrow.location} />
                             )}
 
-                            {inMeeting && (
-                                <Card title={"Attendees"}>
-                                    <ViewAttendees />
-                                </Card>
-                            )}
+                            {inMeeting && <ViewAttendees />}
 
                             {inMeeting &&
                                 blocks.includes("POMODORO") &&

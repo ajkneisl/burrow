@@ -32,7 +32,7 @@ export default function Card({title, isHoverable, control, ...props}: CardProps)
             )}
         >
             {title && (
-                <div className="flex flex-row justify-between">
+                <div className="flex flex-row justify-between items-center">
                     <div className="mb-2 flex items-center justify-between">
                         <h3 className="text-sm font-semibold">{title}</h3>
                     </div>

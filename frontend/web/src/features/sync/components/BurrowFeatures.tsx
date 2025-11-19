@@ -4,7 +4,6 @@ import { type Blocks } from "@features/sync/sync.types.ts"
 import { blockStatus } from "@features/sync/sync.atom.ts"
 import { useAtom } from "jotai"
 import { saveBlocks } from "@features/sync/blocks.api.ts"
-import useToken from "@features/auth/hooks/useToken.ts"
 import { useParams } from "react-router"
 
 /**
@@ -16,10 +15,11 @@ type MeetingFeaturesProps = {
 
 /**
  * Manage the enabled blocks in a meeting
+ *
+ * @author AJ Kneisl
  */
 export function BurrowFeatures({ inPast }: MeetingFeaturesProps) {
     const { id } = useParams()
-    const auth = useToken()
 
     const [blocks, setBlocks] = useAtom(blockStatus)
     const [open, setOpen] = useState(false)
@@ -35,7 +35,9 @@ export function BurrowFeatures({ inPast }: MeetingFeaturesProps) {
             if (checked) {
                 setBlocks((prev) => [...prev, key])
             } else {
-                setBlocks((prev) => prev.filter((blockName) => blockName !== key))
+                setBlocks((prev) =>
+                    prev.filter((blockName) => blockName !== key)
+                )
             }
         },
         [setBlocks]
@@ -43,9 +45,9 @@ export function BurrowFeatures({ inPast }: MeetingFeaturesProps) {
 
     // save state
     async function save() {
-        if (!auth || !id) return
+        if (!id) return
 
-        await saveBlocks(auth, id, blocks)
+        await saveBlocks(id, blocks)
 
         setOpen(false)
     }

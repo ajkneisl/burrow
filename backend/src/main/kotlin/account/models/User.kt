@@ -4,11 +4,11 @@ import app.burrow.Error
 import app.burrow.account.Authorization
 import app.burrow.account.Users
 import app.burrow.account.profile.Profiles
-import app.burrow.client
 import app.burrow.query
-import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
-import io.ktor.serialization.kotlinx.json.json
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
+import com.google.api.client.http.javanet.NetHttpTransport
+import com.google.api.client.json.gson.GsonFactory
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
@@ -17,14 +17,32 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
+import org.slf4j.LoggerFactory
+
+/** Logger for user operations. */
+private val LOGGER = LoggerFactory.getLogger("User")
+
+/**
+ * Google ID token verifier for validating OAuth tokens locally. This verifier automatically fetches
+ * and caches Google's public keys.
+ */
+private val googleVerifier: GoogleIdTokenVerifier? by lazy {
+    val clientId = System.getenv("GOOGLE_CLIENT_ID")
+
+    if (clientId.isNullOrBlank()) {
+        LOGGER.error("GOOGLE_CLIENT_ID environment variable is not set.")
+        null
+    } else {
+        GoogleIdTokenVerifier.Builder(NetHttpTransport(), GsonFactory.getDefaultInstance())
+            .setAudience(listOf(clientId))
+            .build()
+    }
+}
 
 /**
  * A Burrow user.
@@ -61,77 +79,91 @@ data class User(
 }
 
 /**
- * Using a Google JWT token, verify that they have te proper domain then either create an account or
- * create a login token.
+ * Using a Google JWT token, verify that they have the proper domain then either create an account
+ * or create a login token.
  *
- * @param token Authorized Google JWT
+ * @param token Authorized Google JWT ID token
+ * @return AuthorizedUser if validation succeeds, null otherwise
  */
 suspend fun retrieveUser(token: String): AuthorizedUser? {
-    // TODO verify locally
-    val resp = client.get("https://oauth2.googleapis.com/tokeninfo?id_token=${token}").bodyAsText()
+    return try {
+        val idToken: GoogleIdToken? = googleVerifier?.verify(token)
 
-    val json = Json.parseToJsonElement(resp).jsonObject
-    val hd = json["hd"]
-
-    if (hd == null || hd.jsonPrimitive.content != "umn.edu") {
-        // not apart of UMN, no no
-        return null
-    }
-
-    val googleID = json["sub"]?.jsonPrimitive?.content
-    val name = json["name"]?.jsonPrimitive?.content
-    val email = json["email"]?.jsonPrimitive?.content
-
-    if (googleID == null || name == null || email == null) {
-        return null
-    }
-
-    val user = query { Users.selectAll().where { Users.id eq googleID }.singleOrNull() }
-
-    // user does not exist
-    if (user == null) {
-        val createdDate = getTimeMillis()
-
-        query {
-            Users.insert {
-                it[Users.username] = email.removeSuffix("@umn.edu")
-                it[Users.email] = email
-                it[Users.phoneNumber] = ""
-                it[Users.createdDate] = createdDate
-                it[Users.id] = googleID
-            }
+        if (idToken == null) {
+            LOGGER.warn("Invalid Google ID token received")
+            return null
         }
 
-        query {
-            Profiles.insert {
-                it[Profiles.userID] = googleID
-                it[Profiles.name] = name
-            }
+        val payload: GoogleIdToken.Payload = idToken.payload
+
+        // Verify the hosted domain (hd) is umn.edu
+        val hostedDomain = payload.hostedDomain
+        if (hostedDomain != "umn.edu") {
+            LOGGER.warn("Invalid hosted domain: {}", hostedDomain ?: "null")
+            return null
         }
 
-        return AuthorizedUser(
-            User(
-                id = googleID,
-                username = name,
-                email = email,
-                phoneNumber = "",
-                createdDate = createdDate,
-            ),
-            true,
-            Authorization.generateToken(googleID),
-        )
-    } else {
-        return AuthorizedUser(
-            User(
-                id = googleID,
-                username = user[Users.username],
-                email = user[Users.email],
-                phoneNumber = user[Users.phoneNumber],
-                createdDate = user[Users.createdDate],
-            ),
-            false,
-            Authorization.generateToken(googleID),
-        )
+        val googleID = payload.subject
+        val email = payload.email
+        val name = payload["name"] as? String
+
+        if (googleID == null || email == null || name == null) {
+            LOGGER.warn("Missing required fields in token payload")
+            return null
+        }
+
+        val user = query { Users.selectAll().where { Users.id eq googleID }.singleOrNull() }
+
+        // User does not exist - create new account
+        if (user == null) {
+            val createdDate = getTimeMillis()
+            val username = email.removeSuffix("@umn.edu")
+
+            query {
+                Users.insert {
+                    it[Users.username] = username
+                    it[Users.email] = email
+                    it[Users.phoneNumber] = ""
+                    it[Users.createdDate] = createdDate
+                    it[Users.id] = googleID
+                }
+
+                Profiles.insert {
+                    it[Profiles.userID] = googleID
+                    it[Profiles.name] = name
+                }
+            }
+
+            LOGGER.info("Created new user account for {}", email)
+
+            AuthorizedUser(
+                User(
+                    id = googleID,
+                    username = username,
+                    email = email,
+                    phoneNumber = "",
+                    createdDate = createdDate,
+                ),
+                true,
+                Authorization.generateToken(googleID),
+            )
+        } else {
+            // Existing user - return their info
+            AuthorizedUser(
+                User(
+                    id = googleID,
+                    username = user[Users.username],
+                    email = user[Users.email],
+                    phoneNumber = user[Users.phoneNumber],
+                    createdDate = user[Users.createdDate],
+                ),
+                false,
+                Authorization.generateToken(googleID),
+            )
+        }
+    } catch (e: Exception) {
+        LOGGER.error("Error validating Google ID token", e)
+        null
     }
 }
 

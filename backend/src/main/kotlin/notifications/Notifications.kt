@@ -5,49 +5,40 @@ import app.burrow.burrows.models.Burrows
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 
-/** A user's notification */
+/** Table of [Notification] */
 object Notifications : Table("notifications") {
-    /** A unique ID for the notification. */
+    /** [Notification.id] */
     val id = uuid("notifications_id").uniqueIndex()
 
-    /** The recipient of the notification. */
-    val userId = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
+    /** [Notification.userID] */
+    val userID = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
 
-    /** The ID of the meeting associated with */
-    val meetingId =
+    /** [Notification.burrowID] */
+    val burrowID =
         reference("meeting_id", Burrows.id, onDelete = ReferenceOption.CASCADE)
             .nullable()
             .default(null)
 
-    /**
-     * The type of notification.
-     *
-     * By default, this is `null`, which is just a general notification.
-     */
+    /** [Notification.kind] */
     val kind = enumeration<NotificationKind>("kind").nullable()
 
-    /** The title of the notification */
+    /** [Notification.title] */
     val title = varchar("title", 128)
 
-    /** The content of the notification. */
+    /** [Notification.content] */
     val content = text("content")
 
-    /** If the notification has been read. */
+    /** [Notification.read] */
     val read = bool("read")
 
-    /** The date when the notification was sent to the user. */
+    /** [Notification.sentDate] */
     val sentDate = long("sent_date").nullable().default(null)
 
-    /** When the notification has been scheduled to be sent. */
+    /** [Notification.scheduledDate] */
     val scheduledDate = long("scheduled_date")
 
-    val userMeetingKindUnique = uniqueIndex(
-        "notifications_user_meeting_kind_unique",
-        userId,
-        meetingId,
-        kind
-    )
-
+    val userMeetingKindUnique =
+        uniqueIndex("notifications_user_meeting_kind_unique", userID, burrowID, kind)
 
     override val primaryKey = PrimaryKey(id)
 }
