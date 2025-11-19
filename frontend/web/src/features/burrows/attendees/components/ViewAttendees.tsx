@@ -213,6 +213,7 @@ export default function ViewAttendees() {
                             </Card>
                         )}
                     </ul>
+
                     {joinRequests.totalPages > 1 && (
                         <div className="mt-4 flex items-center justify-between">
                             <Button

@@ -71,7 +71,7 @@ export default function InviteUser({ burrowID, onInvite }: InviteUserProps) {
                 onClick={() => setIsInviting(true)}
                 aria-live="polite"
                 aria-label="No upcoming meetings"
-                className="invite-border-dashed border-text/40 text-text/50 hover:border-text/60 hover:bg-background/60 mt-4 flex h-8 w-full cursor-pointer items-center justify-center border-2 opacity-50 transition-all hover:opacity-75 md:min-w-xs"
+                className="invite-border-dashed border-text/40 text-text/50 hover:border-text/60 hover:bg-background/60 mt-4 flex h-8 w-full cursor-pointer items-center justify-center border-2 opacity-50 transition-all hover:opacity-75"
             >
                 <p className="text-center text-sm tracking-wide">Invite</p>
             </Card>
