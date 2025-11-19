@@ -148,7 +148,7 @@ suspend fun getNotificationPreferences(
     // global preferences
     val globalEnabled =
         Settings.select(Settings.notificationsEnabled)
-            .where { Settings.userId eq userID }
+            .where { Settings.userID eq userID }
             .limit(1)
             .firstOrNull()
             ?.get(Settings.notificationsEnabled) ?: true
@@ -169,7 +169,7 @@ suspend fun getNotificationPreferences(
     val deliveryChannels: Short =
         (kindPreferences?.get(NotificationPreferences.deliveryChannels)
             ?: Settings.select(Settings.defaultNotificationDelivery)
-                .where { Settings.userId eq userID }
+                .where { Settings.userID eq userID }
                 .limit(1)
                 .firstOrNull()
                 ?.get(Settings.defaultNotificationDelivery)

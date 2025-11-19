@@ -8,10 +8,11 @@ import type {
 import { GroupMeetingCard } from "@features/burrows/components/GroupMeetingCard.tsx"
 import { searchMeetings } from "@features/burrows/burrows.api.ts"
 import MeetingHeatmap from "@features/burrows/components/MeetingHeatmap.tsx"
-import { Input, useDateRangePicker } from "@umnburrow/core"
+import { Input, useDateRangePicker, ViewErrors } from "@umnburrow/core"
 import clsx from "clsx"
 import { humanDateLabel, weekRangeLabel } from "@api/util.ts"
 import Paginator from "@components/Paginator.tsx"
+import { Loader2, ChevronRight } from "lucide-react"
 
 /**
  * {@link Browse}
@@ -24,6 +25,8 @@ type AllMeetingsProps = {
  * Search through all meetings.
  *
  * @param type The type of meetings.
+ *
+ * @author AJ Kneisl
  */
 export default function Browse({ type }: AllMeetingsProps) {
     const [query, setQuery] = useState("")
@@ -49,12 +52,12 @@ export default function Browse({ type }: AllMeetingsProps) {
         return d.getTime()
     }, [startDate])
 
-    // Reset to page 1 when filters change
+    // go back to the first page when the search changes
     useEffect(() => {
         setCurrentPage(1)
     }, [query, startDate, endDate, type])
 
-    const { data, isLoading, isFetching, error } = useQuery({
+    const { data, isLoading, isFetching, error, refetch } = useQuery({
         queryKey: ["meetings", type, query, currentPage, startDate, endDate],
         queryFn: async () =>
             await searchMeetings(
@@ -113,7 +116,6 @@ export default function Browse({ type }: AllMeetingsProps) {
             return aMs - bMs
         })
 
-        // Get today at midnight for comparison
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         const todayMs = today.getTime()
@@ -125,13 +127,12 @@ export default function Browse({ type }: AllMeetingsProps) {
                 return { key, list, week: weekRangeLabel(firstTime) }
             })
             .filter(({ key }) => {
-                // Only show dates from today onwards
                 const dateMs = new Date(key).getTime()
                 return dateMs >= todayMs
             })
     }, [filtered])
 
-    // Initialize: expand only the current week (which includes Today)
+    // expand the current week
     useEffect(() => {
         if (groupedByDate.length === 0) return
         const currentWeekLabel = weekRangeLabel(Date.now())
@@ -141,9 +142,7 @@ export default function Browse({ type }: AllMeetingsProps) {
     if (error)
         return (
             <main className="mx-auto w-full max-w-4xl p-4 sm:p-6">
-                <div className="border-error/30 bg-error/10 text-error rounded-2xl border p-4">
-                    Failed to load meetings.
-                </div>
+                <ViewErrors errors={[`${error}`]} clearErrors={refetch} />
             </main>
         )
 
@@ -179,25 +178,7 @@ export default function Browse({ type }: AllMeetingsProps) {
                 {!isLoading && isFetching ? (
                     <div className="mb-4 text-right">
                         <span className="border-info/30 bg-info/10 text-info inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium">
-                            <svg
-                                className="h-3 w-3 animate-spin"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                            >
-                                <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                />
-                                <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                />
-                            </svg>
+                            <Loader2 className="h-3 w-3 animate-spin" />
                             Updating…
                         </span>
                     </div>
@@ -238,22 +219,14 @@ export default function Browse({ type }: AllMeetingsProps) {
                                                     className="group text-text/60 hover:text-text mb-6 flex w-full cursor-pointer items-center gap-3 text-xs font-semibold tracking-wider uppercase transition-colors"
                                                     aria-expanded={isExpanded}
                                                 >
-                                                    <svg
+                                                    <ChevronRight
                                                         className={clsx(
                                                             "h-4 w-4 transition-transform duration-200",
                                                             isExpanded
                                                                 ? "rotate-90"
                                                                 : "rotate-0"
                                                         )}
-                                                        viewBox="0 0 20 20"
-                                                        fill="currentColor"
-                                                    >
-                                                        <path
-                                                            fillRule="evenodd"
-                                                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                                            clipRule="evenodd"
-                                                        />
-                                                    </svg>
+                                                    />
                                                     <span>{week}</span>
                                                     <span className="bg-text/20 h-px flex-1" />
                                                 </button>
@@ -333,7 +306,7 @@ export default function Browse({ type }: AllMeetingsProps) {
                 )}
             </section>
 
-            <aside className="col-span-1 mt-5">
+            <aside className="col-span-1 mt-5 lg:max-w-sm">
                 <MeetingHeatmap />
             </aside>
         </main>

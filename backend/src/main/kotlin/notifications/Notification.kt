@@ -125,13 +125,13 @@ suspend fun deleteAllNotifications(userId: String) = query {
  *
  * @param title The title of the notification.
  * @param content The content of the notification.
- * @param userId The ID of the user to receive the notification.
+ * @param userID The ID of the user to receive the notification.
  */
 suspend fun createNotification(
     title: String,
     content: String,
-    userId: String,
-    meetingId: String? = null,
+    userID: String,
+    burrowID: String? = null,
     kind: NotificationKind? = null,
 ) {
     val uuid = UUID.randomUUID()
@@ -140,8 +140,8 @@ suspend fun createNotification(
     val obj =
         Notification(
             id = uuid,
-            userID = userId,
-            burrowID = meetingId,
+            userID = userID,
+            burrowID = burrowID,
             kind = kind,
             title = title,
             content = content,
@@ -153,8 +153,8 @@ suspend fun createNotification(
     query {
         Notifications.insert {
             it[Notifications.id] = uuid
-            it[Notifications.userID] = userId
-            it[Notifications.burrowID] = meetingId
+            it[Notifications.userID] = userID
+            it[Notifications.burrowID] = burrowID
             it[Notifications.kind] = obj.kind
             it[Notifications.title] = title
             it[Notifications.content] = content

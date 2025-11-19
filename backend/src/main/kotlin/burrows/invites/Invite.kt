@@ -178,8 +178,8 @@ suspend fun createInvite(
                         createNotification(
                             title = "Burrow Invite",
                             content = "You've been invited to join ${burrow.title}",
-                            userId = inviteeId,
-                            meetingId = burrowId,
+                            userID = inviteeId,
+                            burrowID = burrowId,
                             kind = NotificationKind.INVITE_RECEIVED
                         )
 
@@ -209,8 +209,8 @@ suspend fun createInvite(
     createNotification(
         title = "Burrow Invite",
         content = "You've been invited to join ${burrow.title}",
-        userId = inviteeId,
-        meetingId = burrowId,
+        userID = inviteeId,
+        burrowID = burrowId,
         kind = NotificationKind.INVITE_RECEIVED
     )
 }

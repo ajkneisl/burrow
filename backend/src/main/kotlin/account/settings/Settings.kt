@@ -1,14 +1,13 @@
 package app.burrow.account.settings
 
 import app.burrow.account.Users
-import kotlin.experimental.and
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 
 /** A user's settings. */
 object Settings : Table("user_settings") {
     /** The user's ID. */
-    val userId = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
+    val userID = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
 
     /**
      * The user's theme.

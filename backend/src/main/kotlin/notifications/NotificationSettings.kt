@@ -24,6 +24,8 @@ enum class NotificationKind {
     NEW_MEETING,
     MEETING_MESSAGE,
     INVITE_RECEIVED,
+    NEWSLETTER,
+    RECOMMENDED,
 }
 
 /** Per-notification-type overrides for a user. */
@@ -234,7 +236,7 @@ suspend fun getEffectiveNotificationSettings(
         // Get global notification setting
         val globalEnabled =
             Settings.select(Settings.notificationsEnabled)
-                .where { Settings.userId eq userID }
+                .where { Settings.userID eq userID }
                 .limit(1)
                 .firstOrNull()
                 ?.get(Settings.notificationsEnabled) ?: true
@@ -242,7 +244,7 @@ suspend fun getEffectiveNotificationSettings(
         // Get user's default delivery channels
         val defaultDelivery =
             Settings.select(Settings.defaultNotificationDelivery)
-                .where { Settings.userId eq userID }
+                .where { Settings.userID eq userID }
                 .limit(1)
                 .firstOrNull()
                 ?.get(Settings.defaultNotificationDelivery) ?: DEFAULT_NOTIFICATION_DELIVERY

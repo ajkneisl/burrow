@@ -34,7 +34,7 @@ export default function HeaderButton({ icon, ...props }: HeaderButtonProps) {
             disabled={auth === null}
             className={clsx(
                 "border-white/15 bg-white/5 text-white hover:bg-white/10",
-                "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-secondary focus-visible:ring-offset-transparent",
+                "focus-visible:ring-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
                 "inline-flex h-10 w-10 items-center justify-center rounded-full border",
                 auth === null ? "cursor-not-allowed" : "cursor-pointer",
                 props.className
@@ -52,10 +52,7 @@ export default function HeaderButton({ icon, ...props }: HeaderButtonProps) {
                 setPressed(false)
             }}
         >
-            <motion.span
-                className="h-5 w-5"
-                animate={{ scale: pressed ? 0.92 : 1 }}
-            >
+            <motion.span animate={{ scale: pressed ? 0.92 : 1 }}>
                 {icon}
             </motion.span>
 

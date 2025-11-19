@@ -3,19 +3,24 @@ import { useMemo } from "react"
 
 /**
  * Small intro to Burrow for new users.
+ *
+ * @author AJ Kneisl
  */
 export default function NewUserIntro() {
     const user = useUser()
 
-    const firstName = useMemo(() => user?.username?.split(" ")[0], [user?.username])
+    const firstName = useMemo(
+        () => user?.username?.split(" ")[0],
+        [user?.username]
+    )
 
     return (
-        <section className="bg-card rounded-2xl shadow p-6 col-span-4 text-text/80 max-w-content max-w-4xl">
-            <h1 className="text-2xl font-bold mb-4 text-text">
+        <section className="bg-card text-text/80 max-w-content col-span-4 max-w-4xl rounded-2xl p-6 shadow">
+            <h1 className="text-text mb-4 text-2xl font-bold">
                 Welcome to Burrow, {firstName}!
             </h1>
 
-            <p className="mb-4">
+            <p className="mb-4 text-sm">
                 Burrow helps students find study groups and connect with other
                 students to enhance their learning experience, based on shared
                 interests, classes, or anything in-between.
@@ -30,7 +35,7 @@ export default function NewUserIntro() {
                 details, and see how many people join your Burrow.
             </p>
 
-            <p className="mb-4 text-xs">
+            <p className="text-text/40 mb-4 text-xs">
                 Your name was imported from Google. If you'd like to change it,
                 please press the top right menu button and Settings.
             </p>

@@ -1,79 +1,74 @@
 import { useEffect, useMemo } from "react"
 import { useNavigate, useSearchParams } from "react-router"
 import useToken from "@features/auth/hooks/useToken.ts"
-import PreviewGroupMeetings from "@features/burrows/components/PreviewGroupMeetings.tsx"
+import PreviewBurrows from "@features/burrows/components/PreviewBurrows.tsx"
 import { useAtom } from "jotai"
 import { newUser } from "@features/auth/auth.atom.ts"
 import NewUserIntro from "@features/auth/components/NewUserIntro.tsx"
-import MeetingsSection from "@features/burrows/components/MeetingsSection.tsx"
-import { getSchedule } from "@features/burrows/burrows.api.ts"
+import Schedule from "@features/burrows/components/Schedule.tsx"
 import MyProfile from "@features/profile/components/MyProfile.tsx"
-import {PushNotificationToggle} from "@features/notifications/components/PushNotificationToggle.tsx";
 
 /**
- * The homepage `/`.
+ * The homepage of Burrow.
  *
- * @constructor
+ * @author AJ Kneisl
  */
 export default function HomeView() {
     const nav = useNavigate()
     const [params] = useSearchParams()
-
     const auth = useToken()
+
     const [isNewUser] = useAtom(newUser)
 
+    // if the new user display should be shown
     const showNewUser = useMemo(
         () => isNewUser || params.has("new"),
         [isNewUser, params]
     )
 
     useEffect(() => {
-        // if the location is 9 or 17 then they're viewing a meeting
-        // for example `/abcdefg` or `/meeting/abcdefg`
+        // if the location is 9 or 17 then they're viewing a Burrow
+        // for example `/abcdefg` or `/burrow/abcdefg`
         if (
-            auth === null &&
+            (auth === null || auth === "") &&
             window.location.pathname.length !== 9 &&
-            window.location.hostname.length !== 17
+            window.location.hostname.length !== 15
         ) {
             nav("/welcome")
         }
     }, [auth, nav])
 
-    if (!auth || auth === "") {
-        return <p></p>
-    }
-
     return (
-        <div className="mx-auto flex w-full grid-cols-4 flex-col gap-6 px-4 py-6 md:grid md:px-6">
-            {/* show intro only if it's a new user*/}
-            {showNewUser && <NewUserIntro />}
+        <>
+            {showNewUser && (
+                <div className="my-4 flex w-full items-center justify-center">
+                    <NewUserIntro />
+                </div>
+            )}
 
-            <PushNotificationToggle />
+            <div className="mx-auto flex w-full grid-cols-3 flex-col gap-6 px-4 py-6 md:grid md:px-6 lg:grid-cols-4">
+                {/* profile */}
+                <aside className="md:col-span-2 md:row-start-1 lg:col-span-1 lg:row-start-1">
+                    <MyProfile />
+                </aside>
 
-            {/* left side profile */}
-            <aside className="col-span-1">
-                <MyProfile />
-            </aside>
+                {/* small border displayed on mobile */}
+                <div className="border-text/10 block border-t md:hidden" />
 
-            {/* middle schedule */}
-            <section className="col-span-2">
-                <MeetingsSection
-                    queryKey={["schedule"]}
-                    queryFn={() => getSchedule(auth)}
-                    emptyText="You have no upcoming Burrows."
-                />
-            </section>
+                {/* schedule */}
+                <section className="md:col-span-2 md:row-start-2 lg:col-span-2 lg:row-start-1">
+                    <Schedule />
+                </section>
 
-            <div className="border-text/10 block border-t md:hidden" />
-
-            {/* right side upcoming study burrows*/}
-            <aside className="col-span-1">
-                <PreviewGroupMeetings
-                    fullPage={"/study"}
-                    kind={"STUDY"}
-                    amount={5}
-                />
-            </aside>
-        </div>
+                {/* upcoming burrows */}
+                <aside className="md:col-span-1 md:row-span-3 md:row-start-1 lg:col-span-1 lg:row-span-1 lg:row-start-1">
+                    <PreviewBurrows
+                        fullPage={"/study"}
+                        kind={"STUDY"}
+                        amount={5}
+                    />
+                </aside>
+            </div>
+        </>
     )
 }

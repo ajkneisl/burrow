@@ -1,8 +1,8 @@
 import { Link, useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
+import { Archive, Clock } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
-import { useMemo } from "react"
 import { getMeeting } from "@features/burrows/burrows.api.ts"
 import MeetingLocation from "@features/burrows/components/MeetingLocation.tsx"
 import DeleteMeeting from "@features/burrows/controls/DeleteMeeting.tsx"
@@ -17,7 +17,7 @@ import useSync from "@features/sync/hooks/useSync.tsx"
 import { BurrowFeatures } from "@features/sync/components/BurrowFeatures.tsx"
 import useToken from "@features/auth/hooks/useToken.ts"
 import { blockStatus } from "@features/sync/sync.atom.ts"
-import { Badge, Card, Hover } from "@umnburrow/core"
+import { Badge, Card, Hover, ViewErrors } from "@umnburrow/core"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import ShareMeeting from "@features/burrows/controls/ShareMeeting.tsx"
@@ -27,7 +27,7 @@ import BookmarkMeeting from "@features/burrows/controls/BookmarkMeeting.tsx"
  * View an individual meeting.
  * @constructor
  */
-export default function Meeting() {
+export default function Burrow() {
     const { id } = useParams<{ id: string }>()
 
     const auth = useToken()
@@ -35,8 +35,8 @@ export default function Meeting() {
 
     const [blocks] = useAtom(blockStatus)
 
-    const { data, isLoading, error } = useQuery({
-        queryKey: [`meeting`, id],
+    const { data, isLoading, error, refetch } = useQuery({
+        queryKey: ["burrow", id],
         enabled: id !== null,
         queryFn: async () => await getMeeting(id!)
     })
@@ -44,30 +44,22 @@ export default function Meeting() {
     useSync(data)
 
     // if the user is the owner
-    const isOwner = useMemo(
-        () => auth !== "" && user !== null && user.id === data?.burrow?.ownerID,
-        [auth, data?.burrow?.ownerID, user]
-    )
+    const isOwner =
+        auth !== "" && user !== null && user.id === data?.burrow?.ownerID
 
     // if the user is in the meeting
-    const inMeeting = useMemo(
-        () => data?.membership?.status === "JOINED" || isOwner,
-        [data?.membership?.status, isOwner]
-    )
+    const inMeeting = data?.membership?.status === "JOINED" || isOwner
 
     // if the meeting is in the past
-    const inPast = useMemo(
-        () => (data?.burrow?.endTime ?? 0) < new Date().valueOf(),
-        [data?.burrow?.endTime]
-    )
+    const inPast = (data?.burrow?.endTime ?? 0) < new Date().valueOf()
 
     // if the user isn't logged in
-    const isLoggedOut = useMemo(() => auth === null, [auth])
+    const isLoggedOut = auth === null
 
     // Set meta tags for this meeting
     useMetaTags({
-        title: data?.burrow?.title,
-        description: data?.burrow.description || undefined,
+        title: `Burrow — ${data?.burrow?.title}`,
+        description: `View ${data?.burrow?.title} on Burrow`,
         url: `https://umn.app/${id}`,
         image: "https://umn.app/burrow.png"
     })
@@ -144,14 +136,11 @@ export default function Meeting() {
 
     if (error || !data || !id)
         return (
-            <main className="bg-background text-text min-h-screen px-4 py-8 md:px-8">
-                <div
-                    role="alert"
-                    className="border-error/30 bg-error/10 text-error rounded-md border p-4 text-sm"
-                >
-                    Error loading meeting.
+            <div className="mt-4 flex justify-center items-center">
+                <div>
+                    <ViewErrors errors={[`${error}`]} clearErrors={refetch} />
                 </div>
-            </main>
+            </div>
         )
 
     const { burrow, burrowAuthor } = data
@@ -178,9 +167,9 @@ export default function Meeting() {
 
             <section className="relative isolate">
                 <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:grid-cols-3">
                         {/* header */}
-                        <Card className="relative order-first col-span-1 p-6 lg:col-span-3">
+                        <Card className="relative order-first col-span-1 md:col-span-2 p-6 lg:col-span-3">
                             <div className="flex flex-col gap-4">
                                 <div className="min-w-0">
                                     {/* archive notice*/}
@@ -191,20 +180,7 @@ export default function Meeting() {
                                             }
                                         >
                                             <div className="bg-text/10 text-text/80 mt-2 inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-1 text-sm font-medium">
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    strokeWidth={1.5}
-                                                    stroke="currentColor"
-                                                    className="h-4 w-4"
-                                                >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V8.25a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 8.25v10.5M3 18.75A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75M3 18.75V8.25M21 18.75V8.25M8.25 12h7.5"
-                                                    />
-                                                </svg>
+                                                <Archive className="h-4 w-4" />
                                                 <span>
                                                     This meeting is archived
                                                 </span>
@@ -245,21 +221,7 @@ export default function Meeting() {
 
                                         {/* date */}
                                         <div className="text-text/60 flex items-center gap-1.5 text-sm">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                strokeWidth={1.5}
-                                                stroke="currentColor"
-                                                className="h-4 w-4"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                                />
-                                            </svg>
-
+                                            <Clock className="h-4 w-4" />
                                             <span>
                                                 {formatDateTime(
                                                     burrow.beginningTime,

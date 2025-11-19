@@ -7,6 +7,7 @@ import clsx from "clsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useMemo } from "react"
 import MeetingCapacityBadges from "@features/burrows/components/MeetingCapacityBadges.tsx"
+import { Calendar, Check, Star, Bookmark, MapPin } from "lucide-react"
 
 /**
  * {@see GroupMeetingCard}
@@ -66,7 +67,7 @@ export function GroupMeetingCard({
 
     // navigate to the club page :)
     const onClick = () => {
-        nav(`/meeting/${burrow.id}`)
+        nav(`/burrow/${burrow.id}`)
     }
 
     return (
@@ -117,21 +118,7 @@ export function GroupMeetingCard({
                                 className="text-error ring-error/30 bg-error/10 inline-flex items-center gap-2 rounded-full px-2.5 py-1 ring-1 ring-inset"
                                 title="This meeting is archived"
                             >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    width="18"
-                                    height="18"
-                                    strokeWidth={1.5}
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V8.25a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 8.25v10.5M3 18.75A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75M3 18.75V8.25M21 18.75V8.25M8.25 12h7.5"
-                                    />
-                                </svg>
+                                <Calendar width="18" height="18" />
                                 <span className="text-xs font-medium">
                                     Past Meeting
                                 </span>
@@ -147,16 +134,7 @@ export function GroupMeetingCard({
                                 <span className="sr-only">Joined</span>
 
                                 {/* a checkmark */}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    aria-hidden="true"
-                                    width="18"
-                                    height="18"
-                                    fill="currentColor"
-                                >
-                                    <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
-                                </svg>
+                                <Check width="18" height="18" />
                             </span>
                         )}
 
@@ -169,16 +147,7 @@ export function GroupMeetingCard({
                                 <span className="sr-only">Host</span>
 
                                 {/* a star */}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    width="18"
-                                    height="18"
-                                    fill="currentColor"
-                                    aria-hidden="true"
-                                >
-                                    <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.782 1.402 8.178L12 18.896l-7.336 3.854 1.402-8.178L.132 9.21l8.2-1.192L12 .587z" />
-                                </svg>
+                                <Star width="18" height="18" fill="currentColor" />
                             </span>
                         )}
 
@@ -191,16 +160,7 @@ export function GroupMeetingCard({
                                 <span className="sr-only">Bookmarked</span>
 
                                 {/* a bookmark */}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    width="18"
-                                    height="18"
-                                    fill="currentColor"
-                                    aria-hidden="true"
-                                >
-                                    <path d="M6.32 2.75A2.25 2.25 0 0 0 4.25 5v16a.75.75 0 0 0 1.2.6l6.33-4.75 6.33 4.75a.75.75 0 0 0 1.2-.6V5A2.25 2.25 0 0 0 17.68 2.75H6.32z" />
-                                </svg>
+                                <Bookmark width="18" height="18" fill="currentColor" />
                             </span>
                         )}
 
@@ -237,16 +197,7 @@ export function GroupMeetingCard({
                         {isJoined && (
                             <p className="text-text/40 inline-flex gap-2 text-xs">
                                 Joined{" "}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    aria-hidden="true"
-                                    width="18"
-                                    height="18"
-                                    fill="currentColor"
-                                >
-                                    <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
-                                </svg>
+                                <Check width="18" height="18" />
                             </p>
                         )}
                     </div>
@@ -263,16 +214,7 @@ export function GroupMeetingCard({
                         <div className="flex items-center gap-3 text-sm">
                             <div className="bg-hero text-text/80 ring-primary/15 hidden items-center gap-1 rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset sm:flex">
                                 {/* location pin icon */}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
-                                    className="text-text/60 h-4 w-4 shrink-0"
-                                    aria-hidden="true"
-                                    focusable="false"
-                                >
-                                    <path d="M12 2.25c-3.728 0-6.75 2.99-6.75 6.68 0 4.989 6.053 11.744 6.311 12.03a.75.75 0 0 0 1.078 0c.258-.286 6.311-7.041 6.311-12.03 0-3.69-3.022-6.68-6.95-6.68Zm0 9.18a2.5 2.5 0 1 1 0-5.001 2.5 2.5 0 0 1 0 5z" />
-                                </svg>
+                                <MapPin className="text-text/60 h-4 w-4 shrink-0" fill="currentColor" />
 
                                 {/* location pin */}
                                 <p className="truncate">

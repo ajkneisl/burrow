@@ -156,7 +156,6 @@ object Sync {
                     val oldBlocks = getEnabledBlocks(meetingId).toSet()
 
                     val removedBlocks = (oldBlocks - newBlocks).toList()
-                    println("removed $removedBlocks")
                     removedBlocks.forEach { block -> disableBlock(meetingId, block) }
 
                     val addedBlocks = (newBlocks - oldBlocks).toList()
@@ -209,7 +208,7 @@ object Sync {
                                         if (!userInMeeting(userId, meetingId)) {
                                             return@consumeEach send(
                                                 Responses.NO_PERMISSION,
-                                                "You do not have permission for this meeting..",
+                                                "You do not have permission for this meeting.",
                                             )
                                         }
 

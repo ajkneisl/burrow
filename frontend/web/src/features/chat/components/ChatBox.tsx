@@ -30,7 +30,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
     const [status] = useAtom(syncStatus)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editingOriginal, setEditingOriginal] = useState<string>("")
-    const [names, setNames] = useState<Record<string, string>>({})
+    const [members, setMembers] = useState<Record<string, ChatMember>>({})
 
     const listRef = useRef<HTMLDivElement | null>(null)
 
@@ -65,9 +65,9 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                     for (let i = 0; members.length > i; i++) {
                         const member = members[i]
 
-                        setNames((prev) => ({
+                        setMembers((prev) => ({
                             ...prev,
-                            [member.userId]: member.name
+                            [member.userID]: member
                         }))
                     }
 
@@ -87,7 +87,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                     setMessages((prev) =>
                         prev.filter(
                             (message) =>
-                                message.messageId !== payload.payload.messageId
+                                message.messageID !== payload.payload.messageId
                         )
                     )
                     break
@@ -96,7 +96,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                 case "MESSAGE_UPDATED":
                     setMessages((prev) =>
                         prev.map((msg) =>
-                            msg.messageId === payload.payload.messageId
+                            msg.messageID === payload.payload.messageId
                                 ? {
                                       ...msg,
                                       message: payload.payload.newMessage
@@ -162,7 +162,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
 
     // begin an edit
     function startEdit(msg: ChatMessage) {
-        setEditingId(msg.messageId)
+        setEditingId(msg.messageID)
         setEditingOriginal(msg.message)
         setText(msg.message)
     }
@@ -236,11 +236,11 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                     messages.map((message) => (
                         <Chat
                             message={message}
-                            canEdit={message.userId === user?.id}
-                            canDelete={message.userId === user?.id || moderator}
-                            names={names}
+                            canEdit={message.userID === user?.id}
+                            canDelete={message.userID === user?.id || moderator}
+                            members={members}
                             deleteButton={() =>
-                                deleteMessage(message.messageId)
+                                deleteMessage(message.messageID)
                             }
                             editButton={() => startEdit(message)}
                         />

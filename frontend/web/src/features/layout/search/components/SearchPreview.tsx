@@ -3,6 +3,7 @@ import { useNavigate } from "react-router"
 import { formatDateTime } from "@api/util.ts"
 import clsx from "clsx"
 import { Badge } from "@umnburrow/core"
+import { MapPin } from "lucide-react"
 
 /**
  * {@link SearchPreview}
@@ -26,7 +27,7 @@ export default function SearchPreview({ meeting, onClick }: PreviewProps) {
         <button
             type="button"
             onClick={() => {
-                nav(`/meeting/${meeting.id}`)
+                nav(`/burrow/${meeting.id}`)
                 onClick()
             }}
             className={clsx(
@@ -49,16 +50,7 @@ export default function SearchPreview({ meeting, onClick }: PreviewProps) {
             <div>
                 <div className=" text-xs flex items-center gap-1 text-text/80">
                     {/* location pin icon */}
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="h-4 w-4 shrink-0"
-                        aria-hidden="true"
-                        focusable="false"
-                    >
-                        <path d="M12 2.25c-3.728 0-6.75 2.99-6.75 6.68 0 4.989 6.053 11.744 6.311 12.03a.75.75 0 0 0 1.078 0c.258-.286 6.311-7.041 6.311-12.03 0-3.69-3.022-6.68-6.95-6.68Zm0 9.18a2.5 2.5 0 1 1 0-5.001 2.5 2.5 0 0 1 0 5z" />
-                    </svg>
+                    <MapPin className="h-4 w-4 shrink-0" fill="currentColor" />
                     <p className="truncate">
                         {meeting.location
                             ?.split(" ")[0]

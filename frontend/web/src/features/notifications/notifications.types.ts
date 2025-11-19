@@ -1,4 +1,10 @@
-export type NotificationKind = "UPCOMING_MEETING" | "NEW_MEETING" | "MEETING_MESSAGE" | "INVITE_RECEIVED"
+export type NotificationKind =
+    | "UPCOMING_MEETING"
+    | "NEW_MEETING"
+    | "MEETING_MESSAGE"
+    | "INVITE_RECEIVED"
+    | "NEWSLETTER"
+    | "RECOMMENDED"
 
 export type Notification = {
     id: string

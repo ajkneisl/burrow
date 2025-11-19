@@ -5,6 +5,7 @@ import { BASE_URL } from "@api/util.ts"
 import type { Notification } from "@features/notifications/notifications.types.ts"
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query"
 import type { PaginatedResponse } from "@api/api.types.ts"
+import { Bell } from "lucide-react"
 
 /**
  * Load the SSE for notifications and update the TanStack Query cache.
@@ -48,14 +49,7 @@ export default function useNotifications() {
                         <div className="flex items-start gap-3 p-4">
                             {/* Icon */}
                             <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-50">
-                                <svg
-                                    className="h-5 w-5 text-red-600"
-                                    fill="currentColor"
-                                    viewBox="0 0 24 24"
-                                    aria-hidden="true"
-                                >
-                                    <path d="M12 2a6 6 0 00-6 6v2.264c0 .72-.27 1.414-.756 1.944L3.7 14.9A1.5 1.5 0 005 17h14a1.5 1.5 0 001.3-2.1l-1.544-2.692A3 3 0 0118 10.264V8a6 6 0 00-6-6zm0 20a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                                </svg>
+                                <Bell className="h-5 w-5 text-red-600" fill="currentColor" />
                             </div>
 
                             {/* Content */}

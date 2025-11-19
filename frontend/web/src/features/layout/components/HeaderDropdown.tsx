@@ -7,6 +7,14 @@ import HeaderButton from "@features/layout/components/HeaderButton.tsx"
 import { problemModalOpen } from "@features/problem/problem.atom.ts"
 import { useNavigate } from "react-router"
 import { myInvitesModalOpen } from "@features/layout/layout.atom.ts"
+import {
+    MenuIcon,
+    Settings,
+    Mail,
+    Sun,
+    AlertTriangle,
+    LogOut
+} from "lucide-react"
 
 /**
  * Animation variants for {@link HeaderDropdown}
@@ -31,23 +39,7 @@ export default function HeaderDropdown() {
                 aria-haspopup="true"
                 aria-expanded={open}
                 onClick={() => setOpen((prev) => !prev)}
-                icon={
-                    // sandwich lookin dropdown
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                    >
-                        <line x1="4" y1="6" x2="20" y2="6" />
-                        <line x1="4" y1="12" x2="20" y2="12" />
-                        <line x1="4" y1="18" x2="20" y2="18" />
-                    </svg>
-                }
+                icon={<MenuIcon className="h-5 w-5" />}
             />
 
             <div className="absolute top-full right-0">
@@ -64,22 +56,7 @@ export default function HeaderDropdown() {
                             setOpen(false)
                             nav("/settings")
                         }}
-                        rightIcon={
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="18"
-                                height="18"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <circle cx="12" cy="12" r="3" />
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 5 15.4a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 4.6 1.65 1.65 0 0 0 9.49 3H9.6a2 2 0 1 1 4 0v.09c0 .66.38 1.26 1 1.51.5.2 1.08.09 1.51-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06c-.42.43-.53 1.01-.33 1.51.25.62.85 1 1.51 1H21a2 2 0 1 1 0 4h-.09c-.66 0-1.26.38-1.51 1Z" />
-                            </svg>
-                        }
+                        rightIcon={<Settings width="18" height="18" />}
                     />
 
                     {/* my invites */}
@@ -89,28 +66,7 @@ export default function HeaderDropdown() {
                             setOpen(false)
                             setMyInvitesOpen(true)
                         }}
-                        rightIcon={
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="18"
-                                height="18"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <rect
-                                    x="3"
-                                    y="4"
-                                    width="18"
-                                    height="16"
-                                    rx="2"
-                                />
-                                <path d="m3 4 9 6 9-6" />
-                            </svg>
-                        }
+                        rightIcon={<Mail width="18" height="18" />}
                     />
 
                     {/* theme */}
@@ -120,22 +76,7 @@ export default function HeaderDropdown() {
                             setTheme((prev) => !prev)
                             setOpen(false)
                         }}
-                        rightIcon={
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="18"
-                                height="18"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <circle cx="12" cy="12" r="4" />
-                                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-                            </svg>
-                        }
+                        rightIcon={<Sun width="18" height="18" />}
                     />
 
                     {/* theme */}
@@ -145,23 +86,7 @@ export default function HeaderDropdown() {
                             setProblemOpen((prev) => !prev)
                             setOpen(false)
                         }}
-                        rightIcon={
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="18"
-                                height="18"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                                <line x1="12" y1="9" x2="12" y2="13" />
-                                <line x1="12" y1="17" x2="12.01" y2="17" />
-                            </svg>
-                        }
+                        rightIcon={<AlertTriangle width="18" height="18" />}
                     />
 
                     {/* logout */}
@@ -172,23 +97,7 @@ export default function HeaderDropdown() {
                                 .then(() => setOpen(false))
                                 .then(() => nav("/welcome"))
                         }}
-                        rightIcon={
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="18"
-                                height="18"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                                <polyline points="16 17 21 12 16 7" />
-                                <line x1="21" y1="12" x2="9" y2="12" />
-                            </svg>
-                        }
+                        rightIcon={<LogOut width="18" height="18" />}
                     />
                 </Dropdown>
             </div>

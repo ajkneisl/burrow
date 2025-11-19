@@ -17,6 +17,7 @@ import { useMutation } from "@tanstack/react-query"
 import toast from "react-hot-toast"
 import ViewNotification from "@features/notifications/components/ViewNotification.tsx"
 import EmptyNotifications from "@features/notifications/components/EmptyNotifications.tsx"
+import { BellIcon } from "lucide-react"
 
 /**
  * View all notifications
@@ -143,17 +144,7 @@ export default function ViewNotifications() {
                 aria-haspopup="true"
                 aria-expanded={open}
                 onClick={() => setOpen((v) => !v)}
-                icon={
-                    // bell icon
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        aria-hidden="true"
-                    >
-                        <path d="M12 2a6 6 0 00-6 6v2.264c0 .72-.27 1.414-.756 1.944L3.7 14.9A1.5 1.5 0 005 17h14a1.5 1.5 0 001.3-2.1l-1.544-2.692A3 3 0 0118 10.264V8a6 6 0 00-6-6zm0 20a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                    </svg>
-                }
+                icon={<BellIcon className="h-5 w-5" />}
             >
                 {unreadCount > 0 && (
                     <span
@@ -173,7 +164,7 @@ export default function ViewNotifications() {
                             ref={panelRef}
                             role="dialog"
                             aria-label="Notifications"
-                            className="bg-card border-card-border/30 absolute right-0 z-50 mt-2 w-[28rem] max-w-[92vw] origin-top-right rounded-2xl border shadow-2xl"
+                            className="bg-card border-card-border/30 absolute left-1/2 z-50 mt-2 w-[18rem] max-w-[92vw] origin-top-right -translate-x-3/4 rounded-2xl border shadow-2xl md:right-0 md:left-auto md:w-[28rem] md:translate-x-0"
                             initial={{ opacity: 0, y: -8, scale: 0.98 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -6, scale: 0.98 }}

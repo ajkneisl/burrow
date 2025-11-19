@@ -3,12 +3,16 @@ package app.burrow
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
 import app.burrow.account.models.getUserByUsername
+import app.burrow.account.models.userID
+import app.burrow.account.settings.SETTINGS_ROUTES
 import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.burrows.BURROW_ROUTES
 import app.burrow.burrows.getBurrow
 import app.burrow.burrows.getMeetingResponse
 import app.burrow.burrows.sync.Sync
 import app.burrow.notifications.NOTIFICATION_ROUTES
+import app.burrow.notifications.NotificationKind
+import app.burrow.notifications.createNotification
 import app.burrow.notifications.notificationWorker
 import app.burrow.report.REPORT_ROUTES
 import dev.hayden.KHealth
@@ -230,12 +234,16 @@ suspend fun Application.module() {
     routing {
         route("/api") {
             // ROUTE /api/admin
-            // all
+            // all admin functionality
             route("/admin", ADMIN_ROUTES)
 
             // ROUTE /api/notifications
             // manage notifications
             route("/notifications", NOTIFICATION_ROUTES)
+
+            // ROUTE /api/settings
+            // manage user settings
+            route("/settings", SETTINGS_ROUTES)
 
             // ROUTE /burrows/{id}
             // webhook sync
@@ -262,6 +270,24 @@ suspend fun Application.module() {
             }
 
             authenticate(PRIMARY_AUTH) {
+                // ROUTE /debug
+                // debug functionality
+                route("/debug") {
+                    // GET /debug/notification
+                    // send a debug notification
+                    get("/notification") {
+                        createNotification(
+                            "Debug Notification",
+                            "This is a debug notification",
+                            call.userID,
+                            null,
+                            NotificationKind.NEWSLETTER,
+                        )
+
+                        call.respond(HttpStatusCode.OK)
+                    }
+                }
+
                 // ROUTE /api/burrows
                 // manage burrows
                 route("/burrows", BURROW_ROUTES)

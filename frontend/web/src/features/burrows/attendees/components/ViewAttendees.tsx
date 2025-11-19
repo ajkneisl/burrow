@@ -247,32 +247,38 @@ export default function ViewAttendees() {
                     {capitalizeFirstLetter(viewMode)}
                 </h3>
 
-                <Button
-                    className="text-xs"
-                    onClick={() =>
-                        setViewMode(
-                            viewMode === "attendees" ? "requests" : "attendees"
-                        )
-                    }
-                    color={"LINK"}
-                >
-                    {viewMode === "attendees"
-                        ? `View Requests (${totalPendingRequests})`
-                        : "View Attendees"}
-                </Button>
+                {meetingRole !== "MEMBER" && (
+                    <Button
+                        className="text-xs"
+                        onClick={() =>
+                            setViewMode(
+                                viewMode === "attendees"
+                                    ? "requests"
+                                    : "attendees"
+                            )
+                        }
+                        color={"LINK"}
+                    >
+                        {viewMode === "attendees"
+                            ? `View Requests (${totalPendingRequests})`
+                            : "View Attendees"}
+                    </Button>
+                )}
             </div>
 
             {/* body */}
             {viewMode === "attendees" ? attendeesView : joinRequestsView}
 
             {/* invite button */}
-            <InviteUser
-                burrowID={burrowID!}
-                onInvite={() => {
-                    setAttendeesPage(1)
-                    setViewMode("attendees")
-                }}
-            />
+            {meetingRole !== "MEMBER" && (
+                <InviteUser
+                    burrowID={burrowID!}
+                    onInvite={() => {
+                        setAttendeesPage(1)
+                        setViewMode("attendees")
+                    }}
+                />
+            )}
         </Card>
     )
 }

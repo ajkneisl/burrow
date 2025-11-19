@@ -1,13 +1,10 @@
-import type {
-    BurrowResponse,
-    BurrowMemberStatus
-} from "@features/burrows/burrows.types.ts"
+import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
 import { toast } from "react-hot-toast"
 import { joinMeeting, leaveMeeting } from "@features/burrows/burrows.api.ts"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button } from "@umnburrow/core"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { cancelJoinRequest } from "@features/burrows/attendees/attendees.api.ts"
 
 /**
@@ -22,42 +19,19 @@ type JoinMeetingProps = {
  * Join a meeting.
  * @param data The meeting data.
  * @param inPast If the meeting is in the past.
+ *
+ * @author AJ Kneisl
  */
 export default function JoinMeeting({ data, inPast }: JoinMeetingProps) {
     const user = useUser()
     const queryClient = useQueryClient()
 
-    // Update membership status in cache
-    const setMembershipStatus = (status: BurrowMemberStatus) => {
-        queryClient.setQueryData<BurrowResponse>(
-            ["meeting", data.burrow.id],
-            (old) => {
-                if (!old) return old
-
-                return {
-                    ...old,
-                    burrow: {
-                        ...old.burrow,
-                        joined:
-                            status === "JOINED"
-                                ? old.burrow.joined + 1
-                                : old.burrow.joined - 1
-                    },
-                    membership: old.membership
-                        ? {
-                              ...old.membership,
-                              status
-                          }
-                        : undefined
-                }
-            }
-        )
-    }
+    const [isLoading, setIsLoading] = useState(false)
 
     // Update join request status in cache
     const setRequested = (status: boolean) => {
         queryClient.setQueryData<BurrowResponse>(
-            ["meeting", data.burrow.id],
+            ["burrow", data.burrow.id],
             (old) => {
                 if (!old) return old
 
@@ -78,18 +52,26 @@ export default function JoinMeeting({ data, inPast }: JoinMeetingProps) {
             return
         }
 
+        setIsLoading(true)
+
         try {
             // Handle leave
             if (data.membership?.status === "JOINED") {
-                setMembershipStatus("LEFT")
                 await leaveMeeting(burrowID)
+
+                void queryClient.invalidateQueries({
+                    queryKey: ["burrow", burrowID]
+                })
+
                 return
             }
 
             // Handle cancel request
             if (data.requestedToJoin) {
                 setRequested(false)
+
                 await cancelJoinRequest(burrowID)
+
                 return
             }
 
@@ -97,8 +79,12 @@ export default function JoinMeeting({ data, inPast }: JoinMeetingProps) {
             await joinMeeting(burrowID)
 
             if (!data.burrow.requestToJoin) {
-                setMembershipStatus("JOINED")
+                // join successfully
+                void queryClient.invalidateQueries({
+                    queryKey: ["burrow", burrowID]
+                })
             } else {
+                // request to join
                 setRequested(true)
                 toast.success("You have requested to join.")
             }
@@ -106,6 +92,8 @@ export default function JoinMeeting({ data, inPast }: JoinMeetingProps) {
             toast.error(
                 error instanceof Error ? error.message : "An error occurred"
             )
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -121,7 +109,11 @@ export default function JoinMeeting({ data, inPast }: JoinMeetingProps) {
         }
 
         return data.burrow.requestToJoin ? "Request to Join" : "Join"
-    }, [data.burrow.requestToJoin, data.membership?.status, data.requestedToJoin])
+    }, [
+        data.burrow.requestToJoin,
+        data.membership?.status,
+        data.requestedToJoin
+    ])
 
     const isDestructiveAction =
         buttonText === "Leave" || buttonText === "Cancel Request"
@@ -131,6 +123,7 @@ export default function JoinMeeting({ data, inPast }: JoinMeetingProps) {
             thin
             onClick={handleJoinLeave}
             disabled={!user || inPast}
+            loading={isLoading}
             color={isDestructiveAction ? "ERROR" : "SUCCESS"}
         >
             {buttonText}

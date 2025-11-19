@@ -46,7 +46,7 @@ export default function MeetingCapacityBadges({
         <>
             <span
                 className={clsx(
-                    `relative inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium shadow-sm overflow-hidden`,
+                    `relative inline-flex items-center gap-1.5 overflow-hidden rounded-full border px-3 py-1 text-xs font-medium shadow-sm`,
                     capClasses
                 )}
                 aria-label="Capacity"
@@ -54,7 +54,7 @@ export default function MeetingCapacityBadges({
                 {/* fill bar */}
                 {hasLimit && (
                     <span
-                        className={`absolute left-0 top-0 h-full ${capFill}`}
+                        className={`absolute top-0 left-0 h-full ${capFill}`}
                         style={{ width: `${fillPct}%` }}
                         aria-hidden
                     />
@@ -82,7 +82,7 @@ export default function MeetingCapacityBadges({
 
             {/* waitlist */}
             {meeting.waiting > 0 && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-warn bg-warn/10 px-3 py-1 text-xs font-semibold text-warn shadow-sm">
+                <span className="border-warn bg-warn/10 text-warn inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
