@@ -1,9 +1,10 @@
 package app.burrow.burrows.sync.chat
 
 import app.burrow.account.Users
+import app.burrow.account.profile.Profiles
+import app.burrow.burrows.getMeetingResponse
 import app.burrow.burrows.membership.Memberships
 import app.burrow.burrows.models.BurrowRole
-import app.burrow.burrows.getMeetingResponse
 import app.burrow.burrows.sync.Sync
 import app.burrow.burrows.sync.block.Block
 import app.burrow.burrows.sync.block.RegisterBlock
@@ -60,15 +61,22 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
     }
 
     /** A member in the chat. */
-    @Serializable data class ChatMember(val userId: String, val name: String)
+    @Serializable data class ChatMember(val userID: String, val username: String, val name: String)
 
     /** Get all chat members from a meeting. */
     suspend fun getChatMembers(): List<ChatMember> {
         val members = query {
             Memberships.innerJoin(Users, { Memberships.userID }, { Users.id })
-                .select(Memberships.userID, Users.username)
+                .innerJoin(Profiles, { Memberships.userID }, { Profiles.userID })
+                .select(Memberships.userID, Users.username, Profiles.name)
                 .where { Memberships.burrowID eq meetingId }
-                .map { member -> ChatMember(member[Memberships.userID], member[Users.username]) }
+                .map { member ->
+                    ChatMember(
+                        member[Memberships.userID],
+                        member[Users.username],
+                        member[Profiles.name],
+                    )
+                }
                 .toList()
         }
 
@@ -83,7 +91,7 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
     suspend fun getChatMessage(messageId: UUID): ChatMessage? = query {
         ChatMessages.selectAll()
             .where {
-                (ChatMessages.meetingId eq meetingId) and (ChatMessages.messageId eq messageId)
+                (ChatMessages.burrowID eq meetingId) and (ChatMessages.messageID eq messageId)
             }
             .map { ChatMessage.fromRow(it) }
             .firstOrNull()
@@ -122,7 +130,7 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
             query {
                 val messages =
                     ChatMessages.selectAll()
-                        .where { ChatMessages.meetingId eq this@Chat.meetingId }
+                        .where { ChatMessages.burrowID eq this@Chat.meetingId }
                         .orderBy(ChatMessages.date, SortOrder.DESC)
                         .offset(page * ChatHistory.CHAT_PAGE_LIMIT)
                         .limit(ChatHistory.CHAT_PAGE_LIMIT)
@@ -131,7 +139,7 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
 
                 val pageCount =
                     ChatMessages.selectAll()
-                        .where { ChatMessages.meetingId eq this@Chat.meetingId }
+                        .where { ChatMessages.burrowID eq this@Chat.meetingId }
                         .count()
                         .div(ChatHistory.CHAT_PAGE_LIMIT)
 
@@ -165,13 +173,13 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
         if (meeting == null || message == null || meeting.membership == null)
             return sendError("Invalid message ID.")
 
-        if (message.userId != userId)
+        if (message.userID != userId)
             return sendError("You do not have permission to edit this message.")
 
         query {
             ChatMessages.update({
-                (ChatMessages.meetingId eq this@Chat.meetingId) and
-                    (ChatMessages.messageId eq messageId)
+                (ChatMessages.burrowID eq this@Chat.meetingId) and
+                    (ChatMessages.messageID eq messageId)
             }) {
                 it[ChatMessages.message] = newContents
             }
@@ -202,15 +210,15 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
         val isModerator =
             membership.role == BurrowRole.HOST || membership.role == BurrowRole.MODERATOR
 
-        val isMessageOwner = message.userId == userId
+        val isMessageOwner = message.userID == userId
 
         if (!isModerator && !isMessageOwner)
             return sendError("You do not have permission to delete this message.")
 
         query {
             ChatMessages.deleteWhere {
-                (ChatMessages.meetingId eq this@Chat.meetingId) and
-                    (ChatMessages.messageId eq messageId)
+                (ChatMessages.burrowID eq this@Chat.meetingId) and
+                    (ChatMessages.messageID eq messageId)
             }
         }
 
@@ -235,10 +243,10 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
         // create message
         query {
             ChatMessages.insert {
-                it[ChatMessages.messageId] = messageId
+                it[ChatMessages.messageID] = messageId
                 it[ChatMessages.message] = message
-                it[ChatMessages.userId] = this@wsCreateMessage.userId
-                it[ChatMessages.meetingId] = this@Chat.meetingId
+                it[ChatMessages.userID] = this@wsCreateMessage.userId
+                it[ChatMessages.burrowID] = this@Chat.meetingId
                 it[ChatMessages.date] = time
             }
         }

@@ -14,6 +14,7 @@ import app.burrow.burrows.sync.block.BlockStates
 import app.burrow.burrows.sync.chat.ChatMessages
 import app.burrow.notifications.NotificationPreferences
 import app.burrow.notifications.Notifications
+import app.burrow.notifications.delivery.PushSubscriptions
 import app.burrow.report.Reports
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
@@ -88,6 +89,7 @@ suspend fun initDb() {
             Administrators,
             Profiles,
             Following,
+            PushSubscriptions,
         )
     }
 

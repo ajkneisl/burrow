@@ -1,4 +1,3 @@
-import { BASE_URL } from "@api/util.ts"
 import type { AuthorizedUser, Relation } from "@features/auth/user.types.ts"
 import type { UserResponse } from "@features/profile/profile.model.ts"
 import { get, post, put } from "@api/api.ts"
@@ -33,19 +32,8 @@ export async function login(credentials: string): Promise<AuthorizedUser> {
 /**
  * Get all relations.
  *
- * @param auth The authorization token.
  * @param key The type of relation to retrieve.
  */
-export async function getRelations(
-    auth: string,
-    key: string
-): Promise<Relation[]> {
-    const request = await fetch(`${BASE_URL}/user/relations/${key}`, {
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${auth}`
-        }
-    })
-
-    return await request.json()
+export async function getRelations(key: string): Promise<Relation[]> {
+    return get(`/user/relations/${key}`)
 }

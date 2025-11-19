@@ -21,21 +21,13 @@ export async function getMeeting(id: string): Promise<BurrowResponse> {
 /**
  * Get list of {@link BurrowResponse}.
  *
- * @param auth The authorization token.
  * @param type The type of meetings to get.
  * @return The meeting response, including membership and meeting information.
  */
-export async function getMeetings(
-    auth: string,
+export async function getBurrows(
     type: BurrowType | null
 ): Promise<PaginatedResponse<BurrowResponse>> {
-    const request = await fetch(`${BASE_URL}/burrows?type=${type}`, {
-        headers: {
-            Authorization: `Bearer ${auth}`
-        }
-    })
-
-    return await request.json()
+    return get(`/burrows`, { query: { type: `${type}` } })
 }
 
 /**
@@ -212,19 +204,9 @@ export async function toggleBanMember(
 
 /**
  * Get the schedule.
- *
- * @param auth The authorization token.
  */
-export async function getSchedule(auth: string): Promise<BurrowResponse[]> {
-    const request = await fetch(`${BASE_URL}/burrows/schedule`, {
-        headers: {
-            Authorization: `Bearer ${auth}`
-        }
-    })
-
-    if (!request.ok) return Promise.reject("Failed to load schedule.")
-
-    return await request.json()
+export async function getSchedule(): Promise<BurrowResponse[]> {
+    return await get(`/burrows/schedule`)
 }
 
 /**

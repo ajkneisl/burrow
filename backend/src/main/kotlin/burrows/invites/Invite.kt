@@ -11,6 +11,8 @@ import app.burrow.burrows.models.BurrowMemberStatus
 import app.burrow.burrows.models.BurrowRole
 import app.burrow.burrows.models.Burrows
 import app.burrow.models.PaginatedResponse
+import app.burrow.notifications.createNotification
+import app.burrow.notifications.NotificationKind
 import app.burrow.notifications.onUserJoinedMeeting
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
@@ -171,6 +173,16 @@ suspend fun createInvite(
                             it[Invites.expiresAt] =
                                 expiresAt ?: (getTimeMillis() + DEFAULT_INVITE_EXPIRATION_MS)
                         }
+
+                        // Create notification for the invitee
+                        createNotification(
+                            title = "Burrow Invite",
+                            content = "You've been invited to join ${burrow.title}",
+                            userID = inviteeId,
+                            burrowID = burrowId,
+                            kind = NotificationKind.INVITE_RECEIVED
+                        )
+
                         return@query
                     }
                     // If it was a different inviter, allow creating a new invite (will be a
@@ -192,6 +204,15 @@ suspend fun createInvite(
             it[Invites.expiresAt] = expiration
         }
     }
+
+    // Create notification for the invitee
+    createNotification(
+        title = "Burrow Invite",
+        content = "You've been invited to join ${burrow.title}",
+        userID = inviteeId,
+        burrowID = burrowId,
+        kind = NotificationKind.INVITE_RECEIVED
+    )
 }
 
 /**

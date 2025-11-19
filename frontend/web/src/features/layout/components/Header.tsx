@@ -10,11 +10,14 @@ import { mobileSearchOpen } from "@features/layout/search/search.atom.ts"
 import MobileSearch from "@features/layout/search/components/MobileSearch.tsx"
 import clsx from "clsx"
 import useToken from "@features/auth/hooks/useToken.ts"
+import { CompassIcon, SearchIcon } from "lucide-react"
 
 /**
  * The main header :)
  *
  * contains the search and dropdown navigation.
+ *
+ * @author AJ Kneisl
  */
 export default function Header() {
     const nav = useNavigate()
@@ -63,31 +66,12 @@ export default function Header() {
                         <HeaderButton
                             className="md:hidden"
                             onClick={() => setMobileSearchOpen((prev) => !prev)}
-                            icon={
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={2}
-                                >
-                                    <circle
-                                        cx="11"
-                                        cy="11"
-                                        r="7"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                    <line
-                                        x1="16.65"
-                                        y1="16.65"
-                                        x2="21"
-                                        y2="21"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                            }
+                            icon={<SearchIcon className="h-5 w-5" />}
+                        />
+
+                        <HeaderButton
+                            icon={<CompassIcon className="h-5 w-5" />}
+                            onClick={() => nav("/study")}
                         />
 
                         {/* Notifications Bell */}

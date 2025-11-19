@@ -59,7 +59,7 @@ export async function request<T = unknown, R = unknown>(
     }
 
     const methodsWithBody = ["POST", "PUT", "PATCH"]
-    if (data && methodsWithBody.includes(method.toUpperCase())) {
+    if (data && methodsWithBody.includes(method.toUpperCase()) && typeof data === "object") {
         requestHeaders["Content-Type"] = "application/json"
     }
 
@@ -69,7 +69,7 @@ export async function request<T = unknown, R = unknown>(
     }
 
     if (data && methodsWithBody.includes(method.toUpperCase())) {
-        fetchOptions.body = JSON.stringify(data)
+        fetchOptions.body = typeof data === "string" ? data : JSON.stringify(data)
     }
 
     const response = await fetch(fullUrl, fetchOptions)

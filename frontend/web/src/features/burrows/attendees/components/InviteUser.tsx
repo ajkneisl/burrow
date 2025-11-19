@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { getUserByUsername } from "@features/profile/profile.api.ts"
 import { createInvite } from "@features/burrows/attendees/attendees.api.ts"
 import toast from "react-hot-toast"
+import { X } from "lucide-react"
 
 /**
  * {@see InviteUser}
@@ -70,7 +71,7 @@ export default function InviteUser({ burrowID, onInvite }: InviteUserProps) {
                 onClick={() => setIsInviting(true)}
                 aria-live="polite"
                 aria-label="No upcoming meetings"
-                className="invite-border-dashed border-text/40 text-text/50 hover:border-text/60 hover:bg-background/60 mt-4 flex h-8 w-full cursor-pointer items-center justify-center border-2 opacity-50 transition-all hover:opacity-75 md:min-w-xs"
+                className="invite-border-dashed border-text/40 text-text/50 hover:border-text/60 hover:bg-background/60 mt-4 flex h-8 w-full cursor-pointer items-center justify-center border-2 opacity-50 transition-all hover:opacity-75"
             >
                 <p className="text-center text-sm tracking-wide">Invite</p>
             </Card>
@@ -87,18 +88,7 @@ export default function InviteUser({ burrowID, onInvite }: InviteUserProps) {
             className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-gray-200 text-gray-600 transition hover:bg-gray-300"
             aria-label="Cancel invite"
         >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-3 w-3"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-            >
-                <path
-                    fillRule="evenodd"
-                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                />
-            </svg>
+            <X className="h-3 w-3" />
         </button>
     )
 

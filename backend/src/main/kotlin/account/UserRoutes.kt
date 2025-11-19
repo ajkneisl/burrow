@@ -1,5 +1,6 @@
 package app.burrow.account
 
+import app.burrow.InvalidAuthorization
 import app.burrow.account.models.User
 import app.burrow.account.models.getUserByID
 import app.burrow.account.models.getUserByUsername
@@ -15,7 +16,6 @@ import app.burrow.account.profile.getFollowingRelations
 import app.burrow.account.profile.getFriends
 import app.burrow.account.profile.unFollowUser
 import app.burrow.account.profile.updateProfile
-import app.burrow.InvalidAuthorization
 import app.burrow.photo.USER_PHOTO_ROUTES
 import app.burrow.queryParameter
 import app.burrow.urlParameter
@@ -75,14 +75,13 @@ val USER_ROUTES: Route.() -> Unit = {
         }
 
         /** A request to update the account details. */
-        @Serializable data class UpdateAccountRequest(
-            val username: String
-        )
+        @Serializable data class UpdateAccountRequest(val username: String)
 
         // POST /user
         // update user details
         post {
-            val (username) = call.receive<UpdateAccountRequest>()
+            var (username) = call.receive<UpdateAccountRequest>()
+            username = username.lowercase()
 
             validateUsername(username)
 
@@ -112,7 +111,17 @@ val USER_ROUTES: Route.() -> Unit = {
             // POST /user/profile
             // update your profile
             post {
-                val (name, visibility, bio, phoneNumber, gradYear, classes, school, major, instagram, linkedIn) =
+                val (
+                    name,
+                    visibility,
+                    bio,
+                    phoneNumber,
+                    gradYear,
+                    classes,
+                    school,
+                    major,
+                    instagram,
+                    linkedIn) =
                     call.receive<UpdateProfileRequest>()
 
                 val profile =
@@ -138,7 +147,7 @@ val USER_ROUTES: Route.() -> Unit = {
 
             // ROUTE /user/profile/follow
             route("/follow") {
-            // manage following
+                // manage following
                 // POST /user/profile/follow
                 // follow a user
                 post {
