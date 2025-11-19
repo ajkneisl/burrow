@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import Chat from "@features/chat/components/Chat.tsx"
 import useUser from "@features/auth/hooks/useUser.ts"
 import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
@@ -10,12 +10,13 @@ import {
 import { useAtomValue } from "jotai"
 import { syncRetry, syncStatus } from "@features/sync/sync.atom.ts"
 import { Button, Card, Input } from "@umnburrow/core"
+import { MessageSquare, Pencil, Send, X } from "lucide-react"
 
 /**
  * {@link ChatBox}
  */
 type ChatBoxProps = {
-    meeting: BurrowResponse
+    burrow: BurrowResponse
 }
 
 /**
@@ -24,27 +25,26 @@ type ChatBoxProps = {
  * @param meeting The meeting the ChatBox is for.
  * @constructor
  */
-export default function ChatBox({ meeting }: ChatBoxProps) {
+export default function ChatBox({ burrow }: ChatBoxProps) {
+    const user = useUser()
+
     const status = useAtomValue(syncStatus)
     const retry = useAtomValue(syncRetry)
 
     const [messages, setMessages] = useState<ChatMessage[]>([])
     const [text, setText] = useState("")
-    const [editingId, setEditingId] = useState<string | null>(null)
+
+    // details on editing a message
+    const [editingID, setEditingID] = useState<string | null>(null)
     const [editingOriginal, setEditingOriginal] = useState<string>("")
     const [members, setMembers] = useState<Record<string, ChatMember>>({})
 
     const listRef = useRef<HTMLDivElement | null>(null)
+    const burrowID = burrow.burrow.id
 
-    const user = useUser()
-    const meetingId = meeting.burrow.id
-
-    const moderator = useMemo(() => {
-        return (
-            meeting.membership?.role === "MODERATOR" ||
-            meeting.membership?.role === "HOST"
-        )
-    }, [meeting.membership?.role])
+    const isModerator =
+        burrow.membership?.role === "MODERATOR" ||
+        burrow.membership?.role === "HOST"
 
     useEffect(() => {
         function onState(event: Event) {
@@ -117,7 +117,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                 "CHAT_INCOMING",
                 onState as EventListener
             )
-    }, [meetingId])
+    }, [burrowID])
 
     useEffect(() => {
         if (status !== "LIVE") return
@@ -139,7 +139,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                 data: {}
             })
         )
-    }, [status, meetingId])
+    }, [status, burrowID])
 
     useLayoutEffect(() => {
         const el = listRef.current
@@ -164,14 +164,14 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
 
     // begin an edit
     function startEdit(msg: ChatMessage) {
-        setEditingId(msg.messageID)
+        setEditingID(msg.messageID)
         setEditingOriginal(msg.message)
         setText(msg.message)
     }
 
     // end edit
     function cancelEdit() {
-        setEditingId(null)
+        setEditingID(null)
         setEditingOriginal("")
         setText("")
     }
@@ -179,7 +179,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
     // save an edit and send to socket
     function saveEdit() {
         const contents = text.trim()
-        if (status !== "LIVE" || !contents || !editingId) return
+        if (status !== "LIVE" || !contents || !editingID) return
 
         if (editingOriginal === contents) cancelEdit()
 
@@ -187,11 +187,11 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
             new SyncOutgoingEvent({
                 block: "CHAT",
                 action: "EDIT_MESSAGE",
-                data: { contents, id: editingId }
+                data: { contents, id: editingID }
             })
         )
 
-        setEditingId(null)
+        setEditingID(null)
         setEditingOriginal("")
         setText("")
     }
@@ -199,7 +199,7 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
     // on the send button
     // redirect to edit, or create on ws
     function send() {
-        if (editingId) {
+        if (editingID) {
             saveEdit()
             return
         }
@@ -218,29 +218,68 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
     }
 
     return (
-        <Card className="flex h-[512px] flex-col justify-between">
-            <header className="flex items-center justify-between">
-                <h3 className="font-semibold">Chat</h3>
-                <span className="text-xs font-semibold">
-                    {status === "CONNECTING" && "Connecting…"}
-                    {status === "LIVE" && "Live"}
-                    {status === "DISCONNECTED" &&
-                        (retry === "" ? "Disconnected" : retry)}
-                    {status === "ERROR" && "Error"}
-                </span>
+        <Card className="flex h-[512px] flex-col">
+            {/* header */}
+            <header className="border-background/60 flex items-center justify-between border-b pb-4">
+                <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-semibold">Chat</h3>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <div
+                        className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                            status === "LIVE"
+                                ? "bg-success animate-pulse"
+                                : status === "CONNECTING"
+                                  ? "bg-warn animate-pulse"
+                                  : "bg-error"
+                        }`}
+                    />
+
+                    <span
+                        className={`text-xs font-medium ${
+                            status === "LIVE"
+                                ? "text-success"
+                                : status === "CONNECTING"
+                                  ? "text-warn"
+                                  : "text-error"
+                        }`}
+                    >
+                        {status === "CONNECTING" && "Connecting…"}
+                        {status === "LIVE" && "Live"}
+                        {status === "DISCONNECTED" &&
+                            (retry === "" ? "Disconnected" : retry)}
+                        {status === "ERROR" && "Error"}
+                    </span>
+                </div>
             </header>
 
-            <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto p-4">
+            {/* messages container */}
+            <div
+                ref={listRef}
+                className="scrollbar-thin scrollbar-thumb-background/60 scrollbar-track-transparent flex-1 space-y-2 overflow-y-auto py-4"
+            >
                 {messages.length === 0 ? (
-                    <p className="text-text/60 text-center text-sm">
-                        No messages yet. Start the conversation.
-                    </p>
+                    <div className="flex h-full flex-col items-center justify-center">
+                        <MessageSquare className="text-text/20 mb-3 h-12 w-12" />
+
+                        <p className="text-text/60 text-center text-sm font-medium">
+                            No messages yet
+                        </p>
+
+                        <p className="text-text/40 text-center text-xs">
+                            Start the conversation
+                        </p>
+                    </div>
                 ) : (
                     messages.map((message) => (
                         <Chat
+                            key={message.messageID}
                             message={message}
                             canEdit={message.userID === user?.id}
-                            canDelete={message.userID === user?.id || moderator}
+                            canDelete={
+                                message.userID === user?.id || isModerator
+                            }
                             members={members}
                             deleteButton={() =>
                                 deleteMessage(message.messageID)
@@ -251,48 +290,56 @@ export default function ChatBox({ meeting }: ChatBoxProps) {
                 )}
             </div>
 
-            <div
-                className={`py-2 ${!editingId && `border-background/80 border-t`}`}
-            >
-                {editingId && (
-                    <div className="border-background bg-base-100 text-base-content/80 relative mb-2 flex flex-col items-center rounded-t-lg border px-3 py-1.5 text-xs shadow-sm">
-                        <div className="flex items-center gap-4">
-                            <span className="font-medium">Editing message</span>
-                            <button
-                                type="button"
-                                onClick={cancelEdit}
-                                className="border-background bg-base-200 text-base-content/70 hover:bg-base-300 inline-flex cursor-pointer items-center rounded-md border px-2 py-0.5 text-[11px] font-medium"
-                            >
-                                Cancel
-                            </button>
+            {/* input area */}
+            <div className="border-background/60 border-t pt-4">
+                {editingID && (
+                    <div className="bg-warn/10 border-warn/20 mb-3 flex items-center justify-between rounded-lg border px-3 py-2">
+                        <div className="flex items-center gap-2">
+                            <div className="bg-warn/20 rounded p-1">
+                                <Pencil className="text-warn h-3 w-3" />
+                            </div>
+                            <span className="text-text/80 text-xs font-medium">
+                                Editing message
+                            </span>
                         </div>
-
-                        <div className="border-t-base-300 absolute top-full left-1/2 h-0 w-0 -translate-x-1/2 border-x-6 border-t-6 border-x-transparent" />
-                        <div className="border-t-base-100 absolute top-[calc(100%_-_1px)] left-1/2 h-0 w-0 -translate-x-1/2 border-x-5 border-t-5 border-x-transparent" />
+                        <button
+                            type="button"
+                            onClick={cancelEdit}
+                            className="text-text/60 hover:text-text hover:bg-background/60 rounded p-1 transition-colors"
+                            aria-label="Cancel editing"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
                     </div>
                 )}
 
-                <div className="flex flex-row justify-between gap-4">
+                <div className="flex gap-2">
                     <Input
-                        className={"w-2/3"}
+                        className="flex-1"
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && send()}
                         placeholder={
                             status === "LIVE"
-                                ? "Write a message…"
+                                ? "Type a message…"
                                 : "You are disconnected."
                         }
                         disabled={status !== "LIVE"}
                     />
 
                     <Button
-                        className="col-span-1"
                         color="INFO"
                         onClick={send}
                         disabled={status !== "LIVE" || !text.trim()}
+                        className="px-4"
                     >
-                        {editingId ? "Save" : "Send"}
+                        {editingID ? (
+                            "Save"
+                        ) : (
+                            <>
+                                <Send className="h-4 w-4" />
+                            </>
+                        )}
                     </Button>
                 </div>
             </div>

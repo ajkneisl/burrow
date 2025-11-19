@@ -281,7 +281,7 @@ export default function Burrow() {
                             </Card>
 
                             {inMeeting && blocks.includes("CHAT") && (
-                                <ChatBox meeting={data} />
+                                <ChatBox burrow={data} />
                             )}
                         </div>
 

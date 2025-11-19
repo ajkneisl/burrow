@@ -3,6 +3,25 @@ import { Pencil, X } from "lucide-react"
 import type { ChatMember, ChatMessage } from "@features/chat/chat.types.ts"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 
+function getUserColor(userID: string): string {
+    const colors = [
+        "text-blue-500",
+        "text-green-500",
+        "text-purple-500",
+        "text-pink-500",
+        "text-yellow-500",
+        "text-cyan-500",
+        "text-orange-500",
+        "text-indigo-500"
+    ]
+
+    const hash = userID.split("").reduce((acc, char) => {
+        return char.charCodeAt(0) + ((acc << 5) - acc)
+    }, 0)
+
+    return colors[Math.abs(hash) % colors.length]
+}
+
 /**
  * {@link Chat}
  */
@@ -47,57 +66,70 @@ export default function Chat({
         [isHovered, message.date]
     )
 
+    const userColor = useMemo(
+        () => getUserColor(message.userID),
+        [message.userID]
+    )
+
     return (
         <div
             key={`${message.messageID}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="group"
+            className="group hover:bg-background/40 relative rounded-lg px-3 py-2 transition-all duration-150"
         >
-            <div className="bg-background/60 border-background/80 mt-0.5 inline-flex w-full flex-row items-center gap-4 rounded-xl border px-3 py-2">
-                <ProfilePicture
-                    name={members[message.userID]?.name}
-                    userID={message.userID}
-                    size="sm"
-                />
+            <div className="flex w-full items-start gap-3">
+                <div className="flex-shrink-0 pt-1">
+                    <ProfilePicture
+                        name={members[message.userID]?.name}
+                        userID={message.userID}
+                        size="sm"
+                    />
+                </div>
 
-                <div className="flex w-full flex-col">
-                    <div className="flex w-full flex-row items-center justify-between">
-                        <span className="mr-2 font-medium">
-                            {members[message.userID]?.name}
+                <div className="min-w-0 flex-1">
+                    <div className="mb-1.5 flex items-center gap-2.5">
+                        <span className={`text-sm font-bold ${userColor}`}>
+                            {members[message.userID]?.name || "Unknown User"}
                         </span>
-
-                        <div className="text-xs text-gray-500">{dateStr}</div>
+                        <span className="text-text/35 text-[11px] font-medium">
+                            {dateStr}
+                        </span>
                     </div>
 
-                    <div className="flex flex-row items-center justify-between">
-                        <span className="text-text/70">{message.message}</span>
-
-                        {(canEdit || canDelete) && (
-                            <div className="hidden flex-row gap-2 text-sm group-hover:inline-flex">
-                                {canEdit && (
-                                    <button
-                                        onClick={() => editButton("debug")}
-                                        aria-label="Edit"
-                                        className="text-warn hover:text-warn-hover cursor-pointer"
-                                    >
-                                        <Pencil className="h-4 w-4" />
-                                    </button>
-                                )}
-
-                                {canDelete && (
-                                    <button
-                                        onClick={deleteButton}
-                                        aria-label="Delete"
-                                        className="text-error hover:text-error-hover cursor-pointer"
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </button>
-                                )}
-                            </div>
-                        )}
+                    <div className="bg-background/50 border-background/70 rounded-lg border px-3 py-2.5 shadow-sm">
+                        <p className="text-text text-[13px] leading-relaxed break-words">
+                            {message.message}
+                        </p>
                     </div>
                 </div>
+
+                {/* action buttons */}
+                {(canEdit || canDelete) && (
+                    <div className="bg-hero border-background/80 absolute top-2 right-3 hidden items-center gap-0.5 rounded-md border px-1 py-0.5 shadow-lg backdrop-blur-sm group-hover:flex">
+                        {canEdit && (
+                            <button
+                                onClick={() => editButton("debug")}
+                                aria-label="Edit message"
+                                className="text-text/50 hover:bg-warn/20 hover:text-warn rounded p-1.5 transition-all"
+                                title="Edit"
+                            >
+                                <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                        )}
+
+                        {canDelete && (
+                            <button
+                                onClick={deleteButton}
+                                aria-label="Delete message"
+                                className="text-text/50 hover:bg-error/20 hover:text-error rounded p-1.5 transition-all"
+                                title="Delete"
+                            >
+                                <X className="h-3.5 w-3.5" />
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     )
