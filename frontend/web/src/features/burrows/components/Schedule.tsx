@@ -1,10 +1,11 @@
-import { dayLabel, formatDateTime } from "@api/util.ts"
+import { dayLabel, formatDateTime, humanDateLabel } from "@api/util.ts"
 import { useQuery } from "@tanstack/react-query"
 import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
 import { useMemo } from "react"
 import { useNavigate } from "react-router"
 import { Button, Card, ViewErrors } from "@umnburrow/core"
 import { getSchedule } from "@features/burrows/burrows.api.ts"
+import clsx from "clsx"
 
 /**
  * A group of burrows.
@@ -36,7 +37,11 @@ export default function Schedule() {
         if (!data) return []
 
         return data.reduce<Group[]>((acc, item) => {
-            const label = dayLabel(item.burrow.beginningTime)
+            let label = "Projects"
+
+            if (item.burrow.beginningTime !== 0)
+                label = dayLabel(item.burrow.beginningTime)
+
             const last = acc[acc.length - 1]
 
             if (!last || last.label !== label)
@@ -104,7 +109,12 @@ export default function Schedule() {
                                 {group.items.map((it) => (
                                     <Card
                                         key={it.burrow.id}
-                                        className="from:card to-success/40 hover:to-success/60 bg-gradient-to-br"
+                                        className={clsx(
+                                            "from:card bg-gradient-to-br",
+                                            it.burrow.kind === "PROJECT"
+                                                ? "to-warn/40 hover:to-warn/60"
+                                                : "to-success/40 hover:to-success/60"
+                                        )}
                                         isHoverable={true}
                                         onClick={() => onClick(it.burrow.id)}
                                     >
@@ -126,10 +136,15 @@ export default function Schedule() {
                                                 className="text-text/80 text-sm"
                                                 aria-label="Time range"
                                             >
-                                                {formatDateTime(
-                                                    it.burrow.beginningTime,
-                                                    it.burrow.endTime
-                                                )}
+                                                {it.burrow.kind === "PROJECT"
+                                                    ? `Due ${humanDateLabel(
+                                                          it.burrow.endTime
+                                                      )}`
+                                                    : formatDateTime(
+                                                          it.burrow
+                                                              .beginningTime,
+                                                          it.burrow.endTime
+                                                      )}
                                             </time>
                                         </div>
                                     </Card>

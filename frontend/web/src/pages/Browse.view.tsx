@@ -3,7 +3,7 @@ import React, { useMemo, useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import type {
     BurrowResponse,
-    BurrowType
+    BurrowKind
 } from "@features/burrows/burrows.types.ts"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import { searchMeetings } from "@features/burrows/burrows.api.ts"
@@ -18,7 +18,7 @@ import { Loader2, ChevronRight } from "lucide-react"
  * {@link Browse}
  */
 type AllMeetingsProps = {
-    type: BurrowType
+    type: BurrowKind
 }
 
 /**

@@ -4,7 +4,7 @@ import type { Profile } from "@features/profile/profile.model.ts"
 /**
  * The type of group meeting.
  */
-export type BurrowType = "CLUB" | "STUDY"
+export type BurrowKind = "STUDY" | "EVENT" | "PROJECT"
 
 export type BurrowVisibility = "PUBLIC" | "UNLISTED" | "PRIVATE"
 
@@ -30,7 +30,7 @@ export interface Burrow {
     title: string
     description: string
     location: string
-    kind: BurrowType
+    kind: BurrowKind
     beginningTime: number
     endTime: number
     tags: string[]

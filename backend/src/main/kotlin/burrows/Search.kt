@@ -9,7 +9,7 @@ import app.burrow.burrows.membership.Membership
 import app.burrow.burrows.membership.Memberships
 import app.burrow.burrows.models.BurrowMemberStatus
 import app.burrow.burrows.models.BurrowResponse
-import app.burrow.burrows.models.BurrowType
+import app.burrow.burrows.models.BurrowKind
 import app.burrow.burrows.models.BurrowVisibility
 import app.burrow.burrows.models.Burrows
 import app.burrow.models.PaginatedResponse
@@ -99,11 +99,11 @@ private suspend fun getUserSearchContext(userID: String): UserSearchContext = qu
  *   bookmarks and memberships.
  * @return A list of [BurrowResponse]. The bookmark will be false and membership be null if there's
  *   no [requestingUserID].
- * @see BurrowType
+ * @see BurrowKind
  */
 suspend fun searchMeetings(
     page: Int = 1,
-    kind: BurrowType? = null,
+    kind: BurrowKind? = null,
     search: String? = null,
     dateRange: LongRange? = null,
     forceAuthorName: String? = null,

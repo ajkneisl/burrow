@@ -1,17 +1,24 @@
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google"
 import { useLayoutEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router"
-import {useAtom, useSetAtom } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
 import toast from "react-hot-toast"
 import { useMutation } from "@tanstack/react-query"
 import { Users, CalendarClock, Sparkles } from "lucide-react"
 import { authToken, newUser, userDetails } from "@features/auth/auth.atom.ts"
-import { Card } from "@umnburrow/core"
+import { Card, ViewErrors } from "@umnburrow/core"
 import { login } from "@features/auth/user.api.ts"
 
+/**
+ * The view people get when first visiting Burrow.
+ *
+ * @author AJ Kneisl
+ */
 export default function LandingView() {
     const nav = useNavigate()
+
     const googleLoginContainer = useRef<HTMLDivElement>(null)
+    const [error, setError] = useState<string | null>()
 
     const [googleLoginWidth, setGoogleLoginWidth] = useState(
         (googleLoginContainer?.current?.clientWidth ?? 128) - 16
@@ -38,6 +45,7 @@ export default function LandingView() {
     // login
     const loginMutation = useMutation({
         mutationFn: login,
+
         onSuccess: (data) => {
             void setAuthToken(data.token)
             void setUser(data.user)
@@ -52,8 +60,9 @@ export default function LandingView() {
 
             nav("/")
         },
+
         onError: (error: Error) => {
-            toast.error(error.message)
+            setError(`${error}`)
         }
     })
 
@@ -63,9 +72,9 @@ export default function LandingView() {
 
     return (
         <div className="flex flex-col items-center">
-            {/* big gohher */}
-            <div className="relative mt-8 w-full overflow-hidden rounded-2xl">
-                <div className="h-[22rem] w-full bg-[url('/image/banner.png')] bg-[position:center_calc(100%+225px)]" />
+            {/* Big Gopher */}
+            <div className="relative mt-8 w-full max-w-6xl overflow-hidden rounded-2xl">
+                <div className="h-[22rem] bg-[url('/image/banner.png')] bg-[position:center_calc(100%+225px)] bg-no-repeat" />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 <div className="absolute inset-0 flex flex-col items-center justify-end pb-8 text-center">
                     <h1 className="figtree text-secondary text-7xl font-extrabold tracking-tight drop-shadow-md">
@@ -85,10 +94,14 @@ export default function LandingView() {
                         <div className="bg-secondary/10 text-secondary flex h-10 w-10 items-center justify-center rounded-lg transition-transform group-hover:scale-110">
                             <Users className="h-5 w-5" />
                         </div>
-                        <h3 className="text-lg font-bold">Connect with peers</h3>
+                        <h3 className="text-lg font-bold">
+                            Connect with peers
+                        </h3>
                     </div>
                     <p className="text-text/70 text-sm leading-relaxed">
-                        Discover and join study sessions with students in your courses. Find the perfect study group that fits your schedule.
+                        Discover and join study sessions with students in your
+                        courses. Find the perfect study group that fits your
+                        schedule.
                     </p>
                 </Card>
 
@@ -100,7 +113,8 @@ export default function LandingView() {
                         <h3 className="text-lg font-bold">Smart scheduling</h3>
                     </div>
                     <p className="text-text/70 text-sm leading-relaxed">
-                        Burrow ensures everyone stays in sync and on the same schedule. No more back and forth.
+                        Burrow ensures everyone stays in sync and on the same
+                        schedule. No more back and forth.
                     </p>
                 </Card>
 
@@ -112,7 +126,9 @@ export default function LandingView() {
                         <h3 className="text-lg font-bold">Instant access</h3>
                     </div>
                     <p className="text-text/70 text-sm leading-relaxed">
-                        Sign in with your UMN Google account and start collaborating immediately. Built exclusively for Gophers.
+                        Sign in with your UMN Google account and start
+                        collaborating immediately. Built exclusively for
+                        Gophers.
                     </p>
                 </Card>
             </div>
@@ -124,6 +140,13 @@ export default function LandingView() {
                 </h2>
 
                 <div className="mt-5">
+                    {error && (
+                        <ViewErrors
+                            errors={[error]}
+                            clearErrors={() => setError(null)}
+                        />
+                    )}
+
                     <Card>
                         <div
                             ref={googleLoginContainer}

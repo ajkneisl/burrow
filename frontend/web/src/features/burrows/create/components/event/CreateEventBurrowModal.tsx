@@ -3,18 +3,19 @@ import { useNavigate } from "react-router"
 import type { Burrow } from "@features/burrows/burrows.types.ts"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button, Modal, ViewErrors } from "@umnburrow/core"
-import ScheduleStep from "@features/burrows/create/components/steps/ScheduleStep.tsx"
+import ScheduleStep from "@features/burrows/create/components/event/ScheduleStep.tsx"
 import {
     initialFormState,
     type SubmittedBurrow,
+    type SubmittedStudyEventBurrow,
     type SubmittedBurrowFormState
 } from "@features/burrows/create/create.types.ts"
-import PrivacyStep from "@features/burrows/create/components/steps/PrivacyStep.tsx"
-import InfoStep from "@features/burrows/create/components/steps/InfoStep.tsx"
+import PrivacyStep from "@features/burrows/create/components/event/PrivacyStep.tsx"
+import InfoStep from "@features/burrows/create/components/event/InfoStep.tsx"
 import { addTime } from "@api/util.ts"
 
 /**
- * {@link BurrowModal}
+ * {@link CreateEventBurrowModal}
  */
 type BurrowModalProps = {
     open: boolean
@@ -26,9 +27,9 @@ type BurrowModalProps = {
 }
 
 /**
- * Manages a Burrow.
+ * Manages an Event Burrow.
  *
- * This includes functionality to both create and edit a Burrow.
+ * This includes functionality to both create and edit an Event.
  *
  * @param open When this modal is open.
  * @param onClose When this modal is closed.
@@ -36,9 +37,10 @@ type BurrowModalProps = {
  * @param meeting The meeting (if updating)
  * @param modalTitle The title {@link mode}.
  * @param onSubmit When the modal is submitted.
- * @constructor
+ *
+ * @author AJ Kneisl
  */
-export default function BurrowModal({
+export default function CreateEventBurrowModal({
     open,
     onClose,
     mode = "create",
@@ -75,7 +77,7 @@ export default function BurrowModal({
                 const minEnd = String(end.getMinutes()).padStart(2, "0")
 
                 setFormState({
-                    kind: "STUDY",
+                    kind: "EVENT",
                     title: meeting.title ?? "",
                     location: meeting.location ?? "",
                     capacity:
@@ -93,7 +95,7 @@ export default function BurrowModal({
                     endTime: `${hhEnd}:${minEnd}`
                 })
             } else {
-                setFormState(initialFormState)
+                setFormState({ ...initialFormState, kind: "EVENT" })
             }
         }
     }, [open, mode, meeting])
@@ -178,8 +180,8 @@ export default function BurrowModal({
 
         const dateMs = new Date(`${formState.date}T00:00:00-05:00`).getTime()
 
-        const payload: SubmittedBurrow = {
-            kind: "STUDY" as const,
+        const payload: SubmittedStudyEventBurrow = {
+            kind: "EVENT" as const,
             title: formState.title.trim(),
             location: formState.location.trim(),
             capacity: formState.capacity,
@@ -219,7 +221,7 @@ export default function BurrowModal({
                 return
             }
 
-            // if creating, go to the new meeting
+            // if creating, go to the new event
             if (
                 response &&
                 typeof response === "object" &&
@@ -245,14 +247,13 @@ export default function BurrowModal({
         }
 
         applyServerErrors([
-            "Unknown error submitting meeting. Please try again."
+            "Unknown error submitting event. Please try again."
         ])
     }
 
-    // to be honest, this is kinda cheap.
-    // the submit button got moved out the form eventually, so this is a workaround.
+    // submit button handler
     function onClickSubmit() {
-        const form = document.getElementById("study-form") as HTMLFormElement
+        const form = document.getElementById("event-form") as HTMLFormElement
 
         form.requestSubmit()
     }
@@ -304,14 +305,12 @@ export default function BurrowModal({
             onClose={onClose}
             title={
                 modalTitle ??
-                (mode === "update"
-                    ? "Update Study Group"
-                    : "Create Study Group")
+                (mode === "update" ? "Update Event" : "Create Event")
             }
             footer={footer}
             widthClass="md:min-w-xl max-w-xl"
         >
-            <form id="study-form" onSubmit={handleSubmit}>
+            <form id="event-form" onSubmit={handleSubmit}>
                 {/* errors.. uh oh! */}
                 <ViewErrors
                     errors={serverErrors}

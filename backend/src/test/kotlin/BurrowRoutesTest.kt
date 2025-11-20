@@ -1,7 +1,7 @@
 package app.burrow
 
 import app.burrow.burrows.BURROW_ROUTES
-import app.burrow.burrows.models.BurrowType
+import app.burrow.burrows.models.BurrowKind
 import app.burrow.burrows.models.BurrowVisibility
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
@@ -75,7 +75,7 @@ class BurrowRoutesTest :
             title: String = "Study Session",
             description: String = "Let's study together",
             location: String = "Library",
-            kind: BurrowType = BurrowType.STUDY,
+            kind: BurrowKind = BurrowKind.STUDY,
             beginningTime: Long = getFutureTimestamp(60),
             endTime: Long = getFutureTimestamp(120),
             tags: Set<String> = setOf("math", "cs"),
@@ -787,7 +787,7 @@ class BurrowRoutesTest :
                     client.post("/groups") {
                         header(HttpHeaders.Authorization, "Bearer ${generateToken(testUserID)}")
                         contentType(ContentType.Application.Json)
-                        setBody(createValidBurrowJson(kind = BurrowType.STUDY))
+                        setBody(createValidBurrowJson(kind = BurrowKind.STUDY))
                     }
                 (response.status.value < 500 ||
                     response.status == HttpStatusCode.InternalServerError) shouldBe true
@@ -801,7 +801,7 @@ class BurrowRoutesTest :
                     client.post("/groups") {
                         header(HttpHeaders.Authorization, "Bearer ${generateToken(testUserID)}")
                         contentType(ContentType.Application.Json)
-                        setBody(createValidBurrowJson(kind = BurrowType.CLUB))
+                        setBody(createValidBurrowJson(kind = BurrowKind.CLUB))
                     }
                 (response.status.value < 500 ||
                     response.status == HttpStatusCode.InternalServerError) shouldBe true

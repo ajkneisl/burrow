@@ -9,7 +9,7 @@ export const CDN_URL = import.meta.env.VITE_CDN_URL
  *
  * @param key The readable date.
  */
-export function humanDateLabel(key: string): string {
+export function humanDateLabel(key: string | number): string {
     const today = new Date()
     const tomorrow = new Date()
     tomorrow.setDate(today.getDate() + 1)

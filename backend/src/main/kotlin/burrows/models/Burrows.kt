@@ -23,7 +23,7 @@ object Burrows : Table("group_meetings") {
     val location = varchar("location", 255)
 
     /** [app.burrow.burrows.Burrow.kind] */
-    val kind = enumerationByName("kind", 32, BurrowType::class).index("ix_burrows_kind")
+    val kind = enumerationByName("kind", 32, BurrowKind::class).index("ix_burrows_kind")
 
     /** [app.burrow.burrows.Burrow.beginningTime] */
     val beginningTime = long("beginning_time").index("ix_burrows_beginning_time")
