@@ -44,7 +44,7 @@ val NOTIFICATION_ROUTES: Route.() -> Unit = {
         // POST /notifications/{id}
         // marks a notification as read / unread
         post("/{id}") {
-            val id = call.queryParameter("id")
+            val id = call.urlParameter("id")
 
             val uuid =
                 runCatching { UUID.fromString(id) }.getOrNull()

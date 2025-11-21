@@ -13,7 +13,7 @@ import {
     acceptInvite,
     declineInvite
 } from "@features/burrows/attendees/attendees.api.ts"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import toast from "react-hot-toast"
 import ViewNotification from "@features/notifications/components/ViewNotification.tsx"
 import EmptyNotifications from "@features/notifications/components/EmptyNotifications.tsx"
@@ -104,14 +104,25 @@ export default function ViewNotifications() {
         [items]
     )
 
+    const queryClient = useQueryClient()
+
     // Handle invite actions
     const acceptInviteMutation = useMutation({
-        mutationFn: async (burrowId: string) => {
+        mutationFn: async ({
+            burrowId,
+            notificationId
+        }: {
+            burrowId: string
+            notificationId: string
+        }) => {
             await acceptInvite(burrowId)
+            return notificationId
         },
 
-        onSuccess: () => {
+        onSuccess: (notificationId) => {
             toast.success("Invite accepted!")
+            deleteMutation.mutate(notificationId)
+            void queryClient.invalidateQueries({ queryKey: ["notifications"] })
         },
 
         onError: () => {
@@ -121,12 +132,21 @@ export default function ViewNotifications() {
 
     // decline invite
     const declineInviteMutation = useMutation({
-        mutationFn: async (burrowId: string) => {
+        mutationFn: async ({
+            burrowId,
+            notificationId
+        }: {
+            burrowId: string
+            notificationId: string
+        }) => {
             await declineInvite(burrowId)
+            return notificationId
         },
 
-        onSuccess: () => {
+        onSuccess: (notificationId) => {
             toast.success("Invite declined")
+            deleteMutation.mutate(notificationId)
+            void queryClient.invalidateQueries({ queryKey: ["notifications"] })
         },
 
         onError: () => {
