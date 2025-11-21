@@ -264,8 +264,8 @@ export default function NotificationsSection() {
                                             title="Push Notifications"
                                             description={
                                                 "Receive notifications in your browser" +
-                                                (!isSupported &&
-                                                    " (this is not supported by your browser)")
+                                                (!isSupported ?
+                                                    " (this is not supported by your browser)" : "")
                                             }
                                             checked={browserNotifications}
                                             onChange={
