@@ -1,17 +1,15 @@
 import { useQuery } from "@tanstack/react-query"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import { useNavigate } from "react-router"
-import type { BurrowType } from "@features/burrows/burrows.types.ts"
+import type { BurrowKind } from "@features/burrows/burrows.types.ts"
 import { getBurrows } from "@features/burrows/burrows.api.ts"
 import { Badge, Button, Card, ViewErrors } from "@umnburrow/core"
-import { useAtom } from "jotai"
-import { studyGroupModal } from "@features/burrows/create/create.atom.ts"
 
 /**
  * {@link PreviewBurrows}
  */
 type PreviewGroupsProps = {
-    kind: BurrowType
+    kind: BurrowKind
     fullPage: string
     amount: number
 }
@@ -22,6 +20,8 @@ type PreviewGroupsProps = {
  * @param kind The kind of Burrow
  * @param fullPage The link to the full page of this type of Burrow.
  * @param amount The amount of Burrows to preview.
+ *
+ * @author AJ Kneisl
  */
 export default function PreviewBurrows({
     kind,
@@ -29,8 +29,6 @@ export default function PreviewBurrows({
     amount
 }: PreviewGroupsProps) {
     const nav = useNavigate()
-
-    const [, setModalOpen] = useAtom(studyGroupModal)
 
     const { data, isLoading, isError, refetch, error } = useQuery({
         queryKey: [kind],
@@ -82,9 +80,7 @@ export default function PreviewBurrows({
                 data.contents.length > 0 &&
                 data.contents
                     .slice(0, amount)
-                    .map((meeting) => (
-                        <BurrowCard meetingResponse={meeting} />
-                    ))}
+                    .map((meeting) => <BurrowCard meetingResponse={meeting} />)}
 
             {/* no upcoming burrows */}
             {data && data.contents?.length === 0 && (
@@ -95,14 +91,6 @@ export default function PreviewBurrows({
                 >
                     <p className="text-center text-sm tracking-wide">
                         No upcoming Burrows.
-                        <br />
-                        <button
-                            onClick={() => setModalOpen(true)}
-                            className="hover:text-text/70 cursor-pointer underline"
-                        >
-                            Start one
-                        </button>
-                        .
                     </p>
                 </Card>
             )}

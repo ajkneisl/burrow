@@ -1,7 +1,7 @@
 import { BASE_URL } from "@api/util.ts"
 import type {
     BurrowResponse,
-    BurrowType,
+    BurrowKind,
     BurrowMembershipResponse,
     BurrowRole
 } from "./burrows.types.ts"
@@ -25,7 +25,7 @@ export async function getMeeting(id: string): Promise<BurrowResponse> {
  * @return The meeting response, including membership and meeting information.
  */
 export async function getBurrows(
-    type: BurrowType | null
+    type: BurrowKind | null
 ): Promise<PaginatedResponse<BurrowResponse>> {
     return get(`/burrows`, { query: { type: `${type}` } })
 }
@@ -130,7 +130,7 @@ export async function getAttendees(
  * @param endDate The ending of a time range to search through.
  */
 export async function searchMeetings(
-    type: BurrowType | null,
+    type: BurrowKind | null,
     query: string,
     page: number = 1,
     startDate?: number,

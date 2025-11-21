@@ -117,7 +117,7 @@ suspend fun createInvite(
 
     // Check if burrow has ended
     if (getTimeMillis() > burrow.endTime) {
-        throw Error(400, "This burrow has already ended.")
+        throw Error(400, "This Burrow has already ended.")
     }
 
     // Prevent self-invites

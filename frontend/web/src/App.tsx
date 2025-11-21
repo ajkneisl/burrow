@@ -1,5 +1,6 @@
 import HomeView from "@pages/Home.view.tsx"
 import Burrow from "@pages/Meeting.view.tsx"
+import Project from "@pages/Project.view.tsx"
 import Browse from "@pages/Browse.view.tsx"
 import LandingView from "@pages/Landing.view.tsx"
 import Header from "@features/layout/components/Header.tsx"
@@ -8,8 +9,6 @@ import useUser from "@features/auth/hooks/useUser.ts"
 import NotFound from "@pages/NotFound.view.tsx"
 import { useAtom } from "jotai"
 import Footer from "@features/layout/components/Footer.tsx"
-import CreateBurrowModal from "@features/burrows/create/components/CreateBurrowModal.tsx"
-import { studyGroupModal } from "@features/burrows/create/create.atom.ts"
 import { themeAtom } from "@api/theme.atom.ts"
 import Privacy from "@pages/Privacy.view.tsx"
 import ToS from "@pages/ToS.view.tsx"
@@ -30,6 +29,11 @@ import {
 import ViewRelations from "@features/profile/components/ViewRelations.tsx"
 import MetaTags from "@features/layout/components/MetaTags.tsx"
 import Yordanos from "@pages/Yordanos.view.tsx"
+import CreateEventBurrowModal from "@features/burrows/create/components/event/CreateEventBurrowModal.tsx"
+import { createBurrow } from "@features/burrows/create/create.api.ts"
+import CreateStudyBurrowModal from "@features/burrows/create/components/study/CreateStudyBurrowModal.tsx"
+import { createBurrowModal } from "@features/burrows/create/create.atom.ts"
+import CreateProjectBurrowModal from "@features/burrows/create/components/project/CreateProjectBurrowModal.tsx";
 
 function ErrorElement() {
     const error = useRouteError() as Error | undefined
@@ -55,7 +59,7 @@ function RootLayout() {
     // load user information & ensure logged in
     useUser()
 
-    const [modalOpen, setModalOpen] = useAtom(studyGroupModal)
+    const [createModal, setCreateModal] = useAtom(createBurrowModal)
     const [darkMode, setDarkMode] = useAtom(themeAtom)
 
     useEffect(() => {
@@ -102,10 +106,37 @@ function RootLayout() {
             />
 
             <main className="mb-8 flex-grow md:m-auto md:mx-4 md:min-w-xl">
-                <CreateBurrowModal
-                    open={modalOpen}
-                    onClose={() => setModalOpen(false)}
-                    title="Create a Study Group"
+                {/* study creation */}
+                <CreateStudyBurrowModal
+                    open={createModal === "STUDY"}
+                    onClose={() => setCreateModal(null)}
+                    mode="create"
+                    modalTitle={"Create a Study Burrow"}
+                    onSubmit={async (payload) => {
+                        return await createBurrow(payload)
+                    }}
+                />
+
+                {/* event creation */}
+                <CreateEventBurrowModal
+                    open={createModal === "EVENT"}
+                    onClose={() => setCreateModal(null)}
+                    mode="create"
+                    modalTitle={"Create an Event Burrow"}
+                    onSubmit={async (payload) => {
+                        return await createBurrow(payload)
+                    }}
+                />
+
+                {/* group creation */}
+                <CreateProjectBurrowModal
+                    open={createModal === "PROJECT"}
+                    onClose={() => setCreateModal(null)}
+                    mode="create"
+                    modalTitle={"Create an Project Burrow"}
+                    onSubmit={async (payload) => {
+                        return await createBurrow(payload)
+                    }}
                 />
 
                 <ViewRelations />
@@ -137,6 +168,7 @@ const router = createBrowserRouter([
             { path: "privacy", element: <Privacy /> },
             { path: "tos", element: <ToS /> },
             { path: "burrow/:id", element: <Burrow /> },
+            { path: "project/:id", element: <Project /> },
             { path: ":id", element: <MeetingReRoute /> },
             { path: "*", element: <NotFound /> }
         ]

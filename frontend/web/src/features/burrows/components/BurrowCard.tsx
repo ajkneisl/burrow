@@ -222,7 +222,7 @@ export function BurrowCard({
                             </div>
 
                             {/* capacity */}
-                            <MeetingCapacityBadges meeting={burrow} />
+                            <MeetingCapacityBadges burrow={burrow} />
                         </div>
                     </div>
                 )}

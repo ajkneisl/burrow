@@ -15,10 +15,18 @@ import io.ktor.server.auth.principal
 import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.leftJoin
+import org.jetbrains.exposed.v1.core.like
+import org.jetbrains.exposed.v1.core.lowerCase
+import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
@@ -202,6 +210,49 @@ suspend fun getUserByUsername(username: String): User {
             ?: throw Error(401, "Invalid username.")
 
     return User.fromRow(user)
+}
+
+/**
+ * Search result for user search containing user ID, username, and profile name.
+ *
+ * @param id The user's ID.
+ * @param username The user's username.
+ * @param name The user's profile name (if available).
+ */
+@Serializable
+data class UserSearchResult(val id: String, val username: String, val name: String? = null)
+
+/**
+ * Search for users by username or profile name. Returns up to 10 results that match the query.
+ *
+ * @param query The search query to match against username and profile name.
+ * @param requestingUserID If included, do not include the requesting user.
+ * @return A list of up to 10 matching users.
+ */
+suspend fun searchUsers(searchQuery: String, requestingUserID: String?): List<UserSearchResult> {
+    if (searchQuery.isBlank()) return emptyList()
+
+    val pattern = "%${searchQuery.trim().lowercase().replace("%", "\\%").replace("_", "\\_")}%"
+
+    return query {
+        Users.leftJoin(Profiles, { Users.id }, { Profiles.userID })
+            .selectAll()
+            .where {
+                ((Users.username.lowerCase() like pattern) or
+                    (Profiles.name.lowerCase() like pattern)) and
+                    // exclude requesting user if included
+                    (if (requestingUserID != null) Users.id neq requestingUserID else Op.TRUE)
+            }
+            .limit(10)
+            .toList()
+            .map { row ->
+                UserSearchResult(
+                    id = row[Users.id],
+                    username = row[Users.username],
+                    name = row.getOrNull(Profiles.name),
+                )
+            }
+    }
 }
 
 val ApplicationCall.userID

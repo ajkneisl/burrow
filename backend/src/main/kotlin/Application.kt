@@ -9,6 +9,9 @@ import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.burrows.BURROW_ROUTES
 import app.burrow.burrows.getBurrow
 import app.burrow.burrows.getMeetingResponse
+import app.burrow.burrows.models.BurrowKind
+import app.burrow.burrows.models.SubmittedBurrow
+import app.burrow.burrows.models.SubmittedProjectBurrow
 import app.burrow.burrows.sync.Sync
 import app.burrow.notifications.NOTIFICATION_ROUTES
 import app.burrow.notifications.NotificationKind
@@ -49,7 +52,10 @@ import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 
 val client = HttpClient(CIO)
-val json = Json { ignoreUnknownKeys = true }
+val json = Json {
+    classDiscriminator = "type"
+    ignoreUnknownKeys = true
+}
 val burrowLogger = LoggerFactory.getLogger("Burrow")
 
 const val PRIMARY_AUTH = "primary"

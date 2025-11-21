@@ -58,7 +58,7 @@ export function usePushNotifications() {
         useCallback(async (): Promise<ServiceWorkerRegistration> => {
             try {
                 const registration = await navigator.serviceWorker.register(
-                    "/sw.js",
+                    "/js/sw.js",
                     {
                         scope: "/"
                     }

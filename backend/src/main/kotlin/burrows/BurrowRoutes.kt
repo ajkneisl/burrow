@@ -10,8 +10,10 @@ import app.burrow.burrows.invites.joinRequestRoutes
 import app.burrow.burrows.membership.getUserBookmarks
 import app.burrow.burrows.membership.getUserSchedule
 import app.burrow.burrows.membership.membershipRoutes
-import app.burrow.burrows.models.BurrowType
+import app.burrow.burrows.models.BurrowKind
 import app.burrow.burrows.models.SubmittedBurrow
+import app.burrow.burrows.models.SubmittedProjectBurrow
+import app.burrow.burrows.models.SubmittedStudyEventBurrow
 import app.burrow.enumQueryParameter
 import app.burrow.optionalIntQueryParameter
 import app.burrow.optionalLongQueryParameter
@@ -40,24 +42,15 @@ import java.time.YearMonth
 val BURROW_ROUTES: Route.() -> Unit = {
     // GET /groups
     // get all burrows
-    //
-    // query parameters:
-    // > page (optional)    the page to retrieve
-    // > type               the type of burrows
     get {
         val page = call.optionalIntQueryParameter("page") ?: 1
-        val type = call.enumQueryParameter<BurrowType>("type")
+        val type = call.enumQueryParameter<BurrowKind>("type")
 
         call.respond(searchMeetings(page = page, kind = type, requestingUserID = call.userID))
     }
 
     // GET /groups/heatmap
     // get a heatmap of groups created this month
-    //
-    // query parameters:
-    // > year   (optional)  the year of the heatmap
-    // > month  (optional)  the month of the heatmap
-    // > range  (optional)  how many months of the heatmap to retrieve
     get("/heatmap") {
         val currentDate = LocalDateTime.now()
 
@@ -83,16 +76,9 @@ val BURROW_ROUTES: Route.() -> Unit = {
 
     // GET /burrows/search
     // search among the stars
-    //
-    // query parameters:
-    // > query              the search query
-    // > type               the type of burrow to seach through
-    // > page   (optional)  which page of the query to retrieve
-    // > start  (optional)  the start of the date range
-    // > end    (optional)  the end of the date range
     get("/search") {
         val searchQuery = call.queryParameter("query")
-        val type = call.enumQueryParameter<BurrowType>("type")
+        val type = call.enumQueryParameter<BurrowKind>("type")
         val page = call.optionalIntQueryParameter("page") ?: 1
 
         val startDate = call.optionalLongQueryParameter("start")
@@ -119,11 +105,17 @@ val BURROW_ROUTES: Route.() -> Unit = {
     // POST /groups
     // create a meeting
     post {
-        val group = call.receive<SubmittedBurrow>()
+        when (val submittedBurrow = call.receive<SubmittedBurrow>()) {
+            is SubmittedProjectBurrow -> {
+                submittedBurrow.validateSubmittedBurrow().throwIfNotEmpty()
+                call.respond(createProjectBurrow(call.userID, submittedBurrow))
+            }
 
-        group.validateSubmittedGroupMeeting().throwIfNotEmpty()
-
-        call.respond(createStudyBurrow(call.userID, group))
+            is SubmittedStudyEventBurrow -> {
+                submittedBurrow.validateSubmittedBurrow().throwIfNotEmpty()
+                call.respond(createBurrow(call.userID, submittedBurrow))
+            }
+        }
     }
 
     // CRUD /groups/{id}
@@ -157,11 +149,18 @@ val BURROW_ROUTES: Route.() -> Unit = {
             if (getTimeMillis() > meeting.endTime)
                 throw Error(400, "You cannot edit a meeting that's in the past.")
 
-            val group = call.receive<SubmittedBurrow>()
+            val submittedBurrow = call.receive<SubmittedBurrow>()
 
-            group.validateSubmittedGroupMeeting().throwIfNotEmpty()
-
-            updatedBurrow(id, group)
+            when (submittedBurrow) {
+                is SubmittedProjectBurrow -> {
+                    submittedBurrow.validateSubmittedBurrow().throwIfNotEmpty()
+                    updateProjectBurrow(id, submittedBurrow)
+                }
+                is SubmittedStudyEventBurrow -> {
+                    submittedBurrow.validateSubmittedBurrow().throwIfNotEmpty()
+                    updatedBurrow(id, submittedBurrow)
+                }
+            }
 
             call.respond(HttpStatusCode.OK)
         }

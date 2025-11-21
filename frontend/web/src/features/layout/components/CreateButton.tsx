@@ -1,6 +1,6 @@
 import { motion, AnimatePresence, type Variants } from "framer-motion"
 import { useAtom } from "jotai"
-import { studyGroupModal } from "@features/burrows/create/create.atom.ts"
+import { createBurrowModal } from "@features/burrows/create/create.atom.ts"
 import React, { useEffect, useRef, useState, useCallback } from "react"
 import toast from "react-hot-toast"
 import clsx from "clsx"
@@ -11,7 +11,7 @@ import clsx from "clsx"
  * @author AJ Kneisl
  */
 export default function CreateButton() {
-    const [, setModalOpen] = useAtom(studyGroupModal)
+    const [, setModalOpen] = useAtom(createBurrowModal)
     const [open, setOpen] = useState(false)
 
     const buttonRef = useRef<HTMLButtonElement | null>(null)
@@ -38,7 +38,7 @@ export default function CreateButton() {
                     />
                 </svg>
             ),
-            onClick: () => setModalOpen(true)
+            onClick: () => setModalOpen("STUDY")
         },
         {
             label: "Group Project",
@@ -59,7 +59,7 @@ export default function CreateButton() {
                     />
                 </svg>
             ),
-            onClick: () => toast.error("this is coming soon :)")
+            onClick: () => setModalOpen("PROJECT")
         },
         {
             label: "Event Meeting",
@@ -80,7 +80,7 @@ export default function CreateButton() {
                     />
                 </svg>
             ),
-            onClick: () => toast.error("this is coming soon :)")
+            onClick: () => setModalOpen("EVENT")
         },
         {
             label: "Club Meeting",
@@ -243,9 +243,7 @@ export default function CreateButton() {
                         onKeyDown={onMenuKeyDown}
                         className={clsx(
                             "absolute right-0 w-64 rounded-2xl",
-                            // Mobile: open above (go up)
                             "bottom-full mb-2 origin-bottom-right",
-                            // Desktop md+: open below (go down)
                             "md:top-full md:bottom-auto md:mt-2 md:mb-0 md:origin-top-right",
                             "border-primary/20 bg-background overflow-hidden border shadow-xl ring-1 ring-black/5 focus:outline-none"
                         )}

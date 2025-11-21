@@ -1,5 +1,5 @@
 import type {
-    BurrowType,
+    BurrowKind,
     BurrowVisibility
 } from "@features/burrows/burrows.types.ts"
 
@@ -22,7 +22,7 @@ export interface SubmittedBurrowFormState {
     title: string
     description: string
     location: string
-    kind: BurrowType
+    kind: BurrowKind
     date: string
     beginningTime: string
     endTime: string
@@ -50,13 +50,25 @@ export const initialFormState: SubmittedBurrowFormState = {
 }
 
 /**
- * A group meeting created by a form.
+ * A project burrow submission.
  */
-export type SubmittedBurrow = {
+export type SubmittedProjectBurrow = {
+    kind: "PROJECT"
+    name: string
+    objective: string
+    className: string
+    teamMembers: string[] // array of user IDs
+    dueDate: number // epoch millis
+}
+
+/**
+ * A study/event burrow submission.
+ */
+export type SubmittedStudyEventBurrow = {
+    kind: "STUDY" | "EVENT"
     title: string
     description: string
     location: string
-    kind: BurrowType
     beginningTime: number // epoch millis
     endTime: number // epoch millis
     tags: string[]
@@ -64,3 +76,8 @@ export type SubmittedBurrow = {
     visibility: BurrowVisibility
     requestToJoin: boolean
 }
+
+/**
+ * A group meeting created by a form - can be either project or study/event.
+ */
+export type SubmittedBurrow = SubmittedProjectBurrow | SubmittedStudyEventBurrow

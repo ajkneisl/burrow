@@ -3,9 +3,11 @@ import Field from "@features/burrows/create/components/Field.tsx"
 import type { CreateStepProps } from "@features/burrows/create/create.types.ts"
 
 /**
- * A step in the Burrow process.
+ * Schedule step for creating an event.
  *
- * @see BurrowModal
+ * @see CreateEventBurrowModal
+ *
+ * @author AJ Kneisl
  */
 export default function ScheduleStep({
     errors,
@@ -16,7 +18,7 @@ export default function ScheduleStep({
         <div className="grid gap-6 md:grid-cols-2">
             {/* date */}
             <Field
-                label="Date"
+                label="Event Date"
                 error={errors.date}
                 className="min-w-0 md:col-span-2"
             >

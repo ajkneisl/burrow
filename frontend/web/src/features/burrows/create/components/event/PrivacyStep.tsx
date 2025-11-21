@@ -4,9 +4,11 @@ import type { BurrowVisibility } from "@features/burrows/burrows.types.ts"
 import { capitalizeFirstLetter } from "@api/util.ts"
 
 /**
- * A step in the Burrow process.
+ * Privacy step for creating an event.
  *
- * @see BurrowModal
+ * @see CreateEventBurrowModal
+ *
+ * @author AJ Kneisl
  */
 export default function PrivacyStep({
     formState,
@@ -17,7 +19,7 @@ export default function PrivacyStep({
             {/* visibility */}
             <div className="min-w-0">
                 <SelectInput
-                    text="Meeting Privacy"
+                    text="Event Privacy"
                     remark="Public: visible to everyone • Unlisted: only accessible via link • Private: invite-only"
                     items={["Public", "Unlisted", "Private"]}
                     value={capitalizeFirstLetter(
@@ -35,8 +37,8 @@ export default function PrivacyStep({
             {/* request to join */}
             <div className="min-w-0 border-t border-neutral-200 pt-4">
                 <Toggle
-                    title="Require approval to join"
-                    description="When enabled, users must request to join and wait for approval from a host or moderator"
+                    title="Require approval to attend"
+                    description="When enabled, users must request to attend and wait for approval from a host or moderator"
                     checked={formState.requestToJoin}
                     onChange={(checked) =>
                         updateField("requestToJoin", checked)

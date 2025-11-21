@@ -1,34 +1,31 @@
-import { Link, Navigate, useParams } from "react-router"
+import { Link, useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
-import { Archive, Clock } from "lucide-react"
+import { Archive, Calendar } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { getMeeting } from "@features/burrows/burrows.api.ts"
-import MeetingLocation from "@features/burrows/components/MeetingLocation.tsx"
 import DeleteMeeting from "@features/burrows/controls/DeleteMeeting.tsx"
-import { formatDateTime } from "@api/util.ts"
-import JoinMeeting from "@features/burrows/components/JoinMeeting.tsx"
-import MeetingCapacityBadges from "@features/burrows/components/MeetingCapacityBadges.tsx"
-import EditBurrow from "@features/burrows/controls/EditBurrow.tsx"
+import { dayLabel } from "@api/util.ts"
 import ChatBox from "@features/chat/components/ChatBox.tsx"
 import ViewAttendees from "@features/burrows/attendees/components/ViewAttendees.tsx"
-import Pomodoro from "@features/sync/components/Pomodoro.tsx"
 import useSync from "@features/sync/hooks/useSync.tsx"
 import { BurrowFeatures } from "@features/sync/components/BurrowFeatures.tsx"
 import useToken from "@features/auth/hooks/useToken.ts"
 import { blockStatus } from "@features/sync/sync.atom.ts"
-import { Badge, Card, Hover, ViewErrors } from "@umnburrow/core"
+import { Card, Hover, ViewErrors } from "@umnburrow/core"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import ShareMeeting from "@features/burrows/controls/ShareMeeting.tsx"
 import BookmarkMeeting from "@features/burrows/controls/BookmarkMeeting.tsx"
+import MeetingCapacityBadges from "@features/burrows/components/MeetingCapacityBadges.tsx"
+import JoinMeeting from "@features/burrows/components/JoinMeeting.tsx"
 
 /**
- * View an individual meeting.
+ * View an individual project burrow.
  *
  * @author AJ Kneisl
  */
-export default function Burrow() {
+export default function Project() {
     const { id } = useParams<{ id: string }>()
 
     const auth = useToken()
@@ -46,11 +43,11 @@ export default function Burrow() {
 
     const isOwner =
         auth !== "" && user !== null && user.id === data?.burrow?.ownerID
-    const inMeeting = data?.membership?.status === "JOINED" || isOwner
-    const inPast = (data?.burrow?.endTime ?? 0) < new Date().valueOf()
+    const inProject = data?.membership?.status === "JOINED" || isOwner
+    const isPastDue = (data?.burrow?.endTime ?? 0) < new Date().valueOf()
     const isLoggedOut = auth === null
 
-    // Set meta tags for this meeting
+    // Set meta tags for this project
     useMetaTags({
         title: `Burrow — ${data?.burrow?.title}`,
         description: `View ${data?.burrow?.title} on Burrow`,
@@ -73,7 +70,6 @@ export default function Burrow() {
                                         <div className="bg-text/10 h-4 w-48 rounded" />
                                     </div>
                                     <div className="flex gap-2">
-                                        <div className="bg-text/10 h-6 w-20 rounded-full" />
                                         <div className="bg-text/10 h-6 w-20 rounded-full" />
                                         <div className="bg-text/10 h-6 w-20 rounded-full" />
                                     </div>
@@ -102,25 +98,6 @@ export default function Burrow() {
                                         <div className="bg-text/10 h-4 w-full rounded" />
                                     </div>
                                 </Card>
-                                <Card className="p-6">
-                                    <div className="animate-pulse">
-                                        <div className="bg-text/10 mb-3 h-5 w-32 rounded" />
-                                        <div className="space-y-3">
-                                            <div className="flex items-center gap-2">
-                                                <div className="bg-text/10 h-10 w-10 rounded-full" />
-                                                <div className="bg-text/10 h-4 w-32 rounded" />
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="bg-text/10 h-10 w-10 rounded-full" />
-                                                <div className="bg-text/10 h-4 w-32 rounded" />
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="bg-text/10 h-10 w-10 rounded-full" />
-                                                <div className="bg-text/10 h-4 w-32 rounded" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Card>
                             </div>
                         </div>
                     </div>
@@ -139,20 +116,13 @@ export default function Burrow() {
 
     const { burrow, burrowAuthor } = data
 
-    // Redirect to project page if this is a project burrow
-    if (burrow.kind === "PROJECT") {
-        return <Navigate to={`/project/${id}`} replace />
-    }
-
-    const tags = Array.from(burrow.tags ?? [])
-
     return (
         <main className="min-h-screen">
             {/* memo to join burrow */}
             {isLoggedOut && (
                 <div className="text-text bg-primary mt-4 w-full rounded-2xl px-4 py-3 text-center shadow-md">
                     <p className="text-sm font-medium sm:text-base">
-                        Interested in this Burrow?
+                        Interested in this Project?
                         <br />
                         <Link
                             to="/welcome"
@@ -172,16 +142,17 @@ export default function Burrow() {
                             <div className="flex flex-col gap-4">
                                 <div className="min-w-0">
                                     {/* archive notice*/}
-                                    {inPast && (
+                                    {isPastDue && (
                                         <Hover
                                             content={
-                                                "You may not edit or interact with this meeting."
+                                                "This project is past its due date."
                                             }
                                         >
                                             <div className="bg-text/10 text-text/80 mt-2 inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-1 text-sm font-medium">
                                                 <Archive className="h-4 w-4" />
+
                                                 <span>
-                                                    This meeting is archived
+                                                    This project is past due.
                                                 </span>
                                             </div>
                                         </Hover>
@@ -205,8 +176,9 @@ export default function Burrow() {
                                                 userID={burrow.ownerID}
                                                 size={"sm"}
                                             />
+
                                             <p className="text-text/60 text-sm">
-                                                Hosted by{" "}
+                                                Created by{" "}
                                                 <span className="text-text/80 font-medium">
                                                     {data.burrowAuthorProfile
                                                         ?.name || burrowAuthor}
@@ -218,15 +190,11 @@ export default function Burrow() {
                                             —
                                         </span>
 
-                                        {/* date */}
+                                        {/* due date */}
                                         <div className="text-text/60 flex items-center gap-1.5 text-sm">
-                                            <Clock className="h-4 w-4" />
-
+                                            <Calendar className="h-4 w-4" />
                                             <span>
-                                                {formatDateTime(
-                                                    burrow.beginningTime,
-                                                    burrow.endTime
-                                                )}
+                                                Due {dayLabel(burrow.endTime)}
                                             </span>
                                         </div>
                                     </div>
@@ -239,19 +207,20 @@ export default function Burrow() {
 
                                             <BookmarkMeeting
                                                 isBookmarked={data.bookmarked}
-                                                inPast={inPast}
+                                                inPast={isPastDue}
                                                 meetingId={data.burrow.id}
                                             />
                                         </div>
 
-                                        {/* user count badges */}
+                                        {/* team member count */}
                                         <div className="mt-2 flex flex-row items-center gap-2 md:mt-0">
                                             <JoinMeeting
+                                                inPast={isPastDue}
                                                 data={data}
-                                                inPast={inPast}
                                             />
 
                                             <MeetingCapacityBadges
+                                                enforceCapacity={10}
                                                 burrow={burrow}
                                             />
                                         </div>
@@ -263,48 +232,31 @@ export default function Burrow() {
                         <div className="col-span-1 space-y-6 lg:col-span-2">
                             {isOwner && (
                                 <Card className="flex flex-row items-center gap-2">
-                                    <EditBurrow burrow={burrow} />
                                     <DeleteMeeting meeting={burrow} />
-                                    <BurrowFeatures inPast={inPast} />
+                                    <BurrowFeatures inPast={isPastDue} />
                                 </Card>
                             )}
 
-                            {/* description */}
-                            <Card title="Description">
+                            {/* objective */}
+                            <Card title="Objective">
                                 <p>
                                     {burrow.description ||
-                                        "No description provided."}
+                                        "No objective provided."}
                                 </p>
-
-                                {/* tags */}
-                                {tags.length > 0 && (
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                        {tags.slice(0, 6).map((t) => (
-                                            <Badge key={String(t)}>
-                                                {String(t)}
-                                            </Badge>
-                                        ))}
-                                    </div>
-                                )}
                             </Card>
 
-                            {inMeeting && blocks.includes("CHAT") && (
+                            {/* class */}
+                            {burrow.location && (
+                                <Card title="Class">{burrow.location}</Card>
+                            )}
+
+                            {inProject && blocks.includes("CHAT") && (
                                 <ChatBox burrow={data} />
                             )}
                         </div>
 
                         <div className="order-[-1] col-span-1 space-y-6 md:order-2">
-                            {!isLoggedOut && (
-                                <MeetingLocation location={burrow.location} />
-                            )}
-
-                            {inMeeting && <ViewAttendees />}
-
-                            {inMeeting &&
-                                blocks.includes("POMODORO") &&
-                                data.membership && (
-                                    <Pomodoro membership={data.membership} />
-                                )}
+                            {inProject && <ViewAttendees term="Members" />}
                         </div>
                     </div>
                 </div>

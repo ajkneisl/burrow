@@ -48,11 +48,20 @@ function sortMemberships(
 }
 
 /**
+ * @see ViewAttendees
+ */
+type ViewAttendeesProps = {
+    term?: string
+}
+
+/**
  * View all attendees in a group.
  *
  * @author AJ Kneisl
  */
-export default function ViewAttendees() {
+export default function ViewAttendees({
+    term = "Attendees"
+}: ViewAttendeesProps) {
     const { id: burrowID } = useParams<{ id: string }>()
     const user = useUser()
 
@@ -245,7 +254,9 @@ export default function ViewAttendees() {
             {/* header */}
             <div className="mb-2 flex flex-row items-center justify-between">
                 <h3 className="text-center text-sm font-semibold">
-                    {capitalizeFirstLetter(viewMode)}
+                    {capitalizeFirstLetter(
+                        viewMode === "attendees" && term ? term : viewMode
+                    )}
                 </h3>
 
                 {meetingRole !== "MEMBER" && (
