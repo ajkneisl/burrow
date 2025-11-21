@@ -29,6 +29,8 @@ type ToggleProps = {
  * @param disabled Whether the toggle is disabled.
  * @param variant "inline" (with label) or "standalone" (just switch).
  * @param className Additional CSS classes.
+ *
+ * @author AJ Kneisl
  */
 export default function Toggle({
     title,

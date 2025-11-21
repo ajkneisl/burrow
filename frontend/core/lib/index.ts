@@ -1,5 +1,8 @@
 import "./index.css"
 
+import AutocompleteInput, {
+    type AutocompleteOption
+} from "./components/AutocompleteInput"
 import Button from "./components/Button"
 import Badge from "./components/Badge"
 import Card from "./components/Card"
@@ -14,6 +17,7 @@ import useDateRangePicker from "./hooks/useDateRangePicker"
 import ViewErrors from "./components/ViewErrors"
 
 export {
+    AutocompleteInput,
     Button,
     Badge,
     Card,
@@ -28,3 +32,5 @@ export {
     ViewErrors,
     useDateRangePicker
 }
+
+export type { AutocompleteOption }

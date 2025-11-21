@@ -1,7 +1,11 @@
 import type { ReactNode } from "react"
 import clsx from "clsx"
 
-/** Badge chip */
+/**
+ * Badge chip
+ *
+ * @author AJ Kneisl
+ */
 export default function Badge({
     children,
     size,

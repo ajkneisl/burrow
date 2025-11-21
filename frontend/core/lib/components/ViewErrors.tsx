@@ -13,11 +13,17 @@ type ViewErrorsProps = {
  *
  * @param errors A single error string or array of error strings to display.
  * @param clearErrors Optional callback to clear errors.
+ *
+ * @author AJ Kneisl
  */
 export default function ViewErrors({ errors, clearErrors }: ViewErrorsProps) {
     const errorList = Array.isArray(errors) ? errors : [errors]
 
-    if (!errors || errorList.length === 0 || (errorList.length === 1 && !errorList[0])) {
+    if (
+        !errors ||
+        errorList.length === 0 ||
+        (errorList.length === 1 && !errorList[0])
+    ) {
         return null
     }
 

@@ -29,6 +29,8 @@ type ModalProps = {
  * @param children The contents of the modal.
  * @param footer The footer of the modal. This can be empty.
  * @param widthClass The class that defines the width, by default `max-w-lg`
+ *
+ * @author AJ Kneisl
  */
 export default function Modal({
     open,

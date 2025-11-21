@@ -2,10 +2,7 @@ import { type DetailedHTMLProps, type TextareaHTMLAttributes } from "react"
 import clsx from "clsx"
 
 /**
- * Props for {@link TextArea}.
- *
- * @param text The label text.
- * @param remark Optional remark text below the textarea.
+ * {@link TextArea}.
  */
 export type TextAreaProps = {
     text?: string
@@ -17,6 +14,12 @@ export type TextAreaProps = {
 
 /**
  * A labeled textarea.
+ *
+ * @param text The label text.
+ * @param remark Optional remark text below the textarea.
+ * @param props Other props for the textarea.
+ *
+ * @author AJ Kneisl
  */
 export default function TextArea({ text, remark, ...props }: TextAreaProps) {
     return (
