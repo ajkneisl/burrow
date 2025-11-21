@@ -158,6 +158,7 @@ export default function ViewNotifications() {
         <div ref={wrapperRef} className={"relative inline-block text-left"}>
             {/* button */}
             <HeaderButton
+                description="Notifications"
                 ref={buttonRef}
                 type="button"
                 aria-haspopup="true"

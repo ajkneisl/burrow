@@ -64,14 +64,18 @@ export default function Header() {
                             location.pathname !== "/welcome" && <HomeButton />}
 
                         {/* mobile search */}
-                        <HeaderButton
-                            className="md:hidden"
-                            onClick={() => setMobileSearchOpen((prev) => !prev)}
-                            icon={<SearchIcon className="h-5 w-5" />}
-                        />
+                        <div className="md:hidden">
+                            <HeaderButton
+                                onClick={() =>
+                                    setMobileSearchOpen((prev) => !prev)
+                                }
+                                icon={<SearchIcon className="h-5 w-5" />}
+                            />
+                        </div>
 
                         {/* browse */}
                         <HeaderButton
+                            description="Browse"
                             icon={<CompassIcon className="h-5 w-5" />}
                             onClick={() => nav("/browse")}
                         />
