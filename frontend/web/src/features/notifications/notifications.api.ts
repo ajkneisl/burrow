@@ -81,7 +81,5 @@ export async function subscribeToPush(
  * @param endpoint The push endpoint to unsubscribe.
  */
 export async function unsubscribeFromPush(endpoint: string): Promise<void> {
-    return await post("/notifications/push/unsubscribe", {
-        body: { endpoint }
-    })
+    return await post("/notifications/push/unsubscribe", { endpoint })
 }

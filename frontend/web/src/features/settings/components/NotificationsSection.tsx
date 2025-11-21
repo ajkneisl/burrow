@@ -184,8 +184,6 @@ export default function NotificationsSection() {
             updateGeneralSettings({
                 defaultNotificationDelivery: current | BROWSER_CHANNEL
             })
-
-            toast.success("Browser notifications enabled")
         } else {
             await unsubscribe()
 
@@ -194,8 +192,6 @@ export default function NotificationsSection() {
             updateGeneralSettings({
                 defaultNotificationDelivery: current & ~BROWSER_CHANNEL
             })
-
-            toast.success("Browser notifications disabled")
         }
     }
 
