@@ -12,6 +12,7 @@ import app.burrow.burrows.bookmarks.Bookmarks
 import app.burrow.burrows.getBurrow
 import app.burrow.burrows.invites.JoinRequests
 import app.burrow.burrows.invites.createJoinRequest
+import app.burrow.burrows.models.BurrowKind
 import app.burrow.burrows.models.BurrowMemberStatus
 import app.burrow.burrows.models.BurrowResponse
 import app.burrow.burrows.models.BurrowRole
@@ -28,6 +29,7 @@ import kotlin.math.ceil
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -36,6 +38,7 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.innerJoin
+import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -96,14 +99,16 @@ data class MembershipResponse(val membership: Membership, val user: User, val pr
  * @param user The ID of the user to find all [Burrow]s for.
  */
 suspend fun getUserSchedule(user: String): List<BurrowResponse> {
-    val result = query {
+    // Get up to 5 non-project burrows (study/event)
+    val nonProjectBurrows = query {
         Memberships.innerJoin(Burrows, { Memberships.burrowID }, { Burrows.id })
             .innerJoin(Users, { Burrows.ownerID }, { Users.id })
             .selectAll()
             .where {
                 (Memberships.userID eq user) and // the user's meetings
                     (Memberships.status eq BurrowMemberStatus.JOINED) and // in the meeting
-                    (Burrows.endTime greaterEq getTimeMillis()) // ensure it hasn't ended
+                    (Burrows.endTime greaterEq getTimeMillis()) and // ensure it hasn't ended
+                    (Burrows.kind neq BurrowKind.PROJECT) // exclude projects
             }
             .orderBy(Burrows.beginningTime, SortOrder.ASC)
             .limit(5)
@@ -118,7 +123,32 @@ suspend fun getUserSchedule(user: String): List<BurrowResponse> {
             .toList()
     }
 
-    return result
+    // Get all active projects (not limited)
+    val projectBurrows = query {
+        Memberships.innerJoin(Burrows, { Memberships.burrowID }, { Burrows.id })
+            .innerJoin(Users, { Burrows.ownerID }, { Users.id })
+            .selectAll()
+            .where {
+                (Memberships.userID eq user) and                            // the user's meetings
+                    (Memberships.status eq BurrowMemberStatus.JOINED) and   // in the meeting
+                    (Burrows.endTime greaterEq getTimeMillis()) and         // ensure it hasn't ended
+                    (Burrows.kind eq BurrowKind.PROJECT)                    // only projects
+            }
+            .orderBy(Burrows.endTime, SortOrder.ASC) // sort by due date
+            .take(5)
+            .map { row ->
+                BurrowResponse(
+                    burrow = Burrow.fromRow(row),
+                    burrowAuthor = row[Users.username],
+                    membership = Membership.fromRow(row = row),
+                    bookmarked = false,
+                )
+            }
+            .toList()
+    }
+
+    // Combine: projects first, then other burrows sorted by beginning time
+    return projectBurrows + nonProjectBurrows
 }
 
 /**

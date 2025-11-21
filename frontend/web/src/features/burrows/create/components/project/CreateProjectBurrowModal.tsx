@@ -173,11 +173,19 @@ export default function CreateProjectBurrowModal({
             ? addTime(dateMs, formState.endTime)
             : dateMs + 23 * 60 * 60 * 1000 + 59 * 60 * 1000 // End of day if no time specified
 
-        // Parse member user IDs from tags field (repurposed for project members)
-        const memberIDs = formState.tags
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
+        // Parse member user IDs from tags field (JSON array of member objects)
+        let memberIDs: string[] = []
+        try {
+            // Try parsing as JSON first (new format)
+            const members = JSON.parse(formState.tags)
+            memberIDs = members.map((m: { id: string }) => m.id)
+        } catch {
+            // Fallback to old format (comma-separated IDs)
+            memberIDs = formState.tags
+                .split(",")
+                .map((t) => t.trim())
+                .filter(Boolean)
+        }
 
         const payload: SubmittedProjectBurrow = {
             kind: "PROJECT" as const,
