@@ -1,9 +1,6 @@
 import { useRef, useState } from "react"
-import { useAtom } from "jotai"
+import { useSetAtom} from "jotai"
 import { authToken } from "@features/auth/auth.atom.ts"
-import { themeAtom } from "@api/theme/theme.atom.ts"
-import { saveTheme } from "@api/theme/theme.api.ts"
-import type { Theme } from "@api/theme/theme.types.ts"
 import { Dropdown, DropdownItem } from "@umnburrow/core"
 import HeaderButton from "@features/layout/components/HeaderButton.tsx"
 import { problemModalOpen } from "@features/problem/problem.atom.ts"
@@ -13,18 +10,11 @@ import {
     MenuIcon,
     Settings,
     Mail,
-    Sun,
     AlertTriangle,
-    LogOut
+    LogOut,
+    UserIcon
 } from "lucide-react"
-
-const THEME_ORDER: Theme[] = ["AUTO", "LIGHT", "DARK", "EARTH"]
-const THEME_LABELS: Record<Theme, string> = {
-    AUTO: "Auto",
-    LIGHT: "Light",
-    DARK: "Dark",
-    EARTH: "Earth"
-}
+import useUser from "@features/auth/hooks/useUser.ts";
 
 /**
  * Animation variants for {@link HeaderDropdown}
@@ -32,12 +22,13 @@ const THEME_LABELS: Record<Theme, string> = {
 
 export default function HeaderDropdown() {
     const nav = useNavigate()
+    const user = useUser()
 
-    const [, setAuth] = useAtom(authToken)
-    const [theme, setTheme] = useAtom(themeAtom)
     const [open, setOpen] = useState(false)
-    const [, setProblemOpen] = useAtom(problemModalOpen)
-    const [, setMyInvitesOpen] = useAtom(myInvitesModalOpen)
+
+    const setAuth = useSetAtom(authToken)
+    const setProblemOpen = useSetAtom(problemModalOpen)
+    const setMyInvitesOpen = useSetAtom(myInvitesModalOpen)
 
     const buttonRef = useRef<HTMLButtonElement | null>(null)
 
@@ -79,21 +70,17 @@ export default function HeaderDropdown() {
                         rightIcon={<Mail width="18" height="18" />}
                     />
 
-                    {/* theme */}
+                    {/* my invites */}
                     <DropdownItem
-                        label={`${THEME_LABELS[theme]} Mode`}
+                        label="My Profile"
                         onSelect={() => {
-                            const currentIndex = THEME_ORDER.indexOf(theme)
-                            const nextTheme =
-                                THEME_ORDER[(currentIndex + 1) % THEME_ORDER.length]
-                            setTheme(nextTheme)
-                            saveTheme(nextTheme).catch(() => {})
                             setOpen(false)
+                            nav(`/user/${user?.username}`)
                         }}
-                        rightIcon={<Sun width="18" height="18" />}
+                        rightIcon={<UserIcon width="18" height="18" />}
                     />
 
-                    {/* theme */}
+                    {/* feedback */}
                     <DropdownItem
                         label={`Feedback`}
                         onSelect={() => {
