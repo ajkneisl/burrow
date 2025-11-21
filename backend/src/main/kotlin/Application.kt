@@ -247,10 +247,6 @@ suspend fun Application.module() {
             // manage notifications
             route("/notifications", NOTIFICATION_ROUTES)
 
-            // ROUTE /api/settings
-            // manage user settings
-            route("/settings", SETTINGS_ROUTES)
-
             // ROUTE /burrows/{id}
             // webhook sync
             route("/burrows/{id}", Sync.SYNC_ROUTES)
@@ -293,6 +289,10 @@ suspend fun Application.module() {
                         call.respond(HttpStatusCode.OK)
                     }
                 }
+
+                // ROUTE /api/settings
+                // manage user settings
+                route("/settings", SETTINGS_ROUTES)
 
                 // ROUTE /api/burrows
                 // manage burrows

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { getUser, updateUsername } from "@features/auth/user.api.ts"
-import { useAtom } from "jotai"
+import { useSetAtom } from "jotai"
 import { settingsSaveLoading } from "@features/settings/settings.atom.ts"
 import toast from "react-hot-toast"
 import { Card, Input } from "@umnburrow/core"
@@ -19,7 +19,7 @@ export default function AccountSection() {
 
     const [name, setName] = useState<string>("")
     const [errors, setErrors] = useState<string[]>([])
-    const [, setLoading] = useAtom(settingsSaveLoading)
+    const setLoading = useSetAtom(settingsSaveLoading)
 
     useEffect(() => {
         if (data?.user?.username) {
@@ -48,6 +48,8 @@ export default function AccountSection() {
             } finally {
                 setLoading(false)
             }
+        } else {
+            setLoading(false)
         }
     }
 

@@ -1,6 +1,6 @@
-import { store } from "../main.tsx"
 import { authToken } from "@features/auth/auth.atom.ts"
 import { BASE_URL } from "@api/util.ts"
+import {store} from "@api/api.atom.ts";
 
 /**
  * Options for a request.

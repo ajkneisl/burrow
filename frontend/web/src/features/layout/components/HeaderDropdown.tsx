@@ -1,7 +1,9 @@
 import { useRef, useState } from "react"
 import { useAtom } from "jotai"
 import { authToken } from "@features/auth/auth.atom.ts"
-import { themeAtom } from "@api/theme.atom.ts"
+import { themeAtom } from "@api/theme/theme.atom.ts"
+import { saveTheme } from "@api/theme/theme.api.ts"
+import type { Theme } from "@api/theme/theme.types.ts"
 import { Dropdown, DropdownItem } from "@umnburrow/core"
 import HeaderButton from "@features/layout/components/HeaderButton.tsx"
 import { problemModalOpen } from "@features/problem/problem.atom.ts"
@@ -15,6 +17,14 @@ import {
     AlertTriangle,
     LogOut
 } from "lucide-react"
+
+const THEME_ORDER: Theme[] = ["AUTO", "LIGHT", "DARK", "EARTH"]
+const THEME_LABELS: Record<Theme, string> = {
+    AUTO: "Auto",
+    LIGHT: "Light",
+    DARK: "Dark",
+    EARTH: "Earth"
+}
 
 /**
  * Animation variants for {@link HeaderDropdown}
@@ -71,9 +81,13 @@ export default function HeaderDropdown() {
 
                     {/* theme */}
                     <DropdownItem
-                        label={`${theme ? "Light" : "Dark"} Mode`}
+                        label={`${THEME_LABELS[theme]} Mode`}
                         onSelect={() => {
-                            setTheme((prev) => !prev)
+                            const currentIndex = THEME_ORDER.indexOf(theme)
+                            const nextTheme =
+                                THEME_ORDER[(currentIndex + 1) % THEME_ORDER.length]
+                            setTheme(nextTheme)
+                            saveTheme(nextTheme).catch(() => {})
                             setOpen(false)
                         }}
                         rightIcon={<Sun width="18" height="18" />}

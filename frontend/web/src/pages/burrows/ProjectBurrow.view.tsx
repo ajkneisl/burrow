@@ -25,7 +25,7 @@ import JoinMeeting from "@features/burrows/components/JoinMeeting.tsx"
  *
  * @author AJ Kneisl
  */
-export default function Project() {
+export default function ProjectBurrow() {
     const { id } = useParams<{ id: string }>()
 
     const auth = useToken()

@@ -7,7 +7,44 @@ import clsx from "clsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useMemo } from "react"
 import MeetingCapacityBadges from "@features/burrows/components/MeetingCapacityBadges.tsx"
-import { Calendar, Check, Star, Bookmark, MapPin } from "lucide-react"
+import {
+    Calendar,
+    Check,
+    Star,
+    Bookmark,
+    MapPin,
+    BookOpen,
+    PartyPopper,
+    FolderKanban,
+    Users
+} from "lucide-react"
+import type { BurrowKind } from "@features/burrows/burrows.types.ts"
+
+const BURROW_KIND_CONFIG: Record<
+    BurrowKind,
+    { label: string; icon: React.ReactNode; className: string }
+> = {
+    STUDY: {
+        label: "Study",
+        icon: <BookOpen className="h-3 w-3" />,
+        className: "text-info"
+    },
+    EVENT: {
+        label: "Event",
+        icon: <PartyPopper className="h-3 w-3" />,
+        className: "text-secondary"
+    },
+    CLUB: {
+        label: "Club",
+        icon: <Users className="h-3 w-3" />,
+        className: "text-warn"
+    },
+    PROJECT: {
+        label: "Project",
+        icon: <FolderKanban className="h-3 w-3" />,
+        className: "text-success"
+    }
+}
 
 /**
  * {@see GroupMeetingCard}
@@ -22,6 +59,8 @@ type GroupMeetingCardProps = {
  *
  * @param meetingResponse The meeting details.
  * @param details If extra details should be shown.
+ *
+ * @author AJ Kneisl
  */
 export function BurrowCard({
     meetingResponse,
@@ -70,7 +109,7 @@ export function BurrowCard({
                         {/* title, description and timing */}
                         <div className="flex w-full flex-col ">
                             {/* title */}
-                            <div className="flex w-full items-center justify-between gap-3">
+                            <div className="flex w-full items-center gap-2">
                                 <h3
                                     className={clsx(
                                         "text-md text-text truncate font-semibold tracking-tight",
@@ -82,7 +121,7 @@ export function BurrowCard({
                             </div>
 
                             {/* timing */}
-                            <div className="flex flex-row gap-2">
+                            <div className="flex flex-row items-center gap-2">
                                 <time
                                     className="text-text/80 inline-flex items-center gap-1 rounded-full text-xs font-medium"
                                     aria-label="Time Occurring"
@@ -173,7 +212,19 @@ export function BurrowCard({
                 {/* extra details depending on choice */}
                 {!details ? (
                     <div className="flex flex-row items-center justify-between">
-                        <div className="flex flex-row flex-wrap gap-1.5 pt-1">
+                        <div className="flex flex-row flex-wrap items-center gap-1.5 pt-1">
+                            {/* burrow type */}
+                            <span
+                                className={clsx(
+                                    "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+                                    BURROW_KIND_CONFIG[burrow.kind]?.className,
+                                    "bg-current/10"
+                                )}
+                            >
+                                {BURROW_KIND_CONFIG[burrow.kind]?.icon}
+                                {BURROW_KIND_CONFIG[burrow.kind]?.label}
+                            </span>
+
                             {Object.keys(tags)
                                 .slice(0, 2)
                                 .map((tag: string) => (
@@ -196,7 +247,19 @@ export function BurrowCard({
                 ) : (
                     <div className="flex flex-row justify-between gap-3 sm:items-center">
                         {/* tags */}
-                        <div className="flex flex-row flex-wrap gap-1.5 pt-1">
+                        <div className="flex flex-row flex-wrap items-center gap-1.5 pt-1">
+                            {/* burrow type */}
+                            <span
+                                className={clsx(
+                                    "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+                                    BURROW_KIND_CONFIG[burrow.kind]?.className,
+                                    "bg-current/10"
+                                )}
+                            >
+                                {BURROW_KIND_CONFIG[burrow.kind]?.icon}
+                                {BURROW_KIND_CONFIG[burrow.kind]?.label}
+                            </span>
+
                             {burrow.tags.map((tag: string) => (
                                 <Badge key={tag}>{tag}</Badge>
                             ))}

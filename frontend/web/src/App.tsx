@@ -1,157 +1,26 @@
 import HomeView from "@pages/Home.view.tsx"
-import Burrow from "@pages/Meeting.view.tsx"
-import Project from "@pages/Project.view.tsx"
+import StandardBurrow from "@pages/burrows/StandardBurrow.view.tsx"
+import ProjectBurrow from "@pages/burrows/ProjectBurrow.view.tsx"
 import Browse from "@pages/Browse.view.tsx"
 import LandingView from "@pages/Landing.view.tsx"
-import Header from "@features/layout/components/Header.tsx"
 import About from "@pages/About.tsx"
-import useUser from "@features/auth/hooks/useUser.ts"
 import NotFound from "@pages/NotFound.view.tsx"
-import { useAtom } from "jotai"
-import Footer from "@features/layout/components/Footer.tsx"
-import { themeAtom } from "@api/theme.atom.ts"
 import Privacy from "@pages/Privacy.view.tsx"
 import ToS from "@pages/ToS.view.tsx"
-import { Toaster } from "react-hot-toast"
 import SettingsView from "@pages/Settings.view.tsx"
-import ReportProblemModal from "@features/problem/components/ReportProblemModal.tsx"
-import MyInvitesModal from "@features/layout/components/MyInvitesModal.tsx"
 import ProfileView from "@pages/Profile.view.tsx"
-import { useEffect } from "react"
-import {
-    createBrowserRouter,
-    Outlet,
-    RouterProvider,
-    useLocation,
-    useParams,
-    useRouteError
-} from "react-router"
-import ViewRelations from "@features/profile/components/ViewRelations.tsx"
-import MetaTags from "@features/layout/components/MetaTags.tsx"
+import { createBrowserRouter, RouterProvider } from "react-router"
 import Yordanos from "@pages/Yordanos.view.tsx"
-import CreateEventBurrowModal from "@features/burrows/create/components/event/CreateEventBurrowModal.tsx"
-import { createBurrow } from "@features/burrows/create/create.api.ts"
-import CreateStudyBurrowModal from "@features/burrows/create/components/study/CreateStudyBurrowModal.tsx"
-import { createBurrowModal } from "@features/burrows/create/create.atom.ts"
-import CreateProjectBurrowModal from "@features/burrows/create/components/project/CreateProjectBurrowModal.tsx";
+import ErrorElement from "@pages/Error.view.tsx"
+import BurrowRedirect from "@pages/burrows/Burrow.redirect.tsx"
+import RootLayout from "@features/layout/components/RootLayout.tsx"
+import { Provider } from "jotai"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import {store} from "@api/api.atom.ts";
 
-function ErrorElement() {
-    const error = useRouteError() as Error | undefined
-    return (
-        <div className="p-8 text-center">
-            <h1 className="text-error text-2xl font-bold">
-                Something went wrong
-            </h1>
-            <p className="mt-2 opacity-70">
-                {error?.message || "An unexpected error occurred."}
-            </p>
-        </div>
-    )
-}
-
-function MeetingReRoute() {
-    const { id } = useParams()
-    if (id && id.length === 8) return <Burrow />
-    return <NotFound />
-}
-
-function RootLayout() {
-    // load user information & ensure logged in
-    useUser()
-
-    const [createModal, setCreateModal] = useAtom(createBurrowModal)
-    const [darkMode, setDarkMode] = useAtom(themeAtom)
-
-    useEffect(() => {
-        const mq = window.matchMedia("(prefers-color-scheme: dark)")
-        setDarkMode((prev) => (prev === null ? mq.matches : prev))
-        const handler = () =>
-            setDarkMode((prev) => (prev === null ? mq.matches : prev))
-        mq.addEventListener("change", handler)
-        return () => mq.removeEventListener("change", handler)
-    }, [setDarkMode])
-
-    // go to top on page refresh
-    const location = useLocation()
-    useEffect(() => {
-        if (!location.hash) {
-            window.scrollTo(0, 0)
-        }
-    }, [location])
-
-    useEffect(() => {
-        const root = document.querySelector("html")
-        if (root) root.setAttribute("data-theme", darkMode ? "dark" : "light")
-    }, [darkMode])
-
-    return (
-        <div className="gopher-stand text-text flex min-h-screen w-full flex-col bg-transparent transition-colors duration-300">
-            {/* Centralized meta tags - updated via useMetaTags hook in pages */}
-            <MetaTags />
-
-            {/* don't show header on welcome */}
-            {window.location.pathname !== "/welcome" && <Header />}
-
-            <Toaster
-                position="top-right"
-                toastOptions={{
-                    style: {
-                        background: "var(--card-background-color)",
-                        color: "var(--text-color",
-                        border: "1px solid var(--hero-color)",
-                        borderRadius: "0.75rem",
-                        padding: "0.75rem 1rem"
-                    }
-                }}
-            />
-
-            <main className="mb-8 flex-grow md:m-auto md:mx-4 md:min-w-xl">
-                {/* study creation */}
-                <CreateStudyBurrowModal
-                    open={createModal === "STUDY"}
-                    onClose={() => setCreateModal(null)}
-                    mode="create"
-                    modalTitle={"Create a Study Burrow"}
-                    onSubmit={async (payload) => {
-                        return await createBurrow(payload)
-                    }}
-                />
-
-                {/* event creation */}
-                <CreateEventBurrowModal
-                    open={createModal === "EVENT"}
-                    onClose={() => setCreateModal(null)}
-                    mode="create"
-                    modalTitle={"Create an Event Burrow"}
-                    onSubmit={async (payload) => {
-                        return await createBurrow(payload)
-                    }}
-                />
-
-                {/* group creation */}
-                <CreateProjectBurrowModal
-                    open={createModal === "PROJECT"}
-                    onClose={() => setCreateModal(null)}
-                    mode="create"
-                    modalTitle={"Create an Project Burrow"}
-                    onSubmit={async (payload) => {
-                        return await createBurrow(payload)
-                    }}
-                />
-
-                <ViewRelations />
-                <ReportProblemModal />
-                <MyInvitesModal />
-
-                {/* Child routes render here */}
-                <Outlet />
-            </main>
-
-            <Footer />
-        </div>
-    )
-}
-
+/**
+ * This defines all routes in Burrow.
+ */
 const router = createBrowserRouter([
     {
         path: "/",
@@ -162,21 +31,32 @@ const router = createBrowserRouter([
             { path: "about", element: <About /> },
             { path: "yord", element: <Yordanos /> },
             { path: "welcome", element: <LandingView /> },
-            { path: "study", element: <Browse type="STUDY" /> },
+            { path: "browse", element: <Browse /> },
             { path: "user/:username", element: <ProfileView /> },
             { path: "settings", element: <SettingsView /> },
             { path: "privacy", element: <Privacy /> },
             { path: "tos", element: <ToS /> },
-            { path: "burrow/:id", element: <Burrow /> },
-            { path: "project/:id", element: <Project /> },
-            { path: ":id", element: <MeetingReRoute /> },
+            { path: "burrow/:id", element: <StandardBurrow /> },
+            { path: "project/:id", element: <ProjectBurrow /> },
+            { path: ":id", element: <BurrowRedirect /> },
             { path: "*", element: <NotFound /> }
         ]
     }
 ])
 
-function App() {
-    return <RouterProvider router={router} />
-}
+const queryClient = new QueryClient()
 
-export default App
+/**
+ * @author AJ Kneisl
+ */
+export default function App() {
+    return (
+        <Provider store={store}>
+            <QueryClientProvider client={queryClient}>
+                <div className="flex flex-row items-center justify-center">
+                    <RouterProvider router={router} />
+                </div>
+            </QueryClientProvider>
+        </Provider>
+    )
+}

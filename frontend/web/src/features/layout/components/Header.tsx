@@ -63,15 +63,17 @@ export default function Header() {
                         {location.pathname !== "/" &&
                             location.pathname !== "/welcome" && <HomeButton />}
 
+                        {/* mobile search */}
                         <HeaderButton
                             className="md:hidden"
                             onClick={() => setMobileSearchOpen((prev) => !prev)}
                             icon={<SearchIcon className="h-5 w-5" />}
                         />
 
+                        {/* browse */}
                         <HeaderButton
                             icon={<CompassIcon className="h-5 w-5" />}
-                            onClick={() => nav("/study")}
+                            onClick={() => nav("/browse")}
                         />
 
                         {/* Notifications Bell */}

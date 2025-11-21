@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import { useNavigate } from "react-router"
-import type { BurrowKind } from "@features/burrows/burrows.types.ts"
 import { getBurrows } from "@features/burrows/burrows.api.ts"
 import { Badge, Button, Card, ViewErrors } from "@umnburrow/core"
 
@@ -9,31 +8,24 @@ import { Badge, Button, Card, ViewErrors } from "@umnburrow/core"
  * {@link PreviewBurrows}
  */
 type PreviewGroupsProps = {
-    kind: BurrowKind
-    fullPage: string
     amount: number
 }
 
 /**
  * Preview a list of Burrows
  *
- * @param kind The kind of Burrow
- * @param fullPage The link to the full page of this type of Burrow.
  * @param amount The amount of Burrows to preview.
  *
  * @author AJ Kneisl
  */
-export default function PreviewBurrows({
-    kind,
-    fullPage,
-    amount
-}: PreviewGroupsProps) {
+export default function PreviewBurrows({ amount }: PreviewGroupsProps) {
     const nav = useNavigate()
 
     const { data, isLoading, isError, refetch, error } = useQuery({
-        queryKey: [kind],
-        queryFn: async () => getBurrows(kind)
+        queryKey: ["preview"],
+        queryFn: async () => getBurrows(null)
     })
+
     return (
         <div className="flex flex-col items-center justify-center gap-2 overflow-auto">
             <h3 className="text-text/60 self-start text-sm font-semibold tracking-wide uppercase">
@@ -96,7 +88,7 @@ export default function PreviewBurrows({
             )}
 
             {!isError && (
-                <Button className="w-full" onClick={() => nav(fullPage)}>
+                <Button className="w-full" onClick={() => nav(`/browse`)}>
                     Browse
                 </Button>
             )}

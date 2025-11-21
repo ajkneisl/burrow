@@ -28,7 +28,7 @@ import BookmarkMeeting from "@features/burrows/controls/BookmarkMeeting.tsx"
  *
  * @author AJ Kneisl
  */
-export default function Burrow() {
+export default function StandardBurrow() {
     const { id } = useParams<{ id: string }>()
 
     const auth = useToken()

@@ -15,6 +15,7 @@ import app.burrow.burrows.models.SubmittedBurrow
 import app.burrow.burrows.models.SubmittedProjectBurrow
 import app.burrow.burrows.models.SubmittedStudyEventBurrow
 import app.burrow.enumQueryParameter
+import app.burrow.optionalEnumQueryParameter
 import app.burrow.optionalIntQueryParameter
 import app.burrow.optionalLongQueryParameter
 import app.burrow.queryParameter
@@ -44,7 +45,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
     // get all burrows
     get {
         val page = call.optionalIntQueryParameter("page") ?: 1
-        val type = call.enumQueryParameter<BurrowKind>("type")
+        val type = call.optionalEnumQueryParameter<BurrowKind>("type")
 
         call.respond(searchMeetings(page = page, kind = type, requestingUserID = call.userID))
     }
@@ -78,7 +79,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
     // search among the stars
     get("/search") {
         val searchQuery = call.queryParameter("query")
-        val type = call.enumQueryParameter<BurrowKind>("type")
+        val type = call.optionalEnumQueryParameter<BurrowKind>("type")
         val page = call.optionalIntQueryParameter("page") ?: 1
 
         val startDate = call.optionalLongQueryParameter("start")

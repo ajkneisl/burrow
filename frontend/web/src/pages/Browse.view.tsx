@@ -1,10 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion"
 import React, { useMemo, useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
-import type {
-    BurrowResponse,
-    BurrowKind
-} from "@features/burrows/burrows.types.ts"
+import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import { searchMeetings } from "@features/burrows/burrows.api.ts"
 import MeetingHeatmap from "@features/burrows/components/MeetingHeatmap.tsx"
@@ -15,20 +12,11 @@ import Paginator from "@components/Paginator.tsx"
 import { Loader2, ChevronRight } from "lucide-react"
 
 /**
- * {@link Browse}
- */
-type AllMeetingsProps = {
-    type: BurrowKind
-}
-
-/**
- * Search through all meetings.
- *
- * @param type The type of meetings.
+ * Search through all Burrows.
  *
  * @author AJ Kneisl
  */
-export default function Browse({ type }: AllMeetingsProps) {
+export default function Browse() {
     const [query, setQuery] = useState("")
     const [currentPage, setCurrentPage] = useState(1)
     const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set())
@@ -55,13 +43,13 @@ export default function Browse({ type }: AllMeetingsProps) {
     // go back to the first page when the search changes
     useEffect(() => {
         setCurrentPage(1)
-    }, [query, startDate, endDate, type])
+    }, [query, startDate, endDate])
 
     const { data, isLoading, isFetching, error, refetch } = useQuery({
-        queryKey: ["meetings", type, query, currentPage, startDate, endDate],
+        queryKey: ["meetings", query, currentPage, startDate, endDate],
         queryFn: async () =>
             await searchMeetings(
-                type,
+                null,
                 query || "",
                 currentPage,
                 startDate as number | undefined,
@@ -169,8 +157,41 @@ export default function Browse({ type }: AllMeetingsProps) {
                         {Array.from({ length: 5 }).map((_, i) => (
                             <div
                                 key={i}
-                                className="bg-card h-32 animate-pulse rounded-2xl shadow-sm"
-                            />
+                                className="bg-card border-card-border rounded-2xl border p-4 shadow-sm"
+                            >
+                                <div className="flex flex-col gap-4">
+                                    {/* Header row */}
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div className="flex flex-1 flex-col gap-2">
+                                            {/* Title skeleton */}
+                                            <div className="bg-hero h-5 w-48 animate-pulse rounded" />
+
+                                            {/* Time skeleton */}
+                                            <div className="bg-hero h-3 w-32 animate-pulse rounded" />
+
+                                            {/* Description skeleton */}
+                                            <div className="mt-2 space-y-1.5">
+                                                <div className="bg-hero h-3 w-full animate-pulse rounded" />
+                                                <div className="bg-hero h-3 w-3/4 animate-pulse rounded" />
+                                            </div>
+                                        </div>
+
+                                        {/* Profile picture skeleton */}
+                                        <div className="bg-hero h-10 w-10 animate-pulse rounded-full" />
+                                    </div>
+
+                                    {/* Tags row */}
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex gap-2">
+                                            <div className="bg-hero h-6 w-16 animate-pulse rounded-full" />
+                                            <div className="bg-hero h-6 w-20 animate-pulse rounded-full" />
+                                            <div className="bg-hero hidden h-6 w-14 animate-pulse rounded-full sm:block" />
+                                        </div>
+
+                                        <div className="bg-hero h-6 w-24 animate-pulse rounded-full" />
+                                    </div>
+                                </div>
+                            </div>
                         ))}
                     </div>
                 ) : null}
@@ -184,8 +205,8 @@ export default function Browse({ type }: AllMeetingsProps) {
                     </div>
                 ) : null}
 
-                {/* search results */}
-                {groupedByDate.length === 0 ? (
+                {/* no search results */}
+                {!isLoading && groupedByDate.length === 0 && (
                     <div className="border-primary/20 bg-card text-text rounded-2xl border p-6 shadow-sm">
                         <p className="text-sm font-medium">
                             No meetings match your filters.
@@ -195,7 +216,10 @@ export default function Browse({ type }: AllMeetingsProps) {
                             date.
                         </p>
                     </div>
-                ) : (
+                )}
+
+                {/* search results */}
+                {!isLoading && groupedByDate.length >= 0 && (
                     <>
                         <div className="space-y-10">
                             {groupedByDate.map(
