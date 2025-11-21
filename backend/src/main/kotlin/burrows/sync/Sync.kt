@@ -26,7 +26,9 @@ import io.ktor.server.websocket.WebSocketServerSession
 import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.webSocket
 import io.ktor.util.date.getTimeMillis
+import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
+import io.ktor.websocket.close
 import io.ktor.websocket.readText
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.orEmpty
@@ -305,9 +307,17 @@ object Sync {
      *
      * @param burrowID The Burrow to leave.
      * @param userID The user who's leaving.
+     * @param closeSession Whether to close the WebSocket session. Defaults to false.
      */
-    suspend fun leave(burrowID: String, userID: String) {
+    suspend fun leave(burrowID: String, userID: String, closeSession: Boolean = false) {
         guard.withLock {
+            if (closeSession) {
+                meetings[burrowID]
+                    ?.find { session -> session.userID == userID }
+                    ?.session
+                    ?.close(CloseReason(CloseReason.Codes.NORMAL, "User left the burrow"))
+            }
+
             meetings[burrowID]?.removeIf { (chatUserID) -> chatUserID == userID }
 
             if (meetings[burrowID]?.isEmpty() == true) meetings.remove(burrowID)
