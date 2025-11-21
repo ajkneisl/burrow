@@ -135,204 +135,206 @@ export default function Browse() {
         )
 
     return (
-        <main className="flex grid-cols-3 flex-col-reverse lg:grid">
-            <section className="col-span-2 mx-auto w-full max-w-4xl p-4 sm:p-6">
-                {/* top controls */}
-                <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    {/* search */}
-                    <div className="flex-1">
-                        <Input
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search meetings…"
-                        />
+        <section className="mx-auto w-full max-w-7xl">
+            <section className="flex w-full grid-cols-3 flex-col-reverse lg:grid">
+                <section className="col-span-2 mx-auto w-full max-w-4xl p-4 sm:p-6">
+                    {/* top controls */}
+                    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        {/* search */}
+                        <div className="flex-1">
+                            <Input
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                placeholder="Search meetings…"
+                            />
+                        </div>
+
+                        {/* calendar */}
+                        <div className="flex items-center gap-2">{picker}</div>
                     </div>
 
-                    {/* calendar */}
-                    <div className="flex items-center gap-2">{picker}</div>
-                </div>
+                    {isLoading && !data ? (
+                        <div className="space-y-4">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="bg-card border-card-border rounded-2xl border p-4 shadow-sm"
+                                >
+                                    <div className="flex flex-col gap-4">
+                                        {/* Header row */}
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="flex flex-1 flex-col gap-2">
+                                                {/* Title skeleton */}
+                                                <div className="bg-hero h-5 w-48 animate-pulse rounded" />
 
-                {isLoading && !data ? (
-                    <div className="space-y-4">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                            <div
-                                key={i}
-                                className="bg-card border-card-border rounded-2xl border p-4 shadow-sm"
-                            >
-                                <div className="flex flex-col gap-4">
-                                    {/* Header row */}
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div className="flex flex-1 flex-col gap-2">
-                                            {/* Title skeleton */}
-                                            <div className="bg-hero h-5 w-48 animate-pulse rounded" />
+                                                {/* Time skeleton */}
+                                                <div className="bg-hero h-3 w-32 animate-pulse rounded" />
 
-                                            {/* Time skeleton */}
-                                            <div className="bg-hero h-3 w-32 animate-pulse rounded" />
-
-                                            {/* Description skeleton */}
-                                            <div className="mt-2 space-y-1.5">
-                                                <div className="bg-hero h-3 w-full animate-pulse rounded" />
-                                                <div className="bg-hero h-3 w-3/4 animate-pulse rounded" />
+                                                {/* Description skeleton */}
+                                                <div className="mt-2 space-y-1.5">
+                                                    <div className="bg-hero h-3 w-full animate-pulse rounded" />
+                                                    <div className="bg-hero h-3 w-3/4 animate-pulse rounded" />
+                                                </div>
                                             </div>
+
+                                            {/* Profile picture skeleton */}
+                                            <div className="bg-hero h-10 w-10 animate-pulse rounded-full" />
                                         </div>
 
-                                        {/* Profile picture skeleton */}
-                                        <div className="bg-hero h-10 w-10 animate-pulse rounded-full" />
-                                    </div>
+                                        {/* Tags row */}
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex gap-2">
+                                                <div className="bg-hero h-6 w-16 animate-pulse rounded-full" />
+                                                <div className="bg-hero h-6 w-20 animate-pulse rounded-full" />
+                                                <div className="bg-hero hidden h-6 w-14 animate-pulse rounded-full sm:block" />
+                                            </div>
 
-                                    {/* Tags row */}
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex gap-2">
-                                            <div className="bg-hero h-6 w-16 animate-pulse rounded-full" />
-                                            <div className="bg-hero h-6 w-20 animate-pulse rounded-full" />
-                                            <div className="bg-hero hidden h-6 w-14 animate-pulse rounded-full sm:block" />
+                                            <div className="bg-hero h-6 w-24 animate-pulse rounded-full" />
                                         </div>
-
-                                        <div className="bg-hero h-6 w-24 animate-pulse rounded-full" />
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : null}
+                            ))}
+                        </div>
+                    ) : null}
 
-                {!isLoading && isFetching ? (
-                    <div className="mb-4 text-right">
+                    {!isLoading && isFetching ? (
+                        <div className="mb-4 text-right">
                         <span className="border-info/30 bg-info/10 text-info inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium">
                             <Loader2 className="h-3 w-3 animate-spin" />
                             Updating…
                         </span>
-                    </div>
-                ) : null}
-
-                {/* no search results */}
-                {!isLoading && groupedByDate.length === 0 && (
-                    <div className="border-primary/20 bg-card text-text rounded-2xl border p-6 shadow-sm">
-                        <p className="text-sm font-medium">
-                            No meetings match your filters.
-                        </p>
-                        <p className="text-text/70 mt-1 text-xs">
-                            Try adjusting your search or picking a different
-                            date.
-                        </p>
-                    </div>
-                )}
-
-                {/* search results */}
-                {!isLoading && groupedByDate.length >= 0 && (
-                    <>
-                        <div className="space-y-10">
-                            {groupedByDate.map(
-                                (
-                                    { key: dateKey, list: meetings, week },
-                                    idx
-                                ) => {
-                                    const isFirstOfWeek =
-                                        idx === 0 ||
-                                        groupedByDate[idx - 1].week !== week
-                                    const isExpanded = expandedWeeks.has(week)
-
-                                    return (
-                                        <React.Fragment key={dateKey}>
-                                            {/* Week header - only show at start of new week */}
-                                            {isFirstOfWeek && (
-                                                <button
-                                                    onClick={() =>
-                                                        toggleWeek(week)
-                                                    }
-                                                    className="group text-text/60 hover:text-text mb-6 flex w-full cursor-pointer items-center gap-3 text-xs font-semibold tracking-wider uppercase transition-colors"
-                                                    aria-expanded={isExpanded}
-                                                >
-                                                    <ChevronRight
-                                                        className={clsx(
-                                                            "h-4 w-4 transition-transform duration-200",
-                                                            isExpanded
-                                                                ? "rotate-90"
-                                                                : "rotate-0"
-                                                        )}
-                                                    />
-                                                    <span>{week}</span>
-                                                    <span className="bg-text/20 h-px flex-1" />
-                                                </button>
-                                            )}
-
-                                            {/* Day section */}
-                                            <AnimatePresence initial={false}>
-                                                {isExpanded && (
-                                                    <motion.div
-                                                        key={`day-${dateKey}`}
-                                                        initial={{
-                                                            height: 0,
-                                                            opacity: 0
-                                                        }}
-                                                        animate={{
-                                                            height: "auto",
-                                                            opacity: 1
-                                                        }}
-                                                        exit={{
-                                                            height: 0,
-                                                            opacity: 0
-                                                        }}
-                                                        transition={{
-                                                            duration: 0.2,
-                                                            ease: "easeOut"
-                                                        }}
-                                                        className="space-y-4 overflow-hidden"
-                                                    >
-                                                        {/* Day label */}
-                                                        <h3 className="text-text mb-4 flex items-center gap-3 text-base font-semibold">
-                                                            {humanDateLabel(
-                                                                dateKey
-                                                            )}
-                                                            <span className="bg-text/10 h-px flex-1" />
-                                                        </h3>
-
-                                                        {/* Meetings for this day */}
-                                                        <div className="space-y-3 pb-4">
-                                                            {meetings.map(
-                                                                (m) => (
-                                                                    <BurrowCard
-                                                                        details={
-                                                                            true
-                                                                        }
-                                                                        key={
-                                                                            m
-                                                                                .burrow
-                                                                                .id
-                                                                        }
-                                                                        meetingResponse={
-                                                                            m
-                                                                        }
-                                                                    />
-                                                                )
-                                                            )}
-                                                        </div>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                        </React.Fragment>
-                                    )
-                                }
-                            )}
                         </div>
+                    ) : null}
 
-                        {/* Pagination controls */}
-                        {data && (
-                            <Paginator
-                                currentPage={currentPage}
-                                totalPages={data.totalPages}
-                                totalResults={data.totalResults}
-                                onPageChange={setCurrentPage}
-                                isLoading={isFetching}
-                            />
-                        )}
-                    </>
-                )}
+                    {/* no search results */}
+                    {!isLoading && groupedByDate.length === 0 && (
+                        <div className="border-primary/20 bg-card text-text rounded-2xl border p-6 shadow-sm">
+                            <p className="text-sm font-medium">
+                                No meetings match your filters.
+                            </p>
+                            <p className="text-text/70 mt-1 text-xs">
+                                Try adjusting your search or picking a different
+                                date.
+                            </p>
+                        </div>
+                    )}
+
+                    {/* search results */}
+                    {!isLoading && groupedByDate.length >= 0 && (
+                        <>
+                            <div className="space-y-10">
+                                {groupedByDate.map(
+                                    (
+                                        { key: dateKey, list: meetings, week },
+                                        idx
+                                    ) => {
+                                        const isFirstOfWeek =
+                                            idx === 0 ||
+                                            groupedByDate[idx - 1].week !== week
+                                        const isExpanded = expandedWeeks.has(week)
+
+                                        return (
+                                            <React.Fragment key={dateKey}>
+                                                {/* Week header - only show at start of new week */}
+                                                {isFirstOfWeek && (
+                                                    <button
+                                                        onClick={() =>
+                                                            toggleWeek(week)
+                                                        }
+                                                        className="group text-text/60 hover:text-text mb-6 flex w-full cursor-pointer items-center gap-3 text-xs font-semibold tracking-wider uppercase transition-colors"
+                                                        aria-expanded={isExpanded}
+                                                    >
+                                                        <ChevronRight
+                                                            className={clsx(
+                                                                "h-4 w-4 transition-transform duration-200",
+                                                                isExpanded
+                                                                    ? "rotate-90"
+                                                                    : "rotate-0"
+                                                            )}
+                                                        />
+                                                        <span>{week}</span>
+                                                        <span className="bg-text/20 h-px flex-1" />
+                                                    </button>
+                                                )}
+
+                                                {/* Day section */}
+                                                <AnimatePresence initial={false}>
+                                                    {isExpanded && (
+                                                        <motion.div
+                                                            key={`day-${dateKey}`}
+                                                            initial={{
+                                                                height: 0,
+                                                                opacity: 0
+                                                            }}
+                                                            animate={{
+                                                                height: "auto",
+                                                                opacity: 1
+                                                            }}
+                                                            exit={{
+                                                                height: 0,
+                                                                opacity: 0
+                                                            }}
+                                                            transition={{
+                                                                duration: 0.2,
+                                                                ease: "easeOut"
+                                                            }}
+                                                            className="space-y-4 overflow-hidden"
+                                                        >
+                                                            {/* Day label */}
+                                                            <h3 className="text-text mb-4 flex items-center gap-3 text-base font-semibold">
+                                                                {humanDateLabel(
+                                                                    dateKey
+                                                                )}
+                                                                <span className="bg-text/10 h-px flex-1" />
+                                                            </h3>
+
+                                                            {/* Meetings for this day */}
+                                                            <div className="space-y-3 pb-4">
+                                                                {meetings.map(
+                                                                    (m) => (
+                                                                        <BurrowCard
+                                                                            details={
+                                                                                true
+                                                                            }
+                                                                            key={
+                                                                                m
+                                                                                    .burrow
+                                                                                    .id
+                                                                            }
+                                                                            meetingResponse={
+                                                                                m
+                                                                            }
+                                                                        />
+                                                                    )
+                                                                )}
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </React.Fragment>
+                                        )
+                                    }
+                                )}
+                            </div>
+
+                            {/* Pagination controls */}
+                            {data && (
+                                <Paginator
+                                    currentPage={currentPage}
+                                    totalPages={data.totalPages}
+                                    totalResults={data.totalResults}
+                                    onPageChange={setCurrentPage}
+                                    isLoading={isFetching}
+                                />
+                            )}
+                        </>
+                    )}
+                </section>
+
+                <aside className="col-span-1 mt-5 lg:max-w-sm">
+                    <MeetingHeatmap />
+                </aside>
             </section>
-
-            <aside className="col-span-1 mt-5 lg:max-w-sm">
-                <MeetingHeatmap />
-            </aside>
-        </main>
+        </section>
     )
 }
