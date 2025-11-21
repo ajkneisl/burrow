@@ -2,7 +2,7 @@ import { del, get, post } from "@api/api.ts"
 import type {
     InviteWithUsers,
     JoinRequestWithUser
-} from "@features/burrows/burrows.types.ts"
+} from "@features/burrows/burrows.types.tsx"
 import type { PaginatedResponse } from "@api/api.types.ts"
 
 /**

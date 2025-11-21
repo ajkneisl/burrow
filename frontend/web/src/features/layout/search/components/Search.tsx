@@ -1,15 +1,20 @@
 import { AnimatePresence, motion } from "framer-motion"
 import SearchPreview from "@features/layout/search/components/SearchPreview.tsx"
+import UserSearchPreview from "@features/layout/search/components/UserSearchPreview.tsx"
 import { type FormEvent, useEffect, useRef, useState } from "react"
-import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
-import { searchMeetings } from "@features/burrows/burrows.api.ts"
+import {
+    search,
+    isUserResult,
+    isBurrowResult,
+    type SearchResult
+} from "@features/layout/search/search.api.ts"
 import SearchInput from "@features/layout/search/components/SearchInput.tsx"
 import { useAtom } from "jotai"
 import { mobileSearchOpen } from "@features/layout/search/search.atom.ts"
 import type { PaginatedResponse } from "@api/api.types.ts"
 
 /**
- * Search component for finding burrows/meetings.
+ * Search component for finding users and burrows.
  * Features debounced search and pagination support.
  */
 export default function Search() {
@@ -18,7 +23,7 @@ export default function Search() {
     const searchRef = useRef<HTMLFormElement>(null)
     const [query, setQuery] = useState("")
     const [paginatedResults, setPaginatedResults] =
-        useState<PaginatedResponse<BurrowResponse> | null>(null)
+        useState<PaginatedResponse<SearchResult> | null>(null)
     const [loading, setLoading] = useState(false)
     const [err, setErr] = useState<string | null>(null)
     const [currentPage, setCurrentPage] = useState(1)
@@ -39,11 +44,12 @@ export default function Search() {
         setErr(null)
 
         try {
-            const data = await searchMeetings("STUDY", query, page)
+            const data = await search(query, page)
             setPaginatedResults(data)
             setCurrentPage(page)
-        } catch (e: any) {
-            setErr(e?.message || "Search error")
+        } catch (e: unknown) {
+            const error = e as Error
+            setErr(error?.message || "Search error")
         } finally {
             setLoading(false)
         }
@@ -69,16 +75,17 @@ export default function Search() {
 
         const searchTimeout = setTimeout(async () => {
             try {
-                const data = await searchMeetings("STUDY", query, 1)
+                const data = await search(query, 1)
 
                 // Only set if still current search
                 if (current === debounceKey + 1 || current === debounceKey) {
                     setPaginatedResults(data)
                     setCurrentPage(1)
                 }
-            } catch (e: any) {
-                if (e?.name !== "AbortError") {
-                    setErr(e?.message || "Search error")
+            } catch (e: unknown) {
+                const error = e as Error
+                if (error?.name !== "AbortError") {
+                    setErr(error?.message || "Search error")
                 }
             } finally {
                 setLoading(false)
@@ -120,49 +127,77 @@ export default function Search() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
                     transition={{ duration: 0.16 }}
-                    className="absolute left-0 right-0 top-full z-[1000] mt-2 overflow-hidden rounded-lg border border-card-border bg-card shadow-lg"
+                    className="border-card-border bg-card absolute top-full right-0 left-0 z-[1000] mt-2 overflow-hidden rounded-lg border shadow-lg"
                 >
                     {loading && (
-                        <div className="px-3 py-2 text-sm text-text/60">
+                        <div className="text-text/60 px-3 py-2 text-sm">
                             Searching…
                         </div>
                     )}
 
                     {err && !loading && (
-                        <div className="px-3 py-2 text-sm text-error">
+                        <div className="text-error px-3 py-2 text-sm">
                             {err}
                         </div>
                     )}
 
                     {!loading && !err && results?.length === 0 && (
-                        <div className="px-3 py-2 text-sm text-text/60">
+                        <div className="text-text/60 px-3 py-2 text-sm">
                             No results found for "{query}"
                         </div>
                     )}
 
                     {!loading && !err && hasResults && (
                         <>
-                            <div className="max-h-72 divide-y-1 divide-background overflow-auto">
+                            <div className="divide-background max-h-72 divide-y overflow-auto">
                                 <ul>
-                                    {results.map(({ burrow }) => (
-                                        <li key={burrow.id}>
-                                            <SearchPreview
-                                                meeting={burrow}
-                                                onClick={() => {
-                                                    setPaginatedResults(null)
-                                                    setQuery("")
-                                                }}
-                                            />
-                                        </li>
-                                    ))}
+                                    {results.map((result) => {
+                                        if (isUserResult(result)) {
+                                            return (
+                                                <li key={`user-${result.userID}`}>
+                                                    <UserSearchPreview
+                                                        userID={result.userID}
+                                                        username={result.username}
+                                                        profile={result.profile}
+                                                        onClick={() => {
+                                                            setPaginatedResults(
+                                                                null
+                                                            )
+                                                            setQuery("")
+                                                        }}
+                                                    />
+                                                </li>
+                                            )
+                                        }
+
+                                        if (isBurrowResult(result)) {
+                                            return (
+                                                <li
+                                                    key={`burrow-${result.burrow.id}`}
+                                                >
+                                                    <SearchPreview
+                                                        burrow={result.burrow}
+                                                        onClick={() => {
+                                                            setPaginatedResults(
+                                                                null
+                                                            )
+                                                            setQuery("")
+                                                        }}
+                                                    />
+                                                </li>
+                                            )
+                                        }
+
+                                        return null
+                                    })}
                                 </ul>
                             </div>
 
                             {showPagination && (
-                                <div className="border-t border-card-border bg-card px-3 py-2">
+                                <div className="border-card-border bg-card border-t px-3 py-2">
                                     <div className="flex items-center justify-between gap-2">
                                         {/* Results info */}
-                                        <span className="text-xs text-text/60">
+                                        <span className="text-text/60 text-xs">
                                             Page {currentPage} of{" "}
                                             {paginatedResults.totalPages} (
                                             {paginatedResults.totalResults}{" "}
@@ -178,7 +213,7 @@ export default function Search() {
                                                 disabled={
                                                     currentPage === 1 || loading
                                                 }
-                                                className="rounded px-2 py-1 text-xs font-medium text-text transition-colors hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
+                                                className="text-text hover:bg-background rounded px-2 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                                                 aria-label="Previous page"
                                             >
                                                 ← Prev
@@ -192,7 +227,7 @@ export default function Search() {
                                                         paginatedResults.totalPages ||
                                                     loading
                                                 }
-                                                className="rounded px-2 py-1 text-xs font-medium text-text transition-colors hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
+                                                className="text-text hover:bg-background rounded px-2 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                                                 aria-label="Next page"
                                             >
                                                 Next →

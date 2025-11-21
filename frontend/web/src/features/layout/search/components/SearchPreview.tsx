@@ -1,4 +1,7 @@
-import type { Burrow } from "@features/burrows/burrows.types.ts"
+import {
+    type Burrow,
+    BURROW_KIND_CONFIG
+} from "@features/burrows/burrows.types.tsx"
 import { useNavigate } from "react-router"
 import { formatDateTime } from "@api/util.ts"
 import clsx from "clsx"
@@ -9,54 +12,71 @@ import { MapPin } from "lucide-react"
  * {@link SearchPreview}
  */
 type PreviewProps = {
-    meeting: Burrow
+    burrow: Burrow
     onClick: () => void
 }
 
 /**
  * A preview of a search entry.
  *
- * @param meeting The meeting to preview.
- * @param onClick When the meeting is clicked (close search thing)
- * @constructor
+ * @param burrow The Burrow to preview.
+ * @param onClick When the Burrow is clicked (close search thing)
+ *
+ * @author AJ Kneisl
  */
-export default function SearchPreview({ meeting, onClick }: PreviewProps) {
+export default function SearchPreview({ burrow, onClick }: PreviewProps) {
     const nav = useNavigate()
 
     return (
         <button
             type="button"
             onClick={() => {
-                nav(`/burrow/${meeting.id}`)
+                nav(`/burrow/${burrow.id}`)
                 onClick()
             }}
             className={clsx(
-                "flex flex-row justify-between items-center w-full text-left px-3 py-2",
-                "text-text bg-hero/20 hover:bg-hero/40 transition-all cursor-pointer"
+                "flex w-full flex-row items-center justify-between px-3 py-2 text-left",
+                "text-text bg-hero/20 hover:bg-hero/40 cursor-pointer transition-all"
             )}
         >
             <div className="flex flex-col">
-                <div className="text-sm font-medium text-text">
-                    {meeting.title}
+                <div className="text-text text-sm font-medium">
+                    {burrow.title}
                 </div>
 
-                <div className="flex flex-row flex-wrap gap-2 mt-2">
-                    {meeting.tags.map((tag: string) => (
-                        <Badge size="medium" key={tag}>{tag}</Badge>
+                <div className="mt-2 flex flex-row flex-wrap gap-2">
+                    <div className="flex flex-row flex-wrap items-center gap-1.5 pt-1">
+                        {/* burrow type */}
+                        <span
+                            className={clsx(
+                                "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+                                BURROW_KIND_CONFIG[burrow.kind]?.className,
+                                "bg-current/10"
+                            )}
+                        >
+                            {BURROW_KIND_CONFIG[burrow.kind]?.icon}
+                            {BURROW_KIND_CONFIG[burrow.kind]?.label}
+                        </span>
+                    </div>
+
+                    {burrow.tags.slice(0, 2).map((tag: string) => (
+                        <Badge size="medium" key={tag}>
+                            {tag}
+                        </Badge>
                     ))}
                 </div>
             </div>
 
             <div>
-                <div className=" text-xs flex items-center gap-1 text-text/80">
+                <div className=" text-text/80 flex items-center justify-end gap-1 text-xs">
                     {/* location pin icon */}
-                    <MapPin className="h-4 w-4 shrink-0" fill="currentColor" />
+                    <MapPin className="h-4 w-4 shrink-0" />
                     <p className="truncate">
-                        {meeting.location
+                        {burrow.location
                             ?.split(" ")[0]
                             ?.charAt(0)
                             .toUpperCase() +
-                            meeting.location
+                            burrow.location
                                 ?.split(" ")[0]
                                 ?.slice(1)
                                 .toLowerCase()}
@@ -64,10 +84,10 @@ export default function SearchPreview({ meeting, onClick }: PreviewProps) {
                 </div>
 
                 <time
-                    className="text-xs text-text/60"
+                    className="text-text/60 text-xs"
                     aria-label="Time Occurring"
                 >
-                    {formatDateTime(meeting.beginningTime, meeting.endTime)}
+                    {formatDateTime(burrow.beginningTime, burrow.endTime)}
                 </time>
             </div>
         </button>

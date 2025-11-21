@@ -4,7 +4,7 @@ import type {
     BurrowKind,
     BurrowMembershipResponse,
     BurrowRole
-} from "./burrows.types.ts"
+} from "./burrows.types.tsx"
 import type { PaginatedResponse } from "@api/api.types.ts"
 import { get, patch, post } from "@api/api.ts"
 

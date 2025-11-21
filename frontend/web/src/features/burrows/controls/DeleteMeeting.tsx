@@ -1,4 +1,4 @@
-import type { Burrow } from "@features/burrows/burrows.types.ts"
+import type { Burrow } from "@features/burrows/burrows.types.tsx"
 import { toast } from "react-hot-toast"
 import { motion } from "framer-motion"
 import { useRef } from "react"

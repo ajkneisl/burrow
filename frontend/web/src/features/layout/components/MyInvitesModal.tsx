@@ -6,7 +6,7 @@ import {
     declineInvite
 } from "@features/burrows/attendees/attendees.api.ts"
 import { getMeeting } from "@features/burrows/burrows.api.ts"
-import type { InviteWithUsers } from "@features/burrows/burrows.types.ts"
+import type { InviteWithUsers } from "@features/burrows/burrows.types.tsx"
 import { Button, Card, Modal } from "@umnburrow/core"
 import { formatTimeAgo, humanDateLabel } from "@api/util.ts"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"

@@ -4,7 +4,7 @@ import type {
     BurrowMembershipResponse,
     JoinRequestWithUser,
     InviteWithUsers
-} from "@features/burrows/burrows.types.ts"
+} from "@features/burrows/burrows.types.tsx"
 import type { PaginatedResponse } from "@api/api.types.ts"
 import { useParams } from "react-router"
 import { getAttendees } from "@features/burrows/burrows.api.ts"

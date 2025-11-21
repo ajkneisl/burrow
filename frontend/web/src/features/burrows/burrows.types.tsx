@@ -1,11 +1,47 @@
 import type { User } from "@features/auth/user.types.ts"
 import type { Profile } from "@features/profile/profile.model.ts"
+import { BookOpen, FolderKanban, PartyPopper, Users } from "lucide-react"
 
 /**
  * The type of group meeting.
  */
 export type BurrowKind = "STUDY" | "EVENT" | "CLUB" | "PROJECT"
 
+/**
+ * An icon and label that describes burrow kinds.
+ *
+ * @see BurrowKind
+ */
+export const BURROW_KIND_CONFIG: Record<
+    BurrowKind,
+    { label: string; icon: React.ReactNode; className: string }
+> = {
+    STUDY: {
+        label: "Study",
+        icon: <BookOpen className="h-3 w-3" />,
+        className: "text-info"
+    },
+    EVENT: {
+        label: "Event",
+        icon: <PartyPopper className="h-3 w-3" />,
+        className: "text-secondary"
+    },
+    CLUB: {
+        label: "Club",
+        icon: <Users className="h-3 w-3" />,
+        className: "text-warn"
+    },
+    PROJECT: {
+        label: "Project",
+        icon: <FolderKanban className="h-3 w-3" />,
+        className: "text-success"
+    }
+}
+
+
+/**
+ * Visibility of the Burrow.
+ */
 export type BurrowVisibility = "PUBLIC" | "UNLISTED" | "PRIVATE"
 
 /**

@@ -1,7 +1,7 @@
 import type {
     BurrowKind,
     BurrowVisibility
-} from "@features/burrows/burrows.types.ts"
+} from "@features/burrows/burrows.types.tsx"
 
 /**
  * The props for a {@link CreateBurrow} step.

@@ -1,5 +1,5 @@
 import type { SubmittedBurrow } from "@features/burrows/create/create.types.ts"
-import type { Burrow } from "@features/burrows/burrows.types.ts"
+import type { Burrow } from "@features/burrows/burrows.types.tsx"
 import { patch, post } from "@api/api.ts"
 
 /**

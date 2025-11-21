@@ -1,4 +1,4 @@
-import type { JoinRequestWithUser } from "@features/burrows/burrows.types.ts"
+import type { JoinRequestWithUser } from "@features/burrows/burrows.types.tsx"
 import { formatTimeAgo } from "@api/util.ts"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {

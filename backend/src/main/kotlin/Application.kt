@@ -9,9 +9,6 @@ import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.burrows.BURROW_ROUTES
 import app.burrow.burrows.getBurrow
 import app.burrow.burrows.getMeetingResponse
-import app.burrow.burrows.models.BurrowKind
-import app.burrow.burrows.models.SubmittedBurrow
-import app.burrow.burrows.models.SubmittedProjectBurrow
 import app.burrow.burrows.sync.Sync
 import app.burrow.notifications.NOTIFICATION_ROUTES
 import app.burrow.notifications.NotificationKind
@@ -272,6 +269,15 @@ suspend fun Application.module() {
             }
 
             authenticate(PRIMARY_AUTH) {
+                // GET /search
+                // search through users and Burrows simultaneously
+                get("/search") {
+                    val query = call.queryParameter("query")
+                    val page = call.optionalIntQueryParameter("page") ?: 1
+
+                    call.respond(search(query, page))
+                }
+
                 // ROUTE /debug
                 // debug functionality
                 route("/debug") {

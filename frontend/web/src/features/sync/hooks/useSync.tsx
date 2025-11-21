@@ -8,7 +8,7 @@ import {
     SyncIncomingEvent,
     type SyncOutgoingEvent
 } from "../sync.types.ts"
-import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
+import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 
 /**
  * Sync to a Burrow.

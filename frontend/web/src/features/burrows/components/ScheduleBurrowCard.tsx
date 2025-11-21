@@ -5,7 +5,7 @@ import {
     humanDateLabel
 } from "@api/util.ts"
 import { Card } from "@umnburrow/core"
-import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
+import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 import { useNavigate } from "react-router"
 
 /**

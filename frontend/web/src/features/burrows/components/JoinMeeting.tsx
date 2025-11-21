@@ -1,4 +1,4 @@
-import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
+import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 import { toast } from "react-hot-toast"
 import { joinMeeting, leaveMeeting } from "@features/burrows/burrows.api.ts"
 import useUser from "@features/auth/hooks/useUser.ts"

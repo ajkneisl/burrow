@@ -1,6 +1,6 @@
 import { SelectInput, Toggle } from "@umnburrow/core"
 import type { CreateStepProps } from "@features/burrows/create/create.types.ts"
-import type { BurrowVisibility } from "@features/burrows/burrows.types.ts"
+import type { BurrowVisibility } from "@features/burrows/burrows.types.tsx"
 import { capitalizeFirstLetter } from "@api/util.ts"
 
 /**

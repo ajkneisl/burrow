@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import Chat from "@features/chat/components/Chat.tsx"
 import useUser from "@features/auth/hooks/useUser.ts"
-import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
+import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 import type { ChatMember, ChatMessage } from "@features/chat/chat.types.ts"
 import {
     type SyncIncomingEvent,

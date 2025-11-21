@@ -1,4 +1,4 @@
-import type { InviteWithUsers } from "@features/burrows/burrows.types.ts"
+import type { InviteWithUsers } from "@features/burrows/burrows.types.tsx"
 import { formatTimeAgo } from "@api/util.ts"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { cancelInvite } from "@features/burrows/attendees/attendees.api.ts"

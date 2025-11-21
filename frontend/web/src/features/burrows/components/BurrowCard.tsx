@@ -1,5 +1,8 @@
 import { useNavigate } from "react-router"
-import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
+import {
+    BURROW_KIND_CONFIG,
+    type BurrowResponse
+} from "@features/burrows/burrows.types.tsx"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { formatDateTime } from "@api/util.ts"
 import { Badge, Card } from "@umnburrow/core"
@@ -7,44 +10,7 @@ import clsx from "clsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useMemo } from "react"
 import MeetingCapacityBadges from "@features/burrows/components/MeetingCapacityBadges.tsx"
-import {
-    Calendar,
-    Check,
-    Star,
-    Bookmark,
-    MapPin,
-    BookOpen,
-    PartyPopper,
-    FolderKanban,
-    Users
-} from "lucide-react"
-import type { BurrowKind } from "@features/burrows/burrows.types.ts"
-
-const BURROW_KIND_CONFIG: Record<
-    BurrowKind,
-    { label: string; icon: React.ReactNode; className: string }
-> = {
-    STUDY: {
-        label: "Study",
-        icon: <BookOpen className="h-3 w-3" />,
-        className: "text-info"
-    },
-    EVENT: {
-        label: "Event",
-        icon: <PartyPopper className="h-3 w-3" />,
-        className: "text-secondary"
-    },
-    CLUB: {
-        label: "Club",
-        icon: <Users className="h-3 w-3" />,
-        className: "text-warn"
-    },
-    PROJECT: {
-        label: "Project",
-        icon: <FolderKanban className="h-3 w-3" />,
-        className: "text-success"
-    }
-}
+import { Calendar, Check, Star, Bookmark, MapPin } from "lucide-react"
 
 /**
  * {@see GroupMeetingCard}
@@ -162,7 +128,6 @@ export function BurrowCard({
                                 className="bg-success/10 text-success ring-success/30 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ring-1 ring-inset"
                                 title="You're a member"
                             >
-                                {/* a checkmark */}
                                 <Check className="h-4 w-4" />
                                 Joined
                             </span>
@@ -174,7 +139,6 @@ export function BurrowCard({
                                 className="bg-warn/10 text-warn ring-warn/30 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ring-1 ring-inset"
                                 title="You are the host"
                             >
-                                {/* a star */}
                                 <Star className="h-4 w-4" />
                                 Host
                             </span>
@@ -186,7 +150,6 @@ export function BurrowCard({
                                 className="bg-info/10 text-info ring-info/30 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ring-1 ring-inset"
                                 title="Bookmarked"
                             >
-                                {/* a bookmark */}
                                 <Bookmark className="h-4 w-4" />
                                 {details && "Bookmarked"}
                             </span>

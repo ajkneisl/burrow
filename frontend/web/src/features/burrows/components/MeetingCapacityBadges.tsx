@@ -1,4 +1,4 @@
-import type { Burrow } from "@features/burrows/burrows.types.ts"
+import type { Burrow } from "@features/burrows/burrows.types.tsx"
 import { useMemo } from "react"
 import clsx from "clsx"
 

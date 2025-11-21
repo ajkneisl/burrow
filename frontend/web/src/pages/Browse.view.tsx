@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion"
 import React, { useMemo, useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
-import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
+import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import { searchMeetings } from "@features/burrows/burrows.api.ts"
 import MeetingHeatmap from "@features/burrows/components/MeetingHeatmap.tsx"

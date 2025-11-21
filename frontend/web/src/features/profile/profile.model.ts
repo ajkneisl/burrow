@@ -1,5 +1,5 @@
 import type { User } from "@features/auth/user.types.ts"
-import type { Burrow } from "@features/burrows/burrows.types.ts"
+import type { Burrow } from "@features/burrows/burrows.types.tsx"
 
 /**
  * A user's profile.

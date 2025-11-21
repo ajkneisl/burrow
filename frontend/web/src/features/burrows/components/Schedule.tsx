@@ -1,6 +1,6 @@
 import { dayLabel } from "@api/util.ts"
 import { useQuery } from "@tanstack/react-query"
-import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
+import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router"
 import { Button, Card, ViewErrors } from "@umnburrow/core"
