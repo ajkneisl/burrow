@@ -102,7 +102,7 @@ export function BurrowCard({
     }
 
     return (
-        <Card onClick={onClick} isHoverable={true} className="w-full group">
+        <Card onClick={onClick} isHoverable={true} className="group w-full">
             <div className="flex flex-col gap-4">
                 <div className="flex min-w-0 items-start justify-between gap-4">
                     <div className="text-text/70 flex flex-col items-start justify-between gap-2 text-sm">

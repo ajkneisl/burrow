@@ -62,11 +62,7 @@ export default function HomeView() {
 
                 {/* upcoming burrows */}
                 <aside className="md:col-span-1 md:row-span-3 md:row-start-1 lg:col-span-1 lg:row-span-1 lg:row-start-1">
-                    <PreviewBurrows
-                        fullPage={"/browse"}
-                        kind={"STUDY"}
-                        amount={5}
-                    />
+                    <PreviewBurrows amount={5} />
                 </aside>
             </div>
         </>
