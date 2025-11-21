@@ -1,11 +1,12 @@
 import { dayLabel, formatDateTime, humanDateLabel } from "@api/util.ts"
 import { useQuery } from "@tanstack/react-query"
 import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
-import { useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router"
 import { Button, Card, ViewErrors } from "@umnburrow/core"
 import { getSchedule } from "@features/burrows/burrows.api.ts"
 import clsx from "clsx"
+import { ChevronDown } from "lucide-react"
 
 /**
  * A group of burrows.
@@ -52,6 +53,39 @@ export default function Schedule() {
         }, [])
     }, [data])
 
+    // Sort projects by due date (endTime)
+    const sortedGroups = useMemo(() => {
+        return groups.map((group) => {
+            if (group.label === "Projects") {
+                return {
+                    ...group,
+                    items: [...group.items].sort(
+                        (a, b) => a.burrow.endTime - b.burrow.endTime
+                    )
+                }
+            }
+            return group
+        })
+    }, [groups])
+
+    // Count projects to determine initial expanded state
+    const projectCount = useMemo(() => {
+        const projectGroup = sortedGroups.find(
+            (group) => group.label === "Projects"
+        )
+        return projectGroup?.items.length ?? 0
+    }, [sortedGroups])
+
+    // Auto-collapse if more than 3 projects
+    const [projectsExpanded, setProjectsExpanded] = useState(true)
+
+    // Update expanded state when project count changes
+    useEffect(() => {
+        if (projectCount > 3) {
+            setProjectsExpanded(false)
+        }
+    }, [projectCount])
+
     return (
         <section className="w-full">
             {/* errors */}
@@ -75,7 +109,7 @@ export default function Schedule() {
             )}
 
             {/* empty schedule */}
-            {!isLoading && groups.length === 0 && !error && (
+            {!isLoading && sortedGroups.length === 0 && !error && (
                 <Card
                     aria-live="polite"
                     aria-label="No upcoming meetings"
@@ -96,62 +130,178 @@ export default function Schedule() {
             )}
 
             {/* content */}
-            {!isLoading && groups.length > 0 && (
+            {!isLoading && sortedGroups.length > 0 && (
                 <div className="bg-background/30 flex min-w-[240px] flex-col gap-6 rounded-xl">
-                    {groups.map((group) => (
-                        // individual burrows
-                        <section key={group.label}>
-                            <h3 className="text-text/60 mb-2 text-sm font-semibold tracking-wide uppercase">
-                                {group.label}
-                            </h3>
+                    {sortedGroups.map((group) => {
+                        const isProjectGroup = group.label === "Projects"
+                        const groupProjectCount = isProjectGroup
+                            ? group.items.length
+                            : 0
 
-                            <ul className="flex flex-col gap-3">
-                                {group.items.map((it) => (
-                                    <Card
-                                        key={it.burrow.id}
-                                        className={clsx(
-                                            "from:card bg-gradient-to-br",
-                                            it.burrow.kind === "PROJECT"
-                                                ? "to-warn/40 hover:to-warn/60"
-                                                : "to-success/40 hover:to-success/60"
-                                        )}
-                                        isHoverable={true}
-                                        onClick={() => onClick(it.burrow.id)}
+                        return (
+                            // individual burrows
+                            <section key={group.label}>
+                                {/* Header with optional collapse button for projects */}
+                                {isProjectGroup ? (
+                                    <button
+                                        onClick={() =>
+                                            setProjectsExpanded(
+                                                !projectsExpanded
+                                            )
+                                        }
+                                        className="text-text/60 hover:text-text mb-2 flex w-full cursor-pointer items-center gap-2 text-left text-sm font-semibold tracking-wide uppercase transition-colors"
                                     >
-                                        <div className="flex flex-col gap-1">
-                                            {/* burrow title */}
-                                            <div className="flex items-center justify-between">
-                                                <h4 className="text-text truncate text-base font-semibold">
-                                                    {it.burrow.title}
-                                                </h4>
-                                                {it.burrow.kind && (
-                                                    <span className="border-primary/15 bg-hero text-text/80 ml-3 rounded-full border px-2 py-0.5 text-xs">
-                                                        {it.burrow.kind}
-                                                    </span>
-                                                )}
-                                            </div>
+                                        <ChevronDown
+                                            className={clsx(
+                                                "h-4 w-4 transition-transform duration-300 ease-in-out",
+                                                !projectsExpanded &&
+                                                    "-rotate-90"
+                                            )}
+                                        />
 
-                                            {/* date of burrow */}
-                                            <time
-                                                className="text-text/80 text-sm"
-                                                aria-label="Time range"
+                                        <span>
+                                            {group.label} ({groupProjectCount})
+                                        </span>
+                                    </button>
+                                ) : (
+                                    <h3 className="text-text/60 mb-2 text-sm font-semibold tracking-wide uppercase">
+                                        {group.label}
+                                    </h3>
+                                )}
+
+                                {/* Show items if not projects or if projects are expanded */}
+                                {!isProjectGroup && (
+                                    <ul className="flex flex-col gap-3">
+                                        {group.items.map((it) => (
+                                            <Card
+                                                key={it.burrow.id}
+                                                className={clsx(
+                                                    "from:card bg-gradient-to-br",
+                                                    it.burrow.kind === "PROJECT"
+                                                        ? "to-warn/40 hover:to-warn/60"
+                                                        : "to-success/40 hover:to-success/60"
+                                                )}
+                                                isHoverable={true}
+                                                onClick={() =>
+                                                    onClick(it.burrow.id)
+                                                }
                                             >
-                                                {it.burrow.kind === "PROJECT"
-                                                    ? `Due ${humanDateLabel(
-                                                          it.burrow.endTime
-                                                      )}`
-                                                    : formatDateTime(
-                                                          it.burrow
-                                                              .beginningTime,
-                                                          it.burrow.endTime
-                                                      )}
-                                            </time>
-                                        </div>
-                                    </Card>
-                                ))}
-                            </ul>
-                        </section>
-                    ))}
+                                                <div className="flex flex-col gap-1">
+                                                    {/* burrow title */}
+                                                    <div className="flex items-center justify-between">
+                                                        <h4 className="text-text truncate text-base font-semibold">
+                                                            {it.burrow.title}
+                                                        </h4>
+                                                        {it.burrow.kind && (
+                                                            <span className="border-primary/15 bg-hero text-text/80 ml-3 rounded-full border px-2 py-0.5 text-xs">
+                                                                {it.burrow.kind}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* date of burrow */}
+                                                    <time
+                                                        className="text-text/80 text-sm"
+                                                        aria-label="Time range"
+                                                    >
+                                                        {it.burrow.kind ===
+                                                        "PROJECT"
+                                                            ? `Due ${humanDateLabel(
+                                                                  new Date(
+                                                                      it.burrow.endTime
+                                                                  ).toISOString()
+                                                              )}`
+                                                            : formatDateTime(
+                                                                  it.burrow
+                                                                      .beginningTime,
+                                                                  it.burrow
+                                                                      .endTime
+                                                              )}
+                                                    </time>
+                                                </div>
+                                            </Card>
+                                        ))}
+                                    </ul>
+                                )}
+
+                                {/* Animated project list */}
+                                {isProjectGroup && (
+                                    <div
+                                        className={clsx(
+                                            "grid transition-all duration-300 ease-in-out",
+                                            projectsExpanded
+                                                ? "grid-rows-[1fr] opacity-100"
+                                                : "grid-rows-[0fr] opacity-0"
+                                        )}
+                                    >
+                                        <ul
+                                            className={clsx(
+                                                "flex flex-col gap-3 overflow-hidden"
+                                            )}
+                                        >
+                                            {group.items.map((it) => (
+                                                <Card
+                                                    key={it.burrow.id}
+                                                    className={clsx(
+                                                        "from:card bg-gradient-to-br",
+                                                        it.burrow.kind ===
+                                                            "PROJECT"
+                                                            ? "to-warn/40 hover:to-warn/60"
+                                                            : "to-success/40 hover:to-success/60"
+                                                    )}
+                                                    isHoverable={true}
+                                                    onClick={() =>
+                                                        onClick(it.burrow.id)
+                                                    }
+                                                >
+                                                    <div className="flex flex-col gap-1">
+                                                        {/* burrow title */}
+                                                        <div className="flex items-center justify-between">
+                                                            <h4 className="text-text truncate text-base font-semibold">
+                                                                {
+                                                                    it.burrow
+                                                                        .title
+                                                                }
+                                                            </h4>
+                                                            {it.burrow.kind && (
+                                                                <span className="border-primary/15 bg-hero text-text/80 ml-3 rounded-full border px-2 py-0.5 text-xs">
+                                                                    {
+                                                                        it
+                                                                            .burrow
+                                                                            .kind
+                                                                    }
+                                                                </span>
+                                                            )}
+                                                        </div>
+
+                                                        {/* date of burrow */}
+                                                        <time
+                                                            className="text-text/80 text-sm"
+                                                            aria-label="Time range"
+                                                        >
+                                                            {it.burrow.kind ===
+                                                            "PROJECT"
+                                                                ? `Due ${humanDateLabel(
+                                                                      new Date(
+                                                                          it.burrow.endTime
+                                                                      ).toISOString()
+                                                                  )}`
+                                                                : formatDateTime(
+                                                                      it.burrow
+                                                                          .beginningTime,
+                                                                      it.burrow
+                                                                          .endTime
+                                                                  )}
+                                                        </time>
+                                                    </div>
+                                                </Card>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </section>
+                        )
+                    })}
                 </div>
             )}
         </section>

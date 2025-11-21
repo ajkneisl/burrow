@@ -17,6 +17,15 @@ export type UserSearchResult = {
 }
 
 /**
+ * A selected team member with display information
+ */
+export type SelectedMember = {
+    id: string
+    username: string
+    name?: string
+}
+
+/**
  * Search for users by username or profile name.
  *
  * @param query The search query.
@@ -49,12 +58,22 @@ export default function MembersStep({
     const searchTimeoutRef = useRef<number | null>(null)
     const dropdownRef = useRef<HTMLDivElement>(null)
 
-    // Parse member IDs from formState (stored as comma-separated in tags field)
-    // Note: tags field is repurposed for project member IDs since projects don't use tags
-    const selectedMemberIDs = formState.tags
-        .split(",")
-        .map((m) => m.trim())
-        .filter(Boolean)
+    // Parse selected members from JSON-encoded tags field
+    const selectedMembers: SelectedMember[] = useMemo(() => {
+        if (!formState.tags.trim()) return []
+        try {
+            return JSON.parse(formState.tags)
+        } catch {
+            // Fallback for old format (just IDs)
+            return formState.tags
+                .split(",")
+                .map((id) => id.trim())
+                .filter(Boolean)
+                .map((id) => ({ id, username: "", name: "" }))
+        }
+    }, [formState.tags])
+
+    const selectedMemberIDs = selectedMembers.map((m) => m.id)
 
     // Debounce search query
     useEffect(() => {
@@ -113,19 +132,26 @@ export default function MembersStep({
             document.removeEventListener("mousedown", handleClickOutside)
     }, [])
 
-    function addMember(userID: string) {
+    function addMember(user: UserSearchResult) {
         if (selectedMemberIDs.length >= MAX_MEMBERS) return
-        if (selectedMemberIDs.includes(userID)) return
+        if (selectedMemberIDs.includes(user.id)) return
 
-        const newMemberIDs = [...selectedMemberIDs, userID]
-        updateField("tags", newMemberIDs.join(", "))
+        const newMembers: SelectedMember[] = [
+            ...selectedMembers,
+            {
+                id: user.id,
+                username: user.username,
+                name: user.name
+            }
+        ]
+        updateField("tags", JSON.stringify(newMembers))
         setSearchQuery("")
         setShowDropdown(false)
     }
 
     function removeMember(userID: string) {
-        const newMemberIDs = selectedMemberIDs.filter((id) => id !== userID)
-        updateField("tags", newMemberIDs.join(", "))
+        const newMembers = selectedMembers.filter((m) => m.id !== userID)
+        updateField("tags", JSON.stringify(newMembers))
     }
 
     return (
@@ -172,7 +198,7 @@ export default function MembersStep({
                                     <button
                                         key={user.id}
                                         type="button"
-                                        onClick={() => addMember(user.id)}
+                                        onClick={() => addMember(user)}
                                         className="hover:bg-hero/60 animate-in fade-in slide-in-from-top-1 flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors duration-150"
                                         style={{
                                             animationDelay: `${index * 50}ms`,
@@ -184,6 +210,7 @@ export default function MembersStep({
                                             userID={user.id}
                                             size="sm"
                                         />
+
                                         <div className="min-w-0 flex-1">
                                             <div className="text-text truncate text-sm font-medium">
                                                 {user.name || user.username}
@@ -206,15 +233,15 @@ export default function MembersStep({
             </div>
 
             {/* Selected members */}
-            {selectedMemberIDs.length > 0 && (
+            {selectedMembers.length > 0 && (
                 <div className="space-y-3">
                     <p className="text-text text-sm font-semibold">
-                        Team Members ({selectedMemberIDs.length}/{MAX_MEMBERS})
+                        Team Members ({selectedMembers.length}/{MAX_MEMBERS})
                     </p>
                     <div className="space-y-2">
-                        {selectedMemberIDs.map((userID, index) => (
+                        {selectedMembers.map((member, index) => (
                             <div
-                                key={userID}
+                                key={member.id}
                                 className="border-border bg-hero/30 hover:bg-hero/50 animate-in fade-in slide-in-from-left-2 group flex items-center justify-between rounded-lg border px-4 py-3 transition-all duration-200"
                                 style={{
                                     animationDelay: `${index * 75}ms`,
@@ -223,19 +250,27 @@ export default function MembersStep({
                             >
                                 <div className="flex min-w-0 flex-1 items-center gap-3">
                                     <ProfilePicture
-                                        name={userID}
-                                        userID={userID}
+                                        name={member.name || member.username}
+                                        userID={member.id}
                                         size="sm"
                                     />
-                                    <span className="text-text truncate text-sm font-medium">
-                                        Member {index + 1}
-                                    </span>
+
+                                    <div className="min-w-0 flex-1">
+                                        <div className="text-text truncate text-sm font-medium">
+                                            {member.name || member.username}
+                                        </div>
+                                        {member.name && member.username && (
+                                            <div className="text-text/50 truncate text-xs">
+                                                @{member.username}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={() => removeMember(userID)}
+                                    onClick={() => removeMember(member.id)}
                                     className="text-text/40 hover:bg-error/20 hover:text-error ml-2 rounded-md p-1.5 transition-all duration-150"
-                                    aria-label={`Remove member`}
+                                    aria-label={`Remove ${member.name || member.username}`}
                                 >
                                     <X className="h-4 w-4" />
                                 </button>
