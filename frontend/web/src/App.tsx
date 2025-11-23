@@ -17,6 +17,7 @@ import RootLayout from "@features/layout/components/RootLayout.tsx"
 import { Provider } from "jotai"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { store } from "@api/api.atom.ts"
+import CreatorsView from "@pages/creators.view.tsx"
 
 /**
  * This defines all routes in Burrow.

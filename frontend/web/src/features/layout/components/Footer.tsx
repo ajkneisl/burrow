@@ -1,5 +1,4 @@
 import React from 'react';
-import {Github } from 'lucide-react';
 
 const Footer = () => {
     return (
@@ -49,18 +48,13 @@ const Footer = () => {
                                 </a>
                             </li>
                             <li>
-                                <a href="/team" className="hover:text-secondary transition-colors flex items-center gap-2">
-                                    Meet the Team
-                                </a>
-                            </li>
-                            <li>
                                 <a
                                     href="https://github.com/ajkneisl/burrow"
                                     target="_blank"
                                     rel="noreferrer"
                                     className="hover:text-secondary transition-colors flex items-center gap-2"
                                 >
-                                    <Github size={14} />
+
                                     GitHub Repo
                                 </a>
                             </li>
