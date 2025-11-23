@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+
 import { Button, Card } from "@umnburrow/core"
 import { useAtom } from "jotai"
 import {
@@ -9,7 +9,9 @@ import AccountSection from "@features/settings/components/AccountSection.tsx"
 import ThemeSection from "@features/settings/components/ThemeSection.tsx"
 import NotificationsSection from "@features/settings/components/NotificationsSection.tsx"
 import SettingsNavigationButton from "@features/settings/components/SettingsNavigationButton.tsx"
-import { User, Bell, Palette } from "lucide-react"
+// @ts-ignore
+import { Bell, Palette, User } from "lucide-react"
+import { useMemo } from "react"
 
 /**
  * The settings page.
