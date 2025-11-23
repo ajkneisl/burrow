@@ -1,7 +1,6 @@
 import {
     Button,
     Disclosure,
-    DisclosureGroup,
     DisclosurePanel,
     Heading
 } from "react-aria-components"
@@ -99,7 +98,7 @@ export default function About() {
                 Frequently Asked Questions
             </Heading>
 
-            <DisclosureGroup className="grid max-w-7xl grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid max-w-7xl grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {faqItems.map((item) => (
                     <Disclosure
                         key={item.id}
@@ -136,7 +135,7 @@ export default function About() {
                         )}
                     </Disclosure>
                 ))}
-            </DisclosureGroup>
+            </div>
         </div>
     )
 }

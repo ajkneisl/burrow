@@ -1,100 +1,105 @@
-import { Link } from "react-router"
-import { Linkedin } from "lucide-react"
+import React from 'react';
 
-const linkedIn: { name: string; link: string }[] = [
-    {
-        name: "AJ Kneisl",
-        link: "/in/ajkn"
-    },
-    {
-        name: "Yordanos Eshete",
-        link: "/in/yordanoseshete"
-    },
-    {
-        name: "Thien-Tri Nguyen",
-        link: "/in/thientri-nguyen"
-    },
-    {
-        name: "Benjamin Stortroen",
-        link: "/in/benjamin-stortroen-b61400347/"
-    },
-    {
-        name: "Josh Westerlund",
-        link: "/in/joshua-westerlund-b29199362/"
-    }
-]
-
-/**
- * Footer :)
- */
-export default function Footer() {
+const Footer = () => {
     return (
-        <footer className="bg-background text-text/80 mt-auto outline px-4 py-8 text-sm">
-            <div className="mx-auto grid max-w-7xl grid-cols-1 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4">
-                <div>
-                    <h4 className="text-secondary mb-2 font-semibold">
-                        Burrow
-                    </h4>
+        <footer className="bg-card text-text border-t-4 border-primary mt-60">
+            <div className="max-w-7xl mx-auto px-5 py-5 mt-2">
 
-                    <p className="text-sm">
-                        Connecting University of Minnesota students through
-                        study groups and collaboration.
-                    </p>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-4">
 
-                    <div className="mt-2 flex flex-row justify-center text-xs">
-                        <Link
-                            to="/privacy"
-                            className="hover:text-text/60 align:cn text-s underline"
-                        >
-                            Privacy Policy
-                        </Link>
-                        <span className="text-text/60 mx-2">•</span>
-                        <Link
-                            to="/tos"
-                            className="hover:text-text/60 hover:underline text-s underline"
-                        >
-                            Terms of Service
-                        </Link>
-                        <span className="text-text/60 mx-2">•</span>
-                        <Link
-                            to="/about"
-                            className="hover:text-text/60 hover:underline text-s underline "
-                        >
-                            About & FAQ
-                        </Link>
+                    <div className="col-span-1 md:col-span-1">
+                        <div className="flex items-center gap-2 mb-4">
+
+                            <span className="text-2xl font-bold text-secondary tracking-tight">
+                Burrow
+              </span>
+                        </div>
+                        <p className="text-sm leading-relaxed mb-4">
+                            Connecting University of Minnesota students through study groups, group projects, and more.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 className="text-text font-semibold mb-4 uppercase tracking-wider text-sm">
+                            Discover
+                        </h3>
+                        <ul className="space-y-2 text-sm">
+                            <li>
+                                <a href="https://instagram.com/yord.eshete" className="hover:text-secondary transition-colors">
+                                    Follow our Instagram
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/browse" className="hover:text-secondary transition-colors">
+                                    Upcoming Events
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 className="text-text font-semibold mb-4 uppercase tracking-wider text-sm">
+                            Community
+                        </h3>
+                        <ul className="space-y-2 text-sm">
+                            <li>
+                                <a href="/about" className="hover:text-secondary transition-colors">
+                                    About Us and FAQ
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/team" className="hover:text-secondary transition-colors flex items-center gap-2">
+                                    Meet the Team
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="https://github.com/ajkneisl/burrow"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="hover:text-secondary transition-colors flex items-center gap-2"
+                                >
+                                    GitHub
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 className="text-text font-semibold mb-4 uppercase tracking-wider text-sm">
+                            Legal
+                        </h3>
+                        <ul className="space-y-2 text-sm">
+                            <li>
+                                <a href="/privacy" className="hover:text-secondary transition-colors">
+                                    Privacy Policy
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/tos" className="hover:text-secondary transition-colors">
+                                    Terms of Service
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
-                <div className="col-span-2">
-                    <h4 className="text-secondary mb-2 font-semibold">
-                        Contributors
-                    </h4>
+                <div className="border-t border-card-border"></div>
 
-                    <ul className="flex flex-row flex-wrap items-center justify-center gap-2 space-y-2">
-                        {linkedIn.map(({ name, link }) => (
-                            <li>
-                                <a
-                                    href={`https://www.linkedin.com${link}`}
-                                    target="_blank"
-                                    className="border-info text-info hover:bg-info-hover/20 inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-medium transition"
-                                    rel="noopener noreferrer"
-                                >
-                                    <Linkedin className="h-4 w-4" />
-                                    {name}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
 
-                <div className="text-text/70">
-                    <p>
-                        © {new Date().getFullYear()} Burrow (v
-                        {import.meta.env.VITE_VERSION})
-                    </p>
-                    <p>Not affiliated with the University of Minnesota.</p>
+                <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 gap-4 pt-4">
+                    <div className="text-center md:text-left">
+                        <p>&copy; {new Date().getFullYear()} Burrow (v0.4.0-BETA-2)</p>
+                        <p className="mt-1">
+                            Not affiliated with the University of Minnesota.
+                        </p>
+                    </div>
+
+
                 </div>
             </div>
         </footer>
-    )
-}
+    );
+};
+
+export default Footer;
