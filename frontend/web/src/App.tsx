@@ -16,8 +16,7 @@ import BurrowRedirect from "@pages/burrows/Burrow.redirect.tsx"
 import RootLayout from "@features/layout/components/RootLayout.tsx"
 import { Provider } from "jotai"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import {store} from "@api/api.atom.ts";
-import CreatorsView from "@pages/creators.view.tsx";
+import { store } from "@api/api.atom.ts"
 
 /**
  * This defines all routes in Burrow.
@@ -37,7 +36,6 @@ const router = createBrowserRouter([
             { path: "settings", element: <SettingsView /> },
             { path: "privacy", element: <Privacy /> },
             { path: "tos", element: <ToS /> },
-            { path: "team", element: <CreatorsView /> },
             { path: "burrow/:id", element: <StandardBurrow /> },
             { path: "project/:id", element: <ProjectBurrow /> },
             { path: ":id", element: <BurrowRedirect /> },
