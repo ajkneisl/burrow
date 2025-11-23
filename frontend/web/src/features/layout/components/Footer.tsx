@@ -1,8 +1,9 @@
 import React from 'react';
+import {Github } from 'lucide-react';
 
 const Footer = () => {
     return (
-        <footer className="bg-card text-text border-t-4 border-primary mt-60">
+        <footer className="bg-background text-text border-t-4 border-primary mt-60">
             <div className="max-w-7xl mx-auto px-5 py-5 mt-2">
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-4">
@@ -59,7 +60,8 @@ const Footer = () => {
                                     rel="noreferrer"
                                     className="hover:text-secondary transition-colors flex items-center gap-2"
                                 >
-                                    GitHub
+                                    <Github size={14} />
+                                    GitHub Repo
                                 </a>
                             </li>
                         </ul>
