@@ -56,25 +56,25 @@ const teamMembers = [
         name: "Yordanos Eshete",
         role: "Fullstack Developer",
         image: "https://media.licdn.com/dms/image/v2/D5603AQG7O6l6A-4I9g/profile-displayphoto-scale_400_400/B56Zpfpt44J8Ag-/0/1762541363865?e=1765411200&v=beta&t=LyBxJPH9YxNOSgT02Hrl-xgzXbrAJcfjfJjF_ParZp8",
-        linkedin: "https://www.linkedin.com/in/yordanos-eshete/"
+        linkedin: "https://www.linkedin.com/in/yordanoseshete/"
     },
     {
         name: "Ben Stortroen",
         role: "Fullstack Developer",
         image: "https://media.licdn.com/dms/image/v2/D4E03AQGixrra3miq3g/profile-displayphoto-shrink_800_800/B4EZR4XfynGgAc-/0/1737186213397?e=1765411200&v=beta&t=V_96vF_0cR1weSo_FR6O3R8B0YvokV4fEh1kdy-UAUY",
-        linkedin: "https://www.linkedin.com/in/ben-stortroen/"
+        linkedin: "https://www.linkedin.com/in/benjamin-stortroen-b61400347/"
     },
     {
         name: "Thien-Tri Nguyen",
         role: "Fullstack Developer",
         image: "https://media.licdn.com/dms/image/v2/D4E03AQGay0bvqdcevA/profile-displayphoto-crop_800_800/B4EZoAJEUfJ0AI-/0/1760938970089?e=1765411200&v=beta&t=yS6Go62tOjrMKpng-RrOvdWfaJCo2JaKkVkJnqogTZ8",
-        linkedin: "https://www.linkedin.com/in/thien-tri-nguyen/"
+        linkedin: "https://www.linkedin.com/in/thientri-nguyen/"
     },
     {
         name: "Joshua Westerlund",
         role: "UI Designer",
         image: "https://media.licdn.com/dms/image/v2/D4D03AQFCD2cI2Xre6A/profile-displayphoto-shrink_400_400/B4DZZkHO1HG0Ag-/0/1745436340497?e=1765411200&v=beta&t=zH-Hjuz4XzsjIllWroKNbOkmCo3efvKJnQ3cNo-Z-VY",
-        linkedin: "https://www.linkedin.com/in/joshua-westerlund/"
+        linkedin: "https://www.linkedin.com/in/weste637/"
     }
 ]
 
