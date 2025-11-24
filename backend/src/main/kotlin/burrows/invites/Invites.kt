@@ -40,10 +40,8 @@ object Invites : Table("burrow_invites") {
     override val primaryKey = PrimaryKey(burrowID, inviterID, inviteeID)
 
     init {
-        // Composite indexes for common queries
         index("ix_invites_burrow_status", false, burrowID, status)
         index("ix_invites_invitee_status", false, inviteeID, status)
-        // Unique constraint: prevent duplicate pending invites
         uniqueIndex("uq_invites_burrow_invitee", burrowID, inviteeID, status)
     }
 }

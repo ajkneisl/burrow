@@ -6,7 +6,8 @@ import org.jetbrains.exposed.v1.core.Table
 
 object Reports : Table("reports") {
     val id = uuid("id").autoGenerate()
-    val userId = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
+
+    val userID = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
 
     val summary = varchar("summary", 255)
     val details = text("details")

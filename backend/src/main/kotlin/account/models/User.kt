@@ -81,7 +81,7 @@ data class User(
                 row[Users.username],
                 row[Users.email],
                 row[Users.phoneNumber],
-                row[Users.createdDate],
+                row[Users.createdAt],
             )
     }
 }
@@ -132,7 +132,7 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
                     it[Users.username] = username
                     it[Users.email] = email
                     it[Users.phoneNumber] = ""
-                    it[Users.createdDate] = createdDate
+                    it[Users.createdAt] = createdDate
                     it[Users.id] = googleID
                 }
 
@@ -163,7 +163,7 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
                     username = user[Users.username],
                     email = user[Users.email],
                     phoneNumber = user[Users.phoneNumber],
-                    createdDate = user[Users.createdDate],
+                    createdDate = user[Users.createdAt],
                 ),
                 false,
                 Authorization.generateToken(googleID),

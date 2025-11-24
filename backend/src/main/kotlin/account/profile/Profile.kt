@@ -43,7 +43,7 @@ object Profiles : Table("profiles") {
     val instagram = varchar("instagram", 32).nullable().default(null)
 
     /** [Profile.linkedIn] */
-    val linkedIn = varchar("linkedIn", 64).nullable().default(null)
+    val linkedIn = varchar("linked_in", 64).nullable().default(null)
 
     /** [Profile.gradYear] */
     val gradYear = integer("grad_year").nullable().default(null)

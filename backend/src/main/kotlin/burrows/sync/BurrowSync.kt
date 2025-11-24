@@ -115,7 +115,7 @@ object BurrowSync {
 
         val blockStates = query {
             BlockStates.selectAll()
-                .where { BlockStates.meetingId eq meetingId }
+                .where { BlockStates.burrowID eq meetingId }
                 .map { row -> Block.BlockState.fromRow(row) }
                 .toList()
                 .associate { block ->

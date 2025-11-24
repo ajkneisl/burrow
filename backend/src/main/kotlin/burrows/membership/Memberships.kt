@@ -10,13 +10,10 @@ import org.jetbrains.exposed.v1.core.Table
 /** [Membership] */
 object Memberships : Table("memberships") {
     /** [Membership.burrowID] */
-    val burrowID =
-        reference("meeting_id", Burrows.id, onDelete = ReferenceOption.CASCADE)
-            .index("ix_membership_meetingID")
+    val burrowID = reference("burrow_id", Burrows.id, onDelete = ReferenceOption.CASCADE).index()
 
     /** [Membership.userID] */
-    val userID =
-        reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE).index("ix_membership_userID")
+    val userID = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE).index()
 
     /** [Membership.role] */
     val role = enumerationByName("role", 32, BurrowRole::class).default(BurrowRole.MEMBER)
@@ -32,9 +29,9 @@ object Memberships : Table("memberships") {
     /** [Membership.leftAt] */
     val leftAt = long("left_at").nullable()
 
-    override val primaryKey = PrimaryKey(burrowID, userID, name = "pk_membership")
+    override val primaryKey = PrimaryKey(burrowID, userID)
 
     init {
-        index("ix_membership_meetingID_userID", false, burrowID, userID)
+        index(true, burrowID, userID)
     }
 }

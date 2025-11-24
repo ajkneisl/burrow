@@ -40,12 +40,12 @@ abstract class Block(val blockId: String, val meetingId: String) {
      * The per-meeting saved state of a block.
      *
      * @param block The ID of the block.
-     * @param meetingId The ID of the meeting.
+     * @param burrowID The ID of the meeting.
      * @param data The saved data from the meeting
      */
     data class BlockState(
         val block: String,
-        val meetingId: String,
+        val burrowID: String,
         val data: HashMap<String, String>,
     ) {
         companion object {
@@ -59,7 +59,7 @@ abstract class Block(val blockId: String, val meetingId: String) {
             fun fromRow(row: ResultRow): BlockState =
                 BlockState(
                     row[BlockStates.block],
-                    row[BlockStates.meetingId],
+                    row[BlockStates.burrowID],
                     Json.decodeFromString(row[BlockStates.data]),
                 )
         }
@@ -68,7 +68,7 @@ abstract class Block(val blockId: String, val meetingId: String) {
     /** Get the [BlockState] from the [meetingId]. */
     suspend fun getState(): BlockState? = query {
         BlockStates.selectAll()
-            .where { (BlockStates.block eq blockId) and (BlockStates.meetingId eq meetingId) }
+            .where { (BlockStates.block eq blockId) and (BlockStates.burrowID eq meetingId) }
             .singleOrNull()
             ?.let { BlockState.fromRow(it) }
     }
@@ -77,7 +77,7 @@ abstract class Block(val blockId: String, val meetingId: String) {
     suspend fun createState(data: HashMap<String, String>) = query {
         BlockStates.insert {
             it[BlockStates.block] = blockId
-            it[BlockStates.meetingId] = meetingId
+            it[BlockStates.burrowID] = burrowID
             it[BlockStates.data] = Json.encodeToString(data)
         }
     }
@@ -159,7 +159,7 @@ abstract class Block(val blockId: String, val meetingId: String) {
 suspend fun enableBlock(meetingId: String, blockName: String) = query {
     val existing =
         BlockStates.selectAll()
-            .where { (BlockStates.meetingId eq meetingId) and (BlockStates.block eq blockName) }
+            .where { (BlockStates.burrowID eq meetingId) and (BlockStates.block eq blockName) }
             .singleOrNull()
 
     if (existing == null) {
@@ -168,7 +168,7 @@ suspend fun enableBlock(meetingId: String, blockName: String) = query {
 
         BlockStates.insert {
             it[BlockStates.block] = blockName
-            it[BlockStates.meetingId] = meetingId
+            it[BlockStates.burrowID] = meetingId
             it[BlockStates.data] = "{}"
         }
     }
@@ -185,7 +185,7 @@ suspend fun disableBlock(meetingId: String, blockName: String) = query {
     BurrowSync.removeBlock(meetingId, blockName)
 
     BlockStates.deleteWhere {
-        (BlockStates.meetingId eq meetingId) and (BlockStates.block eq blockName)
+        (BlockStates.burrowID eq meetingId) and (BlockStates.block eq blockName)
     }
 }
 
@@ -196,7 +196,7 @@ suspend fun disableBlock(meetingId: String, blockName: String) = query {
  */
 suspend fun getEnabledBlocks(meetingId: String): List<String> = query {
     BlockStates.select(BlockStates.block)
-        .where { BlockStates.meetingId eq meetingId }
+        .where { BlockStates.burrowID eq meetingId }
         .map { it[BlockStates.block] }
         .toList()
 }

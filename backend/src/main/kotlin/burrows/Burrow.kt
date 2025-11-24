@@ -180,7 +180,7 @@ suspend fun createProjectBurrow(userID: String, project: SubmittedProjectBurrow)
 
         // by default, enable CHAT
         BlockStates.insert {
-            it[BlockStates.meetingId] = projectBurrow.id
+            it[BlockStates.burrowID] = projectBurrow.id
             it[BlockStates.block] = "CHAT"
             it[BlockStates.data] = Block.BlockState.EMPTY
         }
@@ -257,7 +257,7 @@ suspend fun createBurrow(userID: String, meeting: SubmittedStudyEventBurrow): Bu
 
         // by default, enable CHAT
         BlockStates.insert {
-            it[BlockStates.meetingId] = groupMeeting.id
+            it[BlockStates.burrowID] = groupMeeting.id
             it[BlockStates.block] = "CHAT"
             it[BlockStates.data] = Block.BlockState.EMPTY
         }

@@ -28,7 +28,7 @@ data class Report(
         fun fromRow(row: ResultRow): Report =
             Report(
                 id = row[Reports.id],
-                userID = row[Reports.userId],
+                userID = row[Reports.userID],
                 summary = row[Reports.summary],
                 details = row[Reports.details],
                 category = row[Reports.category],
@@ -76,7 +76,7 @@ suspend fun createReport(userId: String, report: SubmittedReport): UUID = query 
     Reports.insert {
         it[Reports.summary] = report.summary
         it[Reports.category] = report.category
-        it[Reports.userId] = userId
+        it[Reports.userID] = userId
         it[Reports.details] = report.details
         it[Reports.userAgent] = report.userAgent
         it[Reports.path] = report.path

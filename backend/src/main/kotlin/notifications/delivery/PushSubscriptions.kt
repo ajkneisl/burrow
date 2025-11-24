@@ -19,7 +19,7 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 /** Web Push subscriptions for browser notifications. */
 object PushSubscriptions : Table("push_subscriptions") {
     /** [PushSubscription.id] */
-    val id = uuid("subscription_id").autoGenerate()
+    val id = uuid("id").autoGenerate()
 
     /** [PushSubscription.userID] */
     val userID = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
