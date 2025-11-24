@@ -1,7 +1,7 @@
 import HomeView from "@pages/Home.view.tsx"
 import StandardBurrow from "@pages/burrows/StandardBurrow.view.tsx"
 import ProjectBurrow from "@pages/burrows/ProjectBurrow.view.tsx"
-import Browse from "@pages/Browse.view.tsx"
+import Browse from "@pages/burrows/Browse.view.tsx"
 import LandingView from "@pages/Landing.view.tsx"
 import About from "@pages/About.tsx"
 import NotFound from "@pages/NotFound.view.tsx"
@@ -9,6 +9,8 @@ import Privacy from "@pages/Privacy.view.tsx"
 import ToS from "@pages/ToS.view.tsx"
 import SettingsView from "@pages/Settings.view.tsx"
 import ProfileView from "@pages/Profile.view.tsx"
+import Discuss from "@pages/Discuss.view.tsx"
+import TopicView from "@pages/Topic.view.tsx"
 import { createBrowserRouter, RouterProvider } from "react-router"
 import Yordanos from "@pages/Yordanos.view.tsx"
 import ErrorElement from "@pages/Error.view.tsx"
@@ -34,6 +36,8 @@ const router = createBrowserRouter([
             { path: "browse", element: <Browse /> },
             { path: "user/:username", element: <ProfileView /> },
             { path: "settings", element: <SettingsView /> },
+            { path: "discuss", element: <Discuss /> },
+            { path: "discuss/:id", element: <TopicView /> },
             { path: "privacy", element: <Privacy /> },
             { path: "tos", element: <ToS /> },
             { path: "burrow/:id", element: <StandardBurrow /> },

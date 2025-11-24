@@ -58,22 +58,22 @@ export default function Chat({
 
     const dateStr = useMemo(
         () =>
-            new Date(message.date).toLocaleTimeString([], {
+            new Date(message.createdAt).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
                 second: isHovered ? "2-digit" : undefined
             }),
-        [isHovered, message.date]
+        [isHovered, message.createdAt]
     )
 
     const userColor = useMemo(
-        () => getUserColor(message.userID),
-        [message.userID]
+        () => getUserColor(message.senderID),
+        [message.senderID]
     )
 
     return (
         <div
-            key={`${message.messageID}`}
+            key={`${message.id}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             className="group hover:bg-background/40 relative rounded-lg px-3 py-2 transition-all duration-150"
@@ -81,8 +81,8 @@ export default function Chat({
             <div className="flex w-full items-start gap-3">
                 <div className="flex-shrink-0 pt-1">
                     <ProfilePicture
-                        name={members[message.userID]?.name}
-                        userID={message.userID}
+                        name={members[message.senderID]?.name}
+                        userID={message.senderID}
                         size="sm"
                     />
                 </div>
@@ -90,7 +90,7 @@ export default function Chat({
                 <div className="min-w-0 flex-1">
                     <div className="mb-1.5 flex items-center gap-2.5">
                         <span className={`text-sm font-bold ${userColor}`}>
-                            {members[message.userID]?.name || "Unknown User"}
+                            {members[message.senderID]?.name || "Unknown User"}
                         </span>
                         <span className="text-text/35 text-[11px] font-medium">
                             {dateStr}

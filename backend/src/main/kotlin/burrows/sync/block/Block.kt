@@ -1,6 +1,6 @@
 package app.burrow.burrows.sync.block
 
-import app.burrow.burrows.sync.Sync
+import app.burrow.burrows.sync.BurrowSync
 import app.burrow.burrows.sync.models.Response
 import app.burrow.query
 import kotlinx.coroutines.flow.map
@@ -117,7 +117,7 @@ abstract class Block(val blockId: String, val meetingId: String) {
 
     /** Broadcast a [payload] to the whole meeting. */
     suspend inline fun <reified T> broadcast(payload: Response<T>) =
-        Sync.broadcast<T>(meetingId, payload)
+        BurrowSync.broadcast<T>(meetingId, payload)
 
     /** Broadcast a [type] enum and [payload] to the whole meeting. */
     suspend inline fun <reified T> broadcastResponse(type: Enum<*>, payload: T) =
@@ -129,7 +129,7 @@ abstract class Block(val blockId: String, val meetingId: String) {
 
     /** Send a [payload] and to a specific [userId]. */
     suspend inline fun <reified T> send(userId: String, payload: Response<T>) =
-        Sync.broadcast(userId, meetingId, payload)
+        BurrowSync.broadcast(userId, meetingId, payload)
 
     /** Send a [payload] and to a specific user, indicated within the [UserBlockRequestState]. */
     suspend inline fun <reified T> UserBlockRequestState.send(payload: Response<T>) =
@@ -164,7 +164,7 @@ suspend fun enableBlock(meetingId: String, blockName: String) = query {
 
     if (existing == null) {
         // create instance and add to cache
-        Sync.addBlock(meetingId, blockName)
+        BurrowSync.addBlock(meetingId, blockName)
 
         BlockStates.insert {
             it[BlockStates.block] = blockName
@@ -182,7 +182,7 @@ suspend fun enableBlock(meetingId: String, blockName: String) = query {
  */
 suspend fun disableBlock(meetingId: String, blockName: String) = query {
     // remove instance from cache
-    Sync.removeBlock(meetingId, blockName)
+    BurrowSync.removeBlock(meetingId, blockName)
 
     BlockStates.deleteWhere {
         (BlockStates.meetingId eq meetingId) and (BlockStates.block eq blockName)

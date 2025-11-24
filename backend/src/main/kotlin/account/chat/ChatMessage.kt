@@ -1,4 +1,4 @@
-package app.burrow.burrows.sync.chat
+package app.burrow.account.chat
 
 import java.util.UUID
 import kotlinx.serialization.KSerializer
@@ -12,46 +12,45 @@ import org.jetbrains.exposed.v1.core.ResultRow
 /**
  * A chat message.
  *
- * @param messageID The unique ID of the message.
- * @param burrowID The ID of the Burrow where the message was sent.
- * @param userID The ID of the user who created the message.
- * @param message The contents of the message.
- * @param date When the message was created.
+ * @param id The unique message ID.
+ * @param parentID The parent entity this message belongs to. This can be a topic, a conversation,
+ *   or a Burrow.
+ * @param senderID The user who sent this message.
+ * @param message The message content.
+ * @param createdAt When the message was sent.
  */
 @Serializable
 data class ChatMessage(
-    @Serializable(with = UUIDSerializer::class) val messageID: UUID,
-    val burrowID: String,
-    val userID: String,
+    @Serializable(with = UUIDSerializer::class) val id: UUID,
+    val parentID: String,
+    val senderID: String,
     val message: String,
-    val date: Long,
+    val createdAt: Long,
 ) {
     companion object {
         /**
-         * Convert a [row] containing a [ChatMessage].
+         * Convert a [row] to a [ChatMessage].
          *
          * @param row The row containing a [ChatMessage].
          */
         fun fromRow(row: ResultRow): ChatMessage =
             ChatMessage(
-                messageID = row[ChatMessages.messageID],
-                date = row[ChatMessages.date],
+                id = row[ChatMessages.id],
+                parentID = row[ChatMessages.parentID],
+                senderID = row[ChatMessages.senderID],
                 message = row[ChatMessages.message],
-                burrowID = row[ChatMessages.burrowID],
-                userID = row[ChatMessages.userID],
+                createdAt = row[ChatMessages.createdAt],
             )
 
         /** Serializes a UUID. */
         object UUIDSerializer : KSerializer<UUID> {
             override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
 
-            override fun deserialize(decoder: Decoder): UUID {
-                return UUID.fromString(decoder.decodeString())
-            }
+            override fun deserialize(decoder: Decoder): UUID =
+                UUID.fromString(decoder.decodeString())
 
-            override fun serialize(encoder: Encoder, value: UUID) {
+            override fun serialize(encoder: Encoder, value: UUID) =
                 encoder.encodeString(value.toString())
-            }
         }
     }
 }

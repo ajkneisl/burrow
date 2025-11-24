@@ -18,7 +18,7 @@ import app.burrow.burrows.models.BurrowResponse
 import app.burrow.burrows.models.BurrowRole
 import app.burrow.burrows.models.BurrowVisibility
 import app.burrow.burrows.models.Burrows
-import app.burrow.burrows.sync.Sync
+import app.burrow.burrows.sync.BurrowSync
 import app.burrow.models.PaginatedResponse
 import app.burrow.notifications.createNotification
 import app.burrow.notifications.onUserJoinedMeeting
@@ -283,7 +283,7 @@ suspend fun banUser(requestingUserID: String, userID: String, burrowID: String) 
     }
 
     // remove them
-    Sync.leave(burrowID, userID, true)
+    BurrowSync.leave(burrowID, userID, true)
 
     query {
         Memberships.update(where = { Memberships.userID eq userID }) {
@@ -366,7 +366,7 @@ suspend fun leaveBurrow(userID: String, meetingID: String) {
     }
 
     // cancel the user's socket connection if they have one
-    Sync.leave(meetingID, userID, closeSession = true)
+    BurrowSync.leave(meetingID, userID, closeSession = true)
 
     // the user who was waitlisted last gets first dibs
     query {

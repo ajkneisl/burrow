@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import Chat from "@features/chat/components/Chat.tsx"
+import ChatInput from "@features/chat/components/ChatInput.tsx"
 import useUser from "@features/auth/hooks/useUser.ts"
 import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 import type { ChatMember, ChatMessage } from "@features/chat/chat.types.ts"
@@ -9,8 +10,8 @@ import {
 } from "@features/sync/sync.types.ts"
 import { useAtomValue } from "jotai"
 import { syncRetry, syncStatus } from "@features/sync/sync.atom.ts"
-import { Button, Card, Input } from "@umnburrow/core"
-import { MessageSquare, Pencil, Send, X } from "lucide-react"
+import { Card } from "@umnburrow/core"
+import { MessageSquare } from "lucide-react"
 
 /**
  * {@link ChatBox}
@@ -291,58 +292,16 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
             </div>
 
             {/* input area */}
-            <div className="border-background/60 border-t pt-4">
-                {editingID && (
-                    <div className="bg-warn/10 border-warn/20 mb-3 flex items-center justify-between rounded-lg border px-3 py-2">
-                        <div className="flex items-center gap-2">
-                            <div className="bg-warn/20 rounded p-1">
-                                <Pencil className="text-warn h-3 w-3" />
-                            </div>
-                            <span className="text-text/80 text-xs font-medium">
-                                Editing message
-                            </span>
-                        </div>
-                        <button
-                            type="button"
-                            onClick={cancelEdit}
-                            className="text-text/60 hover:text-text hover:bg-background/60 rounded p-1 transition-colors"
-                            aria-label="Cancel editing"
-                        >
-                            <X className="h-4 w-4" />
-                        </button>
-                    </div>
-                )}
-
-                <div className="flex gap-2">
-                    <Input
-                        className="flex-1"
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && send()}
-                        placeholder={
-                            status === "LIVE"
-                                ? "Type a message…"
-                                : "You are disconnected."
-                        }
-                        disabled={status !== "LIVE"}
-                    />
-
-                    <Button
-                        color="INFO"
-                        onClick={send}
-                        disabled={status !== "LIVE" || !text.trim()}
-                        className="px-4"
-                    >
-                        {editingID ? (
-                            "Save"
-                        ) : (
-                            <>
-                                <Send className="h-4 w-4" />
-                            </>
-                        )}
-                    </Button>
-                </div>
-            </div>
+            <ChatInput
+                value={text}
+                onChange={setText}
+                onSend={send}
+                status={status}
+                isEditing={!!editingID}
+                onCancelEdit={cancelEdit}
+                placeholder="Type a message…"
+                disconnectedPlaceholder="You are disconnected."
+            />
         </Card>
     )
 }

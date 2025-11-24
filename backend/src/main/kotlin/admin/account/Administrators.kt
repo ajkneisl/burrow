@@ -2,8 +2,8 @@ package app.burrow.admin.account
 
 import app.burrow.Error
 import app.burrow.account.Authorization
+import app.burrow.account.chat.ChatMessage
 import app.burrow.admin.account.TOTP.secretGenerator
-import app.burrow.burrows.sync.chat.ChatMessage
 import app.burrow.query
 import dev.samstevens.totp.code.CodeGenerator
 import dev.samstevens.totp.code.CodeVerifier

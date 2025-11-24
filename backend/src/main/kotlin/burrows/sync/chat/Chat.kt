@@ -1,11 +1,13 @@
 package app.burrow.burrows.sync.chat
 
 import app.burrow.account.Users
+import app.burrow.account.chat.ChatMessage
+import app.burrow.account.chat.ChatMessages
 import app.burrow.account.profile.Profiles
 import app.burrow.burrows.getMeetingResponse
 import app.burrow.burrows.membership.Memberships
 import app.burrow.burrows.models.BurrowRole
-import app.burrow.burrows.sync.Sync
+import app.burrow.burrows.sync.BurrowSync
 import app.burrow.burrows.sync.block.Block
 import app.burrow.burrows.sync.block.RegisterBlock
 import app.burrow.burrows.sync.models.Response
@@ -36,7 +38,7 @@ import org.jetbrains.exposed.v1.r2dbc.update
  * - receiving history
  */
 @RegisterBlock
-class Chat(meetingId: String) : Block("CHAT", meetingId) {
+class Chat(burrowID: String) : Block("CHAT", burrowID) {
     companion object {
         private const val MESSAGE_MAX_LENGTH = 512
         private const val MESSAGE_MIN_LENGTH = 1
@@ -91,7 +93,7 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
     suspend fun getChatMessage(messageId: UUID): ChatMessage? = query {
         ChatMessages.selectAll()
             .where {
-                (ChatMessages.burrowID eq meetingId) and (ChatMessages.messageID eq messageId)
+                (ChatMessages.parentID eq meetingId) and (ChatMessages.id eq messageId)
             }
             .map { ChatMessage.fromRow(it) }
             .firstOrNull()
@@ -130,8 +132,8 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
             query {
                 val messages =
                     ChatMessages.selectAll()
-                        .where { ChatMessages.burrowID eq this@Chat.meetingId }
-                        .orderBy(ChatMessages.date, SortOrder.DESC)
+                        .where { ChatMessages.parentID eq this@Chat.meetingId }
+                        .orderBy(ChatMessages.createdAt, SortOrder.DESC)
                         .offset(page * ChatHistory.CHAT_PAGE_LIMIT)
                         .limit(ChatHistory.CHAT_PAGE_LIMIT)
                         .toList()
@@ -139,7 +141,7 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
 
                 val pageCount =
                     ChatMessages.selectAll()
-                        .where { ChatMessages.burrowID eq this@Chat.meetingId }
+                        .where { ChatMessages.parentID eq this@Chat.meetingId }
                         .count()
                         .div(ChatHistory.CHAT_PAGE_LIMIT)
 
@@ -173,13 +175,13 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
         if (meeting == null || message == null || meeting.membership == null)
             return sendError("Invalid message ID.")
 
-        if (message.userID != userId)
+        if (message.senderID != userId)
             return sendError("You do not have permission to edit this message.")
 
         query {
             ChatMessages.update({
-                (ChatMessages.burrowID eq this@Chat.meetingId) and
-                    (ChatMessages.messageID eq messageId)
+                (ChatMessages.parentID eq this@Chat.meetingId) and
+                    (ChatMessages.id eq messageId)
             }) {
                 it[ChatMessages.message] = newContents
             }
@@ -210,19 +212,19 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
         val isModerator =
             membership.role == BurrowRole.HOST || membership.role == BurrowRole.MODERATOR
 
-        val isMessageOwner = message.userID == userId
+        val isMessageOwner = message.senderID == userId
 
         if (!isModerator && !isMessageOwner)
             return sendError("You do not have permission to delete this message.")
 
         query {
             ChatMessages.deleteWhere {
-                (ChatMessages.burrowID eq this@Chat.meetingId) and
-                    (ChatMessages.messageID eq messageId)
+                (ChatMessages.parentID eq this@Chat.meetingId) and
+                    (ChatMessages.id eq messageId)
             }
         }
 
-        Sync.broadcast(
+        BurrowSync.broadcast(
             meetingId,
             Response(blockId, Outgoing.MESSAGE_DELETED, payload = DeletedMessage(messageId)),
         )
@@ -243,17 +245,23 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
         // create message
         query {
             ChatMessages.insert {
-                it[ChatMessages.messageID] = messageId
+                it[ChatMessages.id] = messageId
                 it[ChatMessages.message] = message
-                it[ChatMessages.userID] = this@wsCreateMessage.userId
-                it[ChatMessages.burrowID] = this@Chat.meetingId
-                it[ChatMessages.date] = time
+                it[ChatMessages.senderID] = this@wsCreateMessage.userId
+                it[ChatMessages.parentID] = this@Chat.meetingId
+                it[ChatMessages.createdAt] = time
             }
         }
 
-        val chatMessage = ChatMessage(messageId, meetingId, userId, message, time)
+        val chatMessage = ChatMessage(
+            id = messageId,
+            parentID = meetingId,
+            senderID = userId,
+            message = message,
+            createdAt = time
+        )
 
-        Sync.broadcast<ChatMessage>(meetingId, Response(blockId, Outgoing.NEW_MESSAGE, chatMessage))
+        BurrowSync.broadcast<ChatMessage>(meetingId, Response(blockId, Outgoing.NEW_MESSAGE, chatMessage))
     }
 
     /** Receive members. */

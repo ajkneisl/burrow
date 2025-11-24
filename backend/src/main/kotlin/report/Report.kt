@@ -1,6 +1,6 @@
 package app.burrow.report
 
-import app.burrow.burrows.sync.chat.ChatMessage
+import app.burrow.account.chat.ChatMessage
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
@@ -15,7 +15,7 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 @Serializable
 data class Report(
     @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val id: UUID,
-    val userId: String,
+    val userID: String,
     val summary: String,
     val details: String,
     val category: String,
@@ -28,7 +28,7 @@ data class Report(
         fun fromRow(row: ResultRow): Report =
             Report(
                 id = row[Reports.id],
-                userId = row[Reports.userId],
+                userID = row[Reports.userId],
                 summary = row[Reports.summary],
                 details = row[Reports.details],
                 category = row[Reports.category],

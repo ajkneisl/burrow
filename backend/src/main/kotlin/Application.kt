@@ -2,6 +2,7 @@ package app.burrow
 
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
+import app.burrow.account.chat.ChatSync
 import app.burrow.account.models.getUserByUsername
 import app.burrow.account.models.userID
 import app.burrow.account.settings.SETTINGS_ROUTES
@@ -9,7 +10,7 @@ import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.burrows.BURROW_ROUTES
 import app.burrow.burrows.getBurrow
 import app.burrow.burrows.getMeetingResponse
-import app.burrow.burrows.sync.Sync
+import app.burrow.burrows.sync.BurrowSync
 import app.burrow.notifications.NOTIFICATION_ROUTES
 import app.burrow.notifications.NotificationKind
 import app.burrow.notifications.createNotification
@@ -246,7 +247,11 @@ suspend fun Application.module() {
 
             // ROUTE /burrows/{id}
             // webhook sync
-            route("/burrows/{id}", Sync.SYNC_ROUTES)
+            route("/burrows/{id}", BurrowSync.SYNC_ROUTES)
+
+            // ROUTE /chat
+            // global chat sync (DMs and topic rooms)
+            route("/chat", ChatSync.CHAT_SYNC_ROUTES)
 
             // ROUTE /api/user
             // manage users / login

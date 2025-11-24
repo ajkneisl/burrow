@@ -1,6 +1,6 @@
 package app.burrow.notifications
 
-import app.burrow.burrows.sync.chat.ChatMessage
+import app.burrow.account.chat.ChatMessage
 import app.burrow.models.PaginatedResponse
 import app.burrow.notifications.delivery.deliver
 import app.burrow.query
