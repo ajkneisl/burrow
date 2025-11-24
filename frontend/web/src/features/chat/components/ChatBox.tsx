@@ -57,7 +57,9 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
                     const messageHistory = payload.payload
                         .messages as ChatMessage[]
 
-                    setMessages(messageHistory.sort((a, b) => a.date - b.date))
+                    setMessages(
+                        messageHistory.sort((a, b) => a.createdAt - b.createdAt)
+                    )
                     break
                 }
 
@@ -89,8 +91,7 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
                 case "MESSAGE_DELETED":
                     setMessages((prev) =>
                         prev.filter(
-                            (message) =>
-                                message.messageID !== payload.payload.messageId
+                            (message) => message.id !== payload.payload.id
                         )
                     )
                     break
@@ -99,7 +100,7 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
                 case "MESSAGE_UPDATED":
                     setMessages((prev) =>
                         prev.map((msg) =>
-                            msg.messageID === payload.payload.messageId
+                            msg.id === payload.payload.id
                                 ? {
                                       ...msg,
                                       message: payload.payload.newMessage
@@ -165,7 +166,7 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
 
     // begin an edit
     function startEdit(msg: ChatMessage) {
-        setEditingID(msg.messageID)
+        setEditingID(msg.id)
         setEditingOriginal(msg.message)
         setText(msg.message)
     }
@@ -275,16 +276,14 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
                 ) : (
                     messages.map((message) => (
                         <Chat
-                            key={message.messageID}
+                            key={message.id}
                             message={message}
-                            canEdit={message.userID === user?.id}
+                            canEdit={message.senderID === user?.id}
                             canDelete={
-                                message.userID === user?.id || isModerator
+                                message.senderID === user?.id || isModerator
                             }
                             members={members}
-                            deleteButton={() =>
-                                deleteMessage(message.messageID)
-                            }
+                            deleteButton={() => deleteMessage(message.id)}
                             editButton={() => startEdit(message)}
                         />
                     ))

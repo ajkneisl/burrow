@@ -1,5 +1,5 @@
-import type { Topic } from "@features/chat/chat-sync.types.ts"
 import { get } from "@api/api.ts"
+import type { Topic } from "@features/chat/chat.types.ts"
 
 /**
  * Get all topics.

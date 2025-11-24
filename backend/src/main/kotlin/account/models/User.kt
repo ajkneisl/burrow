@@ -58,7 +58,6 @@ private val googleVerifier: GoogleIdTokenVerifier? by lazy {
  * @param id The user's Google ID
  * @param username The user's selected name.
  * @param email The user's email.
- * @param phoneNumber The user's phone number.
  * @param createdDate The date the account was created.
  */
 @Serializable
@@ -66,7 +65,6 @@ data class User(
     val id: String,
     val username: String,
     @Transient val email: String = "",
-    val phoneNumber: String,
     val createdDate: Long,
 ) {
     companion object {
@@ -76,13 +74,7 @@ data class User(
          * @param row A row containing a user.
          */
         fun fromRow(row: ResultRow): User =
-            User(
-                row[Users.id],
-                row[Users.username],
-                row[Users.email],
-                row[Users.phoneNumber],
-                row[Users.createdAt],
-            )
+            User(row[Users.id], row[Users.username], row[Users.email], row[Users.createdAt])
     }
 }
 
@@ -131,7 +123,6 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
                 Users.insert {
                     it[Users.username] = username
                     it[Users.email] = email
-                    it[Users.phoneNumber] = ""
                     it[Users.createdAt] = createdDate
                     it[Users.id] = googleID
                 }
@@ -149,7 +140,6 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
                     id = googleID,
                     username = username,
                     email = email,
-                    phoneNumber = "",
                     createdDate = createdDate,
                 ),
                 true,
@@ -162,7 +152,6 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
                     id = googleID,
                     username = user[Users.username],
                     email = user[Users.email],
-                    phoneNumber = user[Users.phoneNumber],
                     createdDate = user[Users.createdAt],
                 ),
                 false,
