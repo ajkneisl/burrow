@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { Pencil, X } from "lucide-react"
+import { Pencil, Pin, X } from "lucide-react"
 import type { ChatMember, ChatMessage } from "@features/chat/chat.types.ts"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 
@@ -30,8 +30,10 @@ type ChatProps = {
     members: Record<string, ChatMember>
     canEdit: boolean
     canDelete: boolean
+    canPin?: boolean
     deleteButton: () => void
     editButton: (content: string) => void
+    pinButton?: () => void
 }
 
 /**
@@ -40,9 +42,11 @@ type ChatProps = {
  * @param message The message contents.
  * @param canEdit If this message can be edited by the user.
  * @param canDelete If this message can be deleted by the user.
+ * @param canPin If this message can be pinned by the user.
  * @param members The members of the chat.
  * @param deleteButton When the delete button is pressed.
  * @param editButton When the edit button is pressed.
+ * @param pinButton When the pin button is pressed.
  *
  * @author AJ Kneisl
  */
@@ -50,9 +54,11 @@ export default function Chat({
     message,
     canEdit,
     canDelete,
+    canPin = false,
     members,
     deleteButton,
-    editButton
+    editButton,
+    pinButton
 }: ChatProps) {
     const [isHovered, setIsHovered] = useState(false)
 
@@ -105,8 +111,19 @@ export default function Chat({
                 </div>
 
                 {/* action buttons */}
-                {(canEdit || canDelete) && (
+                {(canEdit || canDelete || canPin) && (
                     <div className="bg-hero border-background/80 absolute top-2 right-3 hidden items-center gap-0.5 rounded-md border px-1 py-0.5 shadow-lg backdrop-blur-sm group-hover:flex">
+                        {canPin && pinButton && (
+                            <button
+                                onClick={pinButton}
+                                aria-label="Pin message"
+                                className="text-text/50 hover:bg-primary/20 hover:text-primary rounded p-1.5 transition-all"
+                                title="Pin"
+                            >
+                                <Pin className="h-3.5 w-3.5" />
+                            </button>
+                        )}
+
                         {canEdit && (
                             <button
                                 onClick={() => editButton("debug")}

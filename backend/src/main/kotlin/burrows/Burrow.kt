@@ -181,7 +181,7 @@ suspend fun createProjectBurrow(userID: String, project: SubmittedProjectBurrow)
         // by default, enable CHAT
         BlockStates.insert {
             it[BlockStates.burrowID] = projectBurrow.id
-            it[BlockStates.block] = "CHAT"
+            it[BlockStates.blockID] = "CHAT"
             it[BlockStates.data] = Block.BlockState.EMPTY
         }
     }
@@ -258,7 +258,7 @@ suspend fun createBurrow(userID: String, meeting: SubmittedStudyEventBurrow): Bu
         // by default, enable CHAT
         BlockStates.insert {
             it[BlockStates.burrowID] = groupMeeting.id
-            it[BlockStates.block] = "CHAT"
+            it[BlockStates.blockID] = "CHAT"
             it[BlockStates.data] = Block.BlockState.EMPTY
         }
     }
@@ -285,7 +285,7 @@ suspend fun getBurrow(burrowID: String): Burrow? = query {
  * @param requestingUserID The ID of the user requesting, to combine the membership information.
  * @return A [BurrowResponse] with all meeting and user-specific data, or null if meeting not found.
  */
-suspend fun getMeetingResponse(burrowID: String, requestingUserID: String?): BurrowResponse? {
+suspend fun getBurrowResponse(burrowID: String, requestingUserID: String?): BurrowResponse? {
     val meetingData =
         query {
             val joinedAlias = Memberships.alias("m_joined")

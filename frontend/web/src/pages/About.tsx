@@ -29,7 +29,8 @@ const faqItems = [
     },
     {
         id: "how-leave",
-        question: "If I leave a group, will I be removed from the waiting list?",
+        question:
+            "If I leave a group, will I be removed from the waiting list?",
         answer: "Yes, leaving a group will remove you from the waiting list. If you are the leader of the group, you will be removed from the group."
     },
     {
@@ -183,11 +184,11 @@ export default function About() {
             {/* Mission */}
             <section className="mb-8">
                 <p className="text-text/70 mx-auto max-w-2xl text-center text-lg leading-relaxed">
-                    Burrow is built by students at the University of Minnesota, for
-                    students at the University of Minnesota. Our goal is to make
-                    studying and connecting with one another easier. Whether that's a
-                    group study session, a club meeting, or a social event, Burrow
-                    helps keep things organized.
+                    Burrow is built by students at the University of Minnesota,
+                    for students at the University of Minnesota. Our goal is to
+                    make studying and connecting with one another easier.
+                    Whether that's a group study session, a club meeting, or a
+                    social event, Burrow helps keep things organized.
                 </p>
             </section>
 

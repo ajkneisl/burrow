@@ -73,7 +73,7 @@ suspend fun pollNotifications(nowMs: Long): Flow<Notification> {
         val notifReq =
             """
             WITH claimed AS (
-                SELECT notifications_id
+                SELECT id
                 FROM notifications
                 WHERE sent_date IS NULL AND scheduled_date <= $nowMs
                 ORDER BY scheduled_date
@@ -83,17 +83,17 @@ suspend fun pollNotifications(nowMs: Long): Flow<Notification> {
             UPDATE notifications n
             SET sent_date = $nowMs
             FROM claimed c
-            WHERE n.notifications_id = c.notifications_id
-            RETURNING n.notifications_id, n.user_id, n.title, n.content, n.scheduled_date, n.sent_date, n.read, n.meeting_id, n.kind
+            WHERE n.id = c.id
+            RETURNING n.id, n.user_id, n.title, n.content, n.scheduled_date, n.sent_date, n.read, n.burrow_id, n.kind
         """
                 .trimIndent()
 
         val flow =
             exec(notifReq) { rs ->
                 Notification(
-                    id = rs.get("notifications_id") as UUID,
+                    id = rs.get("id") as UUID,
                     userID = rs.get("user_id") as String,
-                    burrowID = rs.get("meeting_id") as? String,
+                    burrowID = rs.get("burrow_id") as? String,
                     kind = (rs.get("kind") as? String)?.let { NotificationKind.valueOf(it) },
                     title = rs.get("title") as String,
                     content = rs.get("content") as String,

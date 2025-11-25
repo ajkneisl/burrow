@@ -1,18 +1,37 @@
 import clsx from "clsx"
+import { formatDateTime, humanDateLabel } from "@api/util.ts"
+import { Badge, Card } from "@umnburrow/core"
 import {
-    capitalizeFirstLetter,
-    formatDateTime,
-    humanDateLabel
-} from "@api/util.ts"
-import { Card } from "@umnburrow/core"
-import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
+    BURROW_KIND_CONFIG,
+    type BurrowKind,
+    type ScheduleBurrowResponse
+} from "@features/burrows/burrows.types.tsx"
 import { useNavigate } from "react-router"
+import { MessageSquare, Pin } from "lucide-react"
+
+/**
+ * Get the border color based on the kind of Burrow.
+ *
+ * @param kind The kind of Burrow
+ */
+function getBurrowColor(kind: BurrowKind) {
+    switch (kind) {
+        case "EVENT":
+            return "border-r-4 border-secondary border-0"
+        case "PROJECT":
+            return "border-r-4 border-error border-0"
+        case "STUDY":
+            return "border-r-4 border-success border-0"
+        case "CLUB":
+            return "border-r-4 border-info border-0"
+    }
+}
 
 /**
  * {@see ScheduleBurrowCard}
  */
 type ScheduleBurrowCardProps = {
-    burrowResponse: BurrowResponse
+    burrowResponse: ScheduleBurrowResponse
 }
 
 /**
@@ -33,42 +52,102 @@ export default function ScheduleBurrowCard({
             key={burrowResponse.burrow.id}
             className={clsx(
                 "from:card bg-gradient-to-br",
-                burrowResponse.burrow.kind === "PROJECT"
-                    ? "to-warn/40 hover:to-warn/60"
-                    : "to-success/40 hover:to-success/60"
+                getBurrowColor(burrowResponse.burrow.kind)
             )}
             isHoverable={true}
             onClick={() => nav(`/burrow/${burrowResponse.burrow.id}`)}
         >
-            <div className="flex flex-col gap-1">
+            <div
+                className={clsx(
+                    "flex gap-1",
+                    burrowResponse.burrow.kind === "PROJECT"
+                        ? "flex-row items-start justify-between"
+                        : "flex-col"
+                )}
+            >
                 {/* burrow title */}
-                <div className="flex items-center justify-between">
+                <div className="flex w-full items-center justify-between ">
                     <h4 className="text-text truncate text-base font-semibold">
                         {burrowResponse.burrow.title}
                     </h4>
 
-                    {burrowResponse.burrow.kind && (
-                        <span className="border-card-border/15 text-text/80 ml-3 rounded-full border bg-current/20 px-2 py-0.5 text-xs">
-                            {capitalizeFirstLetter(
-                                burrowResponse.burrow.kind.toLowerCase()
-                            )}
-                        </span>
-                    )}
+                    {/* date of burrow */}
+                    <time
+                        className="text-text/80 text-sm"
+                        aria-label="Time range"
+                    >
+                        {burrowResponse.burrow.kind === "PROJECT"
+                            ? `Due ${humanDateLabel(
+                                  new Date(
+                                      burrowResponse.burrow.endTime
+                                  ).toISOString()
+                              )}`
+                            : formatDateTime(
+                                  burrowResponse.burrow.beginningTime,
+                                  burrowResponse.burrow.endTime
+                              )}
+                    </time>
                 </div>
 
-                {/* date of burrow */}
-                <time className="text-text/80 text-sm" aria-label="Time range">
-                    {burrowResponse.burrow.kind === "PROJECT"
-                        ? `Due ${humanDateLabel(
-                              new Date(
-                                  burrowResponse.burrow.endTime
-                              ).toISOString()
-                          )}`
-                        : formatDateTime(
-                              burrowResponse.burrow.beginningTime,
-                              burrowResponse.burrow.endTime
-                          )}
-                </time>
+                {burrowResponse.burrow.kind !== "PROJECT" && (
+                    <div className="flex flex-row items-center justify-between">
+                        <div className="flex flex-row items-center justify-start gap-2">
+                            {burrowResponse.burrow.kind && (
+                                <span
+                                    className={clsx(
+                                        "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+                                        BURROW_KIND_CONFIG[
+                                            burrowResponse.burrow.kind
+                                        ]?.className,
+                                        "bg-current/10"
+                                    )}
+                                >
+                                    {
+                                        BURROW_KIND_CONFIG[
+                                            burrowResponse.burrow.kind
+                                        ]?.icon
+                                    }
+                                    {
+                                        BURROW_KIND_CONFIG[
+                                            burrowResponse.burrow.kind
+                                        ]?.label
+                                    }
+                                </span>
+                            )}
+
+                            {burrowResponse.burrow.tags.map((tag) => (
+                                <Badge
+                                    size="medium"
+                                    highlighted={
+                                        burrowResponse.burrow.tags[tag]
+                                    }
+                                    key={tag}
+                                >
+                                    {tag}
+                                </Badge>
+                            ))}
+                        </div>
+
+                        {/* chat preview */}
+                        {burrowResponse.latestChatMessage ? (
+                            <div className="text-text/60 flex items-center gap-1.5 text-xs">
+                                {burrowResponse.isPinned ? (
+                                    <Pin className="text-warn h-3.5 w-3.5 shrink-0" />
+                                ) : (
+                                    <MessageSquare className="h-3.5 w-3.5 shrink-0" />
+                                )}
+                                <p className="line-clamp-1 max-w-[200px] truncate">
+                                    {burrowResponse.latestChatMessage.message}
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="text-text/40 flex items-center gap-1.5 text-xs italic">
+                                <MessageSquare className="h-3.5 w-3.5 shrink-0" />
+                                <span>No messages yet</span>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         </Card>
     )

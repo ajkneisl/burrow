@@ -1,6 +1,6 @@
 import { dayLabel } from "@api/util.ts"
 import { useQuery } from "@tanstack/react-query"
-import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
+import type { ScheduleBurrowResponse } from "@features/burrows/burrows.types.tsx"
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router"
 import { Button, Card, ViewErrors } from "@umnburrow/core"
@@ -17,7 +17,7 @@ import ScheduleBurrowCard from "@features/burrows/components/ScheduleBurrowCard.
  *
  * @see Schedule
  */
-type Group = { label: string; items: BurrowResponse[] }
+type Group = { label: string; items: ScheduleBurrowResponse[] }
 
 /**
  * The schedule section on the home page.
@@ -27,7 +27,9 @@ type Group = { label: string; items: BurrowResponse[] }
 export default function Schedule() {
     const nav = useNavigate()
 
-    const { data, isLoading, error, refetch } = useQuery<BurrowResponse[]>({
+    const { data, isLoading, error, refetch } = useQuery<
+        ScheduleBurrowResponse[]
+    >({
         queryKey: ["schedule"],
         queryFn: getSchedule
     })

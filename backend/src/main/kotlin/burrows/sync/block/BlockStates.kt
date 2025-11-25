@@ -9,9 +9,13 @@ object BlockStates : Table("block_state") {
     /** [Block.BlockState.burrowID] */
     val burrowID = reference("burrow_id", Burrows.id, onDelete = ReferenceOption.CASCADE)
 
-    /** [Block.BlockState.block] */
-    val block = varchar("block", 32)
+    /** [Block.BlockState.blockID] */
+    val blockID = varchar("block", 32)
 
     /** [Block.BlockState.data] */
     val data = text("data")
+
+    init {
+        uniqueIndex(blockID, burrowID)
+    }
 }

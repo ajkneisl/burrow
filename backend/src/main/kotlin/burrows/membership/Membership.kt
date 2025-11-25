@@ -3,6 +3,8 @@ package app.burrow.burrows.membership
 import app.burrow.Error
 import app.burrow.InvalidAuthorization
 import app.burrow.account.Users
+import app.burrow.account.chat.ChatMessage
+import app.burrow.account.chat.ChatMessages
 import app.burrow.account.models.User
 import app.burrow.account.models.userID
 import app.burrow.account.profile.Profile
@@ -19,6 +21,9 @@ import app.burrow.burrows.models.BurrowRole
 import app.burrow.burrows.models.BurrowVisibility
 import app.burrow.burrows.models.Burrows
 import app.burrow.burrows.sync.BurrowSync
+import app.burrow.burrows.sync.block.BlockStates
+import app.burrow.burrows.sync.chat.Chat
+import app.burrow.json
 import app.burrow.models.PaginatedResponse
 import app.burrow.notifications.createNotification
 import app.burrow.notifications.onUserJoinedMeeting
@@ -26,10 +31,12 @@ import app.burrow.notifications.onUserLeaveMeeting
 import app.burrow.query
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.date.getTimeMillis
+import java.util.UUID
 import kotlin.math.ceil
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
@@ -95,58 +102,124 @@ suspend infix fun String.isModerator(meetingId: String): Boolean {
 data class MembershipResponse(val membership: Membership, val user: User, val profile: Profile)
 
 /**
+ * A response to a Burrow off of a user's schedule.
+ *
+ * @param burrow The Burrow.
+ * @param burrowAuthor The author of the [burrow].
+ * @param isPinned If [latestChatMessage] is pinned.
+ * @param latestChatMessage The latest chat message, or the pinned.
+ */
+@Serializable
+data class BurrowScheduleResponse(
+    val burrow: Burrow,
+    val burrowAuthor: String?,
+    val membership: Membership,
+    val isPinned: Boolean,
+    val latestChatMessage: ChatMessage?,
+)
+
+/**
+ * Get the latest chat message for a burrow.
+ *
+ * @param burrowID The ID of the burrow to get the latest message for.
+ * @return The latest [ChatMessage], or null if there are no messages.
+ */
+suspend fun getLatestChatMessage(burrowID: String): Pair<Boolean, ChatMessage?> = query {
+    // todo: cache this somewhere
+    val pinnedMessage =
+        BlockStates.selectAll()
+            .where { (BlockStates.burrowID eq burrowID) and (BlockStates.blockID eq "CHAT") }
+            .singleOrNull()
+            ?.getOrNull(BlockStates.data)
+            ?.let { json.decodeFromString<HashMap<String, String>>(it) }
+            ?.get(Chat.PINNED_MESSAGE)
+
+    if (pinnedMessage != null) {
+        val chatMessage =
+            ChatMessages.selectAll()
+                .where {
+                    (ChatMessages.parentID eq burrowID) and
+                        (ChatMessages.id eq UUID.fromString(pinnedMessage))
+                }
+                .map { ChatMessage.fromRow(it) }
+                .firstOrNull()
+
+        return@query true to chatMessage
+    }
+
+    false to
+        ChatMessages.selectAll()
+            .where { ChatMessages.parentID eq burrowID }
+            .orderBy(ChatMessages.createdAt, SortOrder.DESC)
+            .limit(1)
+            .firstOrNull()
+            ?.let { ChatMessage.fromRow(it) }
+}
+
+/**
  * Get all [Burrow]s a [user] has joined.
  *
  * @param user The ID of the user to find all [Burrow]s for.
  */
-suspend fun getUserSchedule(user: String): List<BurrowResponse> {
-    // Get up to 5 non-project burrows (study/event)
-    val nonProjectBurrows = query {
-        Memberships.innerJoin(Burrows, { Memberships.burrowID }, { Burrows.id })
-            .innerJoin(Users, { Burrows.ownerID }, { Users.id })
-            .selectAll()
-            .where {
-                (Memberships.userID eq user) and // the user's meetings
-                    (Memberships.status eq BurrowMemberStatus.JOINED) and // in the meeting
-                    (Burrows.endTime greaterEq getTimeMillis()) and // ensure it hasn't ended
-                    (Burrows.kind neq BurrowKind.PROJECT) // exclude projects
+suspend fun getUserSchedule(user: String): List<BurrowScheduleResponse> {
+    val nonProjectBurrows =
+        query {
+                Memberships.innerJoin(Burrows, { Memberships.burrowID }, { Burrows.id })
+                    .innerJoin(Users, { Burrows.ownerID }, { Users.id })
+                    .selectAll()
+                    .where {
+                        (Memberships.userID eq user) and // the user's meetings
+                            (Memberships.status eq BurrowMemberStatus.JOINED) and // in the meeting
+                            (Burrows.endTime greaterEq
+                                getTimeMillis()) and // ensure it hasn't ended
+                            (Burrows.kind neq BurrowKind.PROJECT) // exclude projects
+                    }
+                    .orderBy(Burrows.beginningTime, SortOrder.ASC)
+                    .limit(5)
+                    .toList()
             }
-            .orderBy(Burrows.beginningTime, SortOrder.ASC)
-            .limit(5)
             .map { row ->
-                BurrowResponse(
+                val burrowID = row[Burrows.id]
+                val (isPinned, latestChatMessage) = getLatestChatMessage(burrowID)
+
+                BurrowScheduleResponse(
                     burrow = Burrow.fromRow(row),
                     burrowAuthor = row[Users.username],
                     membership = Membership.fromRow(row = row),
-                    bookmarked = false,
+                    isPinned = isPinned,
+                    latestChatMessage = latestChatMessage,
                 )
             }
-            .toList()
-    }
 
     // Get all active projects (not limited)
-    val projectBurrows = query {
-        Memberships.innerJoin(Burrows, { Memberships.burrowID }, { Burrows.id })
-            .innerJoin(Users, { Burrows.ownerID }, { Users.id })
-            .selectAll()
-            .where {
-                (Memberships.userID eq user) and                            // the user's meetings
-                    (Memberships.status eq BurrowMemberStatus.JOINED) and   // in the meeting
-                    (Burrows.endTime greaterEq getTimeMillis()) and         // ensure it hasn't ended
-                    (Burrows.kind eq BurrowKind.PROJECT)                    // only projects
+    val projectBurrows =
+        query {
+                Memberships.innerJoin(Burrows, { Memberships.burrowID }, { Burrows.id })
+                    .innerJoin(Users, { Burrows.ownerID }, { Users.id })
+                    .selectAll()
+                    .where {
+                        (Memberships.userID eq user) and // the user's meetings
+                            (Memberships.status eq BurrowMemberStatus.JOINED) and // in the meeting
+                            (Burrows.endTime greaterEq
+                                getTimeMillis()) and // ensure it hasn't ended
+                            (Burrows.kind eq BurrowKind.PROJECT) // only projects
+                    }
+                    .orderBy(Burrows.endTime, SortOrder.ASC) // sort by due date
+                    .take(5)
+                    .toList()
             }
-            .orderBy(Burrows.endTime, SortOrder.ASC) // sort by due date
-            .take(5)
             .map { row ->
-                BurrowResponse(
+                val burrowID = row[Burrows.id]
+                val (isPinned, latestChatMessage) = getLatestChatMessage(burrowID)
+
+                BurrowScheduleResponse(
                     burrow = Burrow.fromRow(row),
                     burrowAuthor = row[Users.username],
                     membership = Membership.fromRow(row = row),
-                    bookmarked = false,
+                    isPinned = isPinned,
+                    latestChatMessage = latestChatMessage,
                 )
             }
-            .toList()
-    }
 
     // Combine: projects first, then other burrows sorted by beginning time
     return projectBurrows + nonProjectBurrows

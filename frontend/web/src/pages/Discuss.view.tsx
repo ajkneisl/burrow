@@ -4,8 +4,8 @@ import { MessageSquare, Pin, Plus, Users } from "lucide-react"
 import type { Topic } from "@features/chat/chat.types.ts"
 import { Button, Input, TextArea, ViewErrors } from "@umnburrow/core"
 import clsx from "clsx"
-import { useQuery } from "@tanstack/react-query"
-import {getTopics} from "@features/chat/chat.api.ts";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { createTopic, getTopics } from "@features/chat/chat.api.ts"
 
 /**
  * View all topics and create new ones.
@@ -14,10 +14,24 @@ import {getTopics} from "@features/chat/chat.api.ts";
  */
 export default function Discuss() {
     const nav = useNavigate()
+    const queryClient = useQueryClient()
 
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ["topics"],
         queryFn: async () => await getTopics(1)
+    })
+
+    const mutation = useMutation({
+        mutationFn: (data: { name: string; description?: string }) =>
+            createTopic(data.name, data.description),
+
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: ["topics"] })
+
+            setNewName("")
+            setNewDescription("")
+            setShowCreate(false)
+        }
     })
 
     const [showCreate, setShowCreate] = useState(false)
@@ -27,10 +41,10 @@ export default function Discuss() {
     const handleCreateTopic = () => {
         if (newName.trim().length === 0) return
 
-        // createTopic(newName.trim(), newDescription.trim())
-        setNewName("")
-        setNewDescription("")
-        setShowCreate(false)
+        mutation.mutate({
+            name: newName.trim(),
+            description: newDescription.trim() || undefined
+        })
     }
 
     const handleTopicClick = (topic: Topic) => {
@@ -62,6 +76,12 @@ export default function Discuss() {
                     </h2>
 
                     <div className="space-y-4">
+                        {mutation.isError && (
+                            <ViewErrors
+                                errors={`Failed to create topic: ${mutation.error}`}
+                            />
+                        )}
+
                         <Input
                             text="Name"
                             type="text"
@@ -70,6 +90,7 @@ export default function Discuss() {
                             placeholder="Topic name..."
                             maxLength={64}
                             required={true}
+                            disabled={mutation.isPending}
                         />
 
                         <TextArea
@@ -79,18 +100,27 @@ export default function Discuss() {
                             placeholder="What's this topic about?"
                             maxLength={256}
                             rows={3}
+                            disabled={mutation.isPending}
                         />
 
                         <div className="flex justify-start gap-3">
                             <Button
                                 onClick={handleCreateTopic}
                                 color="SUCCESS"
-                                disabled={newName.trim().length === 0}
+                                disabled={
+                                    newName.trim().length === 0 ||
+                                    mutation.isPending
+                                }
                             >
-                                Create Topic
+                                {mutation.isPending
+                                    ? "Creating..."
+                                    : "Create Topic"}
                             </Button>
 
-                            <Button onClick={() => setShowCreate(false)}>
+                            <Button
+                                onClick={() => setShowCreate(false)}
+                                disabled={mutation.isPending}
+                            >
                                 Cancel
                             </Button>
                         </div>
@@ -152,14 +182,16 @@ export default function Discuss() {
                                         </p>
                                     )}
 
-                                    <div className="text-text/40 mt-2 flex items-center gap-4 text-xs">
-                                        <span>
-                                            Created{" "}
-                                            {new Date(
-                                                topic.createdAt
-                                            ).toLocaleDateString()}
-                                        </span>
-                                    </div>
+                                    {topic.createdAt !== -1 && (
+                                        <div className="text-text/40 mt-2 flex items-center gap-4 text-xs">
+                                            <span>
+                                                Created{" "}
+                                                {new Date(
+                                                    topic.createdAt
+                                                ).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="text-text/30 group-hover:text-secondary/50 transition-colors">

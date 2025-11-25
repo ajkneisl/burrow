@@ -11,7 +11,7 @@ import {
 import { useAtomValue } from "jotai"
 import { syncRetry, syncStatus } from "@features/sync/sync.atom.ts"
 import { Card } from "@umnburrow/core"
-import { MessageSquare } from "lucide-react"
+import { MessageSquare, Pin, X } from "lucide-react"
 
 /**
  * {@link ChatBox}
@@ -32,6 +32,8 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
     const status = useAtomValue(syncStatus)
     const retry = useAtomValue(syncRetry)
 
+    const [pinnedMessage, setPinnedMessage] = useState<ChatMessage | null>(null)
+
     const [messages, setMessages] = useState<ChatMessage[]>([])
     const [text, setText] = useState("")
 
@@ -51,7 +53,22 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
         function onState(event: Event) {
             const payload = (event as SyncIncomingEvent).response
 
+            if (payload.burrowID !== burrowID) return
+
             switch (payload.type) {
+                // receive pinned message
+                case "PINNED_MESSAGE": {
+                    if (payload.payload) {
+                        const pinnedMessage = payload.payload as ChatMessage
+
+                        setPinnedMessage(pinnedMessage)
+                    } else {
+                        setPinnedMessage(null)
+                    }
+
+                    break
+                }
+
                 // receive message history
                 case "HISTORY": {
                     const messageHistory = payload.payload
@@ -100,7 +117,7 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
                 case "MESSAGE_UPDATED":
                     setMessages((prev) =>
                         prev.map((msg) =>
-                            msg.id === payload.payload.id
+                            msg.id === payload.payload.messageId
                                 ? {
                                       ...msg,
                                       message: payload.payload.newMessage
@@ -123,24 +140,6 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
 
     useEffect(() => {
         if (status !== "LIVE") return
-
-        // receive history
-        window.dispatchEvent(
-            new SyncOutgoingEvent({
-                block: "CHAT",
-                action: "RECEIVE_HISTORY",
-                data: { page: "0" }
-            })
-        )
-
-        // receive members
-        window.dispatchEvent(
-            new SyncOutgoingEvent({
-                block: "CHAT",
-                action: "RECEIVE_MEMBERS",
-                data: {}
-            })
-        )
     }, [status, burrowID])
 
     useLayoutEffect(() => {
@@ -162,6 +161,32 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
         )
 
         setText("")
+    }
+
+    // pin a message
+    function pinMessage(messageID: string) {
+        if (status !== "LIVE") return
+
+        window.dispatchEvent(
+            new SyncOutgoingEvent({
+                block: "CHAT",
+                action: "PIN_MESSAGE",
+                data: { messageID }
+            })
+        )
+    }
+
+    // unpin the current pinned message
+    function unpinMessage() {
+        if (status !== "LIVE") return
+
+        window.dispatchEvent(
+            new SyncOutgoingEvent({
+                block: "CHAT",
+                action: "UN_PIN_MESSAGE",
+                data: {}
+            })
+        )
     }
 
     // begin an edit
@@ -256,6 +281,46 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
                 </div>
             </header>
 
+            {/* pinned message */}
+            {pinnedMessage && (
+                <div className="bg-background/60 border-background mt-4 rounded-lg border shadow-sm">
+                    <div className="flex items-start gap-3 p-3">
+                        <div className="bg-warn/15 mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md">
+                            <Pin className="text-warn h-4 w-4" />
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                            <div className="mb-1.5 flex items-center gap-2">
+                                <Pin className="text-warn h-3 w-3" />
+                                <span className="text-warn text-xs font-semibold uppercase tracking-wide">
+                                    Pinned Message
+                                </span>
+                                <span className="text-text/40 text-xs">
+                                    by{" "}
+                                    {members[pinnedMessage.senderID]?.name ||
+                                        "Unknown"}
+                                </span>
+                            </div>
+
+                            <p className="text-text line-clamp-2 text-sm leading-relaxed break-words">
+                                {pinnedMessage.message}
+                            </p>
+                        </div>
+
+                        {isModerator && (
+                            <button
+                                onClick={unpinMessage}
+                                className="text-text/40 hover:bg-error/10 hover:text-error mt-1 shrink-0 rounded-md p-1.5 transition-all"
+                                title="Unpin message"
+                                aria-label="Unpin message"
+                            >
+                                <X className="h-4 w-4" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {/* messages container */}
             <div
                 ref={listRef}
@@ -282,9 +347,11 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
                             canDelete={
                                 message.senderID === user?.id || isModerator
                             }
+                            canPin={isModerator}
                             members={members}
                             deleteButton={() => deleteMessage(message.id)}
                             editButton={() => startEdit(message)}
+                            pinButton={() => pinMessage(message.id)}
                         />
                     ))
                 )}

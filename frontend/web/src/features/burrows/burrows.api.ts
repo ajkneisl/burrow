@@ -3,7 +3,8 @@ import type {
     BurrowResponse,
     BurrowKind,
     BurrowMembershipResponse,
-    BurrowRole
+    BurrowRole,
+    ScheduleBurrowResponse
 } from "./burrows.types.tsx"
 import type { PaginatedResponse } from "@api/api.types.ts"
 import { get, patch, post } from "@api/api.ts"
@@ -205,7 +206,7 @@ export async function toggleBanMember(
 /**
  * Get the schedule.
  */
-export async function getSchedule(): Promise<BurrowResponse[]> {
+export async function getSchedule(): Promise<ScheduleBurrowResponse[]> {
     return await get(`/burrows/schedule`)
 }
 

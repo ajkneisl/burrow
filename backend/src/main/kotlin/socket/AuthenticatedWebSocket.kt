@@ -105,10 +105,7 @@ inline fun <reified A : Enum<A>> Route.authenticatedWebSocket(
 
                                     // check if already connected
                                     if (cfg.isAlreadyConnected?.invoke(authorizedUserID) == true) {
-                                        return@consumeEach sendResponse(
-                                            AuthResponses.ALREADY_CONNECTED,
-                                            "You are already connected elsewhere.",
-                                        )
+                                        cfg.onDisconnect?.invoke(authorizedUserID) // leave and close previous session
                                     }
 
                                     userID = authorizedUserID

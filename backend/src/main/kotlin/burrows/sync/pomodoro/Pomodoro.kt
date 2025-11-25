@@ -44,15 +44,7 @@ class Pomodoro(meetingId: String) : Block("POMODORO", meetingId) {
     )
 
     /** The saved state from the meeting. */
-    val data by lazy {
-        runBlocking {
-            getState()?.data
-                ?: hashMapOf(
-                    "BREAK_TIME" to 5.minutes.inWholeMilliseconds.toString(),
-                    "WORK_TIME" to 20.minutes.inWholeMilliseconds.toString(),
-                )
-        }
-    }
+    val data by lazy { runBlocking { getState() } }
 
     /**
      * The amount of time the break is.
@@ -129,7 +121,7 @@ class Pomodoro(meetingId: String) : Block("POMODORO", meetingId) {
     /** Reset the timer. */
     private suspend fun UserBlockRequestState.resetTimer() {
         // user must be a moderator
-        if (!(userId isModerator meetingId)) {
+        if (!(userID isModerator burrowID)) {
             return invalidPermissions()
         }
 
@@ -149,7 +141,7 @@ class Pomodoro(meetingId: String) : Block("POMODORO", meetingId) {
 
     /** Start the timer. */
     private suspend fun UserBlockRequestState.startTimer() {
-        if (!(userId isModerator meetingId)) {
+        if (!(userID isModerator burrowID)) {
             return invalidPermissions()
         }
 
@@ -180,7 +172,7 @@ class Pomodoro(meetingId: String) : Block("POMODORO", meetingId) {
 
     /** End the timer. */
     private suspend fun UserBlockRequestState.endTimer() {
-        if (!(userId isModerator meetingId)) {
+        if (!(userID isModerator burrowID)) {
             return invalidPermissions()
         }
 
@@ -220,7 +212,7 @@ class Pomodoro(meetingId: String) : Block("POMODORO", meetingId) {
 
     /** Change the phase. */
     private suspend fun UserBlockRequestState.changePhase() {
-        if (!(userId isModerator meetingId)) {
+        if (!(userID isModerator burrowID)) {
             return invalidPermissions()
         }
 
@@ -248,4 +240,12 @@ class Pomodoro(meetingId: String) : Block("POMODORO", meetingId) {
             null -> invalidAction()
         }
     }
+
+    override val onWelcome: suspend UserBlockRequestState.() -> Unit = {}
+
+    override val defaultState: HashMap<String, String> =
+        hashMapOf(
+            "BREAK_TIME" to 5.minutes.inWholeMilliseconds.toString(),
+            "WORK_TIME" to 20.minutes.inWholeMilliseconds.toString(),
+        )
 }

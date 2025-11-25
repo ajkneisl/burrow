@@ -45,18 +45,8 @@ export function BurrowCard({
         const highlightedSet = new Set(meetingResponse.highlightedTags)
         const tags: Record<string, boolean> = {}
 
-        // Add highlighted tags first
         meetingResponse.burrow.tags.forEach((tag, index) => {
-            if (highlightedSet.has(index)) {
-                tags[tag] = true
-            }
-        })
-
-        // Then add non-highlighted tags
-        meetingResponse.burrow.tags.forEach((tag, index) => {
-            if (!highlightedSet.has(index)) {
-                tags[tag] = false
-            }
+            tags[tag] = highlightedSet.has(index)
         })
 
         return tags

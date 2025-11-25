@@ -44,25 +44,19 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
  */
 object BurrowSync {
     /** Session manager for meeting sessions. */
-    @PublishedApi internal val sessionManager = GroupSessionManager<BasicSocketSession>()
+    val sessionManager = GroupSessionManager<BasicSocketSession>()
 
     /**
      * Actions for the Sync websocket. Block-specific actions are handled by the blocks themselves.
      */
     enum class Actions {
         AUTHORIZE,
-        /** Placeholder for block-routed actions - actual handling is done by blocks. */
-        BLOCK_ACTION,
+        EXECUTE_BLOCK,
     }
 
     /** The responses from [BurrowSync]. */
     enum class Responses {
-        NOT_AUTHORIZED,
-        ALREADY_CONNECTED,
-        NO_PERMISSION,
-        INVALID_TOKEN,
         INVALID_BLOCK,
-        WELCOME,
         BLOCKS,
     }
 
@@ -77,26 +71,26 @@ object BurrowSync {
     /**
      * Remove a block state for a meeting.
      *
-     * @param meetingId The ID of the meeting to clear the state for.
+     * @param burrowID The ID of the meeting to clear the state for.
      * @param blockName The name of the block to remove.
      */
-    fun removeBlock(meetingId: String, blockName: String) =
-        MEETING_BLOCK_STATE.computeIfPresent(meetingId) { _, map ->
+    fun removeBlock(burrowID: String, blockName: String) =
+        MEETING_BLOCK_STATE.computeIfPresent(burrowID) { _, map ->
             map.filterKeys { block -> block != blockName }
         }
 
     /**
      * Add a block state to a meeting's cache.
      *
-     * @param meetingId The ID of the meeting to add the instance to.
+     * @param burrowID The ID of the meeting to add the instance to.
      * @param blockName The name of the block to add.
      */
-    fun addBlock(meetingId: String, blockName: String) {
+    fun addBlock(burrowID: String, blockName: String) {
         val key = blockName.uppercase()
         val blockClass = BLOCKS[key] ?: return
-        val blockInstance = blockClass.primaryConstructor?.call(meetingId) as? Block
+        val blockInstance = blockClass.primaryConstructor?.call(burrowID) as? Block
 
-        MEETING_BLOCK_STATE.compute(meetingId) { _, current ->
+        MEETING_BLOCK_STATE.compute(burrowID) { _, current ->
             val next = (current?.toMutableMap() ?: mutableMapOf())
             next[key] = blockInstance
             next
@@ -104,29 +98,29 @@ object BurrowSync {
     }
 
     /**
-     * Get the [BlockStates] for a [meetingId].
+     * Get the [BlockStates] for a [burrowID].
      *
-     * @param meetingId The ID to retrieve the block states for
+     * @param burrowID The ID to retrieve the block states for
      */
-    suspend fun getMeetingBlockState(meetingId: String): Map<String, Block?> {
-        if (MEETING_BLOCK_STATE.containsKey(meetingId)) {
-            return MEETING_BLOCK_STATE[meetingId]!!
+    suspend fun getMeetingBlockState(burrowID: String): Map<String, Block?> {
+        if (MEETING_BLOCK_STATE.containsKey(burrowID)) {
+            return MEETING_BLOCK_STATE[burrowID]!!
         }
 
         val blockStates = query {
             BlockStates.selectAll()
-                .where { BlockStates.burrowID eq meetingId }
+                .where { BlockStates.burrowID eq burrowID }
                 .map { row -> Block.BlockState.fromRow(row) }
                 .toList()
                 .associate { block ->
                     val blockInstance =
-                        (BLOCKS[block.block]?.primaryConstructor?.call(meetingId) as Block?)
+                        (BLOCKS[block.blockID]?.primaryConstructor?.call(burrowID) as Block?)
 
-                    block.block to blockInstance
+                    block.blockID to blockInstance
                 }
         }
 
-        MEETING_BLOCK_STATE[meetingId] = blockStates
+        MEETING_BLOCK_STATE[burrowID] = blockStates
 
         return blockStates
     }
@@ -140,11 +134,11 @@ object BurrowSync {
                     val meetingId =
                         call.parameters["id"]
                             ?: return@patch call.respond(HttpStatusCode.BadRequest)
-                    val userId =
+                    val burrowID =
                         call.principal<JWTPrincipal>()?.subject
                             ?: return@patch call.respond(HttpStatusCode.Unauthorized)
 
-                    if (!(userId isModerator meetingId)) {
+                    if (!(burrowID isModerator meetingId)) {
                         return@patch call.respond(HttpStatusCode.Forbidden)
                     }
 
@@ -171,12 +165,13 @@ object BurrowSync {
 
             onAuthorize = { userID ->
                 burrowID = call.parameters["id"]
+
                 if (burrowID == null) {
                     "Invalid meeting ID."
                 } else if (!userInMeeting(userID, burrowID!!)) {
                     "You do not have permission for this meeting."
                 } else {
-                    null // No error, permission granted
+                    null
                 }
             }
 
@@ -192,19 +187,30 @@ object BurrowSync {
                 }
             }
 
-            onWelcome = { _ ->
-                burrowID?.let { bid ->
-                    sendSerialized(Response("SYNC", Responses.BLOCKS, getEnabledBlocks(bid)))
+            onWelcome = { userID ->
+                burrowID?.let { burrowID ->
+                    val enabledBlocks = getEnabledBlocks(burrowID)
+                    sendSerialized(Response("SYNC", Responses.BLOCKS, enabledBlocks))
+
+                    getMeetingBlockState(burrowID).forEach { (_, block) ->
+                        block?.onWelcome(
+                            Block.UserBlockRequestState(userID, "RECEIVE_WELCOME", hashMapOf())
+                        )
+                    }
                 }
             }
 
-            onDisconnect = { userID -> burrowID?.let { bid -> sessionManager.leave(bid, userID) } }
+            onDisconnect = { userID ->
+                burrowID?.let { bid -> sessionManager.leave(bid, userID, true) }
+            }
 
             onAction = { userID, _, data, block ->
                 val bid = burrowID
+
                 if (bid != null && block != null) {
                     val meetingBlocks = getMeetingBlockState(bid)
                     val actionName = data["action"]
+
                     if (actionName != null) {
                         meetingBlocks[block]?.onIncoming(
                             Block.UserBlockRequestState(userID, actionName, data)

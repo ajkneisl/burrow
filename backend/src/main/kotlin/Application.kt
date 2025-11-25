@@ -8,8 +8,12 @@ import app.burrow.account.models.userID
 import app.burrow.account.settings.SETTINGS_ROUTES
 import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.burrows.BURROW_ROUTES
+import app.burrow.burrows.createBurrow
 import app.burrow.burrows.getBurrow
-import app.burrow.burrows.getMeetingResponse
+import app.burrow.burrows.getBurrowResponse
+import app.burrow.burrows.models.BurrowKind
+import app.burrow.burrows.models.BurrowVisibility
+import app.burrow.burrows.models.SubmittedStudyEventBurrow
 import app.burrow.burrows.sync.BurrowSync
 import app.burrow.notifications.NOTIFICATION_ROUTES
 import app.burrow.notifications.NotificationKind
@@ -41,7 +45,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.ktor.server.websocket.*
+import io.ktor.util.date.getTimeMillis
 import java.io.File
+import java.util.concurrent.TimeUnit
+import kotlin.random.Random
+import kotlin.random.nextLong
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.Serializable
@@ -266,7 +274,7 @@ suspend fun Application.module() {
                         call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
 
                     val meeting =
-                        getMeetingResponse(id, userId)
+                        getBurrowResponse(id, userId)
                             ?: return@get call.respond(HttpStatusCode.NotFound)
 
                     call.respond(meeting)

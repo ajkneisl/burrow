@@ -14,7 +14,6 @@ import app.burrow.burrows.models.BurrowKind
 import app.burrow.burrows.models.SubmittedBurrow
 import app.burrow.burrows.models.SubmittedProjectBurrow
 import app.burrow.burrows.models.SubmittedStudyEventBurrow
-import app.burrow.enumQueryParameter
 import app.burrow.optionalEnumQueryParameter
 import app.burrow.optionalIntQueryParameter
 import app.burrow.optionalLongQueryParameter
@@ -127,7 +126,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
         delete {
             val id = call.urlParameter("id")
 
-            val meeting = getMeetingResponse(id, call.userID).throwIfNull()
+            val meeting = getBurrowResponse(id, call.userID).throwIfNull()
 
             if (meeting.burrow.ownerID != call.userID) throw InvalidAuthorization()
 

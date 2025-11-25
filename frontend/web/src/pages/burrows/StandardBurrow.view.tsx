@@ -42,7 +42,7 @@ export default function StandardBurrow() {
         queryFn: async () => await getMeeting(id!)
     })
 
-    useSync(data)
+    useSync(data?.burrow?.id ?? null, data?.membership?.status === "JOINED")
 
     const isOwner =
         auth !== "" && user !== null && user.id === data?.burrow?.ownerID

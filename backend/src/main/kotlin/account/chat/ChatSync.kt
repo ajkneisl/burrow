@@ -2,6 +2,7 @@ package app.burrow.account.chat
 
 import app.burrow.InvalidAuthorization
 import app.burrow.NotFound
+import app.burrow.PRIMARY_AUTH
 import app.burrow.account.chat.direct.Conversation
 import app.burrow.account.chat.direct.createDirectMessage
 import app.burrow.account.chat.direct.getConversation
@@ -24,6 +25,7 @@ import app.burrow.socket.sendPayload
 import app.burrow.socket.sendResponse
 import app.burrow.urlParameter
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -114,60 +116,62 @@ object ChatSync {
     val sessionManager = UserSessionManager<Session>()
 
     val CHAT_SYNC_ROUTES: Route.() -> Unit = {
-        // ROUTE /chat/topics
-        // manage topics
-        route("/topics") {
-            // GET /chat/topics
-            // get all topics
-            get {
-                val page = call.intQueryParameter("page")
-
-                call.respond(getAllTopics(page))
-            }
-
-            /**
-             * A request to create a topic request.
-             *
-             * @param name The name of the topic.
-             * @param description The description of the topic.
-             */
-            @Serializable
-            data class CreateTopicRequest(val name: String, val description: String? = null)
-
-            // PUT /chat/topics
-            // create a topic
-            put {
-                val (name, description) = call.receive<CreateTopicRequest>()
-
-                createTopic(name, description ?: "", call.userID)
-
-                call.respond(HttpStatusCode.Created)
-            }
-
-            // ROUTE /chat/topics/{id}
-            // manage specific topics
-            route("/{id}") {
-                // GET /chat/topics/{id}
-                // get a specific topic
+        authenticate(PRIMARY_AUTH) {
+            // ROUTE /chat/topics
+            // manage topics
+            route("/topics") {
+                // GET /chat/topics
+                // get all topics
                 get {
-                    val topicID = call.urlParameter("id")
-                    val topic = getTopic(topicID) ?: throw NotFound()
+                    val page = call.intQueryParameter("page")
 
-                    call.respond(topic)
+                    call.respond(getAllTopics(page))
                 }
 
-                // DELETE /chat/topics/{id}
-                // delete a specific topic
-                delete {
-                    val topicID = call.urlParameter("id")
-                    val topic = getTopic(topicID) ?: throw NotFound()
+                /**
+                 * A request to create a topic request.
+                 *
+                 * @param name The name of the topic.
+                 * @param description The description of the topic.
+                 */
+                @Serializable
+                data class CreateTopicRequest(val name: String, val description: String? = null)
 
-                    // must be owner
-                    if (topic.createdBy != call.userID) throw InvalidAuthorization()
+                // PUT /chat/topics
+                // create a topic
+                put {
+                    val (name, description) = call.receive<CreateTopicRequest>()
 
-                    deleteTopic(topicID)
+                    createTopic(name, description ?: "", call.userID)
 
-                    call.respond(HttpStatusCode.OK)
+                    call.respond(HttpStatusCode.Created)
+                }
+
+                // ROUTE /chat/topics/{id}
+                // manage specific topics
+                route("/{id}") {
+                    // GET /chat/topics/{id}
+                    // get a specific topic
+                    get {
+                        val topicID = call.urlParameter("id")
+                        val topic = getTopic(topicID) ?: throw NotFound()
+
+                        call.respond(topic)
+                    }
+
+                    // DELETE /chat/topics/{id}
+                    // delete a specific topic
+                    delete {
+                        val topicID = call.urlParameter("id")
+                        val topic = getTopic(topicID) ?: throw NotFound()
+
+                        // must be owner
+                        if (topic.createdBy != call.userID) throw InvalidAuthorization()
+
+                        deleteTopic(topicID)
+
+                        call.respond(HttpStatusCode.OK)
+                    }
                 }
             }
         }
@@ -178,7 +182,7 @@ object ChatSync {
             authorizeAction = Actions.AUTHORIZE
             isAlreadyConnected = { userID -> sessionManager.hasSession(userID) }
             onConnect = { userID -> sessionManager.join(Session(userID, this, getTimeMillis())) }
-            onDisconnect = { userID -> sessionManager.leave(userID) }
+            onDisconnect = { userID -> sessionManager.leave(userID, true) }
             onAction = { userID, action, data, _ -> handleAction(userID, action, data) }
         }
     }
