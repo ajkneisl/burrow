@@ -50,7 +50,7 @@ export default function ViewNotification({
             <div className="flex items-start justify-between gap-3">
                 {/* header*/}
                 <div className="min-w-0 flex-1">
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-center gap-2">
                         <h3 className="text-sm leading-tight font-semibold">
                             {notification.title}
                         </h3>
@@ -73,7 +73,7 @@ export default function ViewNotification({
             <div className="flex items-center justify-end gap-2 transition-opacity">
                 {/* when it's invite, offer accept and decline */}
                 {isInvite &&
-                    notification.meetingId &&
+                    notification.burrowID &&
                     onAcceptInvite &&
                     onDeclineInvite && (
                         <>
@@ -82,7 +82,7 @@ export default function ViewNotification({
                                 color="SUCCESS"
                                 onClick={() => {
                                     onAcceptInvite({
-                                        burrowId: notification.meetingId!,
+                                        burrowId: notification.burrowID!,
                                         notificationId: notification.id
                                     })
                                 }}
@@ -96,7 +96,7 @@ export default function ViewNotification({
                                 color="WARNING"
                                 onClick={() =>
                                     onDeclineInvite({
-                                        burrowId: notification.meetingId!,
+                                        burrowId: notification.burrowID!,
                                         notificationId: notification.id
                                     })
                                 }

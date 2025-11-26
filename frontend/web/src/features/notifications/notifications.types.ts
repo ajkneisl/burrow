@@ -8,8 +8,8 @@ export type NotificationKind =
 
 export type Notification = {
     id: string
-    userId: string
-    meetingId: string | null
+    userID: string
+    burrowID: string | null
     kind: NotificationKind | null
     title: string
     content: string
