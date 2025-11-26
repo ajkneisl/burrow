@@ -121,6 +121,15 @@ export default function MyProfile() {
                                     <div className="bg-text/10 h-3 w-32 animate-pulse rounded" />
                                 </li>
                             ))}
+
+                        {/* no friends empty state */}
+                        {!isLoading && data && data.length === 0 && (
+                            <li className="bg-background/30 flex items-center justify-center rounded-lg px-4 py-8">
+                                <p className="text-text/40 text-sm">
+                                    No friends yet
+                                </p>
+                            </li>
+                        )}
                     </ul>
                 </section>
             </div>

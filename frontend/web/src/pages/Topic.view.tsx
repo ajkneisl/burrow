@@ -85,7 +85,7 @@ export default function TopicView() {
             <header className="mb-4 flex items-center gap-4">
                 <button
                     onClick={handleBack}
-                    className="text-text/60 hover:text-text hover:bg-background rounded-lg p-2 transition-colors"
+                    className="text-text/60 hover:text-text hover:bg-background cursor-pointer rounded-lg p-2 transition-colors"
                 >
                     <ArrowLeft className="h-5 w-5" />
                 </button>

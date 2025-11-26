@@ -20,7 +20,18 @@ export default function Topics() {
     const topicsToShow = data?.slice(0, 5) || []
 
     return (
-        <Card title="Discuss on Burrow" className="mt-4">
+        <Card className="mt-4">
+            <div className="flex flex-row items-center justify-between">
+                <div className="mb-2 flex items-center justify-between">
+                    <button
+                        onClick={() => nav(`/discuss`)}
+                        className="hover:underline cursor-pointer text-sm font-semibold"
+                    >
+                        Discuss on Burrow
+                    </button>
+                </div>
+            </div>
+
             <div className="flex flex-col gap-3">
                 {isError && <ViewErrors errors={`${error}`} />}
 
@@ -49,7 +60,10 @@ export default function Topics() {
                 {/* Loading skeleton */}
                 {(isLoading || !data) &&
                     Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="flex items-center gap-2 rounded p-2">
+                        <div
+                            key={i}
+                            className="flex items-center gap-2 rounded p-2"
+                        >
                             <div className="bg-text/10 h-3 flex-1 animate-pulse rounded" />
                         </div>
                     ))}
