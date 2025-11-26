@@ -16,6 +16,16 @@ export default function PrivacyStep({
 }: CreateStepProps) {
     return (
         <div className="space-y-6">
+            <div className="border-border bg-hero/50 rounded-lg border p-4">
+                <p className="text-text mb-2 text-sm font-medium">
+                    Privacy Settings
+                </p>
+                <p className="text-text/60 text-xs">
+                    Control who can see and attend your event. You can change
+                    these settings later.
+                </p>
+            </div>
+
             {/* visibility */}
             <div className="min-w-0">
                 <SelectInput

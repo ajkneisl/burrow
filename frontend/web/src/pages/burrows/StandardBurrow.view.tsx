@@ -5,7 +5,7 @@ import { Archive, Clock } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { getMeeting } from "@features/burrows/burrows.api.ts"
 import MeetingLocation from "@features/burrows/components/MeetingLocation.tsx"
-import DeleteMeeting from "@features/burrows/controls/DeleteMeeting.tsx"
+import DeleteBurrow from "@features/burrows/controls/DeleteBurrow.tsx"
 import { formatDateTime } from "@api/util.ts"
 import JoinMeeting from "@features/burrows/components/JoinMeeting.tsx"
 import MeetingCapacityBadges from "@features/burrows/components/MeetingCapacityBadges.tsx"
@@ -264,7 +264,7 @@ export default function StandardBurrow() {
                             {isOwner && (
                                 <Card className="flex flex-row items-center gap-2">
                                     <EditBurrow burrow={burrow} />
-                                    <DeleteMeeting meeting={burrow} />
+                                    <DeleteBurrow burrow={burrow} />
                                     <BurrowFeatures inPast={inPast} />
                                 </Card>
                             )}

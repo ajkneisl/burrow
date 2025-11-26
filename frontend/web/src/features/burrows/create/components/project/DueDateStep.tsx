@@ -1,6 +1,8 @@
-import { Input } from "@umnburrow/core"
+import { Input, TimeInput } from "@umnburrow/core"
 import Field from "@features/burrows/create/components/Field.tsx"
 import type { CreateStepProps } from "@features/burrows/create/create.types.ts"
+import { Time } from "@internationalized/date"
+import type { TimeValue } from "react-aria-components"
 
 /**
  * Due date step for creating a project.
@@ -41,26 +43,31 @@ export default function DueDateStep({
             </Field>
 
             {/* optional due time */}
-            <Field
-                label="Due Time (optional)"
-                error={errors.endTime}
-                className="min-w-0"
-            >
-                <Input
-                    type="time"
-                    value={formState.endTime}
-                    onChange={(e) => updateField("endTime", e.target.value)}
-                    error={errors.endTime !== undefined}
-                />
-            </Field>
-
-            <div className="border-info/30 bg-info/10 rounded-lg border p-4">
-                <p className="text-info text-xs">
-                    💡 <strong>Tip:</strong> The due time is optional. If you
-                    don't specify a time, the project will be due at the end of
-                    the selected date.
-                </p>
-            </div>
+            <TimeInput
+                text="Due Time (optional)"
+                value={
+                    formState.endTime
+                        ? (() => {
+                              const [hours, minutes] =
+                                  formState.endTime.split(":")
+                              return new Time(
+                                  parseInt(hours),
+                                  parseInt(minutes)
+                              )
+                          })()
+                        : null
+                }
+                onChange={(value: TimeValue | null) => {
+                    if (value) {
+                        const hours = String(value.hour).padStart(2, "0")
+                        const minutes = String(value.minute).padStart(2, "0")
+                        updateField("endTime", `${hours}:${minutes}`)
+                    } else {
+                        updateField("endTime", "")
+                    }
+                }}
+                error={errors.endTime !== undefined}
+            />
         </div>
     )
 }

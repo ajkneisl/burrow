@@ -50,8 +50,9 @@ const MAX_MEMBERS = 10
  */
 export default function MembersStep({
     formState,
-    updateField
-}: CreateStepProps) {
+    updateField,
+    mode = "create"
+}: CreateStepProps & { mode?: "create" | "update" }) {
     const [searchQuery, setSearchQuery] = useState("")
     const [debouncedQuery, setDebouncedQuery] = useState("")
     const [showDropdown, setShowDropdown] = useState(false)
@@ -156,15 +157,25 @@ export default function MembersStep({
 
     return (
         <div className="space-y-6">
-            <div className="border-border bg-hero/50 rounded-lg border p-4">
-                <p className="text-text mb-2 text-sm font-medium">
-                    Add Team Members
-                </p>
-                <p className="text-text/60 text-xs">
-                    Add up to {MAX_MEMBERS} team members for this project. Start
-                    typing a username to search.
-                </p>
-            </div>
+            {/* Update mode message */}
+            {mode === "update" ? (
+                <div className="border-info/30 bg-info/10 text-info rounded-lg border p-4">
+                    <p className="text-sm font-medium">
+                        To add or remove team members, please visit the project
+                        page after saving your changes.
+                    </p>
+                </div>
+            ) : (
+                <div className="border-border bg-hero/50 rounded-lg border p-4">
+                    <p className="text-text mb-2 text-sm font-medium">
+                        Add Team Members
+                    </p>
+                    <p className="text-text/60 text-xs">
+                        Add up to {MAX_MEMBERS} team members for this project. Start
+                        typing a username to search.
+                    </p>
+                </div>
+            )}
 
             {/* Search input */}
             <div className="relative" ref={dropdownRef}>
@@ -176,9 +187,12 @@ export default function MembersStep({
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search for teammates..."
-                        disabled={selectedMemberIDs.length >= MAX_MEMBERS}
+                        disabled={
+                            mode === "update" ||
+                            selectedMemberIDs.length >= MAX_MEMBERS
+                        }
                         onFocus={() => {
-                            if (searchResults.length > 0) {
+                            if (searchResults.length > 0 && mode !== "update") {
                                 setShowDropdown(true)
                             }
                         }}
@@ -266,14 +280,16 @@ export default function MembersStep({
                                         )}
                                     </div>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => removeMember(member.id)}
-                                    className="text-text/40 hover:bg-error/20 hover:text-error ml-2 rounded-md p-1.5 transition-all duration-150"
-                                    aria-label={`Remove ${member.name || member.username}`}
-                                >
-                                    <X className="h-4 w-4" />
-                                </button>
+                                {mode !== "update" && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeMember(member.id)}
+                                        className="text-text/40 hover:bg-error/20 hover:text-error ml-2 rounded-md p-1.5 transition-all duration-150"
+                                        aria-label={`Remove ${member.name || member.username}`}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                )}
                             </div>
                         ))}
                     </div>

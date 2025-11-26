@@ -15,9 +15,20 @@ export default function InfoStep({
     updateField
 }: CreateStepProps) {
     return (
-        <div className="grid gap-6 md:grid-cols-2">
-            {/* title of the session */}
-            <Field label="Title" error={errors.title} className="min-w-0">
+        <div className="space-y-6">
+            <div className="border-border bg-hero/50 rounded-lg border p-4">
+                <p className="text-text mb-2 text-sm font-medium">
+                    Basic Information
+                </p>
+                <p className="text-text/60 text-xs">
+                    Add details about your study session. Be specific about the
+                    topic and location to help others find you.
+                </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+                {/* title of the session */}
+                <Field label="Title" error={errors.title} className="min-w-0">
                 <Input
                     value={formState.title}
                     onChange={(e) => updateField("title", e.target.value)}
@@ -61,14 +72,17 @@ export default function InfoStep({
                 />
             </Field>
 
-            {/* description */}
-            <Field label="Description" className="min-w-0 md:col-span-2">
-                <TextArea
-                    value={formState.description}
-                    onChange={(e) => updateField("description", e.target.value)}
-                    placeholder="What're you studying? Who are you looking for?"
-                />
-            </Field>
+                {/* description */}
+                <Field label="Description" className="min-w-0 md:col-span-2">
+                    <TextArea
+                        value={formState.description}
+                        onChange={(e) =>
+                            updateField("description", e.target.value)
+                        }
+                        placeholder="What're you studying? Who are you looking for?"
+                    />
+                </Field>
+            </div>
         </div>
     )
 }

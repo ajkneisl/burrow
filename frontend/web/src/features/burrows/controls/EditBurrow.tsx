@@ -3,6 +3,7 @@ import { useMemo, useState } from "react"
 import { Button } from "@umnburrow/core"
 import { updateBurrow } from "@features/burrows/create/create.api.ts"
 import CreateStudyBurrowModal from "@features/burrows/create/components/study/CreateStudyBurrowModal.tsx"
+import CreateProjectBurrowModal from "@features/burrows/create/components/project/CreateProjectBurrowModal.tsx"
 
 /**
  * {@link EditBurrow}
@@ -25,8 +26,19 @@ export default function EditBurrow({ burrow }: EditBurrowProps) {
         [burrow.endTime]
     )
 
-    return (
-        <>
+    const modalElement =
+        burrow.kind === "PROJECT" ? (
+            <CreateProjectBurrowModal
+                open={open}
+                onClose={() => setOpen(false)}
+                mode="update"
+                meeting={burrow}
+                modalTitle={`Edit: ${burrow.title}`}
+                onSubmit={async (payload) => {
+                    return await updateBurrow(burrow.id, payload)
+                }}
+            />
+        ) : (
             <CreateStudyBurrowModal
                 open={open}
                 onClose={() => setOpen(false)}
@@ -37,6 +49,11 @@ export default function EditBurrow({ burrow }: EditBurrowProps) {
                     return await updateBurrow(burrow.id, payload)
                 }}
             />
+        )
+
+    return (
+        <>
+            {modalElement}
 
             <Button
                 onClick={() => setOpen(true)}

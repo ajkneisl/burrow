@@ -102,8 +102,8 @@ val BURROW_ROUTES: Route.() -> Unit = {
         )
     }
 
-    // POST /groups
-    // create a meeting
+    // POST /burrows
+    // create a Burrow
     post {
         when (val submittedBurrow = call.receive<SubmittedBurrow>()) {
             is SubmittedProjectBurrow -> {

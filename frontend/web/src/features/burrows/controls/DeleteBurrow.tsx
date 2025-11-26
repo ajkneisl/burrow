@@ -4,14 +4,13 @@ import { motion } from "framer-motion"
 import { useRef } from "react"
 import { deleteMeeting } from "@features/burrows/burrows.api.ts"
 import { useNavigate } from "react-router"
-import useToken from "@features/auth/hooks/useToken.ts"
 import { Button } from "@umnburrow/core"
 
 /**
- * {@link DeleteMeeting}
+ * {@link DeleteBurrow}
  */
 type DeleteMeetingProps = {
-    meeting: Burrow
+    burrow: Burrow
 }
 
 /**
@@ -19,25 +18,22 @@ type DeleteMeetingProps = {
  *
  * @param meeting The meeting to delete.
  */
-export default function DeleteMeeting({ meeting }: DeleteMeetingProps) {
-    const auth = useToken()
+export default function DeleteBurrow({ burrow }: DeleteMeetingProps) {
     const nav = useNavigate()
     const confirmToastIdRef = useRef<string | null>(null)
 
     // actually delete it :(
     const performDelete = async () => {
-        const loadingId = toast.loading("Deleting meeting…")
-
-        if (auth === null) return
+        const loadingID = toast.loading("Deleting meeting…")
 
         try {
-            await deleteMeeting(auth, meeting.id)
+            await deleteMeeting(burrow.id)
             toast.success("Meeting deleted")
             nav("/")
         } catch {
             toast.error("Failed to delete meeting")
         } finally {
-            toast.dismiss(loadingId)
+            toast.dismiss(loadingID)
         }
     }
 
@@ -62,14 +58,14 @@ export default function DeleteMeeting({ meeting }: DeleteMeetingProps) {
                         damping: 28,
                         mass: 0.2
                     }}
-                    className="max-w-sm rounded-xl border border-primary/20 bg-card p-6 shadow-lg"
+                    className="border-primary/20 bg-card max-w-sm rounded-xl border p-6 shadow-lg"
                 >
                     <div className="p-4">
-                        <p className="text-sm font-medium text-text">
+                        <p className="text-text text-sm font-medium">
                             Delete this meeting?
                         </p>
 
-                        <p className="mt-1 text-xs text-text/70">
+                        <p className="text-text/70 mt-1 text-xs">
                             This action cannot be undone.
                         </p>
                     </div>

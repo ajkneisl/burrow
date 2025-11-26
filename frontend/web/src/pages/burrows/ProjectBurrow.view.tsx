@@ -4,7 +4,7 @@ import { useAtom } from "jotai"
 import { Archive, Calendar } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { getMeeting } from "@features/burrows/burrows.api.ts"
-import DeleteMeeting from "@features/burrows/controls/DeleteMeeting.tsx"
+import DeleteBurrow from "@features/burrows/controls/DeleteBurrow.tsx"
 import { dayLabel } from "@api/util.ts"
 import ChatBox from "@features/chat/components/ChatBox.tsx"
 import ViewAttendees from "@features/burrows/attendees/components/ViewAttendees.tsx"
@@ -19,6 +19,7 @@ import ShareMeeting from "@features/burrows/controls/ShareMeeting.tsx"
 import BookmarkMeeting from "@features/burrows/controls/BookmarkMeeting.tsx"
 import MeetingCapacityBadges from "@features/burrows/components/MeetingCapacityBadges.tsx"
 import JoinMeeting from "@features/burrows/components/JoinMeeting.tsx"
+import EditBurrow from "@features/burrows/controls/EditBurrow.tsx"
 
 /**
  * View an individual project burrow.
@@ -232,7 +233,8 @@ export default function ProjectBurrow() {
                         <div className="col-span-1 space-y-6 lg:col-span-2">
                             {isOwner && (
                                 <Card className="flex flex-row items-center gap-2">
-                                    <DeleteMeeting meeting={burrow} />
+                                    <DeleteBurrow burrow={burrow} />
+                                    <EditBurrow burrow={burrow} />
                                     <BurrowFeatures inPast={isPastDue} />
                                 </Card>
                             )}

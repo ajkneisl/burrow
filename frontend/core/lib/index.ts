@@ -8,6 +8,7 @@ import Badge from "./components/Badge"
 import Card from "./components/Card"
 import Dropdown, { DropdownItem } from "./components/Dropdown"
 import Input from "./components/Input"
+import TimeInput from "./components/TimeInput"
 import Modal from "./components/Modal"
 import SelectInput from "./components/SelectInput"
 import TextArea from "./components/TextArea"
@@ -24,6 +25,7 @@ export {
     Dropdown,
     DropdownItem,
     Input,
+    TimeInput,
     Modal,
     SelectInput,
     TextArea,

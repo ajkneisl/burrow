@@ -6,7 +6,6 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
 import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
@@ -61,8 +60,8 @@ data class SubmittedProjectBurrow(
 
         // ensure className is within 1..64
         val classLen = className.length
-        if (classLen !in 1..64) {
-            errors += "Class name must be between 1 and 64 characters."
+        if (classLen !in 0..64) {
+            errors += "Class name must be between 0 and 64 characters."
         }
 
         // ensure there's at least 1 team member and at most 10

@@ -7,7 +7,7 @@ import type {
     ScheduleBurrowResponse
 } from "./burrows.types.tsx"
 import type { PaginatedResponse } from "@api/api.types.ts"
-import { get, patch, post } from "@api/api.ts"
+import { del, get, patch, post } from "@api/api.ts"
 
 /**
  * Get a {@link BurrowResponse} by its ID.
@@ -52,20 +52,10 @@ export async function leaveMeeting(meeting: string) {
 /**
  * Delete a {@link Burrow} by it's ID.
  *
- * @param auth The authorization token.
  * @param id The meeting to delete.
  */
-export async function deleteMeeting(auth: string, id: string) {
-    const request = await fetch(`${BASE_URL}/burrows/${id}`, {
-        method: "DELETE",
-        headers: {
-            Authorization: `Bearer ${auth}`
-        }
-    })
-
-    if (!request.ok) {
-        return Promise.reject()
-    }
+export async function deleteMeeting(id: string) {
+    return del(`/burrows/${id}`)
 }
 
 /**

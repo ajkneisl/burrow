@@ -332,6 +332,7 @@ export default function CreateProjectBurrowModal({
                         errors={errors}
                         formState={formState}
                         updateField={updateField}
+                        mode={mode}
                     />
                 )}
 

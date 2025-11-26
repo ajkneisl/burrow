@@ -15,9 +15,24 @@ export default function InfoStep({
     updateField
 }: CreateStepProps) {
     return (
-        <div className="grid gap-6 md:grid-cols-2">
-            {/* event title */}
-            <Field label="Event Name" error={errors.title} className="min-w-0">
+        <div className="space-y-6">
+            <div className="border-border bg-hero/50 rounded-lg border p-4">
+                <p className="text-text mb-2 text-sm font-medium">
+                    Event Details
+                </p>
+                <p className="text-text/60 text-xs">
+                    Provide information about your event. Include a clear title
+                    and description to attract attendees.
+                </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+                {/* event title */}
+                <Field
+                    label="Event Name"
+                    error={errors.title}
+                    className="min-w-0"
+                >
                 <Input
                     value={formState.title}
                     onChange={(e) => updateField("title", e.target.value)}
@@ -61,14 +76,20 @@ export default function InfoStep({
                 />
             </Field>
 
-            {/* description */}
-            <Field label="Event Description" className="min-w-0 md:col-span-2">
-                <TextArea
-                    value={formState.description}
-                    onChange={(e) => updateField("description", e.target.value)}
-                    placeholder="What's happening at this event? What should attendees expect?"
-                />
-            </Field>
+                {/* description */}
+                <Field
+                    label="Event Description"
+                    className="min-w-0 md:col-span-2"
+                >
+                    <TextArea
+                        value={formState.description}
+                        onChange={(e) =>
+                            updateField("description", e.target.value)
+                        }
+                        placeholder="What's happening at this event? What should attendees expect?"
+                    />
+                </Field>
+            </div>
         </div>
     )
 }

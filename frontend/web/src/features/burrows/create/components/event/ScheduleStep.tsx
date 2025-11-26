@@ -15,9 +15,20 @@ export default function ScheduleStep({
     updateField
 }: CreateStepProps) {
     return (
-        <div className="grid gap-6 md:grid-cols-2">
-            {/* date */}
-            <Field
+        <div className="space-y-6">
+            <div className="border-border bg-hero/50 rounded-lg border p-4">
+                <p className="text-text mb-2 text-sm font-medium">
+                    Schedule Your Event
+                </p>
+                <p className="text-text/60 text-xs">
+                    Choose when your event will take place. Make sure to set a
+                    realistic time frame for your event.
+                </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+                {/* date */}
+                <Field
                 label="Event Date"
                 error={errors.date}
                 className="min-w-0 md:col-span-2"
@@ -46,15 +57,20 @@ export default function ScheduleStep({
                 />
             </Field>
 
-            {/* end time */}
-            <Field label="End Time" error={errors.endTime} className="min-w-0">
-                <Input
-                    type="time"
-                    value={formState.endTime}
-                    onChange={(e) => updateField("endTime", e.target.value)}
-                    error={errors.endTime !== undefined}
-                />
-            </Field>
+                {/* end time */}
+                <Field
+                    label="End Time"
+                    error={errors.endTime}
+                    className="min-w-0"
+                >
+                    <Input
+                        type="time"
+                        value={formState.endTime}
+                        onChange={(e) => updateField("endTime", e.target.value)}
+                        error={errors.endTime !== undefined}
+                    />
+                </Field>
+            </div>
         </div>
     )
 }
