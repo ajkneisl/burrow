@@ -9,19 +9,24 @@ import {
     type SearchResult
 } from "@features/layout/search/search.api.ts"
 import SearchInput from "@features/layout/search/components/SearchInput.tsx"
-import { useAtom } from "jotai"
-import { mobileSearchOpen } from "@features/layout/search/search.atom.ts"
+import { useAtom, useSetAtom } from "jotai"
+import {
+    mobileSearchOpenAtom,
+    searchQueryAtom
+} from "@features/layout/search/search.atom.ts"
 import type { PaginatedResponse } from "@api/api.types.ts"
 
 /**
  * Search component for finding users and burrows.
- * Features debounced search and pagination support.
+ *
+ * @author AJ Kneisl
  */
 export default function Search() {
-    const [, setMobileOpen] = useAtom(mobileSearchOpen)
+    const setMobileOpen = useSetAtom(mobileSearchOpenAtom)
+    const [query, setQuery] = useAtom(searchQueryAtom)
+
     const [debounceKey, setDebounceKey] = useState(0)
     const searchRef = useRef<HTMLFormElement>(null)
-    const [query, setQuery] = useState("")
     const [paginatedResults, setPaginatedResults] =
         useState<PaginatedResponse<SearchResult> | null>(null)
     const [loading, setLoading] = useState(false)

@@ -1,4 +1,4 @@
-import { useAtom } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { createBurrowModal } from "@features/burrows/create/create.atom.ts"
 import { themeAtom } from "@api/theme/theme.atom.ts"
@@ -16,6 +16,7 @@ import ViewRelations from "@features/profile/components/ViewRelations.tsx"
 import ReportProblemModal from "@features/problem/components/ReportProblemModal.tsx"
 import MyInvitesModal from "@features/layout/components/MyInvitesModal.tsx"
 import Footer from "@features/layout/components/Footer.tsx"
+import {searchQueryAtom} from "@features/layout/search/search.atom.ts";
 
 /**
  * The base layout that's rendered for all pages.
@@ -30,6 +31,7 @@ export default function RootLayout() {
 
     const [createModal, setCreateModal] = useAtom(createBurrowModal)
     const [theme, setTheme] = useAtom(themeAtom)
+    const setQuery = useSetAtom(searchQueryAtom)
 
     // fetch theme from backend in background and update local storage if different
     useEffect(() => {
@@ -47,7 +49,9 @@ export default function RootLayout() {
     // compute actual dark mode based on theme setting
     const computedTheme = useMemo(() => {
         if (theme === "AUTO") {
-            return window.matchMedia("(prefers-color-scheme: dark)").matches ? "DARK" : "LIGHT"
+            return window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "DARK"
+                : "LIGHT"
         }
 
         return theme
@@ -58,6 +62,9 @@ export default function RootLayout() {
     useEffect(() => {
         if (!location.hash) {
             window.scrollTo(0, 0)
+
+            // reset search query on page change
+            setQuery("")
         }
     }, [location])
 

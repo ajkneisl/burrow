@@ -1,3 +1,11 @@
 import { atom } from "jotai"
 
-export const mobileSearchOpen = atom(false)
+/**
+ * If the mobile search bar is open.
+ */
+export const mobileSearchOpenAtom = atom(false)
+
+/**
+ * The current search query.
+ */
+export const searchQueryAtom = atom("")

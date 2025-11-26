@@ -1,10 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion"
 import type { ReactNode } from "react"
 import { useAtom } from "jotai"
-import { mobileSearchOpen } from "@features/layout/search/search.atom.ts"
+import { mobileSearchOpenAtom } from "@features/layout/search/search.atom.ts"
 
 export default function MobileSearch({ input }: { input: ReactNode }) {
-    const [open] = useAtom(mobileSearchOpen)
+    const [open] = useAtom(mobileSearchOpenAtom)
 
     return (
         <AnimatePresence initial={false} mode="wait">
