@@ -58,7 +58,7 @@ export function usePushNotifications() {
         useCallback(async (): Promise<ServiceWorkerRegistration> => {
             try {
                 const registration = await navigator.serviceWorker.register(
-                    "https://umn.app/sw.js",
+                    "/sw.js",
                     {
                         scope: "/"
                     }
