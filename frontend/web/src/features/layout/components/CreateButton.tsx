@@ -4,6 +4,7 @@ import { createBurrowModal } from "@features/burrows/create/create.atom.ts"
 import React, { useEffect, useRef, useState, useCallback } from "react"
 import toast from "react-hot-toast"
 import clsx from "clsx"
+import { BookOpen, FolderKanban, PartyPopper, Users, Plus } from "lucide-react"
 
 /**
  * The `Create Burrow`.
@@ -23,84 +24,28 @@ export default function CreateButton() {
             label: "Study Session",
             value: "study",
             desc: "Create a study group",
-            icon: (
-                <svg
-                    className="text-secondary h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 6v12m8-6H4"
-                    />
-                </svg>
-            ),
+            icon: <BookOpen className="text-success h-5 w-5" />,
             onClick: () => setModalOpen("STUDY")
         },
         {
             label: "Group Project",
             value: "project",
             desc: "Collaborate with classmates on projects",
-            icon: (
-                <svg
-                    className="text-secondary h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 110-8 4 4 0 010 8zm0 0v4"
-                    />
-                </svg>
-            ),
+            icon: <FolderKanban className="text-error h-5 w-5" />,
             onClick: () => setModalOpen("PROJECT")
         },
         {
             label: "Event Meeting",
             value: "event",
             desc: "Plan or host an event",
-            icon: (
-                <svg
-                    className="text-secondary h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M8 7V3m8 4V3m-9 8h10m-11 8h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    />
-                </svg>
-            ),
+            icon: <PartyPopper className="text-secondary h-5 w-5" />,
             onClick: () => setModalOpen("EVENT")
         },
         {
             label: "Club Meeting",
             value: "club",
             desc: "Meet with your club",
-            icon: (
-                <svg
-                    className="text-secondary h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M5 3v4a2 2 0 002 2h3l4 8h5V3z"
-                    />
-                </svg>
-            ),
+            icon: <Users className="text-info h-5 w-5" />,
             onClick: () => toast.error("this is coming soon :)")
         }
     ]
@@ -211,21 +156,7 @@ export default function CreateButton() {
                 whileTap={{ scale: 0.97 }}
                 whileHover={{ scale: 1.03 }}
             >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    className="h-4 w-4"
-                    aria-hidden="true"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 4v16m8-8H4"
-                    />
-                </svg>
+                <Plus className="h-4 w-4" aria-hidden="true" />
                 <span className="hidden md:block">Create</span>
             </motion.button>
 

@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { getTopics } from "@features/chat/chat.api.ts"
 import { Card, ViewErrors } from "@umnburrow/core"
-import clsx from "clsx"
 import { ArrowRight, MessageSquare, Pin } from "lucide-react"
 import { useNavigate } from "react-router"
 
@@ -27,62 +26,21 @@ export default function Topics() {
 
                 {/* Topics list */}
                 {topicsToShow.length > 0 && (
-                    <ul className="flex flex-col gap-2">
+                    <ul className="flex flex-col gap-1">
                         {topicsToShow.map((topic) => (
                             <li
                                 role="button"
                                 onClick={() => nav(`/discuss/${topic.id}`)}
                                 key={topic.id}
-                                className={clsx(
-                                    "hover:bg-background/80 group relative flex cursor-pointer items-start gap-3 rounded-lg p-3 transition-all duration-200",
-                                    topic.pinned && "ring-warn/30 ring-1"
-                                )}
+                                className="hover:bg-background/50 flex cursor-pointer items-center gap-2 rounded p-2"
                             >
-                                {/* Icon badge */}
-                                <div
-                                    className={clsx(
-                                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-105",
-                                        topic.pinned
-                                            ? "bg-warn/15 text-warn"
-                                            : "bg-secondary/10 text-secondary"
-                                    )}
-                                >
-                                    {topic.pinned ? (
-                                        <Pin className="h-4 w-4" />
-                                    ) : (
-                                        <MessageSquare className="h-4 w-4" />
-                                    )}
-                                </div>
+                                {topic.pinned && (
+                                    <Pin className="text-text/40 h-3 w-3 shrink-0" />
+                                )}
 
-                                {/* Content */}
-                                <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-2">
-                                        {topic.pinned && (
-                                            <span className="text-warn shrink-0 text-[10px] font-semibold tracking-wider uppercase">
-                                                Pinned
-                                            </span>
-                                        )}
-                                        <h3 className="text-text group-hover:text-secondary truncate text-sm font-semibold transition-colors">
-                                            {topic?.name || "Loading..."}
-                                        </h3>
-                                    </div>
-
-                                    {topic.description && (
-                                        <p className="text-text/60 mt-0.5 line-clamp-2 text-xs leading-relaxed">
-                                            {topic.description}
-                                        </p>
-                                    )}
-
-                                    <p className="text-text/40 mt-1 text-[10px]">
-                                        Created{" "}
-                                        {new Date(
-                                            topic.createdAt
-                                        ).toLocaleDateString()}
-                                    </p>
-                                </div>
-
-                                {/* Arrow indicator */}
-                                <ArrowRight className="text-text/30 group-hover:text-secondary h-4 w-4 shrink-0 opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:opacity-100" />
+                                <h3 className="text-text truncate text-sm">
+                                    {topic?.name || "Loading..."}
+                                </h3>
                             </li>
                         ))}
                     </ul>
@@ -91,26 +49,8 @@ export default function Topics() {
                 {/* Loading skeleton */}
                 {(isLoading || !data) &&
                     Array.from({ length: 3 }).map((_, i) => (
-                        <div
-                            key={i}
-                            className="flex items-start gap-3 rounded-lg p-3"
-                        >
-                            <div className="bg-text/10 h-10 w-10 shrink-0 animate-pulse rounded-lg" />
-
-                            <div className="flex flex-1 flex-col gap-2">
-                                <div
-                                    className="bg-text/10 h-3 animate-pulse rounded"
-                                    style={{
-                                        width: `${Math.floor(Math.random() * 30) + 50}%`
-                                    }}
-                                />
-                                <div
-                                    className="bg-text/10 h-2 animate-pulse rounded"
-                                    style={{
-                                        width: `${Math.floor(Math.random() * 20) + 70}%`
-                                    }}
-                                />
-                            </div>
+                        <div key={i} className="flex items-center gap-2 rounded p-2">
+                            <div className="bg-text/10 h-3 flex-1 animate-pulse rounded" />
                         </div>
                     ))}
 

@@ -165,7 +165,7 @@ export default function useSync(burrowID: string | null, isJoined: boolean) {
                 onSyncOutgoing as EventListener
             )
         }
-    }, [])
+    }, [burrowID])
 
     return status
 }
