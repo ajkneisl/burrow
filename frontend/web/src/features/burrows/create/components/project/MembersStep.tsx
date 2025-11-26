@@ -6,6 +6,8 @@ import { get } from "@api/api.ts"
 import { X } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
+import {useAtom} from "jotai";
+import {authToken} from "@features/auth/auth.atom.ts";
 
 /**
  * {@see MembersStep}
@@ -47,25 +49,28 @@ const MAX_MEMBERS = 10
  * Members step for creating a project - allows adding up to 10 team members.
  *
  * @see CreateProjectBurrowModal
+ *
+ * @author AJ Kneisl
  */
 export default function MembersStep({
     formState,
     updateField,
     mode = "create"
 }: CreateStepProps & { mode?: "create" | "update" }) {
+    const [auth] = useAtom(authToken)
+
     const [searchQuery, setSearchQuery] = useState("")
     const [debouncedQuery, setDebouncedQuery] = useState("")
     const [showDropdown, setShowDropdown] = useState(false)
     const searchTimeoutRef = useRef<number | null>(null)
     const dropdownRef = useRef<HTMLDivElement>(null)
 
-    // Parse selected members from JSON-encoded tags field
     const selectedMembers: SelectedMember[] = useMemo(() => {
         if (!formState.tags.trim()) return []
+
         try {
             return JSON.parse(formState.tags)
         } catch {
-            // Fallback for old format (just IDs)
             return formState.tags
                 .split(",")
                 .map((id) => id.trim())
@@ -76,7 +81,6 @@ export default function MembersStep({
 
     const selectedMemberIDs = selectedMembers.map((m) => m.id)
 
-    // Debounce search query
     useEffect(() => {
         if (searchTimeoutRef.current) {
             clearTimeout(searchTimeoutRef.current)
@@ -93,15 +97,13 @@ export default function MembersStep({
         }
     }, [searchQuery])
 
-    // Use TanStack Query for user search
     const { data: searchResults = [], isLoading: isSearching } = useQuery({
         queryKey: ["userSearch", debouncedQuery],
         queryFn: () => searchUsersAPI(debouncedQuery),
-        enabled: debouncedQuery.trim().length >= 2,
-        staleTime: 1000 * 60 * 5 // Cache for 5 minutes
+        enabled: auth !== "" && debouncedQuery.trim().length >= 2,
+        staleTime: 1000 * 60 * 5
     })
 
-    // Filter out already selected members
     const filteredResults = useMemo(() => {
         return searchResults.filter(
             (user) =>
@@ -110,14 +112,12 @@ export default function MembersStep({
         )
     }, [searchResults, selectedMemberIDs])
 
-    // Show dropdown when there are results
     useEffect(() => {
         setShowDropdown(
             filteredResults.length > 0 && debouncedQuery.trim().length >= 2
         )
     }, [filteredResults, debouncedQuery])
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (

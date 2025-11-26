@@ -169,7 +169,6 @@ function getCookie(key: string) {
     if (parts.length === 2) return parts.pop()!.split(";").shift()
 }
 
-// --- Cookie helpers that work with or without the Cookie Store API ---
 type CookieStoreLike = {
     get?: (name: string) => Promise<{ name: string; value: string } | null>
     set?: (name: string, value: string) => Promise<void>

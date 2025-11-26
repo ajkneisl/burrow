@@ -20,6 +20,8 @@ import { capitalizeFirstLetter } from "@api/util.ts"
 import InviteRequest from "@features/burrows/attendees/components/InviteRequest.tsx"
 import JoinRequest from "@features/burrows/attendees/components/JoinRequest.tsx"
 import InviteUser from "@features/burrows/attendees/components/InviteUser.tsx"
+import {useAtom} from "jotai";
+import {authToken} from "@features/auth/auth.atom.ts";
 
 /**
  * The order of memberships to display.
@@ -64,6 +66,7 @@ export default function ViewAttendees({
 }: ViewAttendeesProps) {
     const { id: burrowID } = useParams<{ id: string }>()
     const user = useUser()
+    const [auth] = useAtom(authToken)
 
     const [viewMode, setViewMode] = useState<"attendees" | "requests">(
         "attendees"
@@ -98,7 +101,7 @@ export default function ViewAttendees({
         queryFn: async () => {
             return await getJoinRequests(burrowID!, requestsPage)
         },
-        enabled: !!burrowID
+        enabled: auth !== "" && !!burrowID
     })
 
     // invites
@@ -111,7 +114,7 @@ export default function ViewAttendees({
         queryFn: async () => {
             return await getInvites(burrowID!, attendeesPage)
         },
-        enabled: !!burrowID
+        enabled: auth !== "" && !!burrowID
     })
 
     const meetingRole: BurrowRole | null = useMemo(() => {

@@ -19,6 +19,7 @@ import RootLayout from "@features/layout/components/RootLayout.tsx"
 import { Provider } from "jotai"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { store } from "@api/api.atom.ts"
+import { authToken } from "@features/auth/auth.atom.ts"
 
 /**
  * This defines all routes in Burrow.
@@ -48,7 +49,13 @@ const router = createBrowserRouter([
     }
 ])
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            enabled: () => store.get(authToken) !== ""
+        }
+    }
+})
 
 /**
  * @author AJ Kneisl

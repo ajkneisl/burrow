@@ -51,10 +51,12 @@ export async function request<T = unknown, R = unknown>(
     }
 
     if (auth) {
-        const token = store.get(authToken)
+        const token = await store.get(authToken)
 
         if (token) {
             requestHeaders.Authorization = `Bearer ${token}`
+        } else {
+            return undefined as R
         }
     }
 

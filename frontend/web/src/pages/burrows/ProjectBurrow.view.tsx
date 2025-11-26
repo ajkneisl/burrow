@@ -36,7 +36,7 @@ export default function ProjectBurrow() {
 
     const { data, isLoading, error, refetch } = useQuery({
         queryKey: ["burrow", id],
-        enabled: id !== null,
+        enabled: auth !== "" && id !== null,
         queryFn: async () => await getMeeting(id!)
     })
 
