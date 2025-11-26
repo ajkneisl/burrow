@@ -30,8 +30,4 @@ object Memberships : Table("memberships") {
     val leftAt = long("left_at").nullable()
 
     override val primaryKey = PrimaryKey(burrowID, userID)
-
-    init {
-        index(true, burrowID, userID)
-    }
 }

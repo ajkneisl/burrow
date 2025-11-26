@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -34,9 +35,10 @@ import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.core.leftJoin
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
+import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
-import org.jetbrains.exposed.v1.r2dbc.upsert
+import org.jetbrains.exposed.v1.r2dbc.update
 import org.slf4j.LoggerFactory
 
 private val LOGGER = LoggerFactory.getLogger("Notification Worker")
@@ -193,14 +195,14 @@ private val dateFormat: DateTimeFormatter =
  * Insert / Create a notification for an upcoming meeting.
  *
  * @param meetingRow
- * @param userId The ID of the user to create this for.
+ * @param burrowRow The ID of the user to create this for.
  */
 private suspend fun upsertUpcomingForUser(
     meetingRow: ResultRow,
-    userId: String,
+    burrowRow: String,
     nowMs: Long = getTimeMillis(),
 ) = query {
-    val meetingId = meetingRow[Burrows.id]
+    val burrowID = meetingRow[Burrows.id]
     val title = "“${meetingRow[Burrows.title]}” starts soon"
     val content = buildString {
         val startTime = dateFormat.format(Instant.ofEpochMilli(meetingRow[Burrows.beginningTime]))
@@ -212,19 +214,19 @@ private suspend fun upsertUpcomingForUser(
     }
 
     val (enabled, leadMin, _) =
-        getNotificationPreferences(userId, NotificationKind.UPCOMING_MEETING)
+        getNotificationPreferences(burrowRow, NotificationKind.UPCOMING_MEETING)
 
     // when this notification should be sent
     val scheduleDate = (meetingRow[Burrows.beginningTime] - leadMin * 60_000L)
 
-    LOGGER.debug("Scheduling notification for {} for {} at {}", userId, meetingId, scheduleDate)
+    LOGGER.debug("Scheduling notification for {} for {} at {}", burrowRow, burrowID, scheduleDate)
 
     // if this is going to be scheduled in the past or the notification type is disabled.
     if (!enabled || scheduleDate < nowMs) {
         // remove any pending unsent UPCOMING_MEETING notifications for this user/meeting
         Notifications.deleteWhere {
-            (Notifications.userID eq userId) and
-                (Notifications.burrowID eq meetingId) and
+            (Notifications.userID eq burrowRow) and
+                (Notifications.burrowID eq burrowID) and
                 (Notifications.kind eq NotificationKind.UPCOMING_MEETING) and
                 (Notifications.sentDate.isNull())
         }
@@ -233,16 +235,35 @@ private suspend fun upsertUpcomingForUser(
     }
 
     // update or insert
-    Notifications.upsert(Notifications.userID, Notifications.burrowID, Notifications.kind) {
-        it[id] = UUID.randomUUID()
-        it[Notifications.userID] = userId
-        it[Notifications.burrowID] = meetingId
-        it[kind] = NotificationKind.UPCOMING_MEETING
-        it[Notifications.title] = title
-        it[Notifications.content] = content
-        it[read] = false
-        it[sentDate] = null
-        it[scheduledDate] = scheduleDate
+    val existingNotification =
+        Notifications.selectAll()
+            .where {
+                (Notifications.userID eq burrowRow) and
+                    (Notifications.burrowID eq burrowID) and
+                    (Notifications.kind eq NotificationKind.UPCOMING_MEETING)
+            }
+            .singleOrNull()
+
+    if (existingNotification != null) {
+        Notifications.update({ Notifications.id eq existingNotification[Notifications.id] }) {
+            it[Notifications.title] = title
+            it[Notifications.content] = content
+            it[read] = false
+            it[sentDate] = null
+            it[scheduledDate] = scheduleDate
+        }
+    } else {
+        Notifications.insert {
+            it[id] = UUID.randomUUID()
+            it[Notifications.userID] = burrowRow
+            it[Notifications.burrowID] = burrowID
+            it[kind] = NotificationKind.UPCOMING_MEETING
+            it[Notifications.title] = title
+            it[Notifications.content] = content
+            it[read] = false
+            it[sentDate] = null
+            it[scheduledDate] = scheduleDate
+        }
     }
 }
 

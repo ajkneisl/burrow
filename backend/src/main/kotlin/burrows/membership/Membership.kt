@@ -2,10 +2,10 @@ package app.burrow.burrows.membership
 
 import app.burrow.Error
 import app.burrow.InvalidAuthorization
-import app.burrow.account.models.Users
 import app.burrow.account.chat.ChatMessage
 import app.burrow.account.chat.ChatMessages
 import app.burrow.account.models.User
+import app.burrow.account.models.Users
 import app.burrow.account.models.userID
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
@@ -530,7 +530,7 @@ suspend fun joinBurrow(userID: String, burrowID: String) {
         throw Error(400, "You currently cannot join this meeting!")
     } else {
         val status = query {
-            Memberships.upsert {
+            Memberships.upsert(Memberships.burrowID, Memberships.userID) {
                 it[this.userID] = userID
                 it[this.burrowID] = burrowID
                 it[this.joinedAt] = getTimeMillis()
