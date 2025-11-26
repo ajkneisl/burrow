@@ -28,5 +28,5 @@ object Settings : Table("user_settings") {
      *
      * By default, this is through SSE and email.
      */
-    val defaultNotificationDelivery = short("default_notification_delivery").default(0b0000_0011)
+    val defaultNotificationDelivery = short("default_notification_delivery").default(0b0000_0001)
 }
