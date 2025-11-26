@@ -1,6 +1,6 @@
 package app.burrow.burrows.membership
 
-import app.burrow.account.Users
+import app.burrow.account.models.Users
 import app.burrow.burrows.models.BurrowMemberStatus
 import app.burrow.burrows.models.BurrowRole
 import app.burrow.burrows.models.Burrows

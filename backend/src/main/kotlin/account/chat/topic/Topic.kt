@@ -1,6 +1,6 @@
 package app.burrow.account.chat.topic
 
-import app.burrow.account.Users
+import app.burrow.account.models.Users
 import app.burrow.account.chat.ChatMessage
 import app.burrow.account.chat.ChatMessages
 import app.burrow.account.chat.ChatUser

@@ -1,6 +1,6 @@
 import type { AuthorizedUser, Relation } from "@features/auth/user.types.ts"
 import type { UserResponse } from "@features/profile/profile.model.ts"
-import { get, post, put } from "@api/api.ts"
+import { del, get, post, put } from "@api/api.ts"
 
 /**
  * Update a username.
@@ -36,4 +36,11 @@ export async function login(credentials: string): Promise<AuthorizedUser> {
  */
 export async function getRelations(key: string): Promise<Relation[]> {
     return get(`/user/relations/${key}`)
+}
+
+/**
+ * Delete the current user's account.
+ */
+export async function deleteAccount(): Promise<void> {
+    return del("/user")
 }

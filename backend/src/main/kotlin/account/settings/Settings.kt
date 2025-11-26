@@ -1,6 +1,6 @@
 package app.burrow.account.settings
 
-import app.burrow.account.Users
+import app.burrow.account.models.Users
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
-import { getUser, updateUsername } from "@features/auth/user.api.ts"
+import { deleteAccount, getUser, updateUsername } from "@features/auth/user.api.ts"
 import { useSetAtom } from "jotai"
 import { settingsSaveLoading } from "@features/settings/settings.atom.ts"
 import toast from "react-hot-toast"
-import { Card, Input } from "@umnburrow/core"
+import { Button, Card, Input } from "@umnburrow/core"
 import { useQuery } from "@tanstack/react-query"
+import { useNavigate } from "react-router"
+import { Trash2 } from "lucide-react"
 
 /**
  * Settings involving a user's account.
@@ -12,6 +14,7 @@ import { useQuery } from "@tanstack/react-query"
  * @author AJ Kneisl
  */
 export default function AccountSection() {
+    const navigate = useNavigate()
     const { data } = useQuery({
         queryKey: ["user"],
         queryFn: async () => await getUser()
@@ -51,6 +54,46 @@ export default function AccountSection() {
         } else {
             setLoading(false)
         }
+    }
+
+    function handleDeleteAccount() {
+        toast(
+            (t) => (
+                <div className="flex flex-col gap-3">
+                    <div>
+                        <p className="font-semibold">Delete Account</p>
+                        <p className="text-text/60 text-sm">
+                            Are you sure? This action cannot be undone.
+                        </p>
+                    </div>
+                    <div className="flex gap-2">
+                        <Button
+                            color="ERROR"
+                            onClick={async () => {
+                                try {
+                                    await deleteAccount()
+                                    toast.success("Account deleted successfully")
+                                    navigate("/")
+                                } catch (error) {
+                                    toast.error(`Failed to delete account: ${error}`)
+                                } finally {
+                                    toast.dismiss(t.id)
+                                }
+                            }}
+                        >
+                            Delete
+                        </Button>
+                        <Button onClick={() => toast.dismiss(t.id)}>
+                            Cancel
+                        </Button>
+                    </div>
+                </div>
+            ),
+            {
+                duration: Infinity,
+                position: "top-center"
+            }
+        )
     }
 
     return (
@@ -104,6 +147,25 @@ export default function AccountSection() {
                             readOnly
                         />
                     </form>
+
+                    {/* delete account section */}
+                    <div className="border-error/20 mt-6 border-t pt-6">
+                        <h3 className="text-error mb-2 font-semibold">
+                            Danger Zone
+                        </h3>
+                        <p className="text-text/60 mb-4 text-sm">
+                            Once you delete your account, there is no going back.
+                            Please be certain.
+                        </p>
+
+                        <Button
+                            color="ERROR"
+                            onClick={handleDeleteAccount}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            Delete Account
+                        </Button>
+                    </div>
                 </>
             )}
         </Card>

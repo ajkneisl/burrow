@@ -1,6 +1,6 @@
 package app.burrow.account.profile
 
-import app.burrow.account.Users
+import app.burrow.account.models.Users
 import app.burrow.Error
 import app.burrow.query
 import kotlinx.coroutines.flow.map

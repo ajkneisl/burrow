@@ -1,7 +1,7 @@
 package app.burrow.account.profile
 
 import app.burrow.MultiError
-import app.burrow.account.Users
+import app.burrow.account.models.Users
 import app.burrow.json
 import app.burrow.query
 import io.ktor.client.request.get

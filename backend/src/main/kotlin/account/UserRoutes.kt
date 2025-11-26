@@ -2,6 +2,7 @@ package app.burrow.account
 
 import app.burrow.InvalidAuthorization
 import app.burrow.account.models.User
+import app.burrow.account.models.deleteUser
 import app.burrow.account.models.getUserByID
 import app.burrow.account.models.getUserByUsername
 import app.burrow.account.models.getUserResponse
@@ -164,8 +165,8 @@ val USER_ROUTES: Route.() -> Unit = {
             }
 
             // ROUTE /user/profile/follow
+            // manage following
             route("/follow") {
-                // manage following
                 // POST /user/profile/follow
                 // follow a user
                 post {
@@ -187,6 +188,14 @@ val USER_ROUTES: Route.() -> Unit = {
                 }
             }
         }
+    }
+
+    // DELETE /user
+    // delete your account
+    delete {
+        deleteUser(call.userID)
+
+        call.respond(HttpStatusCode.OK)
     }
 
     // PUT /user/login

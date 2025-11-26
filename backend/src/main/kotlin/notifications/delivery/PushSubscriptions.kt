@@ -1,6 +1,6 @@
 package app.burrow.notifications.delivery
 
-import app.burrow.account.Users
+import app.burrow.account.models.Users
 import app.burrow.account.chat.ChatMessage
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis

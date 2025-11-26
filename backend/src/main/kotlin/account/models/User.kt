@@ -1,9 +1,10 @@
 package app.burrow.account.models
 
 import app.burrow.Error
+import app.burrow.NotFound
 import app.burrow.account.Authorization
-import app.burrow.account.Users
 import app.burrow.account.profile.Profiles
+import app.burrow.photo.deletePhoto
 import app.burrow.query
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
@@ -27,6 +28,7 @@ import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.core.or
+import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
@@ -96,7 +98,7 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
 
         val payload: GoogleIdToken.Payload = idToken.payload
 
-        // Verify the hosted domain (hd) is umn.edu
+        // verify they have a UMN id
         val hostedDomain = payload.hostedDomain
         if (hostedDomain != "umn.edu") {
             LOGGER.warn("Invalid hosted domain: {}", hostedDomain ?: "null")
@@ -136,17 +138,12 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
             LOGGER.info("Created new user account for {}", email)
 
             AuthorizedUser(
-                User(
-                    id = googleID,
-                    username = username,
-                    email = email,
-                    createdDate = createdDate,
-                ),
+                User(id = googleID, username = username, email = email, createdDate = createdDate),
                 true,
                 Authorization.generateToken(googleID),
             )
         } else {
-            // Existing user - return their info
+            // existing user
             AuthorizedUser(
                 User(
                     id = googleID,
@@ -180,26 +177,24 @@ suspend fun updateUsername(userID: String, newUsername: String) {
  * @param userID The ID of the user.
  * @throws Error If the user doesn't exist.
  */
-suspend fun getUserByID(userID: String): User {
-    val user =
-        query { Users.selectAll().where { Users.id eq userID }.firstOrNull() }
-            ?: throw Error(401, "Invalid user ID.")
-
-    return User.fromRow(user)
-}
+suspend fun getUserByID(userID: String): User =
+    query {
+            // get by user ID
+            Users.selectAll().where { Users.id eq userID }.firstOrNull()
+        }
+        ?.let { User.fromRow(it) } ?: throw NotFound()
 
 /**
  * Get a user by their username.
  *
  * @param username The username of the user.
  */
-suspend fun getUserByUsername(username: String): User {
-    val user =
-        query { Users.selectAll().where { Users.username eq username }.firstOrNull() }
-            ?: throw Error(401, "Invalid username.")
-
-    return User.fromRow(user)
-}
+suspend fun getUserByUsername(username: String): User =
+    query {
+            // get by username
+            Users.selectAll().where { Users.username eq username }.firstOrNull()
+        }
+        ?.let { User.fromRow(it) } ?: throw NotFound()
 
 /**
  * Search result for user search containing user ID, username, and profile name.
@@ -279,5 +274,21 @@ suspend fun validateUsername(username: String) {
         // uniqueness
         query { Users.selectAll().where { Users.username eq username }.firstOrNull() } != null ->
             throw Error(400, "This username is already taken!")
+    }
+}
+
+/**
+ * Delete a user.
+ *
+ * @param userID The user to delete.
+ */
+suspend fun deleteUser(userID: String) {
+    query { Users.deleteWhere { Users.id eq userID } }
+
+    // delete photo if it exists
+    try {
+        deletePhoto("avatars", "user/${userID}/avatar")
+    } catch (_: Exception) {
+        /* empty */
     }
 }

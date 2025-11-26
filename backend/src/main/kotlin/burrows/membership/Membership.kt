@@ -2,7 +2,7 @@ package app.burrow.burrows.membership
 
 import app.burrow.Error
 import app.burrow.InvalidAuthorization
-import app.burrow.account.Users
+import app.burrow.account.models.Users
 import app.burrow.account.chat.ChatMessage
 import app.burrow.account.chat.ChatMessages
 import app.burrow.account.models.User
