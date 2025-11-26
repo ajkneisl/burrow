@@ -204,19 +204,9 @@ export default function CreateEventBurrowModal({
                 setServerErrors([])
                 onClose()
 
-                queryClient.setQueryData(
-                    [`meeting`, meeting.id],
-                    (old: unknown) => {
-                        return {
-                            ...(old as Record<string, unknown>),
-                            meeting: {
-                                ...((old as Record<string, unknown>)
-                                    .meeting as Record<string, unknown>),
-                                ...payload
-                            }
-                        }
-                    }
-                )
+                queryClient.invalidateQueries({
+                    queryKey: ["burrow", meeting.id]
+                })
 
                 return
             }

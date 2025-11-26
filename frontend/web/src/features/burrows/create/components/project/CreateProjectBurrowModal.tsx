@@ -77,15 +77,15 @@ export default function CreateProjectBurrowModal({
                     kind: "PROJECT",
                     title: meeting.title ?? "",
                     location: meeting.location ?? "",
-                    capacity: 10, // Fixed at 10 members
+                    capacity: 10,
                     tags: Array.isArray(meeting.tags)
                         ? meeting.tags.join(", ")
-                        : "", // Repurposed for member usernames
+                        : "",
                     description: meeting.description ?? "",
-                    visibility: "PUBLIC", // Projects are always public
+                    visibility: "PUBLIC",
                     requestToJoin: false,
                     date: `${yyyy}-${mm}-${dd}`,
-                    beginningTime: "", // Not used for projects
+                    beginningTime: "",
                     endTime: `${hh}:${min}`
                 })
             } else {
@@ -93,8 +93,8 @@ export default function CreateProjectBurrowModal({
                     ...initialFormState,
                     kind: "PROJECT",
                     visibility: "PUBLIC",
-                    capacity: 10, // Fixed at 10 members
-                    tags: "" // Repurposed for member usernames
+                    capacity: 10,
+                    tags: ""
                 })
             }
         }
@@ -163,24 +163,20 @@ export default function CreateProjectBurrowModal({
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
 
-        // pre validate current step (should be step 3 at this point)
         if (!validateCurrentStep()) return
 
         const dateMs = new Date(`${formState.date}T00:00:00-05:00`).getTime()
 
-        // For projects, end time is the due date/time
         const dueTime = formState.endTime
             ? addTime(dateMs, formState.endTime)
-            : dateMs + 23 * 60 * 60 * 1000 + 59 * 60 * 1000 // End of day if no time specified
+            : dateMs + 23 * 60 * 60 * 1000 + 59 * 60 * 1000
 
-        // Parse member user IDs from tags field (JSON array of member objects)
+
         let memberIDs: string[] = []
         try {
-            // Try parsing as JSON first (new format)
             const members = JSON.parse(formState.tags)
             memberIDs = members.map((m: { id: string }) => m.id)
         } catch {
-            // Fallback to old format (comma-separated IDs)
             memberIDs = formState.tags
                 .split(",")
                 .map((t) => t.trim())
@@ -204,19 +200,9 @@ export default function CreateProjectBurrowModal({
                 setServerErrors([])
                 onClose()
 
-                queryClient.setQueryData(
-                    [`meeting`, meeting.id],
-                    (old: unknown) => {
-                        return {
-                            ...(old as Record<string, unknown>),
-                            meeting: {
-                                ...((old as Record<string, unknown>)
-                                    .meeting as Record<string, unknown>),
-                                ...payload
-                            }
-                        }
-                    }
-                )
+                void queryClient.invalidateQueries({
+                    queryKey: ["burrow", meeting.id]
+                })
 
                 return
             }

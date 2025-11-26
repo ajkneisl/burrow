@@ -43,7 +43,13 @@ data class SubmittedProjectBurrow(
     val dueDate: Long,
     override val kind: BurrowKind,
 ) : SubmittedBurrow() {
-    suspend fun validateSubmittedBurrow(): List<String> {
+    /**
+     * Ensure that a [app.burrow.burrows.models.SubmittedProjectBurrow] is valid.
+     *
+     * @param isUpdating If the user is updating a pre-existing Burrow. If so, [teamMembers] should
+     *   not have any.
+     */
+    suspend fun validateSubmittedBurrow(isUpdating: Boolean): List<String> {
         val errors = mutableListOf<String>()
 
         // ensure name is between 1..64 characters
@@ -65,8 +71,13 @@ data class SubmittedProjectBurrow(
         }
 
         // ensure there's at least 1 team member and at most 10
-        if (teamMembers.isEmpty()) {
+        if (!isUpdating && teamMembers.isEmpty()) {
             errors += "You must have at least 1 team member."
+        }
+
+        // no team members on update
+        if (isUpdating && teamMembers.isNotEmpty()) {
+            errors += "You may not include any team members while updating!"
         }
 
         if (teamMembers.size > 10) {

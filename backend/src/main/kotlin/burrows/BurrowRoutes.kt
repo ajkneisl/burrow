@@ -107,7 +107,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
     post {
         when (val submittedBurrow = call.receive<SubmittedBurrow>()) {
             is SubmittedProjectBurrow -> {
-                submittedBurrow.validateSubmittedBurrow().throwIfNotEmpty()
+                submittedBurrow.validateSubmittedBurrow(false).throwIfNotEmpty()
                 call.respond(createProjectBurrow(call.userID, submittedBurrow))
             }
 
@@ -149,13 +149,12 @@ val BURROW_ROUTES: Route.() -> Unit = {
             if (getTimeMillis() > meeting.endTime)
                 throw Error(400, "You cannot edit a meeting that's in the past.")
 
-            val submittedBurrow = call.receive<SubmittedBurrow>()
-
-            when (submittedBurrow) {
+            when (val submittedBurrow = call.receive<SubmittedBurrow>()) {
                 is SubmittedProjectBurrow -> {
-                    submittedBurrow.validateSubmittedBurrow().throwIfNotEmpty()
+                    submittedBurrow.validateSubmittedBurrow(true).throwIfNotEmpty()
                     updateProjectBurrow(id, submittedBurrow)
                 }
+
                 is SubmittedStudyEventBurrow -> {
                     submittedBurrow.validateSubmittedBurrow().throwIfNotEmpty()
                     updatedBurrow(id, submittedBurrow)

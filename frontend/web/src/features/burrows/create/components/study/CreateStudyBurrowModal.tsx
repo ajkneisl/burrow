@@ -133,11 +133,9 @@ export default function CreateStudyBurrowModal({
         const next: Record<string, string> = {}
 
         if (currentStep === 1) {
-            // Step 1: Basic Info
             if (!formState.title.trim()) next.title = "Required"
             if (!formState.location.trim()) next.location = "Required"
         } else if (currentStep === 3) {
-            // Step 3: Schedule
             if (!formState.date) next.date = "Required"
             if (!formState.beginningTime) next.beginningTime = "Required"
             if (!formState.endTime) next.endTime = "Required"
@@ -148,7 +146,6 @@ export default function CreateStudyBurrowModal({
             )
                 next.endTime = "End must be after start"
         }
-        // Step 2 has no required fields
 
         setErrors(next)
         return Object.keys(next).length === 0
@@ -204,19 +201,9 @@ export default function CreateStudyBurrowModal({
                 setServerErrors([])
                 onClose()
 
-                queryClient.setQueryData(
-                    [`meeting`, meeting.id],
-                    (old: unknown) => {
-                        return {
-                            ...(old as Record<string, unknown>),
-                            meeting: {
-                                ...((old as Record<string, unknown>)
-                                    .meeting as Record<string, unknown>),
-                                ...payload
-                            }
-                        }
-                    }
-                )
+                void queryClient.invalidateQueries({
+                    queryKey: ["burrow", meeting.id]
+                })
 
                 return
             }
