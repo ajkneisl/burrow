@@ -46,3 +46,27 @@ export type Relation = {
     theyFollowedAt?: number
     youFollowedAt?: number
 }
+
+/**
+ * Reasoning for why a user was discovered.
+ */
+export type DiscoverReasoning =
+    | "SHARED_BURROW"
+    | "FRIEND_FOLLOWS"
+    | "THEY_FOLLOW"
+    | "SHARED_FRIEND"
+
+/**
+ * A discovered user suggestion.
+ *
+ * @param userID The ID of the discovered user.
+ * @param username The username of the discovered user.
+ * @param name The name of the discovered user.
+ * @param reasoning The reason this user was suggested.
+ */
+export type DiscoveredUser = {
+    userID: string
+    username: string
+    name: string
+    reasoning: DiscoverReasoning
+}

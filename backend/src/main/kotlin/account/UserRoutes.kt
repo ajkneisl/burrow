@@ -12,10 +12,8 @@ import app.burrow.account.models.updateUsername
 import app.burrow.account.models.userID
 import app.burrow.account.models.validateUsername
 import app.burrow.account.profile.Profile
+import app.burrow.account.profile.RELATION_ROUTES
 import app.burrow.account.profile.followUser
-import app.burrow.account.profile.getFollowersRelations
-import app.burrow.account.profile.getFollowingRelations
-import app.burrow.account.profile.getFriends
 import app.burrow.account.profile.unFollowUser
 import app.burrow.account.profile.updateProfile
 import app.burrow.photo.USER_PHOTO_ROUTES
@@ -78,20 +76,9 @@ val USER_ROUTES: Route.() -> Unit = {
             call.respond(getUserResponse(user.id, call.userID))
         }
 
-        // routes involving followers / following
-        route("/relations") {
-            // GET /user/relations/friends
-            // retrieve all your friends.
-            get("/friends") { call.respond(getFriends(call.userID)) }
-
-            // GET /user/relations/following
-            // retrieve all the user's you're following
-            get("/following") { call.respond(getFollowingRelations(call.userID)) }
-
-            // GET /user/relations/followers
-            // retrieve all the user's that follow you
-            get("/followers") { call.respond(getFollowersRelations(call.userID)) }
-        }
+        // ROUTE /relations
+        // manage user relations.
+        route("/relations", RELATION_ROUTES)
 
         /** A request to update the account details. */
         @Serializable data class UpdateAccountRequest(val username: String)
@@ -162,30 +149,6 @@ val USER_ROUTES: Route.() -> Unit = {
                 updateProfile(profile)
 
                 call.respond(HttpStatusCode.OK, profile)
-            }
-
-            // ROUTE /user/profile/follow
-            // manage following
-            route("/follow") {
-                // POST /user/profile/follow
-                // follow a user
-                post {
-                    val userID = call.queryParameter("userID")
-
-                    followUser(call.userID, userID)
-
-                    call.respond(HttpStatusCode.OK)
-                }
-
-                // DELETE /user/profile/follow
-                // un-follow a user
-                delete {
-                    val userID = call.queryParameter("userID")
-
-                    unFollowUser(call.userID, userID)
-
-                    call.respond(HttpStatusCode.OK)
-                }
             }
         }
     }

@@ -20,7 +20,8 @@ import io.ktor.server.routing.route
 import java.util.UUID
 import kotlinx.serialization.Serializable
 
-/** Routes relating to notifications. */
+// ROUTE /notifications
+// manage notifications
 val NOTIFICATION_ROUTES: Route.() -> Unit = {
     authenticate("primary") {
         // GET /notifications

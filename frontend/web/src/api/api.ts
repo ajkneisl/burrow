@@ -1,6 +1,6 @@
 import { authToken } from "@features/auth/auth.atom.ts"
 import { BASE_URL } from "@api/util.ts"
-import {store} from "@api/api.atom.ts";
+import { store } from "@api/api.atom.ts"
 
 /**
  * Options for a request.
@@ -56,12 +56,16 @@ export async function request<T = unknown, R = unknown>(
         if (token) {
             requestHeaders.Authorization = `Bearer ${token}`
         } else {
-            return undefined as R
+            return Promise.reject("Unauthorized.")
         }
     }
 
     const methodsWithBody = ["POST", "PUT", "PATCH"]
-    if (data && methodsWithBody.includes(method.toUpperCase()) && typeof data === "object") {
+    if (
+        data &&
+        methodsWithBody.includes(method.toUpperCase()) &&
+        typeof data === "object"
+    ) {
         requestHeaders["Content-Type"] = "application/json"
     }
 
@@ -71,7 +75,8 @@ export async function request<T = unknown, R = unknown>(
     }
 
     if (data && methodsWithBody.includes(method.toUpperCase())) {
-        fetchOptions.body = typeof data === "string" ? data : JSON.stringify(data)
+        fetchOptions.body =
+            typeof data === "string" ? data : JSON.stringify(data)
     }
 
     const response = await fetch(fullUrl, fetchOptions)

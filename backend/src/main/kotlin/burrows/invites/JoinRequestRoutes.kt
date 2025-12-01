@@ -15,12 +15,13 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import kotlinx.serialization.Serializable
 
-/** Requests relating to join requests. */
+// ROUTES /burrows/{id}/requests, /burrows/requests
+// manage join requests
 fun Route.joinRequestRoutes() {
-    // ROUTE /{id}/requests
+    // ROUTE /burrows/{id}/requests
     // manage requests for a specific Burrow.
     route("/{id}/requests") {
-        // GET /groups/{id}/requests
+        // GET /burrows/{id}/requests
         // get all pending requests.
         get {
             val burrowID = call.urlParameter("id")
@@ -67,7 +68,7 @@ fun Route.joinRequestRoutes() {
             call.respond(HttpStatusCode.OK)
         }
 
-        // DELETE /groups/{id}/requests
+        // DELETE /burrows/{id}/requests
         // cancel your own join request
         delete {
             val burrowID = call.urlParameter("id")
@@ -78,8 +79,8 @@ fun Route.joinRequestRoutes() {
             call.respond(HttpStatusCode.OK)
         }
 
-        // GET /groups/{id}/requests/count
-        // get count of pending requests for a burrow (host/moderator only)
+        // GET /burrows/{id}/requests/count
+        // get count of pending requests for a burrow
         get("/count") {
             val burrowID = call.urlParameter("id")
 
@@ -91,8 +92,9 @@ fun Route.joinRequestRoutes() {
     }
 
     // GET /burrows/requests
+    // manage a user's overall requests
     route("/requests") {
-        // GET /requests
+        // GET /burrows/requests
         // get all join requests for the authenticated user
         get {
             val userID = call.userID

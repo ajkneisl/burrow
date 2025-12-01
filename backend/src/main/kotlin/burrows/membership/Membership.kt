@@ -292,14 +292,14 @@ suspend fun ApplicationCall.requireModerator(burrowID: String) {
 }
 
 /**
- * Get all a [userId]'s [Membership]s.
+ * Get all a [userID]'s [Membership]s.
  *
- * @param userId The user to get the memberships for.
- * @return A map of the meeting ID to the [userId]'s [Membership].
+ * @param userID The user to get the memberships for.
+ * @return A map of the Burrow ID to the [userID]'s [Membership].
  */
-suspend fun getMemberships(userId: String): Map<String, Membership> = query {
+suspend fun getMemberships(userID: String): Map<String, Membership> = query {
     Memberships.selectAll()
-        .where { Memberships.userID eq userId }
+        .where { Memberships.userID eq userID }
         .toList()
         .associate { row -> row[Memberships.burrowID] to Membership.fromRow(row) }
 }

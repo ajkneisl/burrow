@@ -29,6 +29,8 @@ private val VALID_CONTENT_TYPES = setOf("image/png", "image/jpeg", "image/gif", 
 private const val MAX_IMAGE_SIZE = 3L * 1024 * 1024 // 3 MB
 private const val MAX_IMAGE_DIMENSIONS = 4096
 
+// ROUTE /user/photo
+// manage user profile pictures
 val USER_PHOTO_ROUTES: Route.() -> Unit = {
     @Serializable data class UploadResponse(val key: String, val url: String)
 

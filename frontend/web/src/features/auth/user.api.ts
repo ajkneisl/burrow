@@ -1,4 +1,8 @@
-import type { AuthorizedUser, Relation } from "@features/auth/user.types.ts"
+import type {
+    AuthorizedUser,
+    DiscoveredUser,
+    Relation
+} from "@features/auth/user.types.ts"
 import type { UserResponse } from "@features/profile/profile.model.ts"
 import { del, get, post, put } from "@api/api.ts"
 
@@ -26,7 +30,7 @@ export async function getUser(): Promise<UserResponse> {
  * @param credentials Google credentials provided from login.
  */
 export async function login(credentials: string): Promise<AuthorizedUser> {
-    return put("/user/login", credentials)
+    return put("/user/login", credentials, { auth: false })
 }
 
 /**
@@ -36,6 +40,13 @@ export async function login(credentials: string): Promise<AuthorizedUser> {
  */
 export async function getRelations(key: string): Promise<Relation[]> {
     return get(`/user/relations/${key}`)
+}
+
+/**
+ * Get discovered user suggestions.
+ */
+export async function getDiscoveredUsers(): Promise<DiscoveredUser[]> {
+    return get("/user/relations/discover")
 }
 
 /**

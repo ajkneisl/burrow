@@ -161,6 +161,7 @@ suspend fun Application.module() {
             )
         }
 
+        // generic error
         exception<Throwable> { call, cause ->
             cause.printStackTrace()
             call.respond(HttpStatusCode.InternalServerError)

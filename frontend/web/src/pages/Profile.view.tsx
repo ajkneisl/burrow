@@ -6,7 +6,6 @@ import {
     getUserByUsername,
     unFollowUser
 } from "@features/profile/profile.api.ts"
-import useToken from "@features/auth/hooks/useToken.ts"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useMemo, useState } from "react"
@@ -25,7 +24,6 @@ import { profileEditErrors } from "@features/profile/profile.atom.ts"
  * The view of a profile.
  */
 export default function ProfileView() {
-    const auth = useToken()
     const user = useUser()
 
     const { username = "me" } = useParams()
@@ -50,7 +48,7 @@ export default function ProfileView() {
                 : "Follow"
 
     async function follow() {
-        if (auth === null || !data) return
+        if (!data) return
 
         const wasFollowing = !!data.following?.youFollow
         const targetUserId = data.user.id
@@ -59,9 +57,9 @@ export default function ProfileView() {
             setIsSubmitting(true)
 
             if (wasFollowing) {
-                await unFollowUser(auth, targetUserId)
+                await unFollowUser(targetUserId)
             } else {
-                await followUser(auth, targetUserId)
+                await followUser(targetUserId)
             }
 
             queryClient.setQueryData(

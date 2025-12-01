@@ -4,7 +4,7 @@ import app.burrow.Error
 import app.burrow.InvalidArguments
 import app.burrow.InvalidAuthorization
 import app.burrow.account.models.userID
-import app.burrow.burrows.bookmarks.bookmarkRoutes
+import app.burrow.burrows.bookmarks.BOOKMARK_ROUTES
 import app.burrow.burrows.invites.inviteRoutes
 import app.burrow.burrows.invites.joinRequestRoutes
 import app.burrow.burrows.membership.getUserBookmarks
@@ -40,7 +40,7 @@ import java.time.YearMonth
  * All routes are inherently authorized.
  */
 val BURROW_ROUTES: Route.() -> Unit = {
-    // GET /groups
+    // GET /burrows
     // get all burrows
     get {
         val page = call.optionalIntQueryParameter("page") ?: 1
@@ -49,14 +49,22 @@ val BURROW_ROUTES: Route.() -> Unit = {
         call.respond(searchMeetings(page = page, kind = type, requestingUserID = call.userID))
     }
 
-    // GET /groups/heatmap
+    // GET /burrows/schedule
+    // get a user's schedule
+    get("/schedule") { call.respond(getUserSchedule(call.userID)) }
+
+    // GET /burrows/bookmarks
+    // get a user's bookmarks
+    get("/bookmarks") { call.respond(getUserBookmarks(call.userID)) }
+
+    // GET /burrows/heatmap
     // get a heatmap of groups created this month
     get("/heatmap") {
         val currentDate = LocalDateTime.now()
 
-        val year = call.parameters["year"]?.toIntOrNull() ?: currentDate.year
-        val month = call.parameters["month"]?.toIntOrNull() ?: currentDate.monthValue
-        val range = call.parameters["range"]?.toLongOrNull() ?: 2
+        val year = call.optionalIntQueryParameter("year") ?: currentDate.year
+        val month = call.optionalIntQueryParameter("month") ?: currentDate.monthValue
+        val range = call.optionalLongQueryParameter("range") ?: 2
 
         if (range !in 0..12) throw Error(400, "range must be between 0 and 12.")
 
@@ -65,14 +73,6 @@ val BURROW_ROUTES: Route.() -> Unit = {
 
         call.respond(getHeatmapRange(start, end))
     }
-
-    // GET /groups/schedule
-    // get the three most recent meetings
-    get("/schedule") { call.respond(getUserSchedule(call.userID)) }
-
-    // GET /groups/bookmarks
-    // get the most recent bookmarks
-    get("/bookmarks") { call.respond(getUserBookmarks(call.userID)) }
 
     // GET /burrows/search
     // search among the stars
@@ -118,10 +118,10 @@ val BURROW_ROUTES: Route.() -> Unit = {
         }
     }
 
-    // CRUD /groups/{id}
+    // ROUTE /burrows/{id}
     // manage an individual meeting
     route("/{id}") {
-        // DELETE /groups/{id}
+        // DELETE /burrows/{id}
         // delete an individual meeting
         delete {
             val id = call.urlParameter("id")
@@ -135,7 +135,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
             call.respond(HttpStatusCode.OK)
         }
 
-        // PATCH /groups/{id}
+        // PATCH /burrows/{id}
         // update an individual meeting
         patch {
             val user = call.userID
@@ -164,8 +164,12 @@ val BURROW_ROUTES: Route.() -> Unit = {
             call.respond(HttpStatusCode.OK)
         }
 
+        // ROUTE /burrows/bookmarks
+        // manage bookmarks
+        route("/bookmarks", BOOKMARK_ROUTES)
+
+
         membershipRoutes()
-        bookmarkRoutes()
     }
 
     inviteRoutes()

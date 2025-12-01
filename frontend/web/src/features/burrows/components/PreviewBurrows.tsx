@@ -79,7 +79,7 @@ export default function PreviewBurrows({ amount }: PreviewGroupsProps) {
                 <Card
                     aria-live="polite"
                     aria-label="No upcoming meetings"
-                    className="border-text/40 text-text/50 flex h-24 w-full items-center justify-center border-2 border-dashed opacity-50 lg:min-w-xs"
+                    className="border-text/40 text-text/50 flex h-24 w-full items-center justify-center border-2 border-dashed opacity-50"
                 >
                     <p className="text-center text-sm tracking-wide">
                         No upcoming Burrows.

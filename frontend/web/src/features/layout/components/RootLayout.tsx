@@ -27,7 +27,7 @@ import {searchQueryAtom} from "@features/layout/search/search.atom.ts";
  */
 export default function RootLayout() {
     // load user information & ensure logged in
-    useUser()
+    const user = useUser()
 
     const [createModal, setCreateModal] = useAtom(createBurrowModal)
     const [theme, setTheme] = useAtom(themeAtom)
@@ -35,16 +35,18 @@ export default function RootLayout() {
 
     // fetch theme from backend in background and update local storage if different
     useEffect(() => {
-        getTheme()
-            .then((backendTheme) => {
-                if (backendTheme !== theme) {
-                    setTheme(backendTheme)
-                }
-            })
-            .catch(() => {
-                // ignore errors, use cached localStorage value
-            })
-    }, [])
+        async function loadTheme() {
+            const loadedTheme = await getTheme()
+
+            if (theme !== loadedTheme)
+                setTheme(loadedTheme)
+        }
+
+        // if signed in, load the them
+        if (user) {
+            void loadTheme()
+        }
+    }, [user])
 
     // compute actual dark mode based on theme setting
     const computedTheme = useMemo(() => {
@@ -66,7 +68,7 @@ export default function RootLayout() {
             // reset search query on page change
             setQuery("")
         }
-    }, [location])
+    }, [location, setQuery])
 
     useEffect(() => {
         const root = document.querySelector("html")

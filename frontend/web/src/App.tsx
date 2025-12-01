@@ -11,6 +11,7 @@ import SettingsView from "@pages/Settings.view.tsx"
 import ProfileView from "@pages/Profile.view.tsx"
 import Discuss from "@pages/Discuss.view.tsx"
 import TopicView from "@pages/Topic.view.tsx"
+import Friends from "@pages/Friends.view.tsx"
 import { createBrowserRouter, RouterProvider } from "react-router"
 import Yordanos from "@pages/Yordanos.view.tsx"
 import ErrorElement from "@pages/Error.view.tsx"
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
             { path: "yord", element: <Yordanos /> },
             { path: "welcome", element: <LandingView /> },
             { path: "browse", element: <Browse /> },
+            { path: "friends", element: <Friends /> },
             { path: "user/:username", element: <ProfileView /> },
             { path: "settings", element: <SettingsView /> },
             { path: "discuss", element: <Discuss /> },

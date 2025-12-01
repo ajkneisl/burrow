@@ -1,36 +1,33 @@
 package app.burrow.burrows.bookmarks
 
+import app.burrow.account.models.userID
+import app.burrow.queryParameter
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.put
-import io.ktor.server.routing.route
 
-/** Routes to manage bookmarks on a meeting. */
-fun Route.bookmarkRoutes() =
-    route("/bookmark") {
-        put {
-            val user =
-                call.principal<JWTPrincipal>()?.subject
-                    ?: return@put call.respond(HttpStatusCode.Forbidden)
-            val id = call.parameters["id"] ?: return@put call.respond(HttpStatusCode.BadRequest)
+// ROUTE /burrows/bookmarks
+// manage bookmarks
+val BOOKMARK_ROUTES: Route.() -> Unit = {
+    // PUT /burrows/bookmarks
+    // create a bookmark
+    put {
+        val id = call.queryParameter("id")
 
-            createBookmark(user, id)
+        createBookmark(call.userID, id)
 
-            call.respond(HttpStatusCode.OK)
-        }
-
-        delete {
-            val user =
-                call.principal<JWTPrincipal>()?.subject
-                    ?: return@delete call.respond(HttpStatusCode.Forbidden)
-            val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest)
-
-            deleteBookmark(user, id)
-
-            call.respond(HttpStatusCode.OK)
-        }
+        call.respond(HttpStatusCode.OK)
     }
+
+    // DELETE /burrows/bookmarks
+    // remove a bookmark
+    delete {
+        val id = call.queryParameter("id")
+
+        deleteBookmark(call.userID, id)
+
+        call.respond(HttpStatusCode.OK)
+    }
+}
