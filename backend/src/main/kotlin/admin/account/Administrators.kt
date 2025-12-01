@@ -30,6 +30,9 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
 import org.mindrot.jbcrypt.BCrypt
 
+/**
+ * Table of [Administrator]
+ */
 object Administrators : UUIDTable("administrators") {
     val username = varchar("username", 64).uniqueIndex()
     val email = varchar("email", 255).uniqueIndex()

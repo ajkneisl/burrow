@@ -1,5 +1,6 @@
 package app.burrow.account
 
+import app.burrow.admin.log.DB_LOG
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
@@ -82,6 +83,7 @@ object Authorization {
             keyStorage.writeText(encodedKey)
 
             LOGGER.info(
+                DB_LOG,
                 "Successfully generated new secret key. Stored at {}",
                 keyStorage.absolutePath,
             )

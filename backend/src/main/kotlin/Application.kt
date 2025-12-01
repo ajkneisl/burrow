@@ -7,6 +7,8 @@ import app.burrow.account.models.getUserByUsername
 import app.burrow.account.models.userID
 import app.burrow.account.settings.SETTINGS_ROUTES
 import app.burrow.admin.ADMIN_ROUTES
+import app.burrow.admin.log.DB_LOG
+import app.burrow.admin.log.DatabaseLogAppender
 import app.burrow.burrows.BURROW_ROUTES
 import app.burrow.burrows.getBurrow
 import app.burrow.burrows.getBurrowResponse
@@ -16,6 +18,8 @@ import app.burrow.notifications.NotificationKind
 import app.burrow.notifications.createNotification
 import app.burrow.notifications.notificationWorker
 import app.burrow.report.REPORT_ROUTES
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.LoggerContext
 import dev.hayden.KHealth
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -47,22 +51,26 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.slf4j.event.Level
 
-val client = HttpClient(CIO)
 val json = Json {
     classDiscriminator = "type"
     ignoreUnknownKeys = true
 }
+
 val burrowLogger = LoggerFactory.getLogger("Burrow")
 
 const val PRIMARY_AUTH = "primary"
 const val ADMIN_AUTH = "administrator"
 
+/** path for the frontend directory. */
 lateinit var FRONTEND_DIR: String
 
 fun main(args: Array<String>) {
     var port = 8080
+
+    burrowLogger.info(DB_LOG, "Started Burrow Instance")
 
     // debug stuff
     args.forEach { arg ->
@@ -101,6 +109,13 @@ suspend fun Application.module() {
     initDb()
     notificationWorker()
 
+    val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
+    val rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME)
+    val dbAppender = DatabaseLogAppender()
+    dbAppender.context = loggerContext
+    dbAppender.start()
+    rootLogger.addAppender(dbAppender)
+
     // sse
     install(SSE)
 
@@ -137,7 +152,7 @@ suspend fun Application.module() {
 
         @Serializable data class ErrorResponse<T>(val error: String?, val message: T?)
 
-        exception<BadRequestException> { call, ex ->
+        exception<BadRequestException> { call, _ ->
             call.respond(
                 HttpStatusCode.BadRequest,
                 ErrorResponse("MalformedBody", "Invalid request body."),
@@ -163,6 +178,10 @@ suspend fun Application.module() {
 
         // generic error
         exception<Throwable> { call, cause ->
+            call.principal<JWTPrincipal>()?.subject?.let { MDC.put("userID", it) }
+            burrowLogger.error("Unhandled exception: ${cause.message ?: "Unknown error"}", cause)
+            MDC.clear()
+
             cause.printStackTrace()
             call.respond(HttpStatusCode.InternalServerError)
         }
