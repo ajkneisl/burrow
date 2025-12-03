@@ -14,22 +14,13 @@ type SearchInputProps = {
     results: ReactNode
 }
 
-/**
- * The input for searching through Burrows.
- *
- * @param query The search query.
- * @param searchRef The ref of the form.
- * @param setQuery To update {@link query}.
- * @param handleSubmit When the input is submitted.
- * @param results The results of the search.
- */
-export default function SearchInput({
-    query,
-    searchRef,
-    setQuery,
-    handleSubmit,
-    results
-}: SearchInputProps) {
+export function SearchInput({
+                                query,
+                                searchRef,
+                                setQuery,
+                                handleSubmit,
+                                results
+                            }: SearchInputProps) {
     const auth = useToken()
     return (
         <form
@@ -38,19 +29,52 @@ export default function SearchInput({
             className="relative w-full lg:min-w-md"
             ref={searchRef}
         >
-            <Search className="text-text/70 pointer-events-none absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
-
-            <input
-                disabled={auth === null}
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search burrows, clubs, or tags..."
+            <div
                 className={clsx(
-                    "border-card-border bg-background text-text ring-secondary w-full rounded-lg border py-2 pr-3 pl-8 text-sm shadow-sm focus:ring-1 focus:outline-none",
-                    auth === null && "cursor-not-allowed"
+                    "bg-white/5 relative flex h-9 items-center rounded-lg border px-3 shadow-sm backdrop-blur-sm transition-all duration-200",
+                    "border-primary hover:border-secondary/30",
+                    "focus-within:bg-white/5 focus-within:ring-primary/20 focus-within:shadow-md focus-within:ring-2",
+                    auth === "" && "cursor-not-allowed opacity-50"
                 )}
-            />
+            >
+                <Search
+                    className="text-text/50 group-focus-within:text-primary mr-2.5 h-4 w-4 flex-shrink-0 transition-colors duration-200"/>
+
+                <input
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search Burrows, clubs, or tags..."
+                    disabled={auth === ""}
+                    className={clsx(
+                        "text-text placeholder:text-text/40 h-full w-full flex-1 bg-transparent text-sm leading-none outline-none transition-colors",
+                        "disabled:text-text/50 disabled:cursor-not-allowed"
+                    )}
+                />
+
+                {query && (
+                    <button
+                        type="button"
+                        onClick={() => setQuery("")}
+                        className="text-text/40 hover:text-text hover:bg-background/60 ml-2 rounded-md p-1 transition-colors"
+                        aria-label="Clear search"
+                    >
+                        <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                            />
+                        </svg>
+                    </button>
+                )}
+            </div>
 
             {results}
         </form>

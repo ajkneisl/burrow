@@ -8,7 +8,7 @@ import {
     isBurrowResult,
     type SearchResult
 } from "@features/layout/search/search.api.ts"
-import SearchInput from "@features/layout/search/components/SearchInput.tsx"
+import { SearchInput } from "@features/layout/search/components/SearchInput.tsx"
 import { useAtom, useSetAtom } from "jotai"
 import {
     mobileSearchOpenAtom,
