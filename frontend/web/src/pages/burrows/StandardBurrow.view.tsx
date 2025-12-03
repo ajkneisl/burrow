@@ -1,4 +1,4 @@
-import { Link, Navigate, useParams } from "react-router"
+import { Link, Navigate, useNavigate, useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { Archive, Clock } from "lucide-react"
@@ -31,6 +31,7 @@ import BookmarkMeeting from "@features/burrows/controls/BookmarkMeeting.tsx"
 export default function StandardBurrow() {
     const { id } = useParams<{ id: string }>()
 
+    const nav = useNavigate()
     const auth = useToken()
     const user = useUser()
 
@@ -194,7 +195,15 @@ export default function StandardBurrow() {
 
                                     <div className="my-1 flex flex-col-reverse items-center gap-2 text-sm md:flex-row">
                                         {/* host / author */}
-                                        <div className="flex flex-row items-center gap-2">
+                                        <div
+                                            role="button"
+                                            onClick={() =>
+                                                nav(
+                                                    `/user/${data?.burrowAuthor}`
+                                                )
+                                            }
+                                            className="flex cursor-pointer flex-row items-center gap-2"
+                                        >
                                             <ProfilePicture
                                                 name={
                                                     data.burrowAuthorProfile

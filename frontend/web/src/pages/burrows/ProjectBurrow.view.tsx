@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router"
+import { Link, useNavigate, useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { Archive, Calendar } from "lucide-react"
@@ -31,6 +31,7 @@ export default function ProjectBurrow() {
 
     const auth = useToken()
     const user = useUser()
+    const nav = useNavigate()
 
     const [blocks] = useAtom(blockStatus)
 
@@ -48,7 +49,7 @@ export default function ProjectBurrow() {
     const isPastDue = (data?.burrow?.endTime ?? 0) < new Date().valueOf()
     const isLoggedOut = auth === null
 
-    // Set meta tags for this project
+    // set meta tags for this project
     useMetaTags({
         title: `Burrow — ${data?.burrow?.title}`,
         description: `View ${data?.burrow?.title} on Burrow`,
@@ -166,7 +167,15 @@ export default function ProjectBurrow() {
 
                                     <div className="my-1 flex flex-col-reverse items-center gap-2 text-sm md:flex-row">
                                         {/* host / author */}
-                                        <div className="flex flex-row items-center gap-2">
+                                        <div
+                                            role="button"
+                                            onClick={() =>
+                                                nav(
+                                                    `/user/${data?.burrowAuthor}`
+                                                )
+                                            }
+                                            className="flex cursor-pointer flex-row items-center gap-2"
+                                        >
                                             <ProfilePicture
                                                 name={
                                                     data.burrowAuthorProfile
