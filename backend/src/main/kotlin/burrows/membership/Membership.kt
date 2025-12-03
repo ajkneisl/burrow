@@ -391,21 +391,21 @@ suspend fun changeRole(meetingId: String, userId: String, role: BurrowRole) {
 }
 
 /**
- * Have a [userID] leave a [meetingID].
+ * Have a [userID] leave a [burrowID].
  *
  * @param userID The ID of the user leaving the Burrow.
- * @param meetingID The ID of the Burrow to leave.
+ * @param burrowID The ID of the Burrow to leave.
  * @throws Error If the user is not in the meeting or they're the host.
  */
-suspend fun leaveBurrow(userID: String, meetingID: String) {
-    val meeting = getBurrow(meetingID) ?: throw Error(404, "Meeting not found!")
+suspend fun leaveBurrow(userID: String, burrowID: String) {
+    val meeting = getBurrow(burrowID) ?: throw Error(404, "Meeting not found!")
 
     // ensure meeting hasn't ended
     if (getTimeMillis() > meeting.endTime) throw Error(400, "This meeting has already ended.")
 
     val existingMembership = query {
         Memberships.selectAll()
-            .where { (Memberships.userID eq userID) and (Memberships.burrowID eq meetingID) }
+            .where { (Memberships.userID eq userID) and (Memberships.burrowID eq burrowID) }
             .firstOrNull()
     }
 
@@ -425,28 +425,32 @@ suspend fun leaveBurrow(userID: String, meetingID: String) {
     // allow the user to leave
     query {
         Memberships.update(
-            where = { (Memberships.userID eq userID) and (Memberships.burrowID eq meetingID) }
+            where = { (Memberships.userID eq userID) and (Memberships.burrowID eq burrowID) }
         ) {
             it[role] = BurrowRole.MEMBER
             it[status] = BurrowMemberStatus.LEFT
             it[leftAt] = getTimeMillis()
         }
 
+        ChatMessages.deleteWhere {
+            (ChatMessages.senderID eq userID) and (ChatMessages.parentID eq burrowID)
+        }
+
         JoinRequests.deleteWhere { JoinRequests.requesterID eq userID }
 
         // un-schedule their notification
-        onUserLeaveMeeting(userID, meetingID)
+        onUserLeaveMeeting(userID, burrowID)
     }
 
     // cancel the user's socket connection if they have one
-    BurrowSync.leave(meetingID, userID, closeSession = true)
+    BurrowSync.leave(burrowID, userID, closeSession = true)
 
     // the user who was waitlisted last gets first dibs
     query {
         val earliestWaitlist =
             Memberships.selectAll()
                 .where {
-                    (Memberships.burrowID eq meetingID) and
+                    (Memberships.burrowID eq burrowID) and
                         (Memberships.status eq BurrowMemberStatus.WAITLISTED)
                 }
                 .orderBy(Memberships.joinedAt, SortOrder.DESC)
@@ -456,7 +460,7 @@ suspend fun leaveBurrow(userID: String, meetingID: String) {
             val waitingUser = earliestWaitlist[Memberships.userID]
 
             Memberships.update({
-                (Memberships.userID eq waitingUser) and (Memberships.burrowID eq meetingID)
+                (Memberships.userID eq waitingUser) and (Memberships.burrowID eq burrowID)
             }) {
                 // welcome to the club :)
                 it[Memberships.status] = BurrowMemberStatus.JOINED
@@ -466,7 +470,7 @@ suspend fun leaveBurrow(userID: String, meetingID: String) {
             createNotification("Joined Meeting", "You've been moved off the waitlist!", waitingUser)
 
             // schedule their upcoming meeting notification
-            onUserJoinedMeeting(userID, meetingID)
+            onUserJoinedMeeting(userID, burrowID)
         }
     }
 }
