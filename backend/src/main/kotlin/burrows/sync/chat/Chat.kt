@@ -203,7 +203,7 @@ class Chat(burrowID: String) : Block("CHAT", burrowID) {
     /** @see wsDeleteMessage */
     @Serializable
     data class DeletedMessage(
-        @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val messageId: UUID
+        @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val messageID: UUID
     )
 
     /** Delete a message. */

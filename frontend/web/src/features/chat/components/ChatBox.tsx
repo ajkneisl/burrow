@@ -108,9 +108,10 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
                 case "MESSAGE_DELETED":
                     setMessages((prev) =>
                         prev.filter(
-                            (message) => message.id !== payload.payload.id
+                            (message) => message.id !== payload.payload.messageID
                         )
                     )
+
                     break
 
                 // updated message
@@ -340,7 +341,8 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
                     </div>
                 ) : (
                     messages.map((message, index) => {
-                        const prevMessage = index > 0 ? messages[index - 1] : null
+                        const prevMessage =
+                            index > 0 ? messages[index - 1] : null
                         const isConsecutive =
                             prevMessage &&
                             prevMessage.senderID === message.senderID &&
