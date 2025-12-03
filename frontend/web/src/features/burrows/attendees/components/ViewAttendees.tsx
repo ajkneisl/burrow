@@ -138,7 +138,7 @@ export default function ViewAttendees({
     const attendeesView = (
         <>
             {isLoading && (
-                <div className="border-hero bg-card text-text rounded-lg border p-4">
+                <div className="border-hero bg-background text-text rounded-lg border p-4">
                     Loading attendees…
                 </div>
             )}
