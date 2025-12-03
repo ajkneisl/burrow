@@ -152,7 +152,13 @@ export default function Browse() {
             <section className="flex w-full grid-cols-3 flex-col-reverse lg:grid">
                 <section className="col-span-2 mx-auto w-full max-w-4xl p-4 sm:p-6">
                     {/* top controls */}
-                    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="mb-4 items-center flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <button
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="text-text/70 cursor-pointer hover:text-text flex items-center gap-2 text-sm font-medium transition-colors"
+                        >
+                            <SlidersHorizontal className="h-5 w-5" />
+                        </button>
                         {/* search */}
                         <div className="flex-1">
                             <Input
@@ -168,24 +174,6 @@ export default function Browse() {
 
                     {/* filter section */}
                     <div className="mb-4">
-                        <button
-                            onClick={() => setShowFilters(!showFilters)}
-                            className="text-text/70 hover:text-text mb-3 flex items-center gap-2 text-sm font-medium transition-colors"
-                        >
-                            <SlidersHorizontal className="h-4 w-4" />
-                            Filters
-                            {(isHost || isBookmarked) && (
-                                <span className="bg-primary/20 text-primary rounded-full px-2 py-0.5 text-xs font-semibold">
-                                    {
-                                        [
-                                            isHost && "Host",
-                                            isBookmarked && "Bookmarked"
-                                        ].filter(Boolean).length
-                                    }
-                                </span>
-                            )}
-                        </button>
-
                         <AnimatePresence>
                             {showFilters && (
                                 <motion.div
