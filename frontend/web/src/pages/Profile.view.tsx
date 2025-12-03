@@ -22,6 +22,8 @@ import { profileEditErrors } from "@features/profile/profile.atom.ts"
 
 /**
  * The view of a profile.
+ *
+ * @author AJ Kneisl
  */
 export default function ProfileView() {
     const user = useUser()
@@ -172,8 +174,8 @@ export default function ProfileView() {
 
                             <div className="mt-1 flex flex-wrap items-center gap-2">
                                 {/* profile URL*/}
-                                <span className="text-text/60 font-mono">
-                                    {data.user.username}
+                                <span className="text-text/60 text-sm">
+                                    @{data.user.username}
                                 </span>
 
                                 {/* graduation year */}
