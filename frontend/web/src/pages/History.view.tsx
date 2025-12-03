@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useNavigate } from "react-router"
 import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
@@ -25,6 +25,11 @@ export default function History() {
         open: boolean
         burrow: BurrowResponse | null
     }>({ open: false, burrow: null })
+
+    // Scroll to top when page changes
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" })
+    }, [currentPage])
 
     const { data, isLoading, isFetching, error, refetch } = useQuery({
         queryKey: ["history", currentPage],

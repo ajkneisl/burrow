@@ -16,7 +16,7 @@ import ViewRelations from "@features/profile/components/ViewRelations.tsx"
 import ReportProblemModal from "@features/problem/components/ReportProblemModal.tsx"
 import MyInvitesModal from "@features/layout/components/MyInvitesModal.tsx"
 import Footer from "@features/layout/components/Footer.tsx"
-import {searchQueryAtom} from "@features/layout/search/search.atom.ts";
+import { searchQueryAtom } from "@features/layout/search/search.atom.ts"
 
 /**
  * The base layout that's rendered for all pages.
@@ -38,8 +38,7 @@ export default function RootLayout() {
         async function loadTheme() {
             const loadedTheme = await getTheme()
 
-            if (theme !== loadedTheme)
-                setTheme(loadedTheme)
+            if (theme !== loadedTheme) setTheme(loadedTheme)
         }
 
         // if signed in, load the them
@@ -63,12 +62,12 @@ export default function RootLayout() {
     const location = useLocation()
     useEffect(() => {
         if (!location.hash) {
-            window.scrollTo(0, 0)
+            window.scrollTo({ top: 0, left: 0, behavior: "instant" })
 
             // reset search query on page change
             setQuery("")
         }
-    }, [location, setQuery])
+    }, [location.hash, location.pathname, setQuery])
 
     useEffect(() => {
         const root = document.querySelector("html")
