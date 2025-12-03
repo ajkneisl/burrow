@@ -13,9 +13,9 @@ import app.burrow.account.models.userID
 import app.burrow.account.models.validateUsername
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.RELATION_ROUTES
-import app.burrow.account.profile.followUser
-import app.burrow.account.profile.unFollowUser
 import app.burrow.account.profile.updateProfile
+import app.burrow.burrows.searchBurrows
+import app.burrow.optionalIntQueryParameter
 import app.burrow.photo.USER_PHOTO_ROUTES
 import app.burrow.queryParameter
 import app.burrow.urlParameter
@@ -42,6 +42,17 @@ val USER_ROUTES: Route.() -> Unit = {
         // GET /user
         // get the user's information
         get { call.respond(getUserResponse(call.userID, call.userID)) }
+
+        // GET /user/history
+        // get your own burrow history
+        get("/history") {
+            val page = call.optionalIntQueryParameter("page") ?: 1
+
+            val burrowHistory =
+                searchBurrows(page = page, authorUserID = call.userID, dateRange = -1L..-1L)
+
+            call.respond(burrowHistory)
+        }
 
         // GET /user/search
         // search through users by username or profile name

@@ -216,3 +216,16 @@ export async function getBookmarks(auth: string): Promise<BurrowResponse[]> {
 
     return await request.json()
 }
+
+/**
+ * Get user's burrow history.
+ *
+ * @param page The page number (defaults to 1).
+ */
+export async function getUserHistory(
+    page: number = 1
+): Promise<PaginatedResponse<BurrowResponse>> {
+    return await get("/user/history", {
+        query: { page }
+    })
+}

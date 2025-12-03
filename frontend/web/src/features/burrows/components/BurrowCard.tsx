@@ -18,6 +18,7 @@ import { Calendar, Check, Star, Bookmark, MapPin } from "lucide-react"
 type GroupMeetingCardProps = {
     meetingResponse: BurrowResponse
     details?: boolean
+    actionBadge?: React.ReactNode
 }
 
 /**
@@ -25,12 +26,14 @@ type GroupMeetingCardProps = {
  *
  * @param meetingResponse The meeting details.
  * @param details If extra details should be shown.
+ * @param actionBadge Optional action badge to display next to location.
  *
  * @author AJ Kneisl
  */
 export function BurrowCard({
     meetingResponse,
-    details
+    details,
+    actionBadge
 }: GroupMeetingCardProps) {
     const nav = useNavigate()
 
@@ -236,6 +239,9 @@ export function BurrowCard({
                                             .toLowerCase()}
                                 </p>
                             </div>
+
+                            {/* action badge */}
+                            {actionBadge}
 
                             {/* capacity */}
                             <MeetingCapacityBadges burrow={burrow} />

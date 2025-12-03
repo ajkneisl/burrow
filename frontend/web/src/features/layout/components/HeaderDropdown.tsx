@@ -12,12 +12,15 @@ import {
     Mail,
     AlertTriangle,
     LogOut,
-    UserIcon
+    UserIcon,
+    History
 } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts";
 
 /**
  * Animation variants for {@link HeaderDropdown}
+ *
+ * @author AJ Kneisl
  */
 
 export default function HeaderDropdown() {
@@ -62,7 +65,7 @@ export default function HeaderDropdown() {
 
                     {/* my invites */}
                     <DropdownItem
-                        label="My Invites"
+                        label="Invites"
                         onSelect={() => {
                             setOpen(false)
                             setMyInvitesOpen(true)
@@ -70,9 +73,9 @@ export default function HeaderDropdown() {
                         rightIcon={<Mail width="18" height="18" />}
                     />
 
-                    {/* my invites */}
+                    {/* my profile */}
                     <DropdownItem
-                        label="My Profile"
+                        label="Profile"
                         onSelect={() => {
                             setOpen(false)
                             nav(`/user/${user?.username}`)
@@ -80,9 +83,19 @@ export default function HeaderDropdown() {
                         rightIcon={<UserIcon width="18" height="18" />}
                     />
 
+                    {/* history */}
+                    <DropdownItem
+                        label="History"
+                        onSelect={() => {
+                            setOpen(false)
+                            nav("/history")
+                        }}
+                        rightIcon={<History width="18" height="18" />}
+                    />
+
                     {/* feedback */}
                     <DropdownItem
-                        label={`Feedback`}
+                        label={`Give Feedback`}
                         onSelect={() => {
                             setProblemOpen((prev) => !prev)
                             setOpen(false)

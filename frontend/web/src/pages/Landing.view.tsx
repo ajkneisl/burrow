@@ -47,8 +47,8 @@ export default function LandingView() {
         mutationFn: login,
 
         onSuccess: (data) => {
-            void setAuthToken(data.token)
-            void setUser(data.user)
+            setAuthToken(data.token)
+            setUser(data.user)
 
             if (data.newUser) {
                 setNewUser(true)

@@ -7,9 +7,9 @@ import app.burrow.burrows.bookmarks.Bookmark
 import app.burrow.burrows.bookmarks.Bookmarks
 import app.burrow.burrows.membership.Membership
 import app.burrow.burrows.membership.Memberships
+import app.burrow.burrows.models.BurrowKind
 import app.burrow.burrows.models.BurrowMemberStatus
 import app.burrow.burrows.models.BurrowResponse
-import app.burrow.burrows.models.BurrowKind
 import app.burrow.burrows.models.BurrowVisibility
 import app.burrow.burrows.models.Burrows
 import app.burrow.models.PaginatedResponse
@@ -41,7 +41,7 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 /**
  * The amount of meetings per page.
  *
- * @see searchMeetings
+ * @see searchBurrows
  */
 private const val PAGE_COUNT = 50
 
@@ -97,17 +97,19 @@ private suspend fun getUserSearchContext(userID: String): UserSearchContext = qu
  * @param forceAuthorName Force the author of the retrieved meetings to be a specific name.
  * @param requestingUserID The ID of the user searching. This allows for the implementation of
  *   bookmarks and memberships.
+ * @param authorUserID The requested author ID of the Burrows.
  * @return A list of [BurrowResponse]. The bookmark will be false and membership be null if there's
  *   no [requestingUserID].
  * @see BurrowKind
  */
-suspend fun searchMeetings(
+suspend fun searchBurrows(
     page: Int = 1,
     kind: BurrowKind? = null,
     search: String? = null,
     dateRange: LongRange? = null,
     forceAuthorName: String? = null,
     requestingUserID: String? = null,
+    authorUserID: String? = null,
 ): PaginatedResponse<BurrowResponse> {
     // ensure the meeting is on the proper day
     val dateExpr: Op<Boolean> =
@@ -116,14 +118,25 @@ suspend fun searchMeetings(
             (Burrows.endTime greaterEq getTimeMillis())
         } else {
             val zone = ZoneId.systemDefault()
-            val startDate = Instant.ofEpochMilli(dateRange.first).atZone(zone).toLocalDate()
-            val endDate = Instant.ofEpochMilli(dateRange.last).atZone(zone).toLocalDate()
 
-            val startOfDayMillis = startDate.atStartOfDay(zone).toInstant().toEpochMilli()
-            val endOfDayMillis = endDate.atTime(23, 59, 59).atZone(zone).toInstant().toEpochMilli()
+            val startOfDayExpr =
+                if (dateRange.first != -1L) {
+                    val startDate = Instant.ofEpochMilli(dateRange.first).atZone(zone).toLocalDate()
+                    val startOfDayMillis = startDate.atStartOfDay(zone).toInstant().toEpochMilli()
 
-            (Burrows.beginningTime greaterEq startOfDayMillis) and
-                (Burrows.beginningTime lessEq endOfDayMillis)
+                    (Burrows.beginningTime greaterEq startOfDayMillis)
+                } else Op.TRUE
+
+            val endOfDayExpr =
+                if (dateRange.last != -1L) {
+                    val endDate = Instant.ofEpochMilli(dateRange.last).atZone(zone).toLocalDate()
+                    val endOfDayMillis =
+                        endDate.atTime(23, 59, 59).atZone(zone).toInstant().toEpochMilli()
+
+                    (Burrows.beginningTime lessEq endOfDayMillis)
+                } else Op.TRUE
+
+            startOfDayExpr and endOfDayExpr
         }
 
     // ensure something contains the proper term
@@ -143,6 +156,9 @@ suspend fun searchMeetings(
 
     // ensure only public
     val privacyExpr = (Burrows.visibility eq BurrowVisibility.PUBLIC)
+
+    // ensure correct author
+    val authorExpr = if (authorUserID != null) (Burrows.ownerID eq authorUserID) else Op.TRUE
 
     val (meetingsCount, meetings) =
         query {
@@ -181,7 +197,7 @@ suspend fun searchMeetings(
                     )
                     .offset(PAGE_COUNT * (page - 1L))
                     .limit(PAGE_COUNT)
-                    .where { dateExpr and searchExpr and kindExpr and privacyExpr }
+                    .where { dateExpr and searchExpr and kindExpr and privacyExpr and authorExpr }
                     .groupBy(
                         *Burrows.columns.toTypedArray(),
                         *Profiles.columns.toTypedArray(),

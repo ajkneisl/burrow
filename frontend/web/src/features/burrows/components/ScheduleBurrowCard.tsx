@@ -116,15 +116,17 @@ export default function ScheduleBurrowCard({
                             )}
 
                             {burrowResponse.burrow.tags.map((tag) => (
-                                <Badge
-                                    size="medium"
-                                    highlighted={
-                                        burrowResponse.burrow.tags[tag]
-                                    }
-                                    key={tag}
-                                >
-                                    {tag}
-                                </Badge>
+                                <div className="hidden flex-row gap-2 md:flex">
+                                    <Badge
+                                        size="medium"
+                                        highlighted={
+                                            burrowResponse.burrow.tags[tag]
+                                        }
+                                        key={tag}
+                                    >
+                                        {tag}
+                                    </Badge>
+                                </div>
                             ))}
                         </div>
 

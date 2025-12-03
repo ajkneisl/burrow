@@ -46,7 +46,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
         val page = call.optionalIntQueryParameter("page") ?: 1
         val type = call.optionalEnumQueryParameter<BurrowKind>("type")
 
-        call.respond(searchMeetings(page = page, kind = type, requestingUserID = call.userID))
+        call.respond(searchBurrows(page = page, kind = type, requestingUserID = call.userID))
     }
 
     // GET /burrows/schedule
@@ -92,7 +92,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
             }
 
         call.respond(
-            searchMeetings(
+            searchBurrows(
                 page = page,
                 kind = type,
                 search = searchQuery,
