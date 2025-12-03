@@ -12,6 +12,7 @@ import app.burrow.burrows.models.BurrowMemberStatus
 import app.burrow.burrows.models.BurrowResponse
 import app.burrow.burrows.models.BurrowVisibility
 import app.burrow.burrows.models.Burrows
+import app.burrow.doIf
 import app.burrow.models.PaginatedResponse
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
@@ -81,36 +82,65 @@ private suspend fun getUserSearchContext(userID: String): UserSearchContext = qu
         Bookmarks.selectAll()
             .where { Bookmarks.userID eq userID }
             .toList()
-            .associate { row -> row[Bookmarks.meetingID] to Bookmark.fromRow(row) }
+            .associate { row -> row[Bookmarks.burrowID] to Bookmark.fromRow(row) }
 
     UserSearchContext(profile, memberships, bookmarks)
 }
 
 /**
- * Search through all Burrows.
+ * Context to search a Burrow
  *
- * @param page The page of results.
  * @param kind The kind of Burrow.
- * @param search The search query. This will search through tags, title, description, location,
- *   etc..
+ * @param query The search query. This will search through tags, title, description, location, etc..
  * @param dateRange The range of dates to search through.
  * @param forceAuthorName Force the author of the retrieved meetings to be a specific name.
  * @param requestingUserID The ID of the user searching. This allows for the implementation of
  *   bookmarks and memberships.
  * @param authorUserID The requested author ID of the Burrows.
- * @return A list of [BurrowResponse]. The bookmark will be false and membership be null if there's
- *   no [requestingUserID].
+ * @param offset
+ */
+data class SearchBurrowsBuilder(
+    var kind: BurrowKind? = null,
+    var query: String? = null,
+    var dateRange: LongRange? = null,
+    var requestingUserID: String? = null,
+    var authorUserID: String? = null,
+    var isBookmarked: Boolean? = null,
+    var isHost: Boolean? = null,
+    var forceAuthorName: String? = null,
+    var offset: Long? = null,
+    var limit: Int? = null,
+)
+
+/**
+ * Search through all Burrows.
+ *
+ * @param page The page of results.
+ * @return A list of [BurrowResponse].
+ * @see SearchBurrowsBuilder
  * @see BurrowKind
  */
 suspend fun searchBurrows(
     page: Int = 1,
-    kind: BurrowKind? = null,
-    search: String? = null,
-    dateRange: LongRange? = null,
-    forceAuthorName: String? = null,
-    requestingUserID: String? = null,
-    authorUserID: String? = null,
+    searchContext: SearchBurrowsBuilder.() -> Unit,
 ): PaginatedResponse<BurrowResponse> {
+    val context = SearchBurrowsBuilder()
+
+    searchContext(context)
+
+    val (
+        kind,
+        query,
+        dateRange,
+        requestingUserID,
+        authorUserID,
+        isBookmarked,
+        isHost,
+        forceAuthorName,
+        offset,
+        limit) =
+        context
+
     // ensure the meeting is on the proper day
     val dateExpr: Op<Boolean> =
         if (dateRange == null) {
@@ -141,9 +171,9 @@ suspend fun searchBurrows(
 
     // ensure something contains the proper term
     val searchExpr =
-        if (!search?.trim().isNullOrBlank()) {
-            val pattern =
-                "%" + search.trim().lowercase().replace("%", "\\%").replace("_", "\\_") + "%"
+        if (!query?.trim().isNullOrBlank()) {
+            val cleanQuery = query.trim().lowercase().replace("%", "\\%").replace("_", "\\_")
+            val pattern = "%$cleanQuery%"
 
             ((Burrows.title.lowerCase() like pattern) or
                 (Burrows.description.lowerCase() like pattern) or
@@ -160,6 +190,14 @@ suspend fun searchBurrows(
     // ensure correct author
     val authorExpr = if (authorUserID != null) (Burrows.ownerID eq authorUserID) else Op.TRUE
 
+    // get only hosted burrows
+    val hostExpr =
+        if (isHost == true && requestingUserID != null) (Burrows.ownerID eq requestingUserID)
+        else Op.TRUE
+
+    // combination of all search requests
+    val whereExpr = dateExpr and searchExpr and kindExpr and privacyExpr and authorExpr and hostExpr
+
     val (meetingsCount, meetings) =
         query {
             val joinedAlias = Memberships.alias("m_joined")
@@ -168,11 +206,26 @@ suspend fun searchBurrows(
             val joinedCountExpr = joinedAlias[Memberships.userID].countDistinct()
             val waitingCountExpr = waitingAlias[Memberships.userID].countDistinct()
 
+            // count all meetings with the condition
             val meetingsCount =
-                Burrows.select(Burrows.id).where { dateExpr and searchExpr and kindExpr }.count()
+                // if bookmarked. account for bookmarks
+                if (isBookmarked == true && requestingUserID != null) {
+                        Burrows.innerJoin(
+                            Bookmarks,
+                            { Burrows.id },
+                            { Bookmarks.burrowID },
+                            additionalConstraint = { Bookmarks.userID eq requestingUserID },
+                        )
+                    } else {
+                        Burrows
+                    }
+                    .select(Burrows.id)
+                    .where { whereExpr }
+                    .count()
 
             val meetings =
                 Burrows.innerJoin(Users, { Burrows.ownerID }, { Users.id })
+                    // find the amount of joined users
                     .leftJoin(
                         joinedAlias,
                         { Burrows.id },
@@ -181,6 +234,7 @@ suspend fun searchBurrows(
                             joinedAlias[Memberships.status] eq BurrowMemberStatus.JOINED
                         },
                     )
+                    // find the amount of users in the waitlist
                     .leftJoin(
                         waitingAlias,
                         { Burrows.id },
@@ -189,15 +243,28 @@ suspend fun searchBurrows(
                             waitingAlias[Memberships.status] eq BurrowMemberStatus.WAITLISTED
                         },
                     )
+                    // join profiles on
                     .leftJoin(Profiles, { Burrows.ownerID }, { Profiles.userID })
+                    // if searching by bookmarked
+                    .doIf(isBookmarked == true && requestingUserID != null) {
+                        // join bookmarks depending on requestingUserID
+                        innerJoin(
+                            Bookmarks,
+                            { Burrows.id },
+                            { Bookmarks.burrowID },
+                            additionalConstraint = { Bookmarks.userID eq requestingUserID!! },
+                        )
+                    }
+                    // select for search result
                     .select(
                         Burrows.columns +
                             Profiles.columns +
                             listOf(Users.username, Users.id, joinedCountExpr, waitingCountExpr)
                     )
-                    .offset(PAGE_COUNT * (page - 1L))
-                    .limit(PAGE_COUNT)
-                    .where { dateExpr and searchExpr and kindExpr and privacyExpr and authorExpr }
+                    // offset depending on builder or page count for fallback
+                    .offset(offset ?: (PAGE_COUNT * (page - 1L)))
+                    .limit(limit ?: PAGE_COUNT)
+                    .where { whereExpr }
                     .groupBy(
                         *Burrows.columns.toTypedArray(),
                         *Profiles.columns.toTypedArray(),

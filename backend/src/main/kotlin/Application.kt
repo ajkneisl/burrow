@@ -21,8 +21,6 @@ import app.burrow.report.REPORT_ROUTES
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.LoggerContext
 import dev.hayden.KHealth
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
@@ -35,6 +33,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.calllogging.CallLogging
+import io.ktor.server.plugins.calllogging.processingTimeMillis
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
@@ -138,7 +137,7 @@ suspend fun Application.module() {
             val method = call.request.httpMethod.value
             val uri = call.request.uri
 
-            "$method ($status) $uri"
+            String.format("$method ($status) [%04d ms] $uri", call.processingTimeMillis())
         }
     }
 

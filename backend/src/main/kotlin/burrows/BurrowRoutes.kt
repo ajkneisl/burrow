@@ -14,6 +14,7 @@ import app.burrow.burrows.models.BurrowKind
 import app.burrow.burrows.models.SubmittedBurrow
 import app.burrow.burrows.models.SubmittedProjectBurrow
 import app.burrow.burrows.models.SubmittedStudyEventBurrow
+import app.burrow.optionalBooleanQueryParameter
 import app.burrow.optionalEnumQueryParameter
 import app.burrow.optionalIntQueryParameter
 import app.burrow.optionalLongQueryParameter
@@ -46,7 +47,12 @@ val BURROW_ROUTES: Route.() -> Unit = {
         val page = call.optionalIntQueryParameter("page") ?: 1
         val type = call.optionalEnumQueryParameter<BurrowKind>("type")
 
-        call.respond(searchBurrows(page = page, kind = type, requestingUserID = call.userID))
+        call.respond(
+            searchBurrows(page = page) {
+                kind = type
+                requestingUserID = call.userID
+            }
+        )
     }
 
     // GET /burrows/schedule
@@ -84,6 +90,9 @@ val BURROW_ROUTES: Route.() -> Unit = {
         val startDate = call.optionalLongQueryParameter("start")
         val endDate = call.optionalLongQueryParameter("end")
 
+        val bookmarked = call.optionalBooleanQueryParameter("bookmarked")
+        val host = call.optionalBooleanQueryParameter("host")
+
         val range =
             if (startDate != null && endDate != null) {
                 startDate..endDate
@@ -92,13 +101,14 @@ val BURROW_ROUTES: Route.() -> Unit = {
             }
 
         call.respond(
-            searchBurrows(
-                page = page,
-                kind = type,
-                search = searchQuery,
-                dateRange = range,
-                requestingUserID = call.userID,
-            )
+            searchBurrows(page) {
+                kind = type
+                query = searchQuery
+                dateRange = range
+                requestingUserID = call.userID
+                isHost = host
+                isBookmarked = bookmarked
+            }
         )
     }
 
@@ -164,10 +174,9 @@ val BURROW_ROUTES: Route.() -> Unit = {
             call.respond(HttpStatusCode.OK)
         }
 
-        // ROUTE /burrows/bookmarks
-        // manage bookmarks
-        route("/bookmarks", BOOKMARK_ROUTES)
-
+        // ROUTE /burrows/{id}/bookmark/
+        // manage a bookmark for a burrow
+        route("/bookmark", BOOKMARK_ROUTES)
 
         membershipRoutes()
     }

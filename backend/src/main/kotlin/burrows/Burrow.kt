@@ -376,7 +376,7 @@ suspend fun getBurrowResponse(burrowID: String, requestingUserID: String?): Burr
             val bookmarked =
                 Bookmarks.selectAll()
                     .where {
-                        (Bookmarks.userID eq requestingUserID) and (Bookmarks.meetingID eq burrowID)
+                        (Bookmarks.userID eq requestingUserID) and (Bookmarks.burrowID eq burrowID)
                     }
                     .firstOrNull() != null
 

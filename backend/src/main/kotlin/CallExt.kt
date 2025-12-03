@@ -55,6 +55,12 @@ inline fun <reified T : Enum<T>> ApplicationCall.optionalEnumQueryParameter(name
 fun ApplicationCall.optionalLongQueryParameter(name: String): Long? =
     request.queryParameters[name]?.toLongOrNull()
 
+/**
+ * Retrieve [name] from the [ApplicationCall.request] query parameters and cast to a Boolean
+ */
+fun ApplicationCall.optionalBooleanQueryParameter(name: String): Boolean? =
+    request.queryParameters[name]?.toBooleanStrictOrNull()
+
 /** If [this] isn't empty, throw a [MultiError] with the contents. */
 fun List<String>.throwIfNotEmpty() {
     if (isNotEmpty()) throw MultiError(400, this)

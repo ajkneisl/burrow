@@ -9,7 +9,7 @@ import { Input, useDateRangePicker, ViewErrors } from "@umnburrow/core"
 import clsx from "clsx"
 import { humanDateLabel, weekRangeLabel } from "@api/util.ts"
 import Paginator from "@components/Paginator.tsx"
-import { Loader2, ChevronRight } from "lucide-react"
+import { Loader2, ChevronRight, SlidersHorizontal } from "lucide-react"
 
 /**
  * Search through all Burrows.
@@ -20,6 +20,9 @@ export default function Browse() {
     const [query, setQuery] = useState("")
     const [currentPage, setCurrentPage] = useState(1)
     const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set())
+    const [showFilters, setShowFilters] = useState(false)
+    const [isHost, setIsHost] = useState(false)
+    const [isBookmarked, setIsBookmarked] = useState(false)
 
     const [startDate, endDate, picker] = useDateRangePicker()
 
@@ -43,17 +46,27 @@ export default function Browse() {
     // go back to the first page when the search changes
     useEffect(() => {
         setCurrentPage(1)
-    }, [query, startDate, endDate])
+    }, [query, startDate, endDate, isHost, isBookmarked])
 
     const { data, isLoading, isFetching, error, refetch } = useQuery({
-        queryKey: ["meetings", query, currentPage, startDate, endDate],
+        queryKey: [
+            "meetings",
+            query,
+            currentPage,
+            startDate,
+            endDate,
+            isHost,
+            isBookmarked
+        ],
         queryFn: async () =>
             await searchMeetings(
                 null,
                 query || "",
                 currentPage,
                 startDate as number | undefined,
-                endDate as number | undefined
+                endDate as number | undefined,
+                isHost,
+                isBookmarked
             ),
         refetchOnWindowFocus: false
     })
@@ -153,6 +166,72 @@ export default function Browse() {
                         <div className="flex items-center gap-2">{picker}</div>
                     </div>
 
+                    {/* filter section */}
+                    <div className="mb-4">
+                        <button
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="text-text/70 hover:text-text mb-3 flex items-center gap-2 text-sm font-medium transition-colors"
+                        >
+                            <SlidersHorizontal className="h-4 w-4" />
+                            Filters
+                            {(isHost || isBookmarked) && (
+                                <span className="bg-primary/20 text-primary rounded-full px-2 py-0.5 text-xs font-semibold">
+                                    {
+                                        [
+                                            isHost && "Host",
+                                            isBookmarked && "Bookmarked"
+                                        ].filter(Boolean).length
+                                    }
+                                </span>
+                            )}
+                        </button>
+
+                        <AnimatePresence>
+                            {showFilters && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className="bg-card border-card-border space-y-3 rounded-lg border p-4">
+                                        <label className="flex cursor-pointer items-center gap-3">
+                                            <input
+                                                type="checkbox"
+                                                checked={isHost}
+                                                onChange={(e) =>
+                                                    setIsHost(e.target.checked)
+                                                }
+                                                className="border-card-border bg-card checked:bg-primary checked:border-primary focus:ring-primary/20 h-4 w-4 cursor-pointer rounded transition-colors focus:ring-2"
+                                            />
+
+                                            <span className="text-text text-sm font-medium">
+                                                Hosting
+                                            </span>
+                                        </label>
+
+                                        <label className="flex cursor-pointer items-center gap-3">
+                                            <input
+                                                type="checkbox"
+                                                checked={isBookmarked}
+                                                onChange={(e) =>
+                                                    setIsBookmarked(
+                                                        e.target.checked
+                                                    )
+                                                }
+                                                className="border-card-border bg-card checked:bg-primary checked:border-primary focus:ring-primary/20 h-4 w-4 cursor-pointer rounded transition-colors focus:ring-2"
+                                            />
+                                            <span className="text-text text-sm font-medium">
+                                                Bookmarked
+                                            </span>
+                                        </label>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
                     {isLoading && !data ? (
                         <div className="space-y-4">
                             {Array.from({ length: 5 }).map((_, i) => (
@@ -199,10 +278,10 @@ export default function Browse() {
 
                     {!isLoading && isFetching ? (
                         <div className="mb-4 text-right">
-                        <span className="border-info/30 bg-info/10 text-info inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium">
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                            Updating…
-                        </span>
+                            <span className="border-info/30 bg-info/10 text-info inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium">
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                                Updating…
+                            </span>
                         </div>
                     ) : null}
 
@@ -231,7 +310,8 @@ export default function Browse() {
                                         const isFirstOfWeek =
                                             idx === 0 ||
                                             groupedByDate[idx - 1].week !== week
-                                        const isExpanded = expandedWeeks.has(week)
+                                        const isExpanded =
+                                            expandedWeeks.has(week)
 
                                         return (
                                             <React.Fragment key={dateKey}>
@@ -242,7 +322,9 @@ export default function Browse() {
                                                             toggleWeek(week)
                                                         }
                                                         className="group text-text/60 hover:text-text mb-6 flex w-full cursor-pointer items-center gap-3 text-xs font-semibold tracking-wider uppercase transition-colors"
-                                                        aria-expanded={isExpanded}
+                                                        aria-expanded={
+                                                            isExpanded
+                                                        }
                                                     >
                                                         <ChevronRight
                                                             className={clsx(
@@ -258,7 +340,9 @@ export default function Browse() {
                                                 )}
 
                                                 {/* Day section */}
-                                                <AnimatePresence initial={false}>
+                                                <AnimatePresence
+                                                    initial={false}
+                                                >
                                                     {isExpanded && (
                                                         <motion.div
                                                             key={`day-${dateKey}`}

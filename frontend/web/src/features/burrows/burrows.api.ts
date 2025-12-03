@@ -125,7 +125,9 @@ export async function searchMeetings(
     query: string,
     page: number = 1,
     startDate?: number,
-    endDate?: number
+    endDate?: number,
+    isHost?: boolean,
+    isBookmarked?: boolean
 ): Promise<PaginatedResponse<BurrowResponse>> {
     return await get("/burrows/search", {
         query: {
@@ -133,7 +135,9 @@ export async function searchMeetings(
             type: type ?? undefined,
             page,
             start: startDate,
-            end: endDate
+            end: endDate,
+            host: isHost ?? undefined,
+            bookmarked: isBookmarked ?? undefined
         }
     })
 }

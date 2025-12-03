@@ -4,30 +4,24 @@ import app.burrow.account.models.Users
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
 import app.burrow.burrows.Burrow
-import app.burrow.burrows.membership.Memberships
-import app.burrow.burrows.models.BurrowMemberStatus
 import app.burrow.burrows.models.BurrowVisibility
 import app.burrow.burrows.models.Burrows
+import app.burrow.burrows.searchBurrows
 import app.burrow.models.PaginatedResponse
 import kotlin.math.ceil
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.and
-import org.jetbrains.exposed.v1.core.countDistinct
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.innerJoin
-import org.jetbrains.exposed.v1.core.leftJoin
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.r2dbc.select
 
-/**
- * A search result that can be either a user or a burrow.
- */
+/** A search result that can be either a user or a burrow. */
 @Serializable
 sealed class SearchResult {
     /**
@@ -39,11 +33,7 @@ sealed class SearchResult {
      */
     @Serializable
     @SerialName("user")
-    data class User(
-        val userID: String,
-        val username: String,
-        val profile: Profile,
-    ) : SearchResult()
+    data class User(val userID: String, val username: String, val profile: Profile) : SearchResult()
 
     /**
      * A burrow search result.
@@ -71,10 +61,7 @@ private const val PAGE_SIZE = 20
  * @param page The page of results to return. Defaults to 1.
  * @return A [PaginatedResponse] of [SearchResult] containing matching users and burrows.
  */
-suspend fun search(
-    searchQuery: String,
-    page: Int = 1,
-): PaginatedResponse<SearchResult> {
+suspend fun search(searchQuery: String, page: Int = 1): PaginatedResponse<SearchResult> {
     if (searchQuery.isBlank()) {
         return PaginatedResponse(
             page = page,
@@ -84,10 +71,9 @@ suspend fun search(
         )
     }
 
-    val pattern =
-        "%" + searchQuery.trim().lowercase().replace("%", "\\%").replace("_", "\\_") + "%"
+    val pattern = "%" + searchQuery.trim().lowercase().replace("%", "\\%").replace("_", "\\_") + "%"
 
-    val offset = ((page - 1) * PAGE_SIZE).toLong()
+    val userOffset = ((page - 1) * PAGE_SIZE).toLong()
 
     return query {
         // count total uesrs
@@ -103,12 +89,10 @@ suspend fun search(
         // count total burrows
         val burrowSearchExpr =
             (Burrows.visibility eq BurrowVisibility.PUBLIC) and
-                (
-                    (Burrows.title.lowerCase() like pattern) or
-                        (Burrows.description.lowerCase() like pattern) or
-                        (Burrows.location.lowerCase() like pattern) or
-                        (Burrows.tags.lowerCase() like pattern)
-                )
+                ((Burrows.title.lowerCase() like pattern) or
+                    (Burrows.description.lowerCase() like pattern) or
+                    (Burrows.location.lowerCase() like pattern) or
+                    (Burrows.tags.lowerCase() like pattern))
 
         val totalBurrows = Burrows.select(Burrows.id).where { burrowSearchExpr }.count()
 
@@ -121,7 +105,7 @@ suspend fun search(
                 .select(Users.columns + Profiles.columns)
                 .where { userSearchExpr }
                 .orderBy(Profiles.name, SortOrder.ASC)
-                .offset(offset)
+                .offset(userOffset)
                 .limit(PAGE_SIZE)
                 .toList()
                 .map { row ->
@@ -145,63 +129,21 @@ suspend fun search(
         // calculate remaining amount, calculate according offset
         val remainingSlots = PAGE_SIZE - userResults.size
         val burrowOffset =
-            if (offset > totalUsers) {
-                offset - totalUsers
+            if (userOffset > totalUsers) {
+                userOffset - totalUsers
             } else {
                 0L
             }
 
-
-        val joinedAlias = Memberships.alias("m_joined")
-        val waitingAlias = Memberships.alias("m_waiting")
-
-        val joinedCountExpr = joinedAlias[Memberships.userID].countDistinct()
-        val waitingCountExpr = waitingAlias[Memberships.userID].countDistinct()
-
         val burrowResults: List<SearchResult> =
-            Burrows.innerJoin(Users, { Burrows.ownerID }, { Users.id })
-                .leftJoin(
-                    joinedAlias,
-                    { Burrows.id },
-                    { joinedAlias[Memberships.burrowID] },
-                    additionalConstraint = {
-                        joinedAlias[Memberships.status] eq BurrowMemberStatus.JOINED
-                    },
-                )
-                .leftJoin(
-                    waitingAlias,
-                    { Burrows.id },
-                    { waitingAlias[Memberships.burrowID] },
-                    additionalConstraint = {
-                        waitingAlias[Memberships.status] eq BurrowMemberStatus.WAITLISTED
-                    },
-                )
-                .leftJoin(Profiles, { Burrows.ownerID }, { Profiles.userID })
-                .select(
-                    Burrows.columns +
-                        Profiles.columns +
-                        listOf(Users.username, Users.id, joinedCountExpr, waitingCountExpr)
-                )
-                .where { burrowSearchExpr }
-                .groupBy(
-                    *Burrows.columns.toTypedArray(),
-                    *Profiles.columns.toTypedArray(),
-                    Users.username,
-                    Users.id,
-                )
-                .orderBy(Burrows.beginningTime, SortOrder.ASC)
-                .offset(burrowOffset)
-                .limit(remainingSlots)
-                .toList()
-                .map { row ->
-                    val joinedCount = row[joinedCountExpr]
-                    val waitingCount = row[waitingCountExpr]
-
-                    SearchResult.BurrowResult(
-                        burrow = Burrow.fromRow(row, joinedCount, waitingCount),
-                        ownerUsername = row[Users.username],
-                        ownerProfile = runCatching { Profile.fromRow(row) }.getOrNull(),
-                    )
+            searchBurrows {
+                    limit = remainingSlots
+                    offset = burrowOffset
+                    query = searchQuery
+                }
+                .contents
+                .map { (burrow, author, authorProfile) ->
+                    SearchResult.BurrowResult(burrow, author ?: "Unknown", authorProfile)
                 }
 
         PaginatedResponse(

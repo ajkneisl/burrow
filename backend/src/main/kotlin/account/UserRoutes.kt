@@ -49,7 +49,10 @@ val USER_ROUTES: Route.() -> Unit = {
             val page = call.optionalIntQueryParameter("page") ?: 1
 
             val burrowHistory =
-                searchBurrows(page = page, authorUserID = call.userID, dateRange = -1L..-1L)
+                searchBurrows(page) {
+                    authorUserID = call.userID
+                    dateRange = -1L..-1L
+                }
 
             call.respond(burrowHistory)
         }

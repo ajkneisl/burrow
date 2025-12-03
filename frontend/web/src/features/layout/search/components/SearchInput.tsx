@@ -15,12 +15,12 @@ type SearchInputProps = {
 }
 
 export function SearchInput({
-                                query,
-                                searchRef,
-                                setQuery,
-                                handleSubmit,
-                                results
-                            }: SearchInputProps) {
+    query,
+    searchRef,
+    setQuery,
+    handleSubmit,
+    results
+}: SearchInputProps) {
     const auth = useToken()
     return (
         <form
@@ -31,14 +31,13 @@ export function SearchInput({
         >
             <div
                 className={clsx(
-                    "bg-white/5 relative flex h-9 items-center rounded-lg border px-3 shadow-sm backdrop-blur-sm transition-all duration-200",
+                    "relative flex h-9 items-center rounded-lg border bg-white/5 px-3 shadow-sm backdrop-blur-sm transition-all duration-200",
                     "border-primary hover:border-secondary/30",
                     "focus-within:bg-white/5 focus-within:ring-primary/20 focus-within:shadow-md focus-within:ring-2",
                     auth === "" && "cursor-not-allowed opacity-50"
                 )}
             >
-                <Search
-                    className="text-text/50 group-focus-within:text-primary mr-2.5 h-4 w-4 flex-shrink-0 transition-colors duration-200"/>
+                <Search className="text-text/50 group-focus-within:text-primary mr-2.5 h-4 w-4 flex-shrink-0 transition-colors duration-200" />
 
                 <input
                     type="text"

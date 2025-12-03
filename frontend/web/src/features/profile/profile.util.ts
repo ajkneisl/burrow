@@ -6,7 +6,7 @@ import type { DiscoverReasoning } from "@features/auth/user.types.ts"
 export function getReasoningLabel(reasoning: DiscoverReasoning): string {
     switch (reasoning) {
         case "SHARED_BURROW":
-            return "In some of your Burrows"
+            return "Shares some Burrows"
         case "FRIEND_FOLLOWS":
             return "Followed by friends"
         case "THEY_FOLLOW":

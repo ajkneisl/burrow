@@ -16,12 +16,12 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 /**
  * A bookmark on a meeting from a user.
  *
- * @param userID The user who bookmarked the [meetingID].
- * @param meetingID The bookmarked meeting.
+ * @param userID The user who bookmarked the [burrowID].
+ * @param burrowID The bookmarked meeting.
  * @param createdAt When the bookmark was created.
  * @see Bookmarks
  */
-data class Bookmark(val userID: String, val meetingID: String, val createdAt: Long) {
+data class Bookmark(val userID: String, val burrowID: String, val createdAt: Long) {
     companion object {
         /**
          * Form a [Bookmark] from a [ResultRow].
@@ -31,7 +31,7 @@ data class Bookmark(val userID: String, val meetingID: String, val createdAt: Lo
         fun fromRow(row: ResultRow): Bookmark {
             return Bookmark(
                 row[Bookmarks.userID],
-                row[Bookmarks.meetingID],
+                row[Bookmarks.burrowID],
                 row[Bookmarks.createdAt],
             )
         }
@@ -48,7 +48,7 @@ data class Bookmark(val userID: String, val meetingID: String, val createdAt: Lo
 suspend fun createBookmark(userID: String, meetingID: String) {
     val existingBookmark = query {
         Bookmarks.selectAll()
-            .where { (Bookmarks.userID eq userID) and (Bookmarks.meetingID eq meetingID) }
+            .where { (Bookmarks.userID eq userID) and (Bookmarks.burrowID eq meetingID) }
             .firstOrNull()
     }
 
@@ -62,7 +62,7 @@ suspend fun createBookmark(userID: String, meetingID: String) {
     query {
         Bookmarks.insert {
             it[Bookmarks.userID] = userID
-            it[Bookmarks.meetingID] = meetingID
+            it[Bookmarks.burrowID] = meetingID
             it[Bookmarks.createdAt] = getTimeMillis()
         }
     }
@@ -78,7 +78,7 @@ suspend fun createBookmark(userID: String, meetingID: String) {
 suspend fun deleteBookmark(userID: String, meetingID: String) {
     val existingBookmark = query {
         Bookmarks.selectAll()
-            .where { (Bookmarks.userID eq userID) and (Bookmarks.meetingID eq meetingID) }
+            .where { (Bookmarks.userID eq userID) and (Bookmarks.burrowID eq meetingID) }
             .firstOrNull()
     }
 
@@ -91,7 +91,7 @@ suspend fun deleteBookmark(userID: String, meetingID: String) {
 
     query {
         Bookmarks.deleteWhere {
-            (Bookmarks.userID eq userID) and (Bookmarks.meetingID eq meetingID)
+            (Bookmarks.userID eq userID) and (Bookmarks.burrowID eq meetingID)
         }
     }
 }

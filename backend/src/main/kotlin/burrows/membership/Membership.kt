@@ -234,7 +234,7 @@ suspend fun getUserBookmarks(user: String): List<BurrowResponse> {
     val result = query {
         Memberships.innerJoin(Burrows, { Memberships.burrowID }, { Burrows.id })
             .innerJoin(Users, { Burrows.ownerID }, { Users.id })
-            .innerJoin(Bookmarks, { Memberships.burrowID }, { Bookmarks.meetingID })
+            .innerJoin(Bookmarks, { Memberships.burrowID }, { Bookmarks.burrowID })
             .selectAll()
             .where {
                 (Memberships.userID eq user) and // the user's meetings
