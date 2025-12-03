@@ -24,7 +24,7 @@ type ChatBoxProps = {
  * The chatbox for a meeting.
  *
  * @param meeting The meeting the ChatBox is for.
- * @constructor
+ * @author AJ Kneisl
  */
 export default function ChatBox({ burrow }: ChatBoxProps) {
     const user = useUser()
@@ -324,7 +324,7 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
             {/* messages container */}
             <div
                 ref={listRef}
-                className="scrollbar-thin scrollbar-thumb-background/60 scrollbar-track-transparent flex-1 space-y-2 overflow-y-auto py-4"
+                className="scrollbar-thin scrollbar-thumb-background/60 scrollbar-track-transparent flex-1 overflow-y-auto py-4"
             >
                 {messages.length === 0 ? (
                     <div className="flex h-full flex-col items-center justify-center">
@@ -339,21 +339,30 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
                         </p>
                     </div>
                 ) : (
-                    messages.map((message) => (
-                        <Chat
-                            key={message.id}
-                            message={message}
-                            canEdit={message.senderID === user?.id}
-                            canDelete={
-                                message.senderID === user?.id || isModerator
-                            }
-                            canPin={isModerator}
-                            members={members}
-                            deleteButton={() => deleteMessage(message.id)}
-                            editButton={() => startEdit(message)}
-                            pinButton={() => pinMessage(message.id)}
-                        />
-                    ))
+                    messages.map((message, index) => {
+                        const prevMessage = index > 0 ? messages[index - 1] : null
+                        const isConsecutive =
+                            prevMessage &&
+                            prevMessage.senderID === message.senderID &&
+                            message.createdAt - prevMessage.createdAt < 300000 // 5 minutes
+
+                        return (
+                            <Chat
+                                key={message.id}
+                                message={message}
+                                canEdit={message.senderID === user?.id}
+                                canDelete={
+                                    message.senderID === user?.id || isModerator
+                                }
+                                canPin={isModerator}
+                                members={members}
+                                deleteButton={() => deleteMessage(message.id)}
+                                editButton={() => startEdit(message)}
+                                pinButton={() => pinMessage(message.id)}
+                                isConsecutive={isConsecutive ?? undefined}
+                            />
+                        )
+                    })
                 )}
             </div>
 

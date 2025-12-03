@@ -34,6 +34,7 @@ type ChatProps = {
     deleteButton: () => void
     editButton: (content: string) => void
     pinButton?: () => void
+    isConsecutive?: boolean
 }
 
 /**
@@ -47,6 +48,7 @@ type ChatProps = {
  * @param deleteButton When the delete button is pressed.
  * @param editButton When the edit button is pressed.
  * @param pinButton When the pin button is pressed.
+ * @param isConsecutiv If the author of this message posted another before it.
  *
  * @author AJ Kneisl
  */
@@ -58,69 +60,88 @@ export default function Chat({
     members,
     deleteButton,
     editButton,
-    pinButton
+    pinButton,
+    isConsecutive = false
 }: ChatProps) {
     const [isHovered, setIsHovered] = useState(false)
-
-    const dateStr = useMemo(
-        () =>
-            new Date(message.createdAt).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: isHovered ? "2-digit" : undefined
-            }),
-        [isHovered, message.createdAt]
-    )
 
     const userColor = useMemo(
         () => getUserColor(message.senderID),
         [message.senderID]
     )
 
+    const dateStr = new Date(message.createdAt).toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit"
+    })
+
     return (
         <div
             key={`${message.id}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="group hover:bg-background/40 relative rounded-lg px-3 py-2 transition-all duration-150"
+            className={`group hover:bg-background/30 relative px-4 transition-colors duration-75 ${
+                isConsecutive ? "mt-0.5 py-0.5" : "mt-4 pt-1 pb-1 first:mt-1"
+            }`}
         >
-            <div className="flex w-full items-start gap-3">
-                <div className="flex-shrink-0 pt-1">
-                    <ProfilePicture
-                        name={members[message.senderID]?.name}
-                        userID={message.senderID}
-                        size="sm"
-                    />
+            <div className="flex w-full items-start gap-4">
+                {/* Avatar column - always present for alignment */}
+                <div className="flex min-w-[52px] flex-shrink-0 items-start justify-center pt-0.5">
+                    {!isConsecutive ? (
+                        <ProfilePicture
+                            name={members[message.senderID]?.name}
+                            userID={message.senderID}
+                            size="ksm"
+                        />
+                    ) : (
+                        isHovered && (
+                            <span className="text-text/40 text-[10px] leading-[22px] font-medium whitespace-nowrap">
+                                {dateStr}
+                            </span>
+                        )
+                    )}
                 </div>
 
+                {/* Message content */}
                 <div className="min-w-0 flex-1">
-                    <div className="mb-1.5 flex items-center gap-2.5">
-                        <span className={`text-sm font-bold ${userColor}`}>
-                            {members[message.senderID]?.name || "Unknown User"}
-                        </span>
-                        <span className="text-text/35 text-[11px] font-medium">
-                            {dateStr}
-                        </span>
-                    </div>
+                    {!isConsecutive && (
+                        <div className="mb-0.5 flex items-baseline gap-2">
+                            <span
+                                className={`text-[15px] leading-[22px] font-semibold ${userColor}`}
+                            >
+                                {members[message.senderID]?.name ||
+                                    "Unknown User"}
+                            </span>
+                            <span className="text-text/40 text-[11px] leading-[22px] font-medium">
+                                {new Date(message.createdAt).toLocaleString(
+                                    [],
+                                    {
+                                        month: "short",
+                                        day: "numeric",
+                                        hour: "numeric",
+                                        minute: "2-digit"
+                                    }
+                                )}
+                            </span>
+                        </div>
+                    )}
 
-                    <div className="bg-background/50 border-background/70 rounded-lg border px-3 py-2.5 shadow-sm">
-                        <p className="text-text text-[13px] leading-relaxed break-words">
-                            {message.message}
-                        </p>
+                    <div className="text-text text-[15px] leading-[22px] break-words">
+                        {message.message}
                     </div>
                 </div>
 
-                {/* action buttons */}
+                {/* Action buttons */}
                 {(canEdit || canDelete || canPin) && (
-                    <div className="bg-hero border-background/80 absolute top-2 right-3 hidden items-center gap-0.5 rounded-md border px-1 py-0.5 shadow-lg backdrop-blur-sm group-hover:flex">
+                    <div className="bg-hero border-background/60 absolute -top-3 right-4 hidden items-center gap-0.5 rounded border px-0.5 py-0.5 shadow-md group-hover:flex">
                         {canPin && pinButton && (
                             <button
                                 onClick={pinButton}
                                 aria-label="Pin message"
-                                className="text-text/50 hover:bg-primary/20 hover:text-primary rounded p-1.5 transition-all"
+                                className="text-text/60 hover:text-primary hover:bg-primary/10 rounded p-1 transition-colors"
                                 title="Pin"
                             >
-                                <Pin className="h-3.5 w-3.5" />
+                                <Pin className="h-4 w-4" />
                             </button>
                         )}
 
@@ -128,10 +149,10 @@ export default function Chat({
                             <button
                                 onClick={() => editButton("debug")}
                                 aria-label="Edit message"
-                                className="text-text/50 hover:bg-warn/20 hover:text-warn rounded p-1.5 transition-all"
+                                className="text-text/60 hover:text-text hover:bg-background/50 rounded p-1 transition-colors"
                                 title="Edit"
                             >
-                                <Pencil className="h-3.5 w-3.5" />
+                                <Pencil className="h-4 w-4" />
                             </button>
                         )}
 
@@ -139,10 +160,10 @@ export default function Chat({
                             <button
                                 onClick={deleteButton}
                                 aria-label="Delete message"
-                                className="text-text/50 hover:bg-error/20 hover:text-error rounded p-1.5 transition-all"
+                                className="text-text/60 hover:text-error hover:bg-error/10 rounded p-1 transition-colors"
                                 title="Delete"
                             >
-                                <X className="h-3.5 w-3.5" />
+                                <X className="h-4 w-4" />
                             </button>
                         )}
                     </div>

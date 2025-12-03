@@ -10,7 +10,7 @@ import toast from "react-hot-toast"
 type ProfilePictureProps = {
     name: string
     userID: string
-    size: "sm" | "md" | "lg" | "responsive"
+    size: "sm" | "ksm" | "md" | "lg" | "responsive"
     editable?: boolean
     onUploadSuccess?: () => void
     isOnline?: boolean
@@ -125,18 +125,19 @@ export default function ProfilePicture({
             container: clsx(
                 isResponsive ? "h-8 w-8 ring-1 md:h-12 md:w-12 md:ring-2 lg:h-24 lg:w-24 lg:ring-4" :
                 size === "sm" ? "h-8 w-8 ring-1" :
+                size === "ksm" ? "h-10 w-10 ring-1" :
                 size === "md" ? "h-12 w-12 ring-2" :
                 "h-24 w-24 ring-4"
             ),
             text: clsx(
                 isResponsive ? "md:text-md text-sm lg:text-2xl" :
-                size === "sm" ? "text-sm" :
+                size === "sm" || size === "ksm" ? "text-sm" :
                 size === "md" ? "text-md" :
                 "text-2xl"
             ),
             indicator: clsx(
                 isResponsive ? "h-2 w-2 md:h-3 md:w-3 lg:h-4 lg:w-4" :
-                size === "sm" ? "h-2 w-2" :
+                size === "sm" || size === "ksm" ? "h-2 w-2" :
                 size === "md" ? "h-3 w-3" :
                 "h-4 w-4"
             )
