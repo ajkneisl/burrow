@@ -167,7 +167,7 @@ class Chat(burrowID: String) : Block("CHAT", burrowID) {
     /** @see wsEditMessage */
     @Serializable
     data class EditedMessage(
-        @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val messageId: UUID,
+        @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val messageID: UUID,
         val newMessage: String,
     )
 

@@ -118,7 +118,7 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
                 case "MESSAGE_UPDATED":
                     setMessages((prev) =>
                         prev.map((msg) =>
-                            msg.id === payload.payload.messageId
+                            msg.id === payload.payload.messageID
                                 ? {
                                       ...msg,
                                       message: payload.payload.newMessage
