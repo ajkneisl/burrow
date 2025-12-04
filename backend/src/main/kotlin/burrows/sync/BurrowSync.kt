@@ -8,6 +8,7 @@ import app.burrow.burrows.sync.block.disableBlock
 import app.burrow.burrows.sync.block.enableBlock
 import app.burrow.burrows.sync.block.findRegisteredBlocks
 import app.burrow.burrows.sync.block.getEnabledBlocks
+import app.burrow.burrows.sync.chat.Chat.Outgoing
 import app.burrow.burrows.sync.models.Response
 import app.burrow.query
 import app.burrow.socket.BasicSocketSession
@@ -234,6 +235,11 @@ object BurrowSync {
      */
     suspend fun leave(burrowID: String, userID: String, closeSession: Boolean = false) {
         sessionManager.leave(burrowID, userID, closeSession)
+
+        broadcast(
+            burrowID,
+            Response("CHAT", Outgoing.MESSAGE_DELETED, payload = hashMapOf("userID" to userID)),
+        )
     }
 
     /**

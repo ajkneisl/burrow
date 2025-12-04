@@ -1,6 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react"
-import Chat from "@features/chat/components/Chat.tsx"
-import ChatInput from "@features/chat/components/ChatInput.tsx"
+import { useEffect, useState } from "react"
 import useUser from "@features/auth/hooks/useUser.ts"
 import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 import type { ChatMember, ChatMessage } from "@features/chat/chat.types.ts"
@@ -11,7 +9,8 @@ import {
 import { useAtomValue } from "jotai"
 import { syncRetry, syncStatus } from "@features/sync/sync.atom.ts"
 import { Card } from "@umnburrow/core"
-import { MessageSquare, Pin, X } from "lucide-react"
+import { Pin, X } from "lucide-react"
+import GenericChatBox from "@features/chat/components/GenericChatBox.tsx"
 
 /**
  * {@link ChatBox}
@@ -42,7 +41,6 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
     const [editingOriginal, setEditingOriginal] = useState<string>("")
     const [members, setMembers] = useState<Record<string, ChatMember>>({})
 
-    const listRef = useRef<HTMLDivElement | null>(null)
     const burrowID = burrow.burrow.id
 
     const isModerator =
@@ -107,9 +105,17 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
                 // deleted message
                 case "MESSAGE_DELETED":
                     setMessages((prev) =>
-                        prev.filter(
-                            (message) => message.id !== payload.payload.messageID
-                        )
+                        // if payload has userID, delete all of userID's messages
+                        Object.hasOwn(payload.payload, "userID")
+                            ? prev.filter(
+                                  (message) =>
+                                      message.senderID !==
+                                      payload.payload.userID
+                              )
+                            : prev.filter(
+                                  (message) =>
+                                      message.id !== payload.payload.messageID
+                              )
                     )
 
                     break
@@ -142,12 +148,6 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
     useEffect(() => {
         if (status !== "LIVE") return
     }, [status, burrowID])
-
-    useLayoutEffect(() => {
-        const el = listRef.current
-        if (!el) return
-        el.scrollTop = el.scrollHeight
-    }, [messages.length])
 
     // delete a message
     function deleteMessage(id: string) {
@@ -245,135 +245,103 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
         setText("")
     }
 
-    return (
-        <Card className="flex h-[512px] flex-col">
-            {/* header */}
-            <header className="border-background/60 flex items-center justify-between border-b pb-4">
-                <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-semibold">Chat</h3>
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <div
-                        className={`h-2 w-2 rounded-full transition-all duration-300 ${
-                            status === "LIVE"
-                                ? "bg-success animate-pulse"
-                                : status === "CONNECTING"
-                                  ? "bg-warn animate-pulse"
-                                  : "bg-error"
-                        }`}
-                    />
-
-                    <span
-                        className={`text-xs font-medium ${
-                            status === "LIVE"
-                                ? "text-success"
-                                : status === "CONNECTING"
-                                  ? "text-warn"
-                                  : "text-error"
-                        }`}
-                    >
-                        {status === "CONNECTING" && "Connecting…"}
-                        {status === "LIVE" && "Live"}
-                        {status === "DISCONNECTED" &&
-                            (retry === "" ? "Disconnected" : retry)}
-                        {status === "ERROR" && "Error"}
-                    </span>
-                </div>
-            </header>
-
-            {/* pinned message */}
-            {pinnedMessage && (
-                <div className="bg-background/60 border-background mt-4 rounded-lg border shadow-sm">
-                    <div className="flex items-start gap-3 p-3">
-                        <div className="bg-warn/15 mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md">
-                            <Pin className="text-warn h-4 w-4" />
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                            <div className="mb-1.5 flex items-center gap-2">
-                                <Pin className="text-warn h-3 w-3" />
-                                <span className="text-warn text-xs font-semibold uppercase tracking-wide">
-                                    Pinned Message
-                                </span>
-                                <span className="text-text/40 text-xs">
-                                    by{" "}
-                                    {members[pinnedMessage.senderID]?.name ||
-                                        "Unknown"}
-                                </span>
-                            </div>
-
-                            <p className="text-text line-clamp-2 text-sm leading-relaxed break-words">
-                                {pinnedMessage.message}
-                            </p>
-                        </div>
-
-                        {isModerator && (
-                            <button
-                                onClick={unpinMessage}
-                                className="text-text/40 hover:bg-error/10 hover:text-error mt-1 shrink-0 rounded-md p-1.5 transition-all"
-                                title="Unpin message"
-                                aria-label="Unpin message"
-                            >
-                                <X className="h-4 w-4" />
-                            </button>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {/* messages container */}
-            <div
-                ref={listRef}
-                className="scrollbar-thin scrollbar-thumb-background/60 scrollbar-track-transparent flex-1 overflow-y-auto py-4"
-            >
-                {messages.length === 0 ? (
-                    <div className="flex h-full flex-col items-center justify-center">
-                        <MessageSquare className="text-text/20 mb-3 h-12 w-12" />
-
-                        <p className="text-text/60 text-center text-sm font-medium">
-                            No messages yet
-                        </p>
-
-                        <p className="text-text/40 text-center text-xs">
-                            Start the conversation
-                        </p>
-                    </div>
-                ) : (
-                    messages.map((message, index) => {
-                        const prevMessage =
-                            index > 0 ? messages[index - 1] : null
-                        const isConsecutive =
-                            prevMessage &&
-                            prevMessage.senderID === message.senderID &&
-                            message.createdAt - prevMessage.createdAt < 300000 // 5 minutes
-
-                        return (
-                            <Chat
-                                key={message.id}
-                                message={message}
-                                canEdit={message.senderID === user?.id}
-                                canDelete={
-                                    message.senderID === user?.id || isModerator
-                                }
-                                canPin={isModerator}
-                                members={members}
-                                deleteButton={() => deleteMessage(message.id)}
-                                editButton={() => startEdit(message)}
-                                pinButton={() => pinMessage(message.id)}
-                                isConsecutive={isConsecutive ?? undefined}
-                            />
-                        )
-                    })
-                )}
+    // Header component
+    const header = (
+        <header className="border-background/60 flex items-center justify-between border-b pb-4">
+            <div className="flex items-center gap-2">
+                <h3 className="text-lg font-semibold">Chat</h3>
             </div>
 
-            {/* input area */}
-            <ChatInput
-                value={text}
-                onChange={setText}
-                onSend={send}
+            <div className="flex items-center gap-2">
+                <div
+                    className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                        status === "LIVE"
+                            ? "bg-success animate-pulse"
+                            : status === "CONNECTING"
+                              ? "bg-warn animate-pulse"
+                              : "bg-error"
+                    }`}
+                />
+
+                <span
+                    className={`text-xs font-medium ${
+                        status === "LIVE"
+                            ? "text-success"
+                            : status === "CONNECTING"
+                              ? "text-warn"
+                              : "text-error"
+                    }`}
+                >
+                    {status === "CONNECTING" && "Connecting…"}
+                    {status === "LIVE" && "Live"}
+                    {status === "DISCONNECTED" &&
+                        (retry === "" ? "Disconnected" : retry)}
+                    {status === "ERROR" && "Error"}
+                </span>
+            </div>
+        </header>
+    )
+
+    // Pinned message component
+    const pinnedContent = pinnedMessage ? (
+        <div className="bg-background/60 border-background mt-4 rounded-lg border shadow-sm">
+            <div className="flex items-start gap-3 p-3">
+                <div className="bg-warn/15 mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md">
+                    <Pin className="text-warn h-4 w-4" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                    <div className="mb-1.5 flex items-center gap-2">
+                        <Pin className="text-warn h-3 w-3" />
+                        <span className="text-warn text-xs font-semibold uppercase tracking-wide">
+                            Pinned Message
+                        </span>
+                        <span className="text-text/40 text-xs">
+                            by{" "}
+                            {members[pinnedMessage.senderID]?.name ||
+                                "Unknown"}
+                        </span>
+                    </div>
+
+                    <p className="text-text line-clamp-2 text-sm leading-relaxed break-words">
+                        {pinnedMessage.message}
+                    </p>
+                </div>
+
+                {isModerator && (
+                    <button
+                        onClick={unpinMessage}
+                        className="text-text/40 hover:bg-error/10 hover:text-error mt-1 shrink-0 rounded-md p-1.5 transition-all"
+                        title="Unpin message"
+                        aria-label="Unpin message"
+                    >
+                        <X className="h-4 w-4" />
+                    </button>
+                )}
+            </div>
+        </div>
+    ) : undefined
+
+    return (
+        <Card>
+            <GenericChatBox
                 status={status}
+                retry={retry}
+                messages={messages}
+                members={members}
+                text={text}
+                onTextChange={setText}
+                onSend={send}
+                onDelete={deleteMessage}
+                onEdit={startEdit}
+                onPin={pinMessage}
+                canEdit={(message) => message.senderID === user?.id}
+                canDelete={(message) =>
+                    message.senderID === user?.id || isModerator
+                }
+                canPin={() => isModerator}
+                header={header}
+                pinnedContent={pinnedContent}
                 isEditing={!!editingID}
                 onCancelEdit={cancelEdit}
                 placeholder="Type a message…"

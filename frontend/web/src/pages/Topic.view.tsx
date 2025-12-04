@@ -1,9 +1,9 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useNavigate, useParams } from "react-router"
-import { ArrowLeft, MessageSquare } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import useChatSync from "@features/chat/hooks/useChatSync.ts"
-import Chat from "@features/chat/components/Chat.tsx"
-import ChatInput from "@features/chat/components/ChatInput.tsx"
+import GenericChatBox from "@features/chat/components/GenericChatBox.tsx"
+import { Card } from "@umnburrow/core"
 
 /**
  * View an individual topic and its chat.
@@ -27,8 +27,6 @@ export default function TopicView() {
     } = useChatSync()
 
     const [text, setText] = useState("")
-
-    const listRef = useRef<HTMLDivElement | null>(null)
 
     // get the current topic
     const topic = useMemo(() => {
@@ -60,13 +58,6 @@ export default function TopicView() {
         }
     }, [status, messages, users, getUsers])
 
-    // Auto-scroll to bottom on new messages
-    useLayoutEffect(() => {
-        const el = listRef.current
-        if (!el) return
-        el.scrollTop = el.scrollHeight
-    }, [messages.length])
-
     const handleSend = () => {
         const message = text.trim()
         if (!message || !id || status !== "LIVE") return
@@ -80,7 +71,7 @@ export default function TopicView() {
     }
 
     return (
-        <main className="mx-auto flex h-[calc(100vh-80px)] max-w-4xl flex-col px-4 py-6">
+        <main className="mx-auto max-w-4xl px-4 py-6">
             {/* header */}
             <header className="mb-4 flex items-center gap-4">
                 <button
@@ -129,48 +120,22 @@ export default function TopicView() {
                 </div>
             </header>
 
-            {/* Messages */}
-            <div className="bg-hero border-background flex-1 overflow-hidden rounded-xl border">
-                <div
-                    ref={listRef}
-                    className="scrollbar-thin scrollbar-thumb-background/60 scrollbar-track-transparent h-full space-y-2 overflow-y-auto p-4"
-                >
-                    {messages.length === 0 ? (
-                        <div className="flex h-full flex-col items-center justify-center">
-                            <MessageSquare className="text-text/20 mb-3 h-12 w-12" />
-                            <p className="text-text/60 text-center text-sm font-medium">
-                                No messages yet
-                            </p>
-                            <p className="text-text/40 text-center text-xs">
-                                Start the conversation
-                            </p>
-                        </div>
-                    ) : (
-                        messages.map((message) => (
-                            <Chat
-                                key={message.id}
-                                message={message}
-                                canEdit={false}
-                                canDelete={false}
-                                members={users}
-                                deleteButton={() => {}}
-                                editButton={() => {}}
-                            />
-                        ))
-                    )}
-                </div>
-            </div>
-
-            {/* chat input */}
-            <ChatInput
-                value={text}
-                onChange={setText}
-                onSend={handleSend}
-                status={status}
-                className="mt-4"
-                placeholder="Type a message..."
-                disconnectedPlaceholder="Connecting..."
-            />
+            {/* Chat */}
+            <Card>
+                <GenericChatBox
+                    status={status}
+                    messages={messages}
+                    members={users}
+                    text={text}
+                    onTextChange={setText}
+                    onSend={handleSend}
+                    canEdit={() => false}
+                    canDelete={() => false}
+                    placeholder="Type a message..."
+                    disconnectedPlaceholder="Connecting..."
+                    height="h-[calc(100vh-240px)]"
+                />
+            </Card>
         </main>
     )
 }
