@@ -83,7 +83,7 @@ export default function Topics() {
                 {topicsToShow.length > 0 && (
                     <button
                         onClick={() => nav("/discuss")}
-                        className="text-secondary hover:text-secondary/80 mt-1 flex items-center justify-center gap-1 text-sm font-medium transition-colors"
+                        className="text-secondary hover:text-secondary/80 mt-1 flex cursor-pointer items-center justify-center gap-1 text-sm font-medium transition-colors"
                     >
                         View all discussions
                         <ArrowRight className="h-4 w-4" />
