@@ -106,7 +106,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
                 query = searchQuery
                 dateRange = range
                 requestingUserID = call.userID
-                isHost = host
+                isHostedBy = if (host == true) call.userID else null
                 isBookmarked = bookmarked
             }
         )

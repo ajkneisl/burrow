@@ -37,9 +37,13 @@ export async function login(credentials: string): Promise<AuthorizedUser> {
  * Get all relations.
  *
  * @param key The type of relation to retrieve.
+ * @param forUserID The user ID to search for
  */
-export async function getRelations(key: string): Promise<Relation[]> {
-    return get(`/user/relations/${key}`)
+export async function getRelations(
+    key: string,
+    forUserID?: string
+): Promise<Relation[]> {
+    return get(`/user/relations/${key}`, { query: { userID: forUserID } })
 }
 
 /**

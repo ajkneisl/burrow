@@ -1,26 +1,17 @@
 package app.burrow.account.models
 
 import app.burrow.Error
-import app.burrow.account.models.Users
 import app.burrow.account.profile.FollowResponse
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
 import app.burrow.account.profile.getFollowing
-import app.burrow.burrows.Burrow
-import app.burrow.burrows.membership.Memberships
-import app.burrow.burrows.models.BurrowRole
-import app.burrow.burrows.models.Burrows
+import app.burrow.burrows.models.BurrowResponse
+import app.burrow.burrows.searchBurrows
 import app.burrow.query
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
-import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.greater
-import org.jetbrains.exposed.v1.core.neq
-import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 
 /**
@@ -29,16 +20,16 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
  * @param user The user's details.
  * @param profile The user's profile.
  * @param following Following information.
- * @param recentJoinedGroups The groups the user joined that are coming up.
- * @param recentHostedGroups The groups the user is hosting that are coming up.
+ * @param recentJoinedBurrows The Burrows the user joined that are coming up.
+ * @param recentHostedBurrows The Burrows the user is hosting that are coming up.
  */
 @Serializable
 data class UserResponse(
     val user: User,
     val profile: Profile,
     val following: FollowResponse,
-    val recentJoinedGroups: List<Burrow>,
-    val recentHostedGroups: List<Burrow>,
+    val recentJoinedBurrows: List<BurrowResponse>,
+    val recentHostedBurrows: List<BurrowResponse>,
     val email: String? = null,
 )
 
@@ -88,35 +79,30 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
             )
     }
 
-    val now = System.currentTimeMillis()
-
     val hostedMeetings =
-        Burrows.selectAll()
-            .where { (Burrows.ownerID eq userID) and (Burrows.beginningTime greater now) }
-            .orderBy(Burrows.beginningTime to SortOrder.ASC)
-            .limit(3)
-            .map { Burrow.fromRow(it) }
-            .toList()
+        searchBurrows {
+                limit = 3
+                isHostedBy = userID
+
+                this.requestingUserID = requestingUserID
+            }
+            .contents
 
     val joinedMeetings =
-        (Memberships innerJoin Burrows)
-            .select(Burrows.columns)
-            .where {
-                (Memberships.userID eq userID) and
-                    (Burrows.beginningTime greater now) and
-                    (Memberships.role neq BurrowRole.HOST)
+        searchBurrows {
+                limit = 3
+                isJoinedBy = userID
+
+                this.requestingUserID = requestingUserID
             }
-            .orderBy(Burrows.beginningTime to SortOrder.ASC)
-            .limit(3)
-            .map { Burrow.fromRow(it) }
-            .toList()
+            .contents
 
     UserResponse(
         user = User.fromRow(userRow),
         profile = profile,
         following = following,
-        recentJoinedGroups = if (cannotSee) emptyList() else joinedMeetings,
-        recentHostedGroups = if (cannotSee) emptyList() else hostedMeetings,
+        recentJoinedBurrows = joinedMeetings,
+        recentHostedBurrows = hostedMeetings,
         email = if (requestingUserID == userID) userRow[Users.email] else null,
     )
 }

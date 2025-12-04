@@ -1,5 +1,5 @@
 import type { User } from "@features/auth/user.types.ts"
-import type { Burrow } from "@features/burrows/burrows.types.tsx"
+import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 
 /**
  * A user's profile.
@@ -36,8 +36,8 @@ export type UserResponse = {
     user: User
     profile: Profile
     following: Following
-    recentJoinedGroups: Burrow[]
-    recentHostedGroups: Burrow[]
+    recentJoinedBurrows: BurrowResponse[]
+    recentHostedBurrows: BurrowResponse[]
     email?: string
 }
 

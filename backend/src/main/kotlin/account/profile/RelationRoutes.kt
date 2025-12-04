@@ -35,7 +35,7 @@ val RELATION_ROUTES: Route.() -> Unit = {
 
         if (userID != null && !(call.userID isFriendsWith userID)) throw InvalidAuthorization()
 
-        call.respond(getFollowingRelations(userID ?: call.userID))
+        call.respond(getFollowersRelations(userID ?: call.userID))
     }
 
     // GET /user/relations/discover

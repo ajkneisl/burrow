@@ -105,7 +105,7 @@ export async function saveProfile(profile: Record<keyof Profile, string>) {
  */
 export const FOLLOWERS_VIEW = (forUserID?: string): RelationView => ({
     key: "followers",
-    title: "My Followers",
+    title: "Followers",
     forUserID
 })
 
@@ -114,6 +114,6 @@ export const FOLLOWERS_VIEW = (forUserID?: string): RelationView => ({
  */
 export const FOLLOWING_VIEW = (forUserID?: string): RelationView => ({
     key: "following",
-    title: "My Following",
+    title: "Following",
     forUserID
 })

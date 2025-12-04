@@ -87,28 +87,42 @@ private suspend fun getUserSearchContext(userID: String): UserSearchContext = qu
     UserSearchContext(profile, memberships, bookmarks)
 }
 
-/**
- * Context to search a Burrow
- *
- * @param kind The kind of Burrow.
- * @param query The search query. This will search through tags, title, description, location, etc..
- * @param dateRange The range of dates to search through.
- * @param forceAuthorName Force the author of the retrieved meetings to be a specific name.
- * @param requestingUserID The ID of the user searching. This allows for the implementation of
- *   bookmarks and memberships.
- * @param authorUserID The requested author ID of the Burrows.
- * @param offset
- */
+/** Context to search a Burrow */
 data class SearchBurrowsBuilder(
+    /** The kind of Burrow to search for. */
     var kind: BurrowKind? = null,
+
+    /**
+     * A query to search through [Burrow.title], [Burrow.tags], [Burrow.location] and
+     * [Burrow.description].
+     */
     var query: String? = null,
+
+    /** The date range that [Burrow.endTime] is within. */
     var dateRange: LongRange? = null,
+
+    /** The ID of the user requesting this search. */
     var requestingUserID: String? = null,
+
+    /** Search by [Burrow.ownerID]. */
     var authorUserID: String? = null,
+
+    /** Search by [requestingUserID]'s bookmarked Burrows. */
     var isBookmarked: Boolean? = null,
-    var isHost: Boolean? = null,
+
+    /** Filter by if the ID provided is hosting the Burrow. */
+    var isHostedBy: String? = null,
+
+    /** Filter by if the ID provided is in the Burrow. */
+    var isJoinedBy: String? = null,
+
+    /** Force all the Burrows responded to have a specific name. */
     var forceAuthorName: String? = null,
+
+    /** Override the provided page and set how the request offset. */
     var offset: Long? = null,
+
+    /** Override the provided page and set a limit of how many Burrows.. */
     var limit: Int? = null,
 )
 
@@ -135,7 +149,8 @@ suspend fun searchBurrows(
         requestingUserID,
         authorUserID,
         isBookmarked,
-        isHost,
+        isHostedBy,
+        isJoinedBy,
         forceAuthorName,
         offset,
         limit) =
@@ -191,9 +206,7 @@ suspend fun searchBurrows(
     val authorExpr = if (authorUserID != null) (Burrows.ownerID eq authorUserID) else Op.TRUE
 
     // get only hosted burrows
-    val hostExpr =
-        if (isHost == true && requestingUserID != null) (Burrows.ownerID eq requestingUserID)
-        else Op.TRUE
+    val hostExpr = if (isHostedBy != null) (Burrows.ownerID eq isHostedBy) else Op.TRUE
 
     // combination of all search requests
     val whereExpr = dateExpr and searchExpr and kindExpr and privacyExpr and authorExpr and hostExpr
@@ -227,18 +240,18 @@ suspend fun searchBurrows(
                 Burrows.innerJoin(Users, { Burrows.ownerID }, { Users.id })
                     // find the amount of joined users
                     .leftJoin(
-                        joinedAlias,
-                        { Burrows.id },
-                        { joinedAlias[Memberships.burrowID] },
+                        otherTable = joinedAlias,
+                        onColumn = { Burrows.id },
+                        otherColumn = { joinedAlias[Memberships.burrowID] },
                         additionalConstraint = {
                             joinedAlias[Memberships.status] eq BurrowMemberStatus.JOINED
                         },
                     )
                     // find the amount of users in the waitlist
                     .leftJoin(
-                        waitingAlias,
-                        { Burrows.id },
-                        { waitingAlias[Memberships.burrowID] },
+                        otherTable = waitingAlias,
+                        onColumn = { Burrows.id },
+                        otherColumn = { waitingAlias[Memberships.burrowID] },
                         additionalConstraint = {
                             waitingAlias[Memberships.status] eq BurrowMemberStatus.WAITLISTED
                         },
@@ -249,10 +262,20 @@ suspend fun searchBurrows(
                     .doIf(isBookmarked == true && requestingUserID != null) {
                         // join bookmarks depending on requestingUserID
                         innerJoin(
-                            Bookmarks,
-                            { Burrows.id },
-                            { Bookmarks.burrowID },
+                            otherTable = Bookmarks,
+                            onColumn = { Burrows.id },
+                            otherColumn = { Bookmarks.burrowID },
                             additionalConstraint = { Bookmarks.userID eq requestingUserID!! },
+                        )
+                    }
+                    // if searching by joined
+                    .doIf(isJoinedBy != null) {
+                        // join memberships depending on requestingUserID
+                        innerJoin(
+                            otherTable = Memberships,
+                            onColumn = { Burrows.id },
+                            otherColumn = { Memberships.burrowID },
+                            additionalConstraint = { Memberships.userID eq isJoinedBy!! },
                         )
                     }
                     // select for search result

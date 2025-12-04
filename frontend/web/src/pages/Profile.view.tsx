@@ -13,7 +13,6 @@ import useUser from "@features/auth/hooks/useUser.ts"
 import About from "@features/profile/components/About.tsx"
 import Contact from "@features/profile/components/Contact.tsx"
 import EditProfile from "@features/profile/components/EditProfile.tsx"
-import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 import { convertGraduationYear } from "@api/util.ts"
 import Relations from "@features/profile/components/Relations.tsx"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
@@ -255,21 +254,16 @@ export default function ProfileView() {
                         <div className="col-span-1 flex flex-col gap-4">
                             <h2 className="figtree text-lg">Hosted Burrows</h2>
 
-                            {(data.recentHostedGroups.length ?? 0) === 0 ? (
+                            {(data.recentHostedBurrows.length ?? 0) === 0 ? (
                                 <Card>
                                     <p className="text-text/70 text-center">
                                         No hosted meetings.
                                     </p>
                                 </Card>
                             ) : (
-                                data.recentHostedGroups.map((meeting) => (
+                                data.recentHostedBurrows.map((burrow) => (
                                     <BurrowCard
-                                        meetingResponse={
-                                            {
-                                                burrow: meeting,
-                                                bookmarked: false
-                                            } as BurrowResponse
-                                        }
+                                        meetingResponse={burrow}
                                         details={false}
                                     />
                                 ))
@@ -280,21 +274,16 @@ export default function ProfileView() {
                         <div className="col-span-1 flex flex-col gap-4">
                             <h2 className="figtree text-lg">Joined Burrows</h2>
 
-                            {(data.recentJoinedGroups.length ?? 0) === 0 ? (
+                            {(data.recentJoinedBurrows.length ?? 0) === 0 ? (
                                 <Card className="w-full">
                                     <p className="text-text/70 text-center">
                                         No joined meetings.
                                     </p>
                                 </Card>
                             ) : (
-                                data.recentJoinedGroups.map((meeting) => (
+                                data.recentJoinedBurrows.map((burrow) => (
                                     <BurrowCard
-                                        meetingResponse={
-                                            {
-                                                burrow: meeting,
-                                                bookmarked: false
-                                            } as BurrowResponse
-                                        }
+                                        meetingResponse={burrow}
                                         details={false}
                                     />
                                 ))

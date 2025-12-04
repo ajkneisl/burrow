@@ -26,7 +26,11 @@ export default function ViewRelations() {
     const { data, isLoading, isError } = useQuery<Relation[]>({
         queryKey: [relation?.key],
         enabled: isOpen && auth !== null,
-        queryFn: async () => await getRelations(relation?.key ?? "friends") ?? []
+        queryFn: async () =>
+            (await getRelations(
+                relation?.key ?? "friends",
+                relation?.forUserID
+            )) ?? []
     })
 
     if (!isOpen) return null
