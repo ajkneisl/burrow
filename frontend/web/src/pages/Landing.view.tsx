@@ -4,10 +4,20 @@ import { useNavigate } from "react-router"
 import { useAtom, useSetAtom } from "jotai"
 import toast from "react-hot-toast"
 import { useMutation } from "@tanstack/react-query"
-import { Users, CalendarClock, Sparkles } from "lucide-react"
+import {
+    Users,
+    CalendarClock,
+    Sparkles,
+    MessageSquare,
+    Shield,
+    Zap,
+    ArrowRight,
+    CheckCircle2
+} from "lucide-react"
 import { authToken, newUser, userDetails } from "@features/auth/auth.atom.ts"
-import { Card, ViewErrors } from "@umnburrow/core"
+import { ViewErrors } from "@umnburrow/core"
 import { login } from "@features/auth/user.api.ts"
+import { Link } from "react-router"
 
 /**
  * The view people get when first visiting Burrow.
@@ -71,86 +81,258 @@ export default function LandingView() {
     }
 
     return (
-        <div className="flex flex-col items-center">
-            {/* Big Gopher */}
-            <div className="relative mt-8 w-full max-w-6xl overflow-hidden rounded-2xl">
-                <div className="h-[22rem] bg-[url('/image/banner.png')] bg-[position:center_calc(100%+225px)] bg-no-repeat" />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                <div className="absolute inset-0 flex flex-col items-center justify-end pb-8 text-center">
-                    <h1 className="figtree text-secondary text-7xl font-extrabold tracking-tight drop-shadow-md">
-                        Burrow
-                    </h1>
+        <div className="flex min-h-screen flex-col">
+            <section className="relative overflow-hidden px-4 py-20 sm:py-32">
+                <div className="mx-auto max-w-6xl space-y-8">
+                    {/* made by gophers */}
+                    <div className="flex justify-center">
+                        <div className="bg-secondary/10 text-secondary inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
+                            <img
+                                src="/image/M_gold.svg"
+                                alt="University of Minnesota"
+                                className="h-5 w-5"
+                            />
+                            Made by Gophers, for Gophers
+                        </div>
+                    </div>
 
-                    <p className="mt-3 max-w-2xl px-4 text-lg text-white/90">
-                        Discover peers, study better, and meet at the right
-                        time.
-                    </p>
+                    {/* banner */}
+                    <div className="relative flex items-center justify-center">
+                        <div className="border-card-border relative w-full max-w-5xl overflow-hidden rounded-2xl border shadow-2xl">
+                            <div className="h-[400px] bg-[url('/image/banner.png')] bg-cover bg-center sm:h-[500px]" />
+                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+
+                            {/* study groups, made simple */}
+                            <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
+                                <h1 className="figtree mb-6 text-5xl leading-tight font-extrabold tracking-tight text-white drop-shadow-lg sm:text-6xl md:text-7xl lg:text-8xl">
+                                    Study groups,
+                                    <br />
+                                    <span className="from-secondary via-error to-secondary bg-gradient-to-r bg-clip-text text-transparent drop-shadow-sm">
+                                        made simple
+                                    </span>
+                                </h1>
+
+                                <p className="mx-auto max-w-2xl text-lg font-medium text-white drop-shadow-md sm:text-xl md:text-2xl">
+                                    Connect with classmates, join study
+                                    sessions, and ace your courses together. All
+                                    in one place.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* trust indicators */}
+                    <div className="text-text/60 flex flex-wrap items-center justify-center gap-6 text-sm">
+                        <div className="flex items-center gap-1.5">
+                            <CheckCircle2 className="text-secondary h-4 w-4" />
+                            <span>All Majors</span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                            <CheckCircle2 className="text-secondary h-4 w-4" />
+                            <span>Secure & Private</span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                            <CheckCircle2 className="text-secondary h-4 w-4" />
+                            <span>Completely Free</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <div className="mx-auto mt-10 grid w-full max-w-5xl grid-cols-1 gap-6 px-4 md:grid-cols-3">
-                <Card className="group transition-all hover:shadow-lg">
-                    <div className="mb-3 flex items-center gap-3">
-                        <div className="bg-secondary/10 text-secondary flex h-10 w-10 items-center justify-center rounded-lg transition-transform group-hover:scale-110">
-                            <Users className="h-5 w-5" />
-                        </div>
-                        <h3 className="text-lg font-bold">
-                            Connect with peers
-                        </h3>
+            {/* how it works */}
+            <section className="bg-card/30 px-4 py-24 sm:px-6">
+                <div className="mx-auto max-w-6xl">
+                    <div className="mb-16 text-center">
+                        <h2 className="text-text mb-4 text-3xl font-bold sm:text-4xl md:text-5xl">
+                            How it works
+                        </h2>
+
+                        <p className="text-text/80 mx-auto max-w-2xl text-lg font-medium">
+                            Getting started is easier than finding a parking
+                            spot on campus
+                        </p>
                     </div>
-                    <p className="text-text/70 text-sm leading-relaxed">
-                        Discover and join study sessions with students in your
-                        courses. Find the perfect study group that fits your
-                        schedule.
-                    </p>
-                </Card>
 
-                <Card className="group transition-all hover:shadow-lg">
-                    <div className="mb-3 flex items-center gap-3">
-                        <div className="bg-secondary/10 text-secondary flex h-10 w-10 items-center justify-center rounded-lg transition-transform group-hover:scale-110">
-                            <CalendarClock className="h-5 w-5" />
+                    <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+                        {/* Step 1 */}
+                        <div className="flex flex-col items-center text-center">
+                            <div className="from-secondary/20 to-secondary/10 mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br">
+                                <span className="text-secondary text-3xl font-bold">
+                                    1
+                                </span>
+                            </div>
+                            <h3 className="text-text mb-3 text-xl font-bold">
+                                Sign in with Google
+                            </h3>
+                            <p className="text-text/80 text-base">
+                                Use your UMN email to instantly join. No setup,
+                                no hassle.
+                            </p>
                         </div>
-                        <h3 className="text-lg font-bold">Smart scheduling</h3>
-                    </div>
-                    <p className="text-text/70 text-sm leading-relaxed">
-                        Burrow ensures everyone stays in sync and on the same
-                        schedule. No more back and forth.
-                    </p>
-                </Card>
 
-                <Card className="group transition-all hover:shadow-lg">
-                    <div className="mb-3 flex items-center gap-3">
-                        <div className="bg-secondary/10 text-secondary flex h-10 w-10 items-center justify-center rounded-lg transition-transform group-hover:scale-110">
-                            <Sparkles className="h-5 w-5" />
+                        {/* Step 2 */}
+                        <div className="flex flex-col items-center text-center">
+                            <div className="from-secondary/20 to-secondary/10 mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br">
+                                <span className="text-secondary text-3xl font-bold">
+                                    2
+                                </span>
+                            </div>
+                            <h3 className="text-text mb-3 text-xl font-bold">
+                                Find or create a Burrow
+                            </h3>
+                            <p className="text-text/80 text-base">
+                                Browse study groups for your classes or start
+                                your own in seconds.
+                            </p>
                         </div>
-                        <h3 className="text-lg font-bold">Instant access</h3>
+
+                        {/* Step 3 */}
+                        <div className="flex flex-col items-center text-center">
+                            <div className="from-secondary/20 to-secondary/10 mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br">
+                                <span className="text-secondary text-3xl font-bold">
+                                    3
+                                </span>
+                            </div>
+                            <h3 className="text-text mb-3 text-xl font-bold">
+                                Start collaborating
+                            </h3>
+                            <p className="text-text/80 text-base">
+                                Study with classmates, work together on a
+                                project, or simply meet new people.
+                            </p>
+                        </div>
                     </div>
-                    <p className="text-text/70 text-sm leading-relaxed">
-                        Sign in with your UMN Google account and start
-                        collaborating immediately. Built exclusively for
-                        Gophers.
+                </div>
+            </section>
+
+            {/* features */}
+            <section className="bg-background px-4 py-24 sm:px-6">
+                <div className="mx-auto max-w-6xl">
+                    <div className="mb-16 text-center">
+                        <h2 className="text-text mb-4 text-3xl font-bold sm:text-4xl md:text-5xl">
+                            Everything you need, nothing you don't
+                        </h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="flex gap-4">
+                            <div className="bg-secondary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg">
+                                <Users className="text-secondary h-5 w-5" />
+                            </div>
+                            <div>
+                                <h3 className="text-text mb-1 font-semibold">
+                                    Browse study groups
+                                </h3>
+                                <p className="text-text/75 text-sm font-medium">
+                                    Find groups for any class, with filters for
+                                    time and location
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4">
+                            <div className="bg-secondary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg">
+                                <MessageSquare className="text-secondary h-5 w-5" />
+                            </div>
+                            <div>
+                                <h3 className="text-text mb-1 font-semibold">
+                                    Built-in chat
+                                </h3>
+                                <p className="text-text/75 text-sm font-medium">
+                                    Message your group without juggling apps
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4">
+                            <div className="bg-secondary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg">
+                                <CalendarClock className="text-secondary h-5 w-5" />
+                            </div>
+                            <div>
+                                <h3 className="text-text mb-1 font-semibold">
+                                    Smart scheduling
+                                </h3>
+                                <p className="text-text/75 text-sm font-medium">
+                                    Set times and locations that work for
+                                    everyone
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4">
+                            <div className="bg-secondary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg">
+                                <Shield className="text-secondary h-5 w-5" />
+                            </div>
+                            <div>
+                                <h3 className="text-text mb-1 font-semibold">
+                                    UMN students only
+                                </h3>
+                                <p className="text-text/75 text-sm font-medium">
+                                    Verified accounts keep things safe and
+                                    relevant
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4">
+                            <div className="bg-secondary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg">
+                                <Zap className="text-secondary h-5 w-5" />
+                            </div>
+                            <div>
+                                <h3 className="text-text mb-1 font-semibold">
+                                    Join instantly
+                                </h3>
+                                <p className="text-text/75 text-sm font-medium">
+                                    One click to join any group that has space
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4">
+                            <div className="bg-secondary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg">
+                                <Sparkles className="text-secondary h-5 w-5" />
+                            </div>
+                            <div>
+                                <h3 className="text-text mb-1 font-semibold">
+                                    Multiple types
+                                </h3>
+                                <p className="text-text/75 text-sm font-medium">
+                                    Study sessions, club meetings, or events
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* tap in */}
+            <section className="bg-card/30 px-4 py-24 sm:px-6">
+                <div className="mx-auto max-w-3xl text-center">
+                    <h2 className="text-text mb-6 text-3xl font-bold sm:text-4xl md:text-5xl">
+                        Ready to find your study crew?
+                    </h2>
+                    <p className="text-text/80 mb-8 text-lg font-medium">
+                        Join hundreds of UMN students already studying smarter
+                        together
                     </p>
-                </Card>
-            </div>
 
-            {/* log in area */}
-            <div className="mx-4 mt-12 mb-12 flex w-full max-w-lg flex-col items-center px-4">
-                <h2 className="text-center text-xl font-semibold">
-                    Sign in with your University of Minnesota account
-                </h2>
-
-                <div className="mt-5">
+                    {/* Error Display */}
                     {error && (
-                        <ViewErrors
-                            errors={[error]}
-                            clearErrors={() => setError(null)}
-                        />
+                        <div className="mx-auto mb-8 w-full max-w-md">
+                            <ViewErrors
+                                errors={[error]}
+                                clearErrors={() => setError(null)}
+                            />
+                        </div>
                     )}
 
-                    <Card>
+                    {/* Google Sign-in */}
+                    <div className="mb-8">
                         <div
                             ref={googleLoginContainer}
-                            className="flex max-w-screen flex-col items-center gap-3"
+                            className="flex justify-center"
                         >
                             <GoogleOAuthProvider clientId="808386876282-4s7060hmt21b2i069tkea6fddsumj86o.apps.googleusercontent.com">
                                 <GoogleLogin
@@ -172,27 +354,36 @@ export default function LandingView() {
                                 />
                             </GoogleOAuthProvider>
                         </div>
-                    </Card>
+                    </div>
 
-                    <p className="text-text/40 mt-3 text-center text-xs">
-                        By signing in with Google, you agree to Burrow's{" "}
-                        <a
-                            href="/privacy"
-                            className="text-text/60 hover:text-text/50 underline"
+                    <p className="text-text/60 mb-4 text-xs">
+                        By signing in, you agree to our{" "}
+                        <Link
+                            to="/privacy"
+                            className="text-secondary font-medium hover:underline"
                         >
                             Privacy Policy
-                        </a>{" "}
+                        </Link>{" "}
                         and{" "}
-                        <a
-                            href="/tos"
-                            className="text-text/60 hover:text-text/50 underline"
+                        <Link
+                            to="/tos"
+                            className="text-secondary font-medium hover:underline"
                         >
                             Terms of Service
-                        </a>
-                        .
+                        </Link>
                     </p>
+
+                    <div className="mt-8">
+                        <Link
+                            to="/about"
+                            className="group text-text/80 hover:text-text inline-flex items-center gap-2 font-medium transition-colors"
+                        >
+                            Learn more about Burrow
+                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </Link>
+                    </div>
                 </div>
-            </div>
+            </section>
         </div>
     )
 }
