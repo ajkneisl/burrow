@@ -1,7 +1,7 @@
 package app.burrow.account.profile
 
-import app.burrow.account.models.Users
 import app.burrow.Error
+import app.burrow.account.models.Users
 import app.burrow.query
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -101,6 +101,17 @@ suspend fun findMutuals(userID: String, otherUserID: String): Int = query {
     userFollowing.intersect(otherFollowing.toSet()).size
 }
 
+/**
+ * A relationship between two users.
+ *
+ * @param userID The ID of the non-requesting user.
+ * @param username The username of the non-requesting user.
+ * @param name The name of the non-requesting user.
+ * @param friendsAt If the two users are friends, the ms date of when these users became friends,
+ *   otherwise null.
+ * @param youFollowedAt When the requesting user followed.
+ * @param theyFollowedAt When the requested user followed.
+ */
 @Serializable
 data class Relation(
     val userID: String,
@@ -111,6 +122,11 @@ data class Relation(
     val theyFollowedAt: Long?,
 )
 
+/**
+ * Get [userID]'s friends.
+ *
+ * @return A list of [Relation]s that are [userID]'s friends.
+ */
 suspend fun getFriends(userID: String): List<Relation> = query {
     val followingMap: Map<String, Long> =
         Following.selectAll()
@@ -119,7 +135,6 @@ suspend fun getFriends(userID: String): List<Relation> = query {
             .toList()
             .toMap()
 
-    // Users that follow this user: follower -> when they followed user
     val followersMap: Map<String, Long> =
         Following.selectAll()
             .where { Following.followee eq userID }
@@ -127,11 +142,9 @@ suspend fun getFriends(userID: String): List<Relation> = query {
             .toList()
             .toMap()
 
-    // Mutuals (friend = both follow each other)
     val mutualIds = followingMap.keys.intersect(followersMap.keys)
     if (mutualIds.isEmpty()) return@query emptyList()
 
-    // Fetch user + profile info for mutuals
     val userRows =
         Users.innerJoin(Profiles, { Users.id }, { Profiles.userID })
             .select(Users.id, Users.username, Profiles.name)
@@ -140,7 +153,6 @@ suspend fun getFriends(userID: String): List<Relation> = query {
 
     val byId = userRows.associateBy({ it[Users.id] }, { it })
 
-    // friendsAt = later of the two follow times
     mutualIds
         .mapNotNull { id ->
             val row = byId[id] ?: return@mapNotNull null
@@ -163,6 +175,11 @@ suspend fun isFollowing(followerID: String, followeeID: String): Boolean = query
     Following.selectAll()
         .where { (Following.follower eq followerID) and (Following.followee eq followeeID) }
         .count() > 0
+}
+
+/** Check if [this], which should be a user ID, and [otherUserID] are friends. */
+suspend infix fun String.isFriendsWith(otherUserID: String): Boolean {
+    return getFriends(this).any { relation -> relation.userID == otherUserID }
 }
 
 /** Follow a user. */

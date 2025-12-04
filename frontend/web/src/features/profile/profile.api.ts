@@ -101,25 +101,19 @@ export async function saveProfile(profile: Record<keyof Profile, string>) {
 }
 
 /**
- * A view of the {@see ViewRelations} modal that displays friends.
- */
-export const FRIENDS_VIEW: RelationView = {
-    key: "friends",
-    title: "My Friends"
-}
-
-/**
  * A view of the {@see ViewRelations} modal that displays followers.
  */
-export const FOLLOWERS_VIEW: RelationView = {
+export const FOLLOWERS_VIEW = (forUserID?: string): RelationView => ({
     key: "followers",
-    title: "My Followers"
-}
+    title: "My Followers",
+    forUserID
+})
 
 /**
  * A view of the {@see ViewRelations} modal that displays users who you're following.
  */
-export const FOLLOWING_VIEW: RelationView = {
+export const FOLLOWING_VIEW = (forUserID?: string): RelationView => ({
     key: "following",
-    title: "My Following"
-}
+    title: "My Following",
+    forUserID
+})

@@ -189,7 +189,13 @@ export default function ProfileView() {
                             </div>
 
                             {/* followers / following */}
-                            <Relations data={data} />
+                            <Relations
+                                data={data}
+                                isFriends={
+                                    data.following.youFollow &&
+                                    data.following.theyFollow
+                                }
+                            />
 
                             {/* how many mutual friends you have with them */}
                             {data.following.mutuals > 0 && (

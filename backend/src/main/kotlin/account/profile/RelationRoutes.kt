@@ -1,5 +1,6 @@
 package app.burrow.account.profile
 
+import app.burrow.InvalidAuthorization
 import app.burrow.account.models.userID
 import app.burrow.queryParameter
 import io.ktor.http.HttpStatusCode
@@ -19,11 +20,23 @@ val RELATION_ROUTES: Route.() -> Unit = {
 
     // GET /user/relations/following
     // retrieve all the user's you're following
-    get("/following") { call.respond(getFollowingRelations(call.userID)) }
+    get("/following") {
+        val userID = call.queryParameters["userID"]
+
+        if (userID != null && !(call.userID isFriendsWith userID)) throw InvalidAuthorization()
+
+        call.respond(getFollowingRelations(userID ?: call.userID))
+    }
 
     // GET /user/relations/followers
     // retrieve all the user's that follow you
-    get("/followers") { call.respond(getFollowersRelations(call.userID)) }
+    get("/followers") {
+        val userID = call.queryParameters["userID"]
+
+        if (userID != null && !(call.userID isFriendsWith userID)) throw InvalidAuthorization()
+
+        call.respond(getFollowingRelations(userID ?: call.userID))
+    }
 
     // GET /user/relations/discover
     // discover users
