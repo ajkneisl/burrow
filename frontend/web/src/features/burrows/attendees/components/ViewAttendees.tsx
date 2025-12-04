@@ -4,7 +4,7 @@ import type {
     BurrowMembershipResponse,
     JoinRequestWithUser,
     InviteWithUsers
-} from "@features/burrows/burrows.types.ts"
+} from "@features/burrows/burrows.types.tsx"
 import type { PaginatedResponse } from "@api/api.types.ts"
 import { useParams } from "react-router"
 import { getAttendees } from "@features/burrows/burrows.api.ts"
@@ -20,6 +20,8 @@ import { capitalizeFirstLetter } from "@api/util.ts"
 import InviteRequest from "@features/burrows/attendees/components/InviteRequest.tsx"
 import JoinRequest from "@features/burrows/attendees/components/JoinRequest.tsx"
 import InviteUser from "@features/burrows/attendees/components/InviteUser.tsx"
+import {useAtom} from "jotai";
+import {authToken} from "@features/auth/auth.atom.ts";
 
 /**
  * The order of memberships to display.
@@ -48,13 +50,23 @@ function sortMemberships(
 }
 
 /**
+ * @see ViewAttendees
+ */
+type ViewAttendeesProps = {
+    term?: string
+}
+
+/**
  * View all attendees in a group.
  *
  * @author AJ Kneisl
  */
-export default function ViewAttendees() {
+export default function ViewAttendees({
+    term = "Attendees"
+}: ViewAttendeesProps) {
     const { id: burrowID } = useParams<{ id: string }>()
     const user = useUser()
+    const [auth] = useAtom(authToken)
 
     const [viewMode, setViewMode] = useState<"attendees" | "requests">(
         "attendees"
@@ -89,7 +101,7 @@ export default function ViewAttendees() {
         queryFn: async () => {
             return await getJoinRequests(burrowID!, requestsPage)
         },
-        enabled: !!burrowID
+        enabled: auth !== "" && !!burrowID
     })
 
     // invites
@@ -102,7 +114,7 @@ export default function ViewAttendees() {
         queryFn: async () => {
             return await getInvites(burrowID!, attendeesPage)
         },
-        enabled: !!burrowID
+        enabled: auth !== "" && !!burrowID
     })
 
     const meetingRole: BurrowRole | null = useMemo(() => {
@@ -126,7 +138,7 @@ export default function ViewAttendees() {
     const attendeesView = (
         <>
             {isLoading && (
-                <div className="border-hero bg-card text-text rounded-lg border p-4">
+                <div className="border-hero bg-background text-text rounded-lg border p-4">
                     Loading attendees…
                 </div>
             )}
@@ -245,7 +257,9 @@ export default function ViewAttendees() {
             {/* header */}
             <div className="mb-2 flex flex-row items-center justify-between">
                 <h3 className="text-center text-sm font-semibold">
-                    {capitalizeFirstLetter(viewMode)}
+                    {capitalizeFirstLetter(
+                        viewMode === "attendees" && term ? term : viewMode
+                    )}
                 </h3>
 
                 {meetingRole !== "MEMBER" && (

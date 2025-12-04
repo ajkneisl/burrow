@@ -4,7 +4,7 @@ import type {
     UserResponse
 } from "@features/profile/profile.model.ts"
 import { BASE_URL } from "@api/util.ts"
-import { get, post } from "@api/api.ts"
+import { del, get, post } from "@api/api.ts"
 
 /**
  * Get a user by their username.
@@ -42,41 +42,23 @@ export async function getUserByID(
 /**
  * Follow a user.
  *
- * @param auth The authorization token.
  * @param userID The user to follow.
  */
-export async function followUser(auth: string, userID: string) {
-    const request = await fetch(
-        `${BASE_URL}/user/profile/follow?userID=${userID}`,
-        {
-            method: "POST",
-            headers: {
-                Authorization: "Bearer " + auth
-            }
-        }
-    )
-
-    if (!request.ok) return Promise.reject("Failed to follow user.")
+export async function followUser(userID: string) {
+    return await post("/user/relations/follow", undefined, {
+        query: { userID }
+    })
 }
 
 /**
  * Un-follow a user.
  *
- * @param auth The authorization token.
  * @param userID The user to unfollow.
  */
-export async function unFollowUser(auth: string, userID: string) {
-    const request = await fetch(
-        `${BASE_URL}/user/profile/follow?userID=${userID}`,
-        {
-            method: "DELETE",
-            headers: {
-                Authorization: "Bearer " + auth
-            }
-        }
-    )
-
-    if (!request.ok) return Promise.reject("Failed to un-follow user.")
+export async function unFollowUser(userID: string) {
+    return await del("/user/relations/follow", {
+        query: { userID }
+    })
 }
 
 /**
@@ -119,25 +101,19 @@ export async function saveProfile(profile: Record<keyof Profile, string>) {
 }
 
 /**
- * A view of the {@see ViewRelations} modal that displays friends.
- */
-export const FRIENDS_VIEW: RelationView = {
-    key: "friends",
-    title: "My Friends"
-}
-
-/**
  * A view of the {@see ViewRelations} modal that displays followers.
  */
-export const FOLLOWERS_VIEW: RelationView = {
+export const FOLLOWERS_VIEW = (forUserID?: string): RelationView => ({
     key: "followers",
-    title: "My Followers"
-}
+    title: "Followers",
+    forUserID
+})
 
 /**
  * A view of the {@see ViewRelations} modal that displays users who you're following.
  */
-export const FOLLOWING_VIEW: RelationView = {
+export const FOLLOWING_VIEW = (forUserID?: string): RelationView => ({
     key: "following",
-    title: "My Following"
-}
+    title: "Following",
+    forUserID
+})

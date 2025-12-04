@@ -2,7 +2,12 @@ export type Blocks = "POMODORO" | "CHAT" | "SYNC"
 
 export type SyncStatus = "LIVE" | "DISCONNECTED" | "ERROR" | "CONNECTING"
 
-export type Response = { block: string; type: string; payload: any }
+export type Response = {
+    burrowID: string;
+    block: string;
+    type: string;
+    payload: any
+}
 
 export type Action = {
     block: string

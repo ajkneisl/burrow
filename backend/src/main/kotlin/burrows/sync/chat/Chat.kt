@@ -1,11 +1,15 @@
 package app.burrow.burrows.sync.chat
 
-import app.burrow.account.Users
+import app.burrow.Errors
+import app.burrow.account.models.Users
+import app.burrow.account.chat.ChatMessage
+import app.burrow.account.chat.ChatMessages
 import app.burrow.account.profile.Profiles
-import app.burrow.burrows.getMeetingResponse
+import app.burrow.burrows.getBurrowResponse
 import app.burrow.burrows.membership.Memberships
+import app.burrow.burrows.membership.isModerator
 import app.burrow.burrows.models.BurrowRole
-import app.burrow.burrows.sync.Sync
+import app.burrow.burrows.sync.BurrowSync
 import app.burrow.burrows.sync.block.Block
 import app.burrow.burrows.sync.block.RegisterBlock
 import app.burrow.burrows.sync.models.Response
@@ -36,19 +40,29 @@ import org.jetbrains.exposed.v1.r2dbc.update
  * - receiving history
  */
 @RegisterBlock
-class Chat(meetingId: String) : Block("CHAT", meetingId) {
+class Chat(burrowID: String) : Block("CHAT", burrowID) {
     companion object {
         private const val MESSAGE_MAX_LENGTH = 512
         private const val MESSAGE_MIN_LENGTH = 1
+
+        const val PINNED_MESSAGE = "PINNED_MESSAGE"
     }
 
     /** Actions from the client. */
     enum class Incoming {
+        // update content
         CREATE_MESSAGE,
         DELETE_MESSAGE,
         EDIT_MESSAGE,
+
+        // get content
         RECEIVE_HISTORY,
         RECEIVE_MEMBERS,
+        RECEIVE_PINNED,
+
+        // manage pinned message
+        PIN_MESSAGE,
+        UN_PIN_MESSAGE,
     }
 
     /** Actions from the server. */
@@ -58,6 +72,7 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
         MESSAGE_UPDATED,
         HISTORY,
         MEMBERS,
+        PINNED_MESSAGE,
     }
 
     /** A member in the chat. */
@@ -69,7 +84,7 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
             Memberships.innerJoin(Users, { Memberships.userID }, { Users.id })
                 .innerJoin(Profiles, { Memberships.userID }, { Profiles.userID })
                 .select(Memberships.userID, Users.username, Profiles.name)
-                .where { Memberships.burrowID eq meetingId }
+                .where { Memberships.burrowID eq burrowID }
                 .map { member ->
                     ChatMember(
                         member[Memberships.userID],
@@ -90,9 +105,7 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
      */
     suspend fun getChatMessage(messageId: UUID): ChatMessage? = query {
         ChatMessages.selectAll()
-            .where {
-                (ChatMessages.burrowID eq meetingId) and (ChatMessages.messageID eq messageId)
-            }
+            .where { (ChatMessages.parentID eq burrowID) and (ChatMessages.id eq messageId) }
             .map { ChatMessage.fromRow(it) }
             .firstOrNull()
     }
@@ -130,8 +143,8 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
             query {
                 val messages =
                     ChatMessages.selectAll()
-                        .where { ChatMessages.burrowID eq this@Chat.meetingId }
-                        .orderBy(ChatMessages.date, SortOrder.DESC)
+                        .where { ChatMessages.parentID eq this@Chat.burrowID }
+                        .orderBy(ChatMessages.createdAt, SortOrder.DESC)
                         .offset(page * ChatHistory.CHAT_PAGE_LIMIT)
                         .limit(ChatHistory.CHAT_PAGE_LIMIT)
                         .toList()
@@ -139,7 +152,7 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
 
                 val pageCount =
                     ChatMessages.selectAll()
-                        .where { ChatMessages.burrowID eq this@Chat.meetingId }
+                        .where { ChatMessages.parentID eq this@Chat.burrowID }
                         .count()
                         .div(ChatHistory.CHAT_PAGE_LIMIT)
 
@@ -154,7 +167,7 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
     /** @see wsEditMessage */
     @Serializable
     data class EditedMessage(
-        @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val messageId: UUID,
+        @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val messageID: UUID,
         val newMessage: String,
     )
 
@@ -167,19 +180,18 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
 
         if (!validateChatMessage(newContents)) return sendError("Invalid message.")
 
-        val meeting = getMeetingResponse(meetingId, userId)
+        val meeting = getBurrowResponse(burrowID, userID)
         val message = getChatMessage(messageId)
 
         if (meeting == null || message == null || meeting.membership == null)
             return sendError("Invalid message ID.")
 
-        if (message.userID != userId)
+        if (message.senderID != userID)
             return sendError("You do not have permission to edit this message.")
 
         query {
             ChatMessages.update({
-                (ChatMessages.burrowID eq this@Chat.meetingId) and
-                    (ChatMessages.messageID eq messageId)
+                (ChatMessages.parentID eq this@Chat.burrowID) and (ChatMessages.id eq messageId)
             }) {
                 it[ChatMessages.message] = newContents
             }
@@ -191,18 +203,18 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
     /** @see wsDeleteMessage */
     @Serializable
     data class DeletedMessage(
-        @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val messageId: UUID
+        @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val messageID: UUID
     )
 
     /** Delete a message. */
     private suspend fun UserBlockRequestState.wsDeleteMessage() {
-        val messageId =
+        val messageID =
             data["id"]?.let { runCatching { UUID.fromString(it) }.getOrNull() }
                 ?: return sendError("Invalid message ID.")
 
-        val meeting = getMeetingResponse(meetingId, userId)
+        val meeting = getBurrowResponse(burrowID, userID)
         val membership = meeting?.membership
-        val message = getChatMessage(messageId)
+        val message = getChatMessage(messageID)
 
         if (meeting == null || message == null || membership == null)
             return sendError("Invalid message ID.")
@@ -210,21 +222,28 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
         val isModerator =
             membership.role == BurrowRole.HOST || membership.role == BurrowRole.MODERATOR
 
-        val isMessageOwner = message.userID == userId
+        val isMessageOwner = message.senderID == userID
 
         if (!isModerator && !isMessageOwner)
             return sendError("You do not have permission to delete this message.")
 
         query {
             ChatMessages.deleteWhere {
-                (ChatMessages.burrowID eq this@Chat.meetingId) and
-                    (ChatMessages.messageID eq messageId)
+                (ChatMessages.parentID eq this@Chat.burrowID) and (ChatMessages.id eq messageID)
             }
         }
 
-        Sync.broadcast(
-            meetingId,
-            Response(blockId, Outgoing.MESSAGE_DELETED, payload = DeletedMessage(messageId)),
+        if (getState()[PINNED_MESSAGE] == messageID.toString()) {
+            setState(getState().apply { remove(PINNED_MESSAGE) })
+        }
+
+        BurrowSync.broadcast(
+            burrowID,
+            Response(
+                this@Chat.blockID,
+                Outgoing.MESSAGE_DELETED,
+                payload = DeletedMessage(messageID),
+            ),
         )
     }
 
@@ -243,17 +262,27 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
         // create message
         query {
             ChatMessages.insert {
-                it[ChatMessages.messageID] = messageId
+                it[ChatMessages.id] = messageId
                 it[ChatMessages.message] = message
-                it[ChatMessages.userID] = this@wsCreateMessage.userId
-                it[ChatMessages.burrowID] = this@Chat.meetingId
-                it[ChatMessages.date] = time
+                it[ChatMessages.senderID] = this@wsCreateMessage.userID
+                it[ChatMessages.parentID] = this@Chat.burrowID
+                it[ChatMessages.createdAt] = time
             }
         }
 
-        val chatMessage = ChatMessage(messageId, meetingId, userId, message, time)
+        val chatMessage =
+            ChatMessage(
+                id = messageId,
+                parentID = burrowID,
+                senderID = userID,
+                message = message,
+                createdAt = time,
+            )
 
-        Sync.broadcast<ChatMessage>(meetingId, Response(blockId, Outgoing.NEW_MESSAGE, chatMessage))
+        BurrowSync.broadcast<ChatMessage>(
+            burrowID,
+            Response(this@Chat.blockID, Outgoing.NEW_MESSAGE, chatMessage),
+        )
     }
 
     /** Receive members. */
@@ -261,15 +290,82 @@ class Chat(meetingId: String) : Block("CHAT", meetingId) {
         sendResponse(Outgoing.MEMBERS, getChatMembers())
     }
 
+    /**
+     * -> [Incoming.PIN_MESSAGE]
+     *
+     * Pin a message to the chat box.
+     */
+    private suspend fun UserBlockRequestState.wsPinMessage() {
+        if (userID isModerator burrowID) {
+            val messageID =
+                data["messageID"]?.let { UUID.fromString(it) }
+                    ?: return sendError(Errors.INVALID_ARGUMENTS)
+
+            val chatMessage = getChatMessage(messageID)
+            if (chatMessage?.parentID != burrowID) return sendError(Errors.INVALID_ARGUMENTS)
+
+            val currentState = getState()
+            currentState[PINNED_MESSAGE] = messageID.toString()
+
+            setState(currentState)
+
+            sendResponse(Outgoing.PINNED_MESSAGE, chatMessage)
+        } else {
+            sendError(Errors.INVALID_AUTHORIZATION)
+        }
+    }
+
+    /**
+     * -> [Incoming.UN_PIN_MESSAGE]
+     *
+     * Un-pin the current chat message.
+     */
+    private suspend fun UserBlockRequestState.wsUnPinMessage() {
+        if (userID isModerator burrowID) {
+            setState(getState().apply { remove(PINNED_MESSAGE) })
+
+            sendResponse(Outgoing.PINNED_MESSAGE, null)
+        } else {
+            sendError(Errors.INVALID_AUTHORIZATION)
+        }
+    }
+
+    /**
+     * -> [Incoming.RECEIVE_PINNED]
+     *
+     * Get the current pinned message.
+     */
+    private suspend fun UserBlockRequestState.wsReceivePinned() {
+        val currentPinnedMessage = getState()[PINNED_MESSAGE]
+
+        sendResponse(
+            Outgoing.PINNED_MESSAGE,
+            if (currentPinnedMessage == null) null
+            else getChatMessage(UUID.fromString(currentPinnedMessage)),
+        )
+    }
+
     override val onIncoming: IncomingRequest = {
         when (action.asAction<Incoming>()) {
             Incoming.CREATE_MESSAGE -> wsCreateMessage()
             Incoming.DELETE_MESSAGE -> wsDeleteMessage()
             Incoming.EDIT_MESSAGE -> wsEditMessage()
+
+            Incoming.RECEIVE_PINNED -> wsReceivePinned()
             Incoming.RECEIVE_HISTORY -> wsReceiveHistory()
             Incoming.RECEIVE_MEMBERS -> wsReceiveMembers()
+
+            Incoming.PIN_MESSAGE -> wsPinMessage()
+            Incoming.UN_PIN_MESSAGE -> wsUnPinMessage()
 
             null -> invalidAction()
         }
     }
+    override val onWelcome: suspend UserBlockRequestState.() -> Unit = {
+        wsReceivePinned()
+        wsReceiveHistory()
+        wsReceiveMembers()
+    }
+
+    override val defaultState: HashMap<String, String> = hashMapOf()
 }

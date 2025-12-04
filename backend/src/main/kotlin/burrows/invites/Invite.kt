@@ -2,7 +2,7 @@ package app.burrow.burrows.invites
 
 import app.burrow.Error
 import app.burrow.NotFound
-import app.burrow.account.Users
+import app.burrow.account.models.Users
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
 import app.burrow.burrows.getBurrow
@@ -117,7 +117,7 @@ suspend fun createInvite(
 
     // Check if burrow has ended
     if (getTimeMillis() > burrow.endTime) {
-        throw Error(400, "This burrow has already ended.")
+        throw Error(400, "This Burrow has already ended.")
     }
 
     // Prevent self-invites

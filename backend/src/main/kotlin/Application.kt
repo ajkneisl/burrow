@@ -2,22 +2,25 @@ package app.burrow
 
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
+import app.burrow.account.chat.ChatSync
 import app.burrow.account.models.getUserByUsername
 import app.burrow.account.models.userID
 import app.burrow.account.settings.SETTINGS_ROUTES
 import app.burrow.admin.ADMIN_ROUTES
+import app.burrow.admin.log.DB_LOG
+import app.burrow.admin.log.DatabaseLogAppender
 import app.burrow.burrows.BURROW_ROUTES
 import app.burrow.burrows.getBurrow
-import app.burrow.burrows.getMeetingResponse
-import app.burrow.burrows.sync.Sync
+import app.burrow.burrows.getBurrowResponse
+import app.burrow.burrows.sync.BurrowSync
 import app.burrow.notifications.NOTIFICATION_ROUTES
 import app.burrow.notifications.NotificationKind
 import app.burrow.notifications.createNotification
 import app.burrow.notifications.notificationWorker
 import app.burrow.report.REPORT_ROUTES
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.LoggerContext
 import dev.hayden.KHealth
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
@@ -30,6 +33,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.calllogging.CallLogging
+import io.ktor.server.plugins.calllogging.processingTimeMillis
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
@@ -46,19 +50,26 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.slf4j.event.Level
 
-val client = HttpClient(CIO)
-val json = Json { ignoreUnknownKeys = true }
+val json = Json {
+    classDiscriminator = "type"
+    ignoreUnknownKeys = true
+}
+
 val burrowLogger = LoggerFactory.getLogger("Burrow")
 
 const val PRIMARY_AUTH = "primary"
 const val ADMIN_AUTH = "administrator"
 
+/** path for the frontend directory. */
 lateinit var FRONTEND_DIR: String
 
 fun main(args: Array<String>) {
     var port = 8080
+
+    burrowLogger.info(DB_LOG, "Started Burrow Instance")
 
     // debug stuff
     args.forEach { arg ->
@@ -97,6 +108,13 @@ suspend fun Application.module() {
     initDb()
     notificationWorker()
 
+    val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
+    val rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME)
+    val dbAppender = DatabaseLogAppender()
+    dbAppender.context = loggerContext
+    dbAppender.start()
+    rootLogger.addAppender(dbAppender)
+
     // sse
     install(SSE)
 
@@ -119,7 +137,7 @@ suspend fun Application.module() {
             val method = call.request.httpMethod.value
             val uri = call.request.uri
 
-            "$method ($status) $uri"
+            String.format("$method ($status) [%04d ms] $uri", call.processingTimeMillis())
         }
     }
 
@@ -133,7 +151,7 @@ suspend fun Application.module() {
 
         @Serializable data class ErrorResponse<T>(val error: String?, val message: T?)
 
-        exception<BadRequestException> { call, ex ->
+        exception<BadRequestException> { call, _ ->
             call.respond(
                 HttpStatusCode.BadRequest,
                 ErrorResponse("MalformedBody", "Invalid request body."),
@@ -157,7 +175,12 @@ suspend fun Application.module() {
             )
         }
 
+        // generic error
         exception<Throwable> { call, cause ->
+            call.principal<JWTPrincipal>()?.subject?.let { MDC.put("userID", it) }
+            burrowLogger.error("Unhandled exception: ${cause.message ?: "Unknown error"}", cause)
+            MDC.clear()
+
             cause.printStackTrace()
             call.respond(HttpStatusCode.InternalServerError)
         }
@@ -241,13 +264,13 @@ suspend fun Application.module() {
             // manage notifications
             route("/notifications", NOTIFICATION_ROUTES)
 
-            // ROUTE /api/settings
-            // manage user settings
-            route("/settings", SETTINGS_ROUTES)
-
             // ROUTE /burrows/{id}
             // webhook sync
-            route("/burrows/{id}", Sync.SYNC_ROUTES)
+            route("/burrows/{id}", BurrowSync.SYNC_ROUTES)
+
+            // ROUTE /chat
+            // global chat sync (DMs and topic rooms)
+            route("/chat", ChatSync.CHAT_SYNC_ROUTES)
 
             // ROUTE /api/user
             // manage users / login
@@ -262,7 +285,7 @@ suspend fun Application.module() {
                         call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
 
                     val meeting =
-                        getMeetingResponse(id, userId)
+                        getBurrowResponse(id, userId)
                             ?: return@get call.respond(HttpStatusCode.NotFound)
 
                     call.respond(meeting)
@@ -270,6 +293,15 @@ suspend fun Application.module() {
             }
 
             authenticate(PRIMARY_AUTH) {
+                // GET /search
+                // search through users and Burrows simultaneously
+                get("/search") {
+                    val query = call.queryParameter("query")
+                    val page = call.optionalIntQueryParameter("page") ?: 1
+
+                    call.respond(search(query, page))
+                }
+
                 // ROUTE /debug
                 // debug functionality
                 route("/debug") {
@@ -287,6 +319,10 @@ suspend fun Application.module() {
                         call.respond(HttpStatusCode.OK)
                     }
                 }
+
+                // ROUTE /api/settings
+                // manage user settings
+                route("/settings", SETTINGS_ROUTES)
 
                 // ROUTE /api/burrows
                 // manage burrows
@@ -323,6 +359,10 @@ suspend fun Application.module() {
         // GET /image/*
         // frontend images
         staticFiles("/image", File("$FRONTEND_DIR/image"))
+
+        // GET /sw.ks
+        // service worker
+        get("/sw.js") { call.respondFile(File("$FRONTEND_DIR/js/sw.js")) }
 
         // GET /*
         // retrieve the frontend and inject SEO information

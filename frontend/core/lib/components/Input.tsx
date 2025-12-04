@@ -2,12 +2,7 @@ import clsx from "clsx"
 import type { DetailedHTMLProps, InputHTMLAttributes, ReactNode } from "react"
 
 /**
- * Props for {@link Input}.
- *
- * @param text The text for the label.
- * @param remark An optional remark below the input.
- * @param endAdornment A button or icon to place at the end of the input.
- * @param startAdornment A button or icon to place at the start of the input.
+ * {@link Input}.
  */
 type LabelledInputProps = {
     text?: string
@@ -20,12 +15,14 @@ type LabelledInputProps = {
 /**
  * A labeled input.
  *
- * @param text
- * @param remark
- * @param error
- * @param endAdornment
- * @param startAdornment
- * @param props {@link LabelledInputProps}
+ * @param text The text for the label.
+ * @param remark An optional remark below the input.
+ * @param endAdornment A button or icon to place at the end of the input.
+ * @param startAdornment A button or icon to place at the start of the input.
+ * @param error If there's an error with the input.
+ * @param props Additional props to apply to the input.
+ *
+ * @author AJ Kneisl
  */
 export default function Input({
     text,

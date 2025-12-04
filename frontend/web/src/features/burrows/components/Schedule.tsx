@@ -1,10 +1,13 @@
-import { dayLabel, formatDateTime } from "@api/util.ts"
+import { dayLabel } from "@api/util.ts"
 import { useQuery } from "@tanstack/react-query"
-import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
-import { useMemo } from "react"
+import type { ScheduleBurrowResponse } from "@features/burrows/burrows.types.tsx"
+import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router"
 import { Button, Card, ViewErrors } from "@umnburrow/core"
 import { getSchedule } from "@features/burrows/burrows.api.ts"
+import clsx from "clsx"
+import { ChevronDown } from "lucide-react"
+import ScheduleBurrowCard from "@features/burrows/components/ScheduleBurrowCard.tsx"
 
 /**
  * A group of burrows.
@@ -14,7 +17,7 @@ import { getSchedule } from "@features/burrows/burrows.api.ts"
  *
  * @see Schedule
  */
-type Group = { label: string; items: BurrowResponse[] }
+type Group = { label: string; items: ScheduleBurrowResponse[] }
 
 /**
  * The schedule section on the home page.
@@ -24,19 +27,23 @@ type Group = { label: string; items: BurrowResponse[] }
 export default function Schedule() {
     const nav = useNavigate()
 
-    const { data, isLoading, error, refetch } = useQuery<BurrowResponse[]>({
+    const { data, isLoading, error, refetch } = useQuery<
+        ScheduleBurrowResponse[]
+    >({
         queryKey: ["schedule"],
         queryFn: getSchedule
     })
-
-    const onClick = (burrowID: string) => nav(`/burrow/${burrowID}`)
 
     // load burrows into day by day groups
     const groups = useMemo(() => {
         if (!data) return []
 
         return data.reduce<Group[]>((acc, item) => {
-            const label = dayLabel(item.burrow.beginningTime)
+            let label = "Projects"
+
+            if (item.burrow.beginningTime !== 0)
+                label = dayLabel(item.burrow.beginningTime)
+
             const last = acc[acc.length - 1]
 
             if (!last || last.label !== label)
@@ -46,6 +53,38 @@ export default function Schedule() {
             return acc
         }, [])
     }, [data])
+
+    // sort projects by due date (endTime)
+    const sortedGroups = useMemo(() => {
+        return groups.map((group) => {
+            if (group.label === "Projects") {
+                return {
+                    ...group,
+                    items: [...group.items].sort(
+                        (a, b) => a.burrow.endTime - b.burrow.endTime
+                    )
+                }
+            }
+            return group
+        })
+    }, [groups])
+
+    // count projects to determine initial expanded state
+    const projectCount = useMemo(() => {
+        const projectGroup = sortedGroups.find(
+            (group) => group.label === "Projects"
+        )
+        return projectGroup?.items.length ?? 0
+    }, [sortedGroups])
+
+    // auto-collapse if more than 3 projects
+    const [projectsExpanded, setProjectsExpanded] = useState(true)
+
+    useEffect(() => {
+        if (projectCount > 3) {
+            setProjectsExpanded(false)
+        }
+    }, [projectCount])
 
     return (
         <section className="w-full">
@@ -70,7 +109,7 @@ export default function Schedule() {
             )}
 
             {/* empty schedule */}
-            {!isLoading && groups.length === 0 && !error && (
+            {!isLoading && sortedGroups.length === 0 && !error && (
                 <Card
                     aria-live="polite"
                     aria-label="No upcoming meetings"
@@ -91,52 +130,82 @@ export default function Schedule() {
             )}
 
             {/* content */}
-            {!isLoading && groups.length > 0 && (
+            {!isLoading && sortedGroups.length > 0 && (
                 <div className="bg-background/30 flex min-w-[240px] flex-col gap-6 rounded-xl">
-                    {groups.map((group) => (
-                        // individual burrows
-                        <section key={group.label}>
-                            <h3 className="text-text/60 mb-2 text-sm font-semibold tracking-wide uppercase">
-                                {group.label}
-                            </h3>
+                    {sortedGroups.map((group) => {
+                        const isProjectGroup = group.label === "Projects"
+                        const groupProjectCount = isProjectGroup
+                            ? group.items.length
+                            : 0
 
-                            <ul className="flex flex-col gap-3">
-                                {group.items.map((it) => (
-                                    <Card
-                                        key={it.burrow.id}
-                                        className="from:card to-success/40 hover:to-success/60 bg-gradient-to-br"
-                                        isHoverable={true}
-                                        onClick={() => onClick(it.burrow.id)}
+                        return (
+                            // individual burrows
+                            <section key={group.label}>
+                                {/* Header with optional collapse button for projects */}
+                                {isProjectGroup ? (
+                                    <button
+                                        onClick={() =>
+                                            setProjectsExpanded(
+                                                !projectsExpanded
+                                            )
+                                        }
+                                        className="text-text/60 hover:text-text mb-2 flex w-full cursor-pointer items-center gap-2 text-left text-sm font-semibold tracking-wide uppercase transition-colors"
                                     >
-                                        <div className="flex flex-col gap-1">
-                                            {/* burrow title */}
-                                            <div className="flex items-center justify-between">
-                                                <h4 className="text-text truncate text-base font-semibold">
-                                                    {it.burrow.title}
-                                                </h4>
-                                                {it.burrow.kind && (
-                                                    <span className="border-primary/15 bg-hero text-text/80 ml-3 rounded-full border px-2 py-0.5 text-xs">
-                                                        {it.burrow.kind}
-                                                    </span>
-                                                )}
-                                            </div>
+                                        <ChevronDown
+                                            className={clsx(
+                                                "h-4 w-4 transition-transform duration-300 ease-in-out",
+                                                !projectsExpanded &&
+                                                    "-rotate-90"
+                                            )}
+                                        />
 
-                                            {/* date of burrow */}
-                                            <time
-                                                className="text-text/80 text-sm"
-                                                aria-label="Time range"
-                                            >
-                                                {formatDateTime(
-                                                    it.burrow.beginningTime,
-                                                    it.burrow.endTime
-                                                )}
-                                            </time>
-                                        </div>
-                                    </Card>
-                                ))}
-                            </ul>
-                        </section>
-                    ))}
+                                        <span>
+                                            {group.label} ({groupProjectCount})
+                                        </span>
+                                    </button>
+                                ) : (
+                                    <h3 className="text-text/60 mb-2 text-sm font-semibold tracking-wide uppercase">
+                                        {group.label}
+                                    </h3>
+                                )}
+
+                                {/* Show items if not projects or if projects are expanded */}
+                                {!isProjectGroup && (
+                                    <ul className="flex flex-col gap-3">
+                                        {group.items.map((it) => (
+                                            <ScheduleBurrowCard
+                                                burrowResponse={it}
+                                            />
+                                        ))}
+                                    </ul>
+                                )}
+
+                                {/* Animated project list */}
+                                {isProjectGroup && (
+                                    <div
+                                        className={clsx(
+                                            "grid transition-all duration-300 ease-in-out",
+                                            projectsExpanded
+                                                ? "grid-rows-[1fr] opacity-100"
+                                                : "grid-rows-[0fr] opacity-0"
+                                        )}
+                                    >
+                                        <ul
+                                            className={clsx(
+                                                "flex flex-col gap-3 overflow-hidden"
+                                            )}
+                                        >
+                                            {group.items.map((it) => (
+                                                <ScheduleBurrowCard
+                                                    burrowResponse={it}
+                                                />
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </section>
+                        )
+                    })}
                 </div>
             )}
         </section>

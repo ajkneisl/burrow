@@ -9,7 +9,7 @@ export const CDN_URL = import.meta.env.VITE_CDN_URL
  *
  * @param key The readable date.
  */
-export function humanDateLabel(key: string): string {
+export function humanDateLabel(key: string | number): string {
     const today = new Date()
     const tomorrow = new Date()
     tomorrow.setDate(today.getDate() + 1)
@@ -169,7 +169,6 @@ function getCookie(key: string) {
     if (parts.length === 2) return parts.pop()!.split(";").shift()
 }
 
-// --- Cookie helpers that work with or without the Cookie Store API ---
 type CookieStoreLike = {
     get?: (name: string) => Promise<{ name: string; value: string } | null>
     set?: (name: string, value: string) => Promise<void>

@@ -1,6 +1,6 @@
 package app.burrow.burrows.sync.block
 
-import app.burrow.burrows.sync.Sync
+import app.burrow.burrows.sync.BurrowSync
 import app.burrow.burrows.sync.models.Response
 import app.burrow.query
 import kotlinx.coroutines.flow.map
@@ -14,24 +14,31 @@ import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.upsert
 
 /** A feature block. */
-abstract class Block(val blockId: String, val meetingId: String) {
+abstract class Block(val blockID: String, val burrowID: String) {
     /** An incoming request with the user's state. */
     typealias IncomingRequest = suspend UserBlockRequestState.() -> Unit
 
     /** When a request comes in specifically requesting this block. */
     abstract val onIncoming: IncomingRequest
 
+    /** When a user initially comes in. */
+    abstract val onWelcome: suspend UserBlockRequestState.() -> Unit
+
+    /** The default state. */
+    abstract val defaultState: HashMap<String, String>
+
     /**
      * The per-request request state.
      *
-     * @param userId The user who sent the reuest.
+     * @param userID The user who sent the reuest.
      * @param action The action the user took.
      * @param data The included data the user provided.
      */
     data class UserBlockRequestState(
-        val userId: String,
+        val userID: String,
         val action: String,
         val data: HashMap<String, String>,
     )
@@ -39,13 +46,13 @@ abstract class Block(val blockId: String, val meetingId: String) {
     /**
      * The per-meeting saved state of a block.
      *
-     * @param block The ID of the block.
-     * @param meetingId The ID of the meeting.
+     * @param blockID The ID of the block.
+     * @param burrowID The ID of the meeting.
      * @param data The saved data from the meeting
      */
     data class BlockState(
-        val block: String,
-        val meetingId: String,
+        val blockID: String,
+        val burrowID: String,
         val data: HashMap<String, String>,
     ) {
         companion object {
@@ -58,26 +65,30 @@ abstract class Block(val blockId: String, val meetingId: String) {
              */
             fun fromRow(row: ResultRow): BlockState =
                 BlockState(
-                    row[BlockStates.block],
-                    row[BlockStates.meetingId],
+                    row[BlockStates.blockID],
+                    row[BlockStates.burrowID],
                     Json.decodeFromString(row[BlockStates.data]),
                 )
         }
     }
 
-    /** Get the [BlockState] from the [meetingId]. */
-    suspend fun getState(): BlockState? = query {
+    /** Get the [BlockState] from the [burrowID]. */
+    suspend fun getState(): HashMap<String, String> = query {
         BlockStates.selectAll()
-            .where { (BlockStates.block eq blockId) and (BlockStates.meetingId eq meetingId) }
+            .where {
+                (BlockStates.blockID eq this@Block.blockID) and
+                    (BlockStates.burrowID eq this@Block.burrowID)
+            }
             .singleOrNull()
             ?.let { BlockState.fromRow(it) }
+            ?.data ?: defaultState
     }
 
-    /** Create the state for this [meetingId]. */
-    suspend fun createState(data: HashMap<String, String>) = query {
-        BlockStates.insert {
-            it[BlockStates.block] = blockId
-            it[BlockStates.meetingId] = meetingId
+    /** Create the state for this [burrowID]. */
+    suspend fun setState(data: HashMap<String, String>) = query {
+        BlockStates.upsert(BlockStates.blockID, BlockStates.burrowID) {
+            it[BlockStates.blockID] = this@Block.blockID
+            it[BlockStates.burrowID] = this@Block.burrowID
             it[BlockStates.data] = Json.encodeToString(data)
         }
     }
@@ -97,7 +108,7 @@ abstract class Block(val blockId: String, val meetingId: String) {
      * @param message The message to describe the success.
      */
     suspend fun UserBlockRequestState.sendSuccess(message: String) =
-        send(Response(blockId, "SUCCESS", message))
+        send(Response(this@Block.blockID, "SUCCESS", message))
 
     /**
      * Send a message indicating an error.
@@ -105,7 +116,7 @@ abstract class Block(val blockId: String, val meetingId: String) {
      * @param message The message to describe the error.
      */
     suspend fun UserBlockRequestState.sendError(message: String) =
-        send(Response(blockId, "ERROR", message))
+        send(Response(this@Block.blockID, "ERROR", message))
 
     /**
      * Receive a string as an Action.
@@ -117,37 +128,37 @@ abstract class Block(val blockId: String, val meetingId: String) {
 
     /** Broadcast a [payload] to the whole meeting. */
     suspend inline fun <reified T> broadcast(payload: Response<T>) =
-        Sync.broadcast<T>(meetingId, payload)
+        BurrowSync.broadcast<T>(burrowID, payload)
 
     /** Broadcast a [type] enum and [payload] to the whole meeting. */
     suspend inline fun <reified T> broadcastResponse(type: Enum<*>, payload: T) =
-        broadcast(Response(blockId, type, payload))
+        broadcast(Response(this@Block.blockID, type, payload))
 
     /** Broadcast a [type] string and [payload] to the whole meeting. */
     suspend inline fun <reified T> broadcastResponse(type: String, payload: T) =
-        broadcast(Response(blockId, type, payload))
+        broadcast(Response(this@Block.blockID, type, payload))
 
     /** Send a [payload] and to a specific [userId]. */
     suspend inline fun <reified T> send(userId: String, payload: Response<T>) =
-        Sync.broadcast(userId, meetingId, payload)
+        BurrowSync.broadcast(userId, burrowID, payload)
 
     /** Send a [payload] and to a specific user, indicated within the [UserBlockRequestState]. */
     suspend inline fun <reified T> UserBlockRequestState.send(payload: Response<T>) =
-        send(userId, payload)
+        send(userID, payload)
 
     /**
      * Send a [type] enum and [payload] and to a specific user, indicated within the
      * [UserBlockRequestState].
      */
     suspend inline fun <reified T> UserBlockRequestState.sendResponse(type: Enum<*>, payload: T) =
-        send(Response(blockId, type, payload))
+        send(Response(this@Block.blockID, type, payload))
 
     /**
      * Send a [type] string and [payload] and to a specific user, indicated within the
      * [UserBlockRequestState].
      */
     suspend inline fun <reified T> UserBlockRequestState.sendResponse(type: String, payload: T) =
-        send(Response(blockId, type, payload))
+        send(Response(this@Block.blockID, type, payload))
 }
 
 /**
@@ -159,16 +170,16 @@ abstract class Block(val blockId: String, val meetingId: String) {
 suspend fun enableBlock(meetingId: String, blockName: String) = query {
     val existing =
         BlockStates.selectAll()
-            .where { (BlockStates.meetingId eq meetingId) and (BlockStates.block eq blockName) }
+            .where { (BlockStates.burrowID eq meetingId) and (BlockStates.blockID eq blockName) }
             .singleOrNull()
 
     if (existing == null) {
         // create instance and add to cache
-        Sync.addBlock(meetingId, blockName)
+        BurrowSync.addBlock(meetingId, blockName)
 
         BlockStates.insert {
-            it[BlockStates.block] = blockName
-            it[BlockStates.meetingId] = meetingId
+            it[BlockStates.blockID] = blockName
+            it[BlockStates.burrowID] = meetingId
             it[BlockStates.data] = "{}"
         }
     }
@@ -182,10 +193,10 @@ suspend fun enableBlock(meetingId: String, blockName: String) = query {
  */
 suspend fun disableBlock(meetingId: String, blockName: String) = query {
     // remove instance from cache
-    Sync.removeBlock(meetingId, blockName)
+    BurrowSync.removeBlock(meetingId, blockName)
 
     BlockStates.deleteWhere {
-        (BlockStates.meetingId eq meetingId) and (BlockStates.block eq blockName)
+        (BlockStates.burrowID eq meetingId) and (BlockStates.blockID eq blockName)
     }
 }
 
@@ -195,8 +206,8 @@ suspend fun disableBlock(meetingId: String, blockName: String) = query {
  * @param meetingId The ID of the meeting.
  */
 suspend fun getEnabledBlocks(meetingId: String): List<String> = query {
-    BlockStates.select(BlockStates.block)
-        .where { BlockStates.meetingId eq meetingId }
-        .map { it[BlockStates.block] }
+    BlockStates.select(BlockStates.blockID)
+        .where { BlockStates.burrowID eq meetingId }
+        .map { it[BlockStates.blockID] }
         .toList()
 }

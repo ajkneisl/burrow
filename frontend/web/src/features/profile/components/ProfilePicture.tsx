@@ -10,18 +10,20 @@ import toast from "react-hot-toast"
 type ProfilePictureProps = {
     name: string
     userID: string
-    size: "sm" | "md" | "lg"
+    size: "sm" | "ksm" | "md" | "lg" | "responsive"
     editable?: boolean
     onUploadSuccess?: () => void
+    isOnline?: boolean
 }
 
 /**
  * A profile picture. If they don't have one, default to their initials.
  * @param name The name of the user.
  * @param userID The ID of the user. Used to fetch the profile picture from MinIO.
- * @param size The size of the picture.
+ * @param size The size of the picture. Use "responsive" for sm->md->lg breakpoints.
  * @param editable If the picture should be editable. This is on a user's profile.
  * @param onUploadSuccess When the upload succeeds.
+ * @param isOnline If defined, shows an online/offline indicator.
  * @constructor
  */
 export default function ProfilePicture({
@@ -29,7 +31,8 @@ export default function ProfilePicture({
     userID,
     size = "lg",
     editable = false,
-    onUploadSuccess
+    onUploadSuccess,
+    isOnline
 }: ProfilePictureProps) {
     const [imageError, setImageError] = useState(false)
     const [uploading, setUploading] = useState(false)
@@ -115,14 +118,29 @@ export default function ProfilePicture({
         }
     }, [staticImageData])
 
-    const [sizeStyle, textStyle] = useMemo(() => {
-        switch (size) {
-            case "sm":
-                return ["h-8 w-8 ring-1", "text-sm"]
-            case "md":
-                return ["h-12 w-12 ring-2", "text-md"]
-            case "lg":
-                return ["h-24 w-24 ring-4", "text-2xl"]
+    const getResponsiveClasses = useMemo(() => {
+        const isResponsive = size === "responsive"
+
+        return {
+            container: clsx(
+                isResponsive ? "h-8 w-8 ring-1 md:h-12 md:w-12 md:ring-2 lg:h-24 lg:w-24 lg:ring-4" :
+                size === "sm" ? "h-8 w-8 ring-1" :
+                size === "ksm" ? "h-10 w-10 ring-1" :
+                size === "md" ? "h-12 w-12 ring-2" :
+                "h-24 w-24 ring-4"
+            ),
+            text: clsx(
+                isResponsive ? "md:text-md text-sm lg:text-2xl" :
+                size === "sm" || size === "ksm" ? "text-sm" :
+                size === "md" ? "text-md" :
+                "text-2xl"
+            ),
+            indicator: clsx(
+                isResponsive ? "h-2 w-2 md:h-3 md:w-3 lg:h-4 lg:w-4" :
+                size === "sm" || size === "ksm" ? "h-2 w-2" :
+                size === "md" ? "h-3 w-3" :
+                "h-4 w-4"
+            )
         }
     }, [size])
 
@@ -196,7 +214,7 @@ export default function ProfilePicture({
             <div
                 className={clsx(
                     "ring-primary ring-offset-base-100 overflow-hidden rounded-full shadow",
-                    sizeStyle,
+                    getResponsiveClasses.container,
                     editable && "cursor-pointer"
                 )}
                 onMouseEnter={() => {
@@ -240,7 +258,7 @@ export default function ProfilePicture({
                     <div
                         className={clsx(
                             "bg-hero flex h-full w-full items-center justify-center font-bold",
-                            textStyle
+                            getResponsiveClasses.text
                         )}
                     >
                         {initials}
@@ -289,6 +307,18 @@ export default function ProfilePicture({
                     accept="image/png,image/jpeg,image/gif,image/webp"
                     className="hidden"
                     onChange={handleFileSelect}
+                />
+            )}
+
+            {/* Online/Offline indicator */}
+            {isOnline !== undefined && (
+                <div
+                    className={clsx(
+                        "absolute bottom-0 right-0 rounded-full border-2 border-card",
+                        getResponsiveClasses.indicator,
+                        isOnline ? "bg-success" : "bg-text/20"
+                    )}
+                    title={isOnline ? "Online" : "Offline"}
                 />
             )}
         </div>

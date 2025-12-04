@@ -1,4 +1,4 @@
-import type { Burrow } from "@features/burrows/burrows.types.ts"
+import type { Burrow } from "@features/burrows/burrows.types.tsx"
 import { useMemo } from "react"
 import clsx from "clsx"
 
@@ -6,7 +6,8 @@ import clsx from "clsx"
  * {@see GroupMeetingBadges}
  */
 type MeetingCapacityProps = {
-    meeting: Burrow
+    burrow: Burrow
+    enforceCapacity?: number
 }
 
 /**
@@ -14,11 +15,12 @@ type MeetingCapacityProps = {
  * @constructor
  */
 export default function MeetingCapacityBadges({
-    meeting
+    burrow,
+    enforceCapacity
 }: MeetingCapacityProps) {
-    const hasLimit = meeting.capacity > 0
-    const joined = meeting.joined ?? 0
-    const capacity = meeting.capacity ?? 0
+    const joined = burrow.joined ?? 0
+    const capacity = enforceCapacity ? enforceCapacity : (burrow.capacity ?? 0)
+    const hasLimit = capacity > 0
 
     const capacityLabel = hasLimit ? `${joined}/${capacity}` : "No limit"
     const fillPct =
@@ -39,8 +41,7 @@ export default function MeetingCapacityBadges({
         }
     }, [hasLimit, joined, capacity])
 
-    if (joined === -1)
-        return <></>
+    if (joined === -1) return <></>
 
     return (
         <>
@@ -81,7 +82,7 @@ export default function MeetingCapacityBadges({
             </span>
 
             {/* waitlist */}
-            {meeting.waiting > 0 && (
+            {burrow.waiting > 0 && (
                 <span className="border-warn bg-warn/10 text-warn inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -92,7 +93,7 @@ export default function MeetingCapacityBadges({
                     >
                         <path d="M7.5 6a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm9 0a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM2 20c0-2.5 2-4.5 4.5-4.5h3c2.5 0 4.5 2 4.5 4.5v1H2v-1Zm12.5 0c0-2.5 2-4.5 4.5-4.5h3c2.5 0 4.5 2 4.5 4.5v1h-12v-1Z" />
                     </svg>
-                    {meeting.waiting}
+                    {burrow.waiting}
                 </span>
             )}
         </>

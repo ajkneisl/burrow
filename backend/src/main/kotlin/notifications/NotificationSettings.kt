@@ -1,6 +1,6 @@
 package app.burrow.notifications
 
-import app.burrow.account.Users
+import app.burrow.account.models.Users
 import app.burrow.account.settings.Settings
 import app.burrow.notifications.delivery.DeliveryChannels
 import app.burrow.query

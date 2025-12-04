@@ -1,41 +1,31 @@
 import { useQuery } from "@tanstack/react-query"
-import { GroupMeetingCard } from "@features/burrows/components/GroupMeetingCard.tsx"
+import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import { useNavigate } from "react-router"
-import type { BurrowType } from "@features/burrows/burrows.types.ts"
 import { getBurrows } from "@features/burrows/burrows.api.ts"
 import { Badge, Button, Card, ViewErrors } from "@umnburrow/core"
-import { useAtom } from "jotai"
-import { studyGroupModal } from "@features/burrows/create/create.atom.ts"
 
 /**
  * {@link PreviewBurrows}
  */
 type PreviewGroupsProps = {
-    kind: BurrowType
-    fullPage: string
     amount: number
 }
 
 /**
  * Preview a list of Burrows
  *
- * @param kind The kind of Burrow
- * @param fullPage The link to the full page of this type of Burrow.
  * @param amount The amount of Burrows to preview.
+ *
+ * @author AJ Kneisl
  */
-export default function PreviewBurrows({
-    kind,
-    fullPage,
-    amount
-}: PreviewGroupsProps) {
+export default function PreviewBurrows({ amount }: PreviewGroupsProps) {
     const nav = useNavigate()
 
-    const [, setModalOpen] = useAtom(studyGroupModal)
-
     const { data, isLoading, isError, refetch, error } = useQuery({
-        queryKey: [kind],
-        queryFn: async () => getBurrows(kind)
+        queryKey: ["preview"],
+        queryFn: async () => getBurrows(null)
     })
+
     return (
         <div className="flex flex-col items-center justify-center gap-2 overflow-auto">
             <h3 className="text-text/60 self-start text-sm font-semibold tracking-wide uppercase">
@@ -82,33 +72,23 @@ export default function PreviewBurrows({
                 data.contents.length > 0 &&
                 data.contents
                     .slice(0, amount)
-                    .map((meeting) => (
-                        <GroupMeetingCard meetingResponse={meeting} />
-                    ))}
+                    .map((meeting) => <BurrowCard meetingResponse={meeting} />)}
 
             {/* no upcoming burrows */}
             {data && data.contents?.length === 0 && (
                 <Card
                     aria-live="polite"
                     aria-label="No upcoming meetings"
-                    className="border-text/40 text-text/50 flex h-24 w-full items-center justify-center border-2 border-dashed opacity-50 md:min-w-xs"
+                    className="border-text/40 text-text/50 flex h-24 w-full items-center justify-center border-2 border-dashed opacity-50"
                 >
                     <p className="text-center text-sm tracking-wide">
                         No upcoming Burrows.
-                        <br />
-                        <button
-                            onClick={() => setModalOpen(true)}
-                            className="hover:text-text/70 cursor-pointer underline"
-                        >
-                            Start one
-                        </button>
-                        .
                     </p>
                 </Card>
             )}
 
             {!isError && (
-                <Button className="w-full" onClick={() => nav(fullPage)}>
+                <Button className="w-full" onClick={() => nav(`/browse`)}>
                     Browse
                 </Button>
             )}

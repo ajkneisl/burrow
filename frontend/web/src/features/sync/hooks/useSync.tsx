@@ -8,32 +8,32 @@ import {
     SyncIncomingEvent,
     type SyncOutgoingEvent
 } from "../sync.types.ts"
-import type { BurrowResponse } from "@features/burrows/burrows.types.ts"
 
 /**
  * Sync to a Burrow.
  * This enables Chat and other meeting features.
  *
- * @param meeting The meeting to sync with.
+ * @param burrowID The ID of the Burrow.
+ * @param isJoined If the user has joined the Burrow.
  */
-export default function useSync(meeting?: BurrowResponse | null) {
+export default function useSync(burrowID: string | null, isJoined: boolean) {
     const auth = useToken()
 
-    const burrowID = meeting?.burrow?.id
-    const isJoined =
-        meeting?.membership !== undefined &&
-        meeting?.membership?.status !== "LEFT"
-
     const socketRef = useRef<WebSocket | null>(null)
+    const connectedElsewhereRef = useRef(false)
+    const reconnectTimeoutRef = useRef<number | null>(null)
+    const shouldConnectRef = useRef(false)
 
-    const [status, setStatus] = useAtom(syncStatus)
     const setBlocks = useSetAtom(blockStatus)
-    const [retry, setRetry] = useAtom(syncRetry)
+    const [status, setStatus] = useAtom(syncStatus)
+    const setRetry = useSetAtom(syncRetry)
 
     const WS_BASE = BASE_URL.replaceAll("http", "ws")
 
     useEffect(() => {
         if (auth === null || auth === "" || !burrowID || !isJoined) return
+
+        shouldConnectRef.current = true
 
         function connectSync() {
             const ws = new WebSocket(`${WS_BASE}/burrows/${burrowID}/sync`)
@@ -42,6 +42,7 @@ export default function useSync(meeting?: BurrowResponse | null) {
 
             setRetry("")
             setStatus("CONNECTING")
+            connectedElsewhereRef.current = false
 
             ws.onopen = () => {
                 setStatus("LIVE")
@@ -68,6 +69,7 @@ export default function useSync(meeting?: BurrowResponse | null) {
                                 setBlocks(payload.payload)
                                 break
                             case "ALREADY_CONNECTED":
+                                connectedElsewhereRef.current = true
                                 setRetry("Connected elsewhere")
                                 break
                         }
@@ -77,6 +79,7 @@ export default function useSync(meeting?: BurrowResponse | null) {
 
                     window.dispatchEvent(
                         new SyncIncomingEvent({
+                            burrowID: burrowID ?? "",
                             block,
                             type: payload.type,
                             payload: payload.payload
@@ -91,22 +94,44 @@ export default function useSync(meeting?: BurrowResponse | null) {
             ws.onclose = () => {
                 setStatus("DISCONNECTED")
 
+                // don't retry if component unmounted or disconnecting intentionally
+                if (!shouldConnectRef.current) {
+                    return
+                }
+
                 // don't retry if they're connecting in multiple places
-                if (retry === "Connected elsewhere") {
+                if (connectedElsewhereRef.current) {
                     return
                 }
 
                 setRetry(`Attempting to reconnect...`)
 
                 // retry connection after 10 seconds
-                setTimeout(() => {
-                    connectSync()
+                reconnectTimeoutRef.current = window.setTimeout(() => {
+                    if ((socketRef.current?.readyState ?? 5) > WebSocket.OPEN) {
+                        connectSync()
+                    }
                 }, 10_000)
             }
         }
 
         connectSync()
-    }, [WS_BASE, auth, burrowID, isJoined])
+
+        return () => {
+            // Prevent reconnection attempts after cleanup
+            shouldConnectRef.current = false
+
+            if (reconnectTimeoutRef.current !== null) {
+                clearTimeout(reconnectTimeoutRef.current)
+                reconnectTimeoutRef.current = null
+            }
+
+            if (socketRef.current) {
+                socketRef.current.close()
+                socketRef.current = null
+            }
+        }
+    }, [WS_BASE, auth, burrowID, isJoined, setBlocks, setRetry, setStatus])
 
     useEffect(() => {
         const onSyncOutgoing = (event: SyncOutgoingEvent) => {
@@ -117,7 +142,16 @@ export default function useSync(meeting?: BurrowResponse | null) {
             const ws = socketRef.current
 
             if (ws && ws.readyState === WebSocket.OPEN)
-                ws.send(JSON.stringify(response))
+                ws.send(
+                    JSON.stringify({
+                        block: response.block,
+                        action: "EXECUTE_BLOCK",
+                        data: {
+                            ...response.data,
+                            action: response.action
+                        }
+                    })
+                )
         }
 
         window.addEventListener(
@@ -126,15 +160,12 @@ export default function useSync(meeting?: BurrowResponse | null) {
         )
 
         return () => {
-            socketRef.current?.close()
-            socketRef.current = null
-
             window.removeEventListener(
                 "SYNC_OUTGOING",
                 onSyncOutgoing as EventListener
             )
         }
-    }, [auth, burrowID, isJoined])
+    }, [burrowID])
 
     return status
 }

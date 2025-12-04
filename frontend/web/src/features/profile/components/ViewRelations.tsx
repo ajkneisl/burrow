@@ -26,7 +26,11 @@ export default function ViewRelations() {
     const { data, isLoading, isError } = useQuery<Relation[]>({
         queryKey: [relation?.key],
         enabled: isOpen && auth !== null,
-        queryFn: async () => await getRelations(relation?.key ?? "friends") ?? []
+        queryFn: async () =>
+            (await getRelations(
+                relation?.key ?? "friends",
+                relation?.forUserID
+            )) ?? []
     })
 
     if (!isOpen) return null
@@ -49,13 +53,13 @@ export default function ViewRelations() {
 
                     {isError && (
                         <div className="text-error py-10 text-center">
-                            Failed to load friends.
+                            Failed to load.
                         </div>
                     )}
 
                     {!isLoading && !isError && (!data || data.length === 0) && (
                         <div className="text-foreground/70 py-10 text-center">
-                            You don't have any friends yet.
+                            Nothing to see here.
                         </div>
                     )}
 

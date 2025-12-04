@@ -12,6 +12,7 @@ import {
 } from "@features/notifications/notifications.api.ts"
 import type { PaginatedResponse } from "@api/api.types.ts"
 import type { Notification } from "@features/notifications/notifications.types.ts"
+import toast from "react-hot-toast"
 
 /**
  * Hook to fetch notifications with infinite scroll pagination
@@ -83,6 +84,7 @@ export function useDeleteNotification() {
                     context.previousNotifications
                 )
             }
+            toast.error("Failed to clear notification")
         },
 
         onSettled: () => {
@@ -136,6 +138,7 @@ export function useToggleReadNotification() {
                     context.previousNotifications
                 )
             }
+            toast.error("Failed to update notification")
         },
 
         onSettled: () => {
@@ -155,6 +158,11 @@ export function useClearAllNotifications() {
 
         onSuccess: () => {
             void queryClient.invalidateQueries({ queryKey: ["notifications"] })
+            toast.success("All notifications cleared")
+        },
+
+        onError: () => {
+            toast.error("Failed to clear notifications")
         }
     })
 }

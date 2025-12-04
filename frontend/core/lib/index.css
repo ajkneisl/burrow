@@ -22,9 +22,32 @@
 }
 
 /*
+    EARTH THEME - warm earth tones
+ */
+[data-theme="EARTH"] {
+    --background-color:         #faf6f1; /* warm cream background */
+    --primary-color:            #8B4513; /* saddle brown */
+    --secondary-color:          #D2691E; /* chocolate/terracotta */
+    --card-background-color:    #f5ede3; /* warm beige surface */
+    --card-border-color:        #d4c4b0; /* muted tan border */
+    --hero-color:               #e8dfd3; /* light sand for hero sections */
+    --text-color:               #3d3029; /* dark brown text */
+    --success-color:            #6B8E23; /* olive drab green */
+    --info-color:               #5F9EA0; /* cadet blue/teal */
+    --warn-color:               #DAA520; /* goldenrod */
+    --error-color:              #A52A2A; /* brown-red */
+    --secondary-hover-color:    #E07020; /* brighter terracotta hover */
+    --primary-hover-color:      #A0522D; /* sienna hover */
+    --success-hover-color:      #7BA428; /* brighter olive hover */
+    --info-hover-color:         #6FB5B8; /* brighter teal hover */
+    --warn-hover-color:         #E8B828; /* brighter gold hover */
+    --error-hover-color:        #C04040; /* lighter brown-red hover */
+}
+
+/*
     DARK THEME
  */
-[data-theme="dark"] {
+[data-theme="DARK"] {
     --background-color:         #1a1a1a; /* dark gray background */
     --primary-color:            #4E000A; /* Minnesota maroon (Pantone 202C) */
     --secondary-color:          #FFCC00; /* Minnesota gold */
@@ -124,7 +147,6 @@ footer {
     box-shadow: 0 0 0 3px rgba(191, 30, 46, 0.1);
 }
 
-/* Style the dropdown arrow for both themes */
 .select-input {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23212121' d='M4.427 6.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 6H4.604a.25.25 0 00-.177.427z'/%3E%3C/svg%3E");
@@ -134,22 +156,19 @@ footer {
     padding-right: 2.5rem;
 }
 
-/* Dark theme dropdown arrow */
-[data-theme="dark"] .select-input {
+[data-theme="DARK"] .select-input {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23F3F4F6' d='M4.427 6.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 6H4.604a.25.25 0 00-.177.427z'/%3E%3C/svg%3E");
 }
 
-/* Style the option elements */
 .select-input option {
     background-color: var(--card-background-color);
     color: var(--text-color);
 }
 
-/* Dark theme focus ring adjustment */
-[data-theme="dark"] .select-input:focus {
+[data-theme="DARK"] .select-input:focus {
     box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.15);
 }
 
-[data-theme="dark"] .select-input-error:focus {
+[data-theme="DARK"] .select-input-error:focus {
     box-shadow: 0 0 0 3px rgba(239, 83, 80, 0.15);
 }

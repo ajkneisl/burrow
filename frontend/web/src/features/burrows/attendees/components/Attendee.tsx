@@ -3,7 +3,7 @@ import type {
     BurrowMembershipResponse,
     BurrowMemberStatus,
     BurrowRole
-} from "@features/burrows/burrows.types.ts"
+} from "@features/burrows/burrows.types.tsx"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { useMemo } from "react"
 import { toggleBanMember, changeRole } from "@features/burrows/burrows.api.ts"

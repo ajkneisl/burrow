@@ -19,6 +19,8 @@ type HoverProps = {
  *
  * @param content The tooltip content to show on hover/press.
  * @param children The trigger element that invokes the tooltip.
+ *
+ * @author AJ Kneisl
  */
 export default function Hover({ content, children }: HoverProps) {
     // Detect if device is touch-like (mobile/tablet)

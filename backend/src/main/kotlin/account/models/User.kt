@@ -1,9 +1,10 @@
 package app.burrow.account.models
 
 import app.burrow.Error
+import app.burrow.NotFound
 import app.burrow.account.Authorization
-import app.burrow.account.Users
 import app.burrow.account.profile.Profiles
+import app.burrow.photo.deletePhoto
 import app.burrow.query
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
@@ -15,10 +16,19 @@ import io.ktor.server.auth.principal
 import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.leftJoin
+import org.jetbrains.exposed.v1.core.like
+import org.jetbrains.exposed.v1.core.lowerCase
+import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.or
+import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
@@ -50,7 +60,6 @@ private val googleVerifier: GoogleIdTokenVerifier? by lazy {
  * @param id The user's Google ID
  * @param username The user's selected name.
  * @param email The user's email.
- * @param phoneNumber The user's phone number.
  * @param createdDate The date the account was created.
  */
 @Serializable
@@ -58,7 +67,6 @@ data class User(
     val id: String,
     val username: String,
     @Transient val email: String = "",
-    val phoneNumber: String,
     val createdDate: Long,
 ) {
     companion object {
@@ -68,13 +76,7 @@ data class User(
          * @param row A row containing a user.
          */
         fun fromRow(row: ResultRow): User =
-            User(
-                row[Users.id],
-                row[Users.username],
-                row[Users.email],
-                row[Users.phoneNumber],
-                row[Users.createdDate],
-            )
+            User(row[Users.id], row[Users.username], row[Users.email], row[Users.createdAt])
     }
 }
 
@@ -96,7 +98,7 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
 
         val payload: GoogleIdToken.Payload = idToken.payload
 
-        // Verify the hosted domain (hd) is umn.edu
+        // verify they have a UMN id
         val hostedDomain = payload.hostedDomain
         if (hostedDomain != "umn.edu") {
             LOGGER.warn("Invalid hosted domain: {}", hostedDomain ?: "null")
@@ -123,8 +125,7 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
                 Users.insert {
                     it[Users.username] = username
                     it[Users.email] = email
-                    it[Users.phoneNumber] = ""
-                    it[Users.createdDate] = createdDate
+                    it[Users.createdAt] = createdDate
                     it[Users.id] = googleID
                 }
 
@@ -137,25 +138,18 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
             LOGGER.info("Created new user account for {}", email)
 
             AuthorizedUser(
-                User(
-                    id = googleID,
-                    username = username,
-                    email = email,
-                    phoneNumber = "",
-                    createdDate = createdDate,
-                ),
+                User(id = googleID, username = username, email = email, createdDate = createdDate),
                 true,
                 Authorization.generateToken(googleID),
             )
         } else {
-            // Existing user - return their info
+            // existing user
             AuthorizedUser(
                 User(
                     id = googleID,
                     username = user[Users.username],
                     email = user[Users.email],
-                    phoneNumber = user[Users.phoneNumber],
-                    createdDate = user[Users.createdDate],
+                    createdDate = user[Users.createdAt],
                 ),
                 false,
                 Authorization.generateToken(googleID),
@@ -183,25 +177,66 @@ suspend fun updateUsername(userID: String, newUsername: String) {
  * @param userID The ID of the user.
  * @throws Error If the user doesn't exist.
  */
-suspend fun getUserByID(userID: String): User {
-    val user =
-        query { Users.selectAll().where { Users.id eq userID }.firstOrNull() }
-            ?: throw Error(401, "Invalid user ID.")
-
-    return User.fromRow(user)
-}
+suspend fun getUserByID(userID: String): User =
+    query {
+            // get by user ID
+            Users.selectAll().where { Users.id eq userID }.firstOrNull()
+        }
+        ?.let { User.fromRow(it) } ?: throw NotFound()
 
 /**
  * Get a user by their username.
  *
  * @param username The username of the user.
  */
-suspend fun getUserByUsername(username: String): User {
-    val user =
-        query { Users.selectAll().where { Users.username eq username }.firstOrNull() }
-            ?: throw Error(401, "Invalid username.")
+suspend fun getUserByUsername(username: String): User =
+    query {
+            // get by username
+            Users.selectAll().where { Users.username eq username }.firstOrNull()
+        }
+        ?.let { User.fromRow(it) } ?: throw NotFound()
 
-    return User.fromRow(user)
+/**
+ * Search result for user search containing user ID, username, and profile name.
+ *
+ * @param id The user's ID.
+ * @param username The user's username.
+ * @param name The user's profile name (if available).
+ */
+@Serializable
+data class UserSearchResult(val id: String, val username: String, val name: String? = null)
+
+/**
+ * Search for users by username or profile name. Returns up to 10 results that match the query.
+ *
+ * @param query The search query to match against username and profile name.
+ * @param requestingUserID If included, do not include the requesting user.
+ * @return A list of up to 10 matching users.
+ */
+suspend fun searchUsers(searchQuery: String, requestingUserID: String?): List<UserSearchResult> {
+    if (searchQuery.isBlank()) return emptyList()
+
+    val pattern = "%${searchQuery.trim().lowercase().replace("%", "\\%").replace("_", "\\_")}%"
+
+    return query {
+        Users.leftJoin(Profiles, { Users.id }, { Profiles.userID })
+            .selectAll()
+            .where {
+                ((Users.username.lowerCase() like pattern) or
+                    (Profiles.name.lowerCase() like pattern)) and
+                    // exclude requesting user if included
+                    (if (requestingUserID != null) Users.id neq requestingUserID else Op.TRUE)
+            }
+            .limit(10)
+            .toList()
+            .map { row ->
+                UserSearchResult(
+                    id = row[Users.id],
+                    username = row[Users.username],
+                    name = row.getOrNull(Profiles.name),
+                )
+            }
+    }
 }
 
 val ApplicationCall.userID
@@ -239,5 +274,21 @@ suspend fun validateUsername(username: String) {
         // uniqueness
         query { Users.selectAll().where { Users.username eq username }.firstOrNull() } != null ->
             throw Error(400, "This username is already taken!")
+    }
+}
+
+/**
+ * Delete a user.
+ *
+ * @param userID The user to delete.
+ */
+suspend fun deleteUser(userID: String) {
+    query { Users.deleteWhere { Users.id eq userID } }
+
+    // delete photo if it exists
+    try {
+        deletePhoto("avatars", "user/${userID}/avatar")
+    } catch (_: Exception) {
+        /* empty */
     }
 }

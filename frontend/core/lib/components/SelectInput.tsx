@@ -2,12 +2,7 @@ import { type DetailedHTMLProps, type SelectHTMLAttributes } from "react"
 import clsx from "clsx"
 
 /**
- * Props for {@link SelectInput}.
- *
- * @param error If there's an error.
- * @param items Array of option labels/values to render.
- * @param text The label text.
- * @param remark Optional remark text below the input.
+ *  {@link SelectInput}
  */
 export type SelectInputProps = {
     error?: boolean
@@ -21,6 +16,14 @@ export type SelectInputProps = {
 
 /**
  * A labeled and styled select input.
+ *
+ * @param error If there's an error.
+ * @param items Array of option labels/values to render.
+ * @param text The label text.
+ * @param remark Optional remark text below the input.
+ * @param props Other props for the input.
+ *
+ * @author AJ Kneisl
  */
 export default function SelectInput({
     error,

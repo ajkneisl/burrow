@@ -6,12 +6,12 @@ import {
     declineInvite
 } from "@features/burrows/attendees/attendees.api.ts"
 import { getMeeting } from "@features/burrows/burrows.api.ts"
-import type { InviteWithUsers } from "@features/burrows/burrows.types.ts"
+import type { InviteWithUsers } from "@features/burrows/burrows.types.tsx"
 import { Button, Card, Modal } from "@umnburrow/core"
-import { formatTimeAgo } from "@api/util.ts"
+import { formatTimeAgo, humanDateLabel } from "@api/util.ts"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useNavigate } from "react-router"
-import {myInvitesModalOpen} from "@features/layout/layout.atom.ts";
+import { myInvitesModalOpen } from "@features/layout/layout.atom.ts"
 
 /**
  * Component to display a single received invite.
@@ -56,17 +56,23 @@ function ReceivedInviteItem({ invite }: { invite: InviteWithUsers }) {
                     <div className="flex-1">
                         <div
                             className="mb-2 flex cursor-pointer flex-row items-center gap-2"
-                            onClick={() => nav(`/user/${invite.inviterUsername}`)}
+                            onClick={() =>
+                                nav(`/user/${invite.inviterUsername}`)
+                            }
                         >
                             <ProfilePicture
-                                name={invite.inviterProfile?.name || invite.inviterUsername}
+                                name={
+                                    invite.inviterProfile?.name ||
+                                    invite.inviterUsername
+                                }
                                 userID={invite.invite.inviterID}
                                 size={"sm"}
                             />
 
                             <div className="flex flex-col">
                                 <span className="text-sm font-semibold">
-                                    {invite.inviterProfile?.name || invite.inviterUsername}
+                                    {invite.inviterProfile?.name ||
+                                        invite.inviterUsername}
                                 </span>
                                 <span className="text-text/70 text-xs">
                                     {invite.inviterUsername}
@@ -77,7 +83,9 @@ function ReceivedInviteItem({ invite }: { invite: InviteWithUsers }) {
                         {burrowData && (
                             <div
                                 className="mb-2 cursor-pointer"
-                                onClick={() => nav(`/burrow/${invite.invite.burrowID}`)}
+                                onClick={() =>
+                                    nav(`/burrow/${invite.invite.burrowID}`)
+                                }
                             >
                                 <p className="text-text text-sm font-semibold">
                                     {burrowData.burrow.title}
@@ -91,7 +99,17 @@ function ReceivedInviteItem({ invite }: { invite: InviteWithUsers }) {
                         <div className="text-text/50 text-xs">
                             Invited {formatTimeAgo(invite.invite.createdAt)}
                             {invite.invite.expiresAt && (
-                                <> • Expires {formatTimeAgo(invite.invite.expiresAt)}</>
+                                <>
+                                    {" "}
+                                    • Expires{" "}
+                                    {invite.invite.expiresAt > Date.now()
+                                        ? humanDateLabel(
+                                              invite.invite.expiresAt
+                                          )
+                                        : formatTimeAgo(
+                                              invite.invite.expiresAt
+                                          )}
+                                </>
                             )}
                         </div>
                     </div>
@@ -107,7 +125,8 @@ function ReceivedInviteItem({ invite }: { invite: InviteWithUsers }) {
                         color={"ERROR"}
                         onClick={() => declineMutation.mutate()}
                         disabled={
-                            acceptMutation.isPending || declineMutation.isPending
+                            acceptMutation.isPending ||
+                            declineMutation.isPending
                         }
                         aria-label={`Decline invite from ${invite.inviterUsername}`}
                         title="Decline invite"
@@ -121,7 +140,8 @@ function ReceivedInviteItem({ invite }: { invite: InviteWithUsers }) {
                         color={"SUCCESS"}
                         onClick={() => acceptMutation.mutate()}
                         disabled={
-                            acceptMutation.isPending || declineMutation.isPending
+                            acceptMutation.isPending ||
+                            declineMutation.isPending
                         }
                         aria-label={`Accept invite from ${invite.inviterUsername}`}
                         title="Accept invite"

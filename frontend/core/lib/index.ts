@@ -1,10 +1,14 @@
 import "./index.css"
 
+import AutocompleteInput, {
+    type AutocompleteOption
+} from "./components/AutocompleteInput"
 import Button from "./components/Button"
 import Badge from "./components/Badge"
 import Card from "./components/Card"
 import Dropdown, { DropdownItem } from "./components/Dropdown"
 import Input from "./components/Input"
+import TimeInput from "./components/TimeInput"
 import Modal from "./components/Modal"
 import SelectInput from "./components/SelectInput"
 import TextArea from "./components/TextArea"
@@ -14,12 +18,14 @@ import useDateRangePicker from "./hooks/useDateRangePicker"
 import ViewErrors from "./components/ViewErrors"
 
 export {
+    AutocompleteInput,
     Button,
     Badge,
     Card,
     Dropdown,
     DropdownItem,
     Input,
+    TimeInput,
     Modal,
     SelectInput,
     TextArea,
@@ -28,3 +34,5 @@ export {
     ViewErrors,
     useDateRangePicker
 }
+
+export type { AutocompleteOption }

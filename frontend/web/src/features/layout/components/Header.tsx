@@ -6,7 +6,7 @@ import Search from "@features/layout/search/components/Search.tsx"
 import HomeButton from "@features/layout/components/HomeButton.tsx"
 import HeaderButton from "@features/layout/components/HeaderButton.tsx"
 import { useAtom } from "jotai"
-import { mobileSearchOpen } from "@features/layout/search/search.atom.ts"
+import { mobileSearchOpenAtom } from "@features/layout/search/search.atom.ts"
 import MobileSearch from "@features/layout/search/components/MobileSearch.tsx"
 import clsx from "clsx"
 import useToken from "@features/auth/hooks/useToken.ts"
@@ -24,7 +24,7 @@ export default function Header() {
     const auth = useToken()
     const location = useLocation()
 
-    const [open, setMobileSearchOpen] = useAtom(mobileSearchOpen)
+    const [open, setMobileSearchOpen] = useAtom(mobileSearchOpenAtom)
     const input = <Search />
 
     return (
@@ -63,15 +63,21 @@ export default function Header() {
                         {location.pathname !== "/" &&
                             location.pathname !== "/welcome" && <HomeButton />}
 
-                        <HeaderButton
-                            className="md:hidden"
-                            onClick={() => setMobileSearchOpen((prev) => !prev)}
-                            icon={<SearchIcon className="h-5 w-5" />}
-                        />
+                        {/* mobile search */}
+                        <div className="md:hidden">
+                            <HeaderButton
+                                onClick={() =>
+                                    setMobileSearchOpen((prev) => !prev)
+                                }
+                                icon={<SearchIcon className="h-5 w-5" />}
+                            />
+                        </div>
 
+                        {/* browse */}
                         <HeaderButton
+                            description="Browse"
                             icon={<CompassIcon className="h-5 w-5" />}
-                            onClick={() => nav("/study")}
+                            onClick={() => nav("/browse")}
                         />
 
                         {/* Notifications Bell */}

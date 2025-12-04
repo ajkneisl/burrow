@@ -1,14 +1,12 @@
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { Badge, Card } from "@umnburrow/core"
-import { Link } from "react-router"
+import { Link, useNavigate} from "react-router"
 import useUser from "@features/auth/hooks/useUser.ts"
 import useProfile from "@features/auth/hooks/useProfile.ts"
 import { useQuery } from "@tanstack/react-query"
 import { getRelations } from "@features/auth/user.api.ts"
 import { convertGraduationYear } from "@api/util.ts"
 import MyFriend from "@features/profile/components/MyFriend.tsx"
-import useRelations from "@features/profile/hooks/useRelations.ts"
-import { FRIENDS_VIEW } from "@features/profile/profile.api.ts"
 
 /**
  * A view of My Profile on the homepage.
@@ -17,7 +15,7 @@ import { FRIENDS_VIEW } from "@features/profile/profile.api.ts"
  */
 export default function MyProfile() {
     const user = useUser()
-    const rel = useRelations()
+    const nav = useNavigate()
     const profile = useProfile()
 
     const { data, isLoading } = useQuery({
@@ -69,12 +67,21 @@ export default function MyProfile() {
                                     </Badge>
                                 )}
 
-                                <Link
-                                    to={`/user/${user?.username}`}
-                                    className="text-text/60 hover:text-text text-xs underline-offset-2 transition-all hover:underline"
-                                >
-                                    View profile
-                                </Link>
+                                <div className="flex flex-row gap-2">
+                                    <Link
+                                        to={`/user/${user?.username}`}
+                                        className="text-text/60 hover:text-text text-xs underline-offset-2 transition-all hover:underline"
+                                    >
+                                        View profile
+                                    </Link>
+
+                                    <Link
+                                        to={`/friends`}
+                                        className="text-text/60 hover:text-text block text-xs underline-offset-2 transition-all hover:underline lg:hidden"
+                                    >
+                                        View friends
+                                    </Link>
+                                </div>
                             </div>
                         </div>
                     </>
@@ -98,7 +105,7 @@ export default function MyProfile() {
                         </h2>
 
                         <button
-                            onClick={() => rel(FRIENDS_VIEW)}
+                            onClick={() => nav("/friends")}
                             className="text-text/60 hover:text-text/80 cursor-pointer text-xs hover:underline"
                         >
                             View all
@@ -121,6 +128,15 @@ export default function MyProfile() {
                                     <div className="bg-text/10 h-3 w-32 animate-pulse rounded" />
                                 </li>
                             ))}
+
+                        {/* no friends empty state */}
+                        {!isLoading && data && data.length === 0 && (
+                            <li className="bg-background/30 flex items-center justify-center rounded-lg px-4 py-8">
+                                <p className="text-text/40 text-sm">
+                                    No friends yet
+                                </p>
+                            </li>
+                        )}
                     </ul>
                 </section>
             </div>

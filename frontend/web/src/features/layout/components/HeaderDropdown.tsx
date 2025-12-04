@@ -1,7 +1,6 @@
 import { useRef, useState } from "react"
-import { useAtom } from "jotai"
+import { useSetAtom} from "jotai"
 import { authToken } from "@features/auth/auth.atom.ts"
-import { themeAtom } from "@api/theme.atom.ts"
 import { Dropdown, DropdownItem } from "@umnburrow/core"
 import HeaderButton from "@features/layout/components/HeaderButton.tsx"
 import { problemModalOpen } from "@features/problem/problem.atom.ts"
@@ -11,23 +10,28 @@ import {
     MenuIcon,
     Settings,
     Mail,
-    Sun,
     AlertTriangle,
-    LogOut
+    LogOut,
+    UserIcon,
+    History
 } from "lucide-react"
+import useUser from "@features/auth/hooks/useUser.ts";
 
 /**
  * Animation variants for {@link HeaderDropdown}
+ *
+ * @author AJ Kneisl
  */
 
 export default function HeaderDropdown() {
     const nav = useNavigate()
+    const user = useUser()
 
-    const [, setAuth] = useAtom(authToken)
-    const [theme, setTheme] = useAtom(themeAtom)
     const [open, setOpen] = useState(false)
-    const [, setProblemOpen] = useAtom(problemModalOpen)
-    const [, setMyInvitesOpen] = useAtom(myInvitesModalOpen)
+
+    const setAuth = useSetAtom(authToken)
+    const setProblemOpen = useSetAtom(problemModalOpen)
+    const setMyInvitesOpen = useSetAtom(myInvitesModalOpen)
 
     const buttonRef = useRef<HTMLButtonElement | null>(null)
 
@@ -61,7 +65,7 @@ export default function HeaderDropdown() {
 
                     {/* my invites */}
                     <DropdownItem
-                        label="My Invites"
+                        label="Invites"
                         onSelect={() => {
                             setOpen(false)
                             setMyInvitesOpen(true)
@@ -69,19 +73,29 @@ export default function HeaderDropdown() {
                         rightIcon={<Mail width="18" height="18" />}
                     />
 
-                    {/* theme */}
+                    {/* my profile */}
                     <DropdownItem
-                        label={`${theme ? "Light" : "Dark"} Mode`}
+                        label="Profile"
                         onSelect={() => {
-                            setTheme((prev) => !prev)
                             setOpen(false)
+                            nav(`/user/${user?.username}`)
                         }}
-                        rightIcon={<Sun width="18" height="18" />}
+                        rightIcon={<UserIcon width="18" height="18" />}
                     />
 
-                    {/* theme */}
+                    {/* history */}
                     <DropdownItem
-                        label={`Feedback`}
+                        label="History"
+                        onSelect={() => {
+                            setOpen(false)
+                            nav("/history")
+                        }}
+                        rightIcon={<History width="18" height="18" />}
+                    />
+
+                    {/* feedback */}
+                    <DropdownItem
+                        label={`Give Feedback`}
                         onSelect={() => {
                             setProblemOpen((prev) => !prev)
                             setOpen(false)

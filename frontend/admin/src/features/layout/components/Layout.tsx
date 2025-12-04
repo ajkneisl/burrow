@@ -21,22 +21,37 @@ function Layout() {
 
     const SECTIONS: NavSection[] = [
         {
-            title: "Overview",
+            title: "Dashboard",
             items: [
                 {
+                    label: "Overview",
+                    href: "/dashboard",
+                    color: "bg-secondary"
+                },
+                {
                     label: "Analytics",
-                    href: "/admin/analytics",
+                    href: "/analytics",
                     color: "bg-secondary"
                 }
             ]
         },
         {
-            title: "Reports",
+            title: "Moderation",
             items: [
                 {
-                    label: "All Reports",
-                    href: "/admin/reports",
+                    label: "Reports",
+                    href: "/reports",
                     color: "bg-primary"
+                }
+            ]
+        },
+        {
+            title: "System",
+            items: [
+                {
+                    label: "Logs",
+                    href: "/logs",
+                    color: "bg-info"
                 }
             ]
         }
@@ -44,45 +59,50 @@ function Layout() {
 
     return (
         <div className="min-h-screen w-full flex bg-background text-text transition-colors duration-300">
-            {/* side bar */}
+            {/* Sidebar */}
             <aside
-                className="w-72 shrink-0 border-r border-card-border bg-card/70 bg-gradient-to-b from-card to-transparent backdrop-blur supports-[backdrop-filter]:bg-card/60"
-                aria-label="Primary"
+                className="w-64 shrink-0 border-r border-card-border bg-card/50 backdrop-blur-sm supports-[backdrop-filter]:bg-card/40"
+                aria-label="Primary navigation"
             >
-                <div className="px-4 py-5 border-b border-card-border">
-                    <button
-                        type="button"
-                        className="w-full flex items-center gap-3 rounded-xl p-3 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
-                    >
-                        <div className="flex-1 min-w-0">
-                            <span className="font-semibold truncate">
-                                {admin?.username}
-                            </span>
-
-                            <p className="text-sm text-gray-400 truncate">
-                                {admin?.email}
-                            </p>
+                <div className="flex flex-col h-full">
+                    {/* Header */}
+                    <div className="px-4 py-4 border-b border-card-border">
+                        <div className="rounded-lg bg-card border border-card-border p-3">
+                            <div className="flex-1 min-w-0">
+                                <p className="font-semibold truncate text-sm">
+                                    {admin?.username}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                    {admin?.email}
+                                </p>
+                            </div>
                         </div>
-                    </button>
 
-                    <div className="mt-3 flex justify-evenly gap-2 text-sm">
-                        <Button color="ERROR" onClick={() => setToken("")}>
-                            Sign Out
-                        </Button>
+                        <div className="mt-3">
+                            <Button
+                                color="ERROR"
+                                onClick={() => setToken("")}
+                                className="w-full"
+                            >
+                                Sign Out
+                            </Button>
+                        </div>
                     </div>
-                </div>
 
-                {/* navigation */}
-                <nav className="px-3 py-4 space-y-6">
-                    {SECTIONS.map((s) => (
-                        <SidebarSection key={s.title} section={s} />
-                    ))}
-                </nav>
+                    {/* Navigation */}
+                    <nav className="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
+                        {SECTIONS.map((s) => (
+                            <SidebarSection key={s.title} section={s} />
+                        ))}
+                    </nav>
+                </div>
             </aside>
 
-            {/* content */}
-            <main className="mx-auto max-w-6xl">
-                <Outlet />
+            {/* Main content */}
+            <main className="flex-1 overflow-y-auto">
+                <div className="w-full">
+                    <Outlet />
+                </div>
             </main>
         </div>
     )

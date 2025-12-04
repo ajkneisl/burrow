@@ -10,8 +10,14 @@ type ViewNotificationProps = {
     notification: Notification
     clearOne: (id: string) => void
     toggleReadOne: (id: string) => void
-    onAcceptInvite?: (burrowId: string) => void
-    onDeclineInvite?: (burrowId: string) => void
+    onAcceptInvite?: (params: {
+        burrowId: string
+        notificationId: string
+    }) => void
+    onDeclineInvite?: (params: {
+        burrowId: string
+        notificationId: string
+    }) => void
 }
 
 /**
@@ -44,7 +50,7 @@ export default function ViewNotification({
             <div className="flex items-start justify-between gap-3">
                 {/* header*/}
                 <div className="min-w-0 flex-1">
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-center gap-2">
                         <h3 className="text-sm leading-tight font-semibold">
                             {notification.title}
                         </h3>
@@ -67,16 +73,18 @@ export default function ViewNotification({
             <div className="flex items-center justify-end gap-2 transition-opacity">
                 {/* when it's invite, offer accept and decline */}
                 {isInvite &&
-                    notification.meetingId &&
+                    notification.burrowID &&
                     onAcceptInvite &&
                     onDeclineInvite && (
                         <>
                             <Button
                                 thin
                                 color="SUCCESS"
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    onAcceptInvite(notification.meetingId!)
+                                onClick={() => {
+                                    onAcceptInvite({
+                                        burrowId: notification.burrowID!,
+                                        notificationId: notification.id
+                                    })
                                 }}
                                 aria-label="Accept invite"
                             >
@@ -86,10 +94,12 @@ export default function ViewNotification({
                             <Button
                                 thin
                                 color="WARNING"
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    onDeclineInvite(notification.meetingId!)
-                                }}
+                                onClick={() =>
+                                    onDeclineInvite({
+                                        burrowId: notification.burrowID!,
+                                        notificationId: notification.id
+                                    })
+                                }
                                 aria-label="Decline invite"
                             >
                                 Decline
@@ -102,10 +112,7 @@ export default function ViewNotification({
                     <Button
                         thin
                         color="SUCCESS"
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            toggleReadOne(notification.id)
-                        }}
+                        onClick={() => toggleReadOne(notification.id)}
                         aria-label="Mark as read"
                     >
                         Mark as Read
@@ -116,10 +123,7 @@ export default function ViewNotification({
                 <Button
                     thin
                     color="ERROR"
-                    onClick={(e) => {
-                        e.stopPropagation()
-                        clearOne(notification.id)
-                    }}
+                    onClick={() => clearOne(notification.id)}
                     aria-label="Clear notification"
                 >
                     Clear

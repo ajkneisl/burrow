@@ -22,12 +22,12 @@ export default function NotFound() {
     }
 
     return (
-        <main className="w-full text-text">
+        <main className="text-text w-full">
             <div className="mx-auto w-full max-w-2xl px-6 py-12">
-                <div className="relative overflow-hidden bg-card rounded-2xl border border-card-border p-8 shadow-sm">
+                <div className="bg-card border-card-border relative overflow-hidden rounded-2xl border p-8 shadow-sm">
                     <img
                         src="/image/not_found.jpg"
-                        className="rounded-lg mb-4 grayscale"
+                        className="mb-4 rounded-lg grayscale"
                         aria-hidden
                         draggable={false}
                         alt={"Screaming Gopher"}
@@ -37,11 +37,11 @@ export default function NotFound() {
                         We couldn't find that page
                     </h1>
 
-                    <p className="mt-2 text-sm text-black/70 dark:text-white/70">
+                    <p className="text-text/70 mt-2 text-sm">
                         It may have moved, or the link is incorrect.
                     </p>
 
-                    <div className="mt-6 gap-4 flex flex-wrap md:justify-between justify-center">
+                    <div className="mt-6 flex flex-wrap justify-center gap-4 md:justify-between">
                         <div className="flex flex-row gap-3">
                             <Button onClick={handleGoBack} color="SECONDARY">
                                 Go back

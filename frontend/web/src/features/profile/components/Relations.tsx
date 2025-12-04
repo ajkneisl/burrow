@@ -12,6 +12,7 @@ import useRelations from "@features/profile/hooks/useRelations.ts"
  */
 type RelationsProps = {
     data: UserResponse
+    isFriends: boolean
 }
 
 /**
@@ -19,12 +20,12 @@ type RelationsProps = {
  *
  * @see Profile.view.tsx
  */
-export default function Relations({ data }: RelationsProps) {
+export default function Relations({ data, isFriends }: RelationsProps) {
     const rel = useRelations()
     const user = useUser()
 
-    // not viewing their own profile
-    if (user?.id !== data.user.id) {
+    // not viewing their own profile or friends
+    if (user?.id !== data.user.id && !isFriends) {
         return (
             <div className="text-text/80 mt-1 text-sm">
                 <span>
@@ -40,12 +41,18 @@ export default function Relations({ data }: RelationsProps) {
     // viewing their own profile
     return (
         <div className="text-text/80 mt-1 text-sm">
-            <Button color="LINK" onClick={() => rel(FOLLOWERS_VIEW)}>
+            <Button
+                color="LINK"
+                onClick={() => rel(FOLLOWERS_VIEW(data.user.id))}
+            >
                 {data.following.followers} follower
                 {data.following.followers === 1 ? "" : "s"}
             </Button>
-            <span className="opacity-60">•</span>{" "}
-            <Button color="LINK" onClick={() => rel(FOLLOWING_VIEW)}>
+            <span className="mx-2 opacity-60">•</span>{" "}
+            <Button
+                color="LINK"
+                onClick={() => rel(FOLLOWING_VIEW(data.user.id))}
+            >
                 {data.following.following} following
             </Button>
         </div>

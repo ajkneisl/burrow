@@ -1,32 +1,18 @@
 package app.burrow
 
-import app.burrow.account.Users
-import app.burrow.account.profile.Following
-import app.burrow.account.profile.Profiles
-import app.burrow.account.settings.Settings
-import app.burrow.admin.account.Administrators
-import app.burrow.burrows.bookmarks.Bookmarks
-import app.burrow.burrows.invites.Invites
-import app.burrow.burrows.invites.JoinRequests
-import app.burrow.burrows.membership.Memberships
-import app.burrow.burrows.models.Burrows
-import app.burrow.burrows.sync.block.BlockStates
-import app.burrow.burrows.sync.chat.ChatMessages
-import app.burrow.notifications.NotificationPreferences
-import app.burrow.notifications.Notifications
-import app.burrow.notifications.delivery.PushSubscriptions
-import app.burrow.report.Reports
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.spi.IsolationLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.vendors.PostgreSQLDialect
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabaseConfig
 import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
 import org.jetbrains.exposed.v1.r2dbc.SchemaUtils
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
+import org.reflections.Reflections
 import org.slf4j.LoggerFactory
 
 var DB: R2dbcDatabase? = null
@@ -73,24 +59,12 @@ suspend fun initDb() {
         }
 
     query {
-        SchemaUtils.createMissingTablesAndColumns(
-            Users,
-            Burrows,
-            Settings,
-            NotificationPreferences,
-            Notifications,
-            Bookmarks,
-            Memberships,
-            Invites,
-            JoinRequests,
-            BlockStates,
-            ChatMessages,
-            Reports,
-            Administrators,
-            Profiles,
-            Following,
-            PushSubscriptions,
-        )
+        val allTables =
+            Reflections("app.burrow")
+                .getSubTypesOf(Table::class.java)
+                .mapNotNull { table -> table.kotlin.objectInstance }
+
+        SchemaUtils.createMissingTablesAndColumns(*allTables.toTypedArray())
     }
 
     LOGGER.debug("Connected to Database")

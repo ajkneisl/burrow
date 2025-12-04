@@ -12,9 +12,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 
-/** Requests relating to invites. */
+// ROUTES /burrows/{id}/invites, /invites
+// manage invites
 fun Route.inviteRoutes() {
-    // ROUTE /{id}/invites
+    // ROUTE /burrows/{id}/invites
     // routes interacting with invites for a specific burrow
     route("/{id}/invites") {
         /**

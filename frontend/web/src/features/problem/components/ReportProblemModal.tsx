@@ -10,7 +10,9 @@ import useToken from "@features/auth/hooks/useToken.ts"
 import toast from "react-hot-toast"
 
 /**
- * A modal to report a problem
+ * A modal to report a problem.
+ *
+ * @author AJ Kneisl
  */
 export default function ReportProblemModal() {
     const auth = useToken()
@@ -119,6 +121,7 @@ export default function ReportProblemModal() {
                 </div>
 
                 <TextArea
+                    className="max-h-[512px] min-h-[128px] w-full resize-y"
                     text={"Describe your issue"}
                     placeholder="Steps to reproduce, what you expected, and what happened instead."
                     value={details}

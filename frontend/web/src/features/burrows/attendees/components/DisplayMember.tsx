@@ -71,7 +71,7 @@ export default function DisplayMember(props: DisplayMemberProps) {
                                     </span>
 
                                     <span className="text-text/70 text-xs">
-                                        {props.username}
+                                        @{props.username}
                                     </span>
                                 </div>
                             </div>

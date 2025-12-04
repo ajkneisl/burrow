@@ -1,0 +1,93 @@
+import type { DiscoveredUser } from "@features/auth/user.types.ts"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
+import { followUser, unFollowUser } from "@features/profile/profile.api.ts"
+import toast from "react-hot-toast"
+import { getReasoningLabel } from "@features/profile/profile.util.ts"
+import { Button, Card } from "@umnburrow/core"
+import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
+import { Plus } from "lucide-react"
+
+/**
+ * Discovered user
+ *
+ * @author AJ Kneisl
+ */
+export default function DiscoveredUserCard({ user }: { user: DiscoveredUser }) {
+    const queryClient = useQueryClient()
+    const [isFollowing, setIsFollowing] = useState(false)
+
+    const followMutation = useMutation({
+        mutationFn: () => followUser(user.userID),
+        onSuccess: () => {
+            setIsFollowing(true)
+
+            void queryClient.invalidateQueries({ queryKey: ["friends"] })
+            void queryClient.invalidateQueries({ queryKey: ["discovered"] })
+
+            toast.success(`Following ${user.name}`)
+        },
+        onError: () => {
+            toast.error("Failed to follow user")
+        }
+    })
+
+    const unfollowMutation = useMutation({
+        mutationFn: () => unFollowUser(user.userID),
+        onSuccess: () => {
+            setIsFollowing(false)
+
+            void queryClient.invalidateQueries({ queryKey: ["friends"] })
+            void queryClient.invalidateQueries({ queryKey: ["discovered"] })
+
+            toast.success(`Unfollowed ${user.name}`)
+        },
+        onError: () => {
+            toast.error("Failed to unfollow user")
+        }
+    })
+
+    return (
+        <Card className="bg-background! flex flex-row items-start gap-2">
+            {/* profile picture */}
+            <ProfilePicture name={user.name} userID={user.userID} size="md" />
+
+            <div className="flex-1">
+                <h4 className="text-text text-sm font-semibold">{user.name}</h4>
+                <p className="text-text/60 text-xs">@{user.username}</p>
+
+                <p className="text-text/40 text-xs mt-2">
+                    {getReasoningLabel(user.reasoning)}
+                </p>
+            </div>
+
+            <div className="flex flex-col items-center">
+                <Button
+                    color={isFollowing ? undefined : "PRIMARY"}
+                    colors={
+                        isFollowing
+                            ? "bg-text/10 text-text hover:bg-text/20"
+                            : undefined
+                    }
+                    thin
+                    onClick={() => {
+                        if (isFollowing) {
+                            unfollowMutation.mutate()
+                        } else {
+                            followMutation.mutate()
+                        }
+                    }}
+                >
+                    {isFollowing ? (
+                        "Following"
+                    ) : (
+                        <>
+                            <Plus className="h-4 w-4" />
+                            Follow
+                        </>
+                    )}
+                </Button>
+            </div>
+        </Card>
+    )
+}

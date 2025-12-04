@@ -7,6 +7,7 @@ import { newUser } from "@features/auth/auth.atom.ts"
 import NewUserIntro from "@features/auth/components/NewUserIntro.tsx"
 import Schedule from "@features/burrows/components/Schedule.tsx"
 import MyProfile from "@features/profile/components/MyProfile.tsx"
+import Topics from "@features/chat/components/Topics.tsx";
 
 /**
  * The homepage of Burrow.
@@ -50,6 +51,10 @@ export default function HomeView() {
                 {/* profile */}
                 <aside className="md:col-span-2 md:row-start-1 lg:col-span-1 lg:row-start-1">
                     <MyProfile />
+
+                    <div className="hidden md:block">
+                        <Topics />
+                    </div>
                 </aside>
 
                 {/* small border displayed on mobile */}
@@ -62,11 +67,7 @@ export default function HomeView() {
 
                 {/* upcoming burrows */}
                 <aside className="md:col-span-1 md:row-span-3 md:row-start-1 lg:col-span-1 lg:row-span-1 lg:row-start-1">
-                    <PreviewBurrows
-                        fullPage={"/study"}
-                        kind={"STUDY"}
-                        amount={5}
-                    />
+                    <PreviewBurrows amount={5} />
                 </aside>
             </div>
         </>

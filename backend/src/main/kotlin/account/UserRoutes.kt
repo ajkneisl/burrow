@@ -2,20 +2,20 @@ package app.burrow.account
 
 import app.burrow.InvalidAuthorization
 import app.burrow.account.models.User
+import app.burrow.account.models.deleteUser
 import app.burrow.account.models.getUserByID
 import app.burrow.account.models.getUserByUsername
 import app.burrow.account.models.getUserResponse
 import app.burrow.account.models.retrieveUser
+import app.burrow.account.models.searchUsers
 import app.burrow.account.models.updateUsername
 import app.burrow.account.models.userID
 import app.burrow.account.models.validateUsername
 import app.burrow.account.profile.Profile
-import app.burrow.account.profile.followUser
-import app.burrow.account.profile.getFollowersRelations
-import app.burrow.account.profile.getFollowingRelations
-import app.burrow.account.profile.getFriends
-import app.burrow.account.profile.unFollowUser
+import app.burrow.account.profile.RELATION_ROUTES
 import app.burrow.account.profile.updateProfile
+import app.burrow.burrows.searchBurrows
+import app.burrow.optionalIntQueryParameter
 import app.burrow.photo.USER_PHOTO_ROUTES
 import app.burrow.queryParameter
 import app.burrow.urlParameter
@@ -35,11 +35,42 @@ import kotlinx.serialization.Serializable
 /** All routes relating to [User] */
 val USER_ROUTES: Route.() -> Unit = {
     authenticate("primary") {
+        // ROUTE /user/photo
+        // manage user photos
         route("/photo", USER_PHOTO_ROUTES)
 
         // GET /user
         // get the user's information
         get { call.respond(getUserResponse(call.userID, call.userID)) }
+
+        // GET /user/history
+        // get your own burrow history
+        get("/history") {
+            val page = call.optionalIntQueryParameter("page") ?: 1
+
+            val burrowHistory =
+                searchBurrows(page) {
+                    authorUserID = call.userID
+                    dateRange = -1L..-1L
+                }
+
+            call.respond(burrowHistory)
+        }
+
+        // GET /user/search
+        // search through users by username or profile name
+        get("/search") {
+            val query = call.queryParameter("query")
+            val excludeMe = call.queryParameter("exclude_me").toBoolean()
+
+            val results =
+                searchUsers(
+                    searchQuery = query,
+                    requestingUserID = if (excludeMe) call.userID else null,
+                )
+
+            call.respond(results)
+        }
 
         // GET /user/id/{id}
         // get a user by their ID
@@ -59,20 +90,9 @@ val USER_ROUTES: Route.() -> Unit = {
             call.respond(getUserResponse(user.id, call.userID))
         }
 
-        // routes involving followers / following
-        route("/relations") {
-            // GET /user/relations/friends
-            // retrieve all your friends.
-            get("/friends") { call.respond(getFriends(call.userID)) }
-
-            // GET /user/relations/following
-            // retrieve all the user's you're following
-            get("/following") { call.respond(getFollowingRelations(call.userID)) }
-
-            // GET /user/relations/followers
-            // retrieve all the user's that follow you
-            get("/followers") { call.respond(getFollowersRelations(call.userID)) }
-        }
+        // ROUTE /relations
+        // manage user relations.
+        route("/relations", RELATION_ROUTES)
 
         /** A request to update the account details. */
         @Serializable data class UpdateAccountRequest(val username: String)
@@ -126,17 +146,17 @@ val USER_ROUTES: Route.() -> Unit = {
 
                 val profile =
                     Profile(
-                        call.userID,
-                        name,
-                        visibility,
-                        bio,
-                        gradYear,
-                        classes,
-                        school,
-                        major,
-                        phoneNumber,
-                        instagram,
-                        linkedIn,
+                        userID = call.userID,
+                        name = name,
+                        visibility = visibility,
+                        bio = bio,
+                        gradYear = gradYear,
+                        classes = classes,
+                        school = school,
+                        major = major,
+                        phoneNumber = phoneNumber,
+                        instagram = instagram,
+                        linkedIn = linkedIn,
                     )
 
                 profile.validate()
@@ -144,31 +164,15 @@ val USER_ROUTES: Route.() -> Unit = {
 
                 call.respond(HttpStatusCode.OK, profile)
             }
-
-            // ROUTE /user/profile/follow
-            route("/follow") {
-                // manage following
-                // POST /user/profile/follow
-                // follow a user
-                post {
-                    val userID = call.queryParameter("userID")
-
-                    followUser(call.userID, userID)
-
-                    call.respond(HttpStatusCode.OK)
-                }
-
-                // DELETE /user/profile/follow
-                // un-follow a user
-                delete {
-                    val userID = call.queryParameter("userID")
-
-                    unFollowUser(call.userID, userID)
-
-                    call.respond(HttpStatusCode.OK)
-                }
-            }
         }
+    }
+
+    // DELETE /user
+    // delete your account
+    delete {
+        deleteUser(call.userID)
+
+        call.respond(HttpStatusCode.OK)
     }
 
     // PUT /user/login

@@ -1,6 +1,6 @@
 package app.burrow.notifications
 
-import app.burrow.account.Users
+import app.burrow.account.models.Users
 import app.burrow.burrows.models.Burrows
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
@@ -8,14 +8,14 @@ import org.jetbrains.exposed.v1.core.Table
 /** Table of [Notification] */
 object Notifications : Table("notifications") {
     /** [Notification.id] */
-    val id = uuid("notifications_id").uniqueIndex()
+    val id = uuid("id").uniqueIndex()
 
     /** [Notification.userID] */
     val userID = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
 
     /** [Notification.burrowID] */
     val burrowID =
-        reference("meeting_id", Burrows.id, onDelete = ReferenceOption.CASCADE)
+        reference("burrow_id", Burrows.id, onDelete = ReferenceOption.CASCADE)
             .nullable()
             .default(null)
 
@@ -37,8 +37,9 @@ object Notifications : Table("notifications") {
     /** [Notification.scheduledDate] */
     val scheduledDate = long("scheduled_date")
 
-    val userMeetingKindUnique =
-        uniqueIndex("notifications_user_meeting_kind_unique", userID, burrowID, kind)
+    init {
+        index(false, userID, burrowID, kind)
+    }
 
     override val primaryKey = PrimaryKey(id)
 }

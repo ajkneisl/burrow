@@ -24,7 +24,7 @@ export default function Yordanos() {
                 />
 
                 <p className="figtree -mt-16 text-center text-lg">
-                    He's been expecting you.
+                    "i just hit 30 reps of chipotle ts make me ocky or na"
                 </p>
 
                 <div className="mt-4 flex flex-col gap-2">

@@ -1,12 +1,13 @@
 import { BASE_URL } from "@api/util.ts"
 import type {
     BurrowResponse,
-    BurrowType,
+    BurrowKind,
     BurrowMembershipResponse,
-    BurrowRole
-} from "./burrows.types.ts"
+    BurrowRole,
+    ScheduleBurrowResponse
+} from "./burrows.types.tsx"
 import type { PaginatedResponse } from "@api/api.types.ts"
-import { get, patch, post } from "@api/api.ts"
+import { del, get, patch, post } from "@api/api.ts"
 
 /**
  * Get a {@link BurrowResponse} by its ID.
@@ -25,7 +26,7 @@ export async function getMeeting(id: string): Promise<BurrowResponse> {
  * @return The meeting response, including membership and meeting information.
  */
 export async function getBurrows(
-    type: BurrowType | null
+    type: BurrowKind | null
 ): Promise<PaginatedResponse<BurrowResponse>> {
     return get(`/burrows`, { query: { type: `${type}` } })
 }
@@ -51,20 +52,10 @@ export async function leaveMeeting(meeting: string) {
 /**
  * Delete a {@link Burrow} by it's ID.
  *
- * @param auth The authorization token.
  * @param id The meeting to delete.
  */
-export async function deleteMeeting(auth: string, id: string) {
-    const request = await fetch(`${BASE_URL}/burrows/${id}`, {
-        method: "DELETE",
-        headers: {
-            Authorization: `Bearer ${auth}`
-        }
-    })
-
-    if (!request.ok) {
-        return Promise.reject()
-    }
+export async function deleteMeeting(id: string) {
+    return del(`/burrows/${id}`)
 }
 
 /**
@@ -130,11 +121,13 @@ export async function getAttendees(
  * @param endDate The ending of a time range to search through.
  */
 export async function searchMeetings(
-    type: BurrowType | null,
+    type: BurrowKind | null,
     query: string,
     page: number = 1,
     startDate?: number,
-    endDate?: number
+    endDate?: number,
+    isHost?: boolean,
+    isBookmarked?: boolean
 ): Promise<PaginatedResponse<BurrowResponse>> {
     return await get("/burrows/search", {
         query: {
@@ -142,7 +135,9 @@ export async function searchMeetings(
             type: type ?? undefined,
             page,
             start: startDate,
-            end: endDate
+            end: endDate,
+            host: isHost ?? undefined,
+            bookmarked: isBookmarked ?? undefined
         }
     })
 }
@@ -205,7 +200,7 @@ export async function toggleBanMember(
 /**
  * Get the schedule.
  */
-export async function getSchedule(): Promise<BurrowResponse[]> {
+export async function getSchedule(): Promise<ScheduleBurrowResponse[]> {
     return await get(`/burrows/schedule`)
 }
 
@@ -224,4 +219,17 @@ export async function getBookmarks(auth: string): Promise<BurrowResponse[]> {
     if (!request.ok) return Promise.reject("Failed to load schedule.")
 
     return await request.json()
+}
+
+/**
+ * Get user's burrow history.
+ *
+ * @param page The page number (defaults to 1).
+ */
+export async function getUserHistory(
+    page: number = 1
+): Promise<PaginatedResponse<BurrowResponse>> {
+    return await get("/user/history", {
+        query: { page }
+    })
 }

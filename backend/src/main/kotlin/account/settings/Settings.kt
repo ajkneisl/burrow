@@ -1,6 +1,6 @@
 package app.burrow.account.settings
 
-import app.burrow.account.Users
+import app.burrow.account.models.Users
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 
@@ -28,5 +28,5 @@ object Settings : Table("user_settings") {
      *
      * By default, this is through SSE and email.
      */
-    val defaultNotificationDelivery = short("default_notification_delivery").default(0b0000_0011)
+    val defaultNotificationDelivery = short("default_notification_delivery").default(0b0000_0001)
 }

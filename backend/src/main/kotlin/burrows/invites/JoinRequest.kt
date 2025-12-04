@@ -1,7 +1,7 @@
 package app.burrow.burrows.invites
 
 import app.burrow.Error
-import app.burrow.account.Users
+import app.burrow.account.models.Users
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
 import app.burrow.burrows.getBurrow

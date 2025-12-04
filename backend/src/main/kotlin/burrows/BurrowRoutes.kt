@@ -4,15 +4,18 @@ import app.burrow.Error
 import app.burrow.InvalidArguments
 import app.burrow.InvalidAuthorization
 import app.burrow.account.models.userID
-import app.burrow.burrows.bookmarks.bookmarkRoutes
+import app.burrow.burrows.bookmarks.BOOKMARK_ROUTES
 import app.burrow.burrows.invites.inviteRoutes
 import app.burrow.burrows.invites.joinRequestRoutes
 import app.burrow.burrows.membership.getUserBookmarks
 import app.burrow.burrows.membership.getUserSchedule
 import app.burrow.burrows.membership.membershipRoutes
-import app.burrow.burrows.models.BurrowType
+import app.burrow.burrows.models.BurrowKind
 import app.burrow.burrows.models.SubmittedBurrow
-import app.burrow.enumQueryParameter
+import app.burrow.burrows.models.SubmittedProjectBurrow
+import app.burrow.burrows.models.SubmittedStudyEventBurrow
+import app.burrow.optionalBooleanQueryParameter
+import app.burrow.optionalEnumQueryParameter
 import app.burrow.optionalIntQueryParameter
 import app.burrow.optionalLongQueryParameter
 import app.burrow.queryParameter
@@ -38,32 +41,36 @@ import java.time.YearMonth
  * All routes are inherently authorized.
  */
 val BURROW_ROUTES: Route.() -> Unit = {
-    // GET /groups
+    // GET /burrows
     // get all burrows
-    //
-    // query parameters:
-    // > page (optional)    the page to retrieve
-    // > type               the type of burrows
     get {
         val page = call.optionalIntQueryParameter("page") ?: 1
-        val type = call.enumQueryParameter<BurrowType>("type")
+        val type = call.optionalEnumQueryParameter<BurrowKind>("type")
 
-        call.respond(searchMeetings(page = page, kind = type, requestingUserID = call.userID))
+        call.respond(
+            searchBurrows(page = page) {
+                kind = type
+                requestingUserID = call.userID
+            }
+        )
     }
 
-    // GET /groups/heatmap
+    // GET /burrows/schedule
+    // get a user's schedule
+    get("/schedule") { call.respond(getUserSchedule(call.userID)) }
+
+    // GET /burrows/bookmarks
+    // get a user's bookmarks
+    get("/bookmarks") { call.respond(getUserBookmarks(call.userID)) }
+
+    // GET /burrows/heatmap
     // get a heatmap of groups created this month
-    //
-    // query parameters:
-    // > year   (optional)  the year of the heatmap
-    // > month  (optional)  the month of the heatmap
-    // > range  (optional)  how many months of the heatmap to retrieve
     get("/heatmap") {
         val currentDate = LocalDateTime.now()
 
-        val year = call.parameters["year"]?.toIntOrNull() ?: currentDate.year
-        val month = call.parameters["month"]?.toIntOrNull() ?: currentDate.monthValue
-        val range = call.parameters["range"]?.toLongOrNull() ?: 2
+        val year = call.optionalIntQueryParameter("year") ?: currentDate.year
+        val month = call.optionalIntQueryParameter("month") ?: currentDate.monthValue
+        val range = call.optionalLongQueryParameter("range") ?: 2
 
         if (range !in 0..12) throw Error(400, "range must be between 0 and 12.")
 
@@ -73,30 +80,18 @@ val BURROW_ROUTES: Route.() -> Unit = {
         call.respond(getHeatmapRange(start, end))
     }
 
-    // GET /groups/schedule
-    // get the three most recent meetings
-    get("/schedule") { call.respond(getUserSchedule(call.userID)) }
-
-    // GET /groups/bookmarks
-    // get the most recent bookmarks
-    get("/bookmarks") { call.respond(getUserBookmarks(call.userID)) }
-
-    // GET /groups/search
+    // GET /burrows/search
     // search among the stars
-    //
-    // query parameters:
-    // > query              the search query
-    // > type               the type of burrow to seach through
-    // > page   (optional)  which page of the query to retrieve
-    // > start  (optional)  the start of the date range
-    // > end    (optional)  the end of the date range
     get("/search") {
         val searchQuery = call.queryParameter("query")
-        val type = call.enumQueryParameter<BurrowType>("type")
+        val type = call.optionalEnumQueryParameter<BurrowKind>("type")
         val page = call.optionalIntQueryParameter("page") ?: 1
 
         val startDate = call.optionalLongQueryParameter("start")
         val endDate = call.optionalLongQueryParameter("end")
+
+        val bookmarked = call.optionalBooleanQueryParameter("bookmarked")
+        val host = call.optionalBooleanQueryParameter("host")
 
         val range =
             if (startDate != null && endDate != null) {
@@ -106,35 +101,42 @@ val BURROW_ROUTES: Route.() -> Unit = {
             }
 
         call.respond(
-            searchMeetings(
-                page = page,
-                kind = type,
-                search = searchQuery,
-                dateRange = range,
-                forceAuthorName = call.userID,
-            )
+            searchBurrows(page) {
+                kind = type
+                query = searchQuery
+                dateRange = range
+                requestingUserID = call.userID
+                isHostedBy = if (host == true) call.userID else null
+                isBookmarked = bookmarked
+            }
         )
     }
 
-    // POST /groups
-    // create a meeting
+    // POST /burrows
+    // create a Burrow
     post {
-        val group = call.receive<SubmittedBurrow>()
+        when (val submittedBurrow = call.receive<SubmittedBurrow>()) {
+            is SubmittedProjectBurrow -> {
+                submittedBurrow.validateSubmittedBurrow(false).throwIfNotEmpty()
+                call.respond(createProjectBurrow(call.userID, submittedBurrow))
+            }
 
-        group.validateSubmittedGroupMeeting().throwIfNotEmpty()
-
-        call.respond(createStudyBurrow(call.userID, group))
+            is SubmittedStudyEventBurrow -> {
+                submittedBurrow.validateSubmittedBurrow().throwIfNotEmpty()
+                call.respond(createBurrow(call.userID, submittedBurrow))
+            }
+        }
     }
 
-    // CRUD /groups/{id}
+    // ROUTE /burrows/{id}
     // manage an individual meeting
     route("/{id}") {
-        // DELETE /groups/{id}
+        // DELETE /burrows/{id}
         // delete an individual meeting
         delete {
             val id = call.urlParameter("id")
 
-            val meeting = getMeetingResponse(id, call.userID).throwIfNull()
+            val meeting = getBurrowResponse(id, call.userID).throwIfNull()
 
             if (meeting.burrow.ownerID != call.userID) throw InvalidAuthorization()
 
@@ -143,7 +145,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
             call.respond(HttpStatusCode.OK)
         }
 
-        // PATCH /groups/{id}
+        // PATCH /burrows/{id}
         // update an individual meeting
         patch {
             val user = call.userID
@@ -157,17 +159,26 @@ val BURROW_ROUTES: Route.() -> Unit = {
             if (getTimeMillis() > meeting.endTime)
                 throw Error(400, "You cannot edit a meeting that's in the past.")
 
-            val group = call.receive<SubmittedBurrow>()
+            when (val submittedBurrow = call.receive<SubmittedBurrow>()) {
+                is SubmittedProjectBurrow -> {
+                    submittedBurrow.validateSubmittedBurrow(true).throwIfNotEmpty()
+                    updateProjectBurrow(id, submittedBurrow)
+                }
 
-            group.validateSubmittedGroupMeeting().throwIfNotEmpty()
-
-            updatedBurrow(id, group)
+                is SubmittedStudyEventBurrow -> {
+                    submittedBurrow.validateSubmittedBurrow().throwIfNotEmpty()
+                    updatedBurrow(id, submittedBurrow)
+                }
+            }
 
             call.respond(HttpStatusCode.OK)
         }
 
+        // ROUTE /burrows/{id}/bookmark/
+        // manage a bookmark for a burrow
+        route("/bookmark", BOOKMARK_ROUTES)
+
         membershipRoutes()
-        bookmarkRoutes()
     }
 
     inviteRoutes()

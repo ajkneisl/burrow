@@ -29,6 +29,8 @@ type ToggleProps = {
  * @param disabled Whether the toggle is disabled.
  * @param variant "inline" (with label) or "standalone" (just switch).
  * @param className Additional CSS classes.
+ *
+ * @author AJ Kneisl
  */
 export default function Toggle({
     title,
@@ -60,7 +62,7 @@ export default function Toggle({
         small: {
             track: "h-5 w-9",
             thumb: "h-4 w-4",
-            thumbTranslate: checked ? "translate-x-4" : "translate-x-0.5"
+            thumbTranslate: checked ? "translate-x-[1.125rem]" : "translate-x-0.5"
         }
     }
 

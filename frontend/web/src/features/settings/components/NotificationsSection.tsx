@@ -42,7 +42,9 @@ export default function NotificationsSection() {
     const saveGeneralMutation = useMutation({
         mutationFn: saveGeneralSettings,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["settings", "general"] })
+            void queryClient.invalidateQueries({
+                queryKey: ["settings", "general"]
+            })
         }
     })
 
@@ -55,7 +57,7 @@ export default function NotificationsSection() {
     const savePreferencesMutation = useMutation({
         mutationFn: saveNotificationPreferences,
         onSuccess: () => {
-            queryClient.invalidateQueries({
+            void queryClient.invalidateQueries({
                 queryKey: ["settings", "notifications"]
             })
         }
@@ -184,8 +186,6 @@ export default function NotificationsSection() {
             updateGeneralSettings({
                 defaultNotificationDelivery: current | BROWSER_CHANNEL
             })
-
-            toast.success("Browser notifications enabled")
         } else {
             await unsubscribe()
 
@@ -194,8 +194,6 @@ export default function NotificationsSection() {
             updateGeneralSettings({
                 defaultNotificationDelivery: current & ~BROWSER_CHANNEL
             })
-
-            toast.success("Browser notifications disabled")
         }
     }
 
@@ -268,8 +266,9 @@ export default function NotificationsSection() {
                                             title="Push Notifications"
                                             description={
                                                 "Receive notifications in your browser" +
-                                                (!isSupported &&
-                                                    " (this is not supported by your browser)")
+                                                (!isSupported
+                                                    ? " (this is not supported by your browser)"
+                                                    : "")
                                             }
                                             checked={browserNotifications}
                                             onChange={

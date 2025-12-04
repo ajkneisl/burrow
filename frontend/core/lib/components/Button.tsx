@@ -14,6 +14,8 @@ import clsx from "clsx"
  * @param color   A pre-made color token to use.
  * @param thin    Reduces vertical padding when true.
  * @param loading Shows a spinner and disables the button when true.
+ *
+ * @author AJ Kneisl
  */
 export type ButtonProps = {
     colors?: string

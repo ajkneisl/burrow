@@ -2,8 +2,8 @@ package app.burrow.admin.account
 
 import app.burrow.Error
 import app.burrow.account.Authorization
+import app.burrow.account.chat.ChatMessage
 import app.burrow.admin.account.TOTP.secretGenerator
-import app.burrow.burrows.sync.chat.ChatMessage
 import app.burrow.query
 import dev.samstevens.totp.code.CodeGenerator
 import dev.samstevens.totp.code.CodeVerifier
@@ -30,17 +30,39 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
 import org.mindrot.jbcrypt.BCrypt
 
+/** Table of [Administrator] */
 object Administrators : UUIDTable("administrators") {
+    /** [Administrator.username] */
     val username = varchar("username", 64).uniqueIndex()
+
+    /** [Administrator.email] */
     val email = varchar("email", 255).uniqueIndex()
+
+    /** [Administrator.passwordHash] */
     val passwordHash = varchar("password_hash", 255)
+
+    /** [Administrator.permissionBits] */
     val permissionBits = long("permission_bits")
+
+    /** [Administrator.createdAt] */
     val createdAt = long("created_at")
+
+    /** [Administrator.lastLoginAt] */
     val lastLoginAt = long("last_login_at").nullable()
+
+    /** [Administrator.lastLoginIp] */
     val lastLoginIp = varchar("last_login_ip", 64).nullable()
+
+    /** [Administrator.failedLoginAttempts] */
     val failedLoginAttempts = integer("failed_login_attempts").default(0)
+
+    /** [Administrator.lockedUntil] */
     val lockedUntil = long("locked_until").nullable()
+
+    /** [Administrator.twoFactorSecret] */
     val twoFactorSecret = varchar("two_factor_secret", 64).nullable()
+
+    /** [Administrator.passwordUpdatedAt] */
     val passwordUpdatedAt = long("password_updated_at")
 }
 
@@ -87,9 +109,19 @@ object TOTP {
     fun validate(secret: String, code: String) = verifier.isValidCode(secret, code)
 }
 
+/** Amount of login attempts til the account should be locked. */
 private const val ACCOUNT_LOCK_THRESHOLD = 5
+
+/** How long to lock after reaching [ACCOUNT_LOCK_THRESHOLD]. */
 private const val ACCOUNT_LOCK_DURATION = 1000 * 60 * 60 * 24L // 1 day
 
+/**
+ * Log in an administrator.
+ *
+ * @param username The provided username.
+ * @param password The provided password.
+ * @param totp The time based one time password.
+ */
 suspend fun adminLogin(
     username: String,
     password: String,

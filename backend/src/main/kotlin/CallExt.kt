@@ -1,11 +1,17 @@
 package app.burrow
 
 import io.ktor.server.application.ApplicationCall
+import java.util.UUID
 import kotlin.text.toLongOrNull
 
 /** Get a query parameter by [name]. */
 fun ApplicationCall.queryParameter(name: String): String =
     request.queryParameters[name] ?: throw Error(400, "Missing parameter: $name")
+
+/** Get a UUID query parameter by [name]. */
+fun ApplicationCall.uuidQueryParameter(name: String): UUID =
+    queryParameter(name).runCatching { UUID.fromString(this) }.getOrNull()
+        ?: throw Error(400, "Invalid UUID")
 
 /** Get an [Int] query parameter by [name], throw [Error] if it doesn't exist or isn't an Int. */
 fun ApplicationCall.intQueryParameter(name: String): Int =
@@ -48,6 +54,12 @@ inline fun <reified T : Enum<T>> ApplicationCall.optionalEnumQueryParameter(name
 /** Retrieve [name] from the [ApplicationCall.request] query parameters and cast to a Long. */
 fun ApplicationCall.optionalLongQueryParameter(name: String): Long? =
     request.queryParameters[name]?.toLongOrNull()
+
+/**
+ * Retrieve [name] from the [ApplicationCall.request] query parameters and cast to a Boolean
+ */
+fun ApplicationCall.optionalBooleanQueryParameter(name: String): Boolean? =
+    request.queryParameters[name]?.toBooleanStrictOrNull()
 
 /** If [this] isn't empty, throw a [MultiError] with the contents. */
 fun List<String>.throwIfNotEmpty() {

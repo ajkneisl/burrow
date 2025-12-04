@@ -1,27 +1,27 @@
 import type { SubmittedBurrow } from "@features/burrows/create/create.types.ts"
-import type { Burrow } from "@features/burrows/burrows.types.ts"
+import type { Burrow } from "@features/burrows/burrows.types.tsx"
 import { patch, post } from "@api/api.ts"
 
 /**
- * Create a group.
+ * Create a Burrow.
  *
- * @param submittedGroup The submitted group.
+ * @param submittedBurrow The submitted burrow.
  */
-export async function createMeeting(
-    submittedGroup: SubmittedBurrow
+export async function createBurrow(
+    submittedBurrow: SubmittedBurrow
 ): Promise<Burrow> {
-    return post(`/burrows`, submittedGroup)
+    return post(`/burrows`, submittedBurrow)
 }
 
 /**
- * Modify a group.
+ * Modify a Burrow.
  *
- * @param meetingId The ID of the meeting to update.
+ * @param burrowID The ID of the Burrow to update.
  * @param updatedGroup The updated group.
  */
-export async function updateMeeting(
-    meetingId: string,
+export async function updateBurrow(
+    burrowID: string,
     updatedGroup: SubmittedBurrow
 ) {
-    return patch(`/burrows/${meetingId}`, updatedGroup)
+    return patch(`/burrows/${burrowID}`, updatedGroup)
 }

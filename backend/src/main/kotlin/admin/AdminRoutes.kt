@@ -8,6 +8,7 @@ import app.burrow.admin.account.adminLogin
 import app.burrow.admin.account.createAdministrator
 import app.burrow.admin.account.getAdministrator
 import app.burrow.admin.account.requirePermissions
+import app.burrow.admin.log.LOG_ROUTES
 import app.burrow.report.getAllReports
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.authenticate
@@ -19,6 +20,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
+import io.ktor.server.routing.route
 import kotlinx.serialization.Serializable
 
 val ApplicationCall.administrator
@@ -88,5 +90,9 @@ val ADMIN_ROUTES: Route.() -> Unit = {
         // GET /admin/analytics
         // retrieve basic analytics for burrow
         get("analytics") { call.respond(getAnalytics()) }
+
+        // ROUTE /admin/logs
+        // manage and view system logs
+        route("/logs", LOG_ROUTES)
     }
 }
