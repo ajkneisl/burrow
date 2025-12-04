@@ -16,7 +16,8 @@ type ShareMeetingProps = {
  * The button to share a meeting.
  *
  * @param meeting The meeting to share.
- * @constructor
+ *
+ * @author AJ Kneisl
  */
 export default function ShareMeeting({ meeting }: ShareMeetingProps) {
     const [qrOpen, setQrOpen] = useState(false)
@@ -111,13 +112,13 @@ export default function ShareMeeting({ meeting }: ShareMeetingProps) {
                         height={256}
                         width={256}
                         imageSettings={{
-                            src: "/burrow.png",
+                            src: "/image/burrow.png",
                             height: 24,
                             width: 24,
                             excavate: true
                         }}
                     />
-                    <p className="mt-3 max-w-[32ch] break-words text-center text-xs text-text/70">
+                    <p className="text-text/70 mt-3 max-w-[32ch] text-center text-xs break-words">
                         {shareData.url}
                     </p>
                 </div>
