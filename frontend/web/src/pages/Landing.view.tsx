@@ -82,7 +82,7 @@ export default function LandingView() {
 
     return (
         <div className="flex min-h-screen flex-col">
-            <section className="relative overflow-hidden px-4 py-20 sm:py-32">
+            <section className="relative overflow-hidden px-4 py-16 sm:py-16">
                 <div className="mx-auto max-w-6xl space-y-8">
                     {/* made by gophers */}
                     <div className="flex justify-center">
