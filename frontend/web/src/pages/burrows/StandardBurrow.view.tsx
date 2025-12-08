@@ -3,12 +3,12 @@ import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { Archive, Clock } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
-import { getMeeting } from "@features/burrows/burrows.api.ts"
-import MeetingLocation from "@features/burrows/components/MeetingLocation.tsx"
+import { getBurrow } from "@features/burrows/burrows.api.ts"
+import BurrowLocation from "@features/burrows/components/BurrowLocation.tsx"
 import DeleteBurrow from "@features/burrows/controls/DeleteBurrow.tsx"
 import { formatDateTime } from "@api/util.ts"
-import JoinMeeting from "@features/burrows/components/JoinMeeting.tsx"
-import MeetingCapacityBadges from "@features/burrows/components/MeetingCapacityBadges.tsx"
+import JoinBurrow from "@features/burrows/components/JoinBurrow.tsx"
+import BurrowCapacity from "@features/burrows/components/BurrowCapacity.tsx"
 import EditBurrow from "@features/burrows/controls/EditBurrow.tsx"
 import ChatBox from "@features/chat/components/ChatBox.tsx"
 import ViewAttendees from "@features/burrows/attendees/components/ViewAttendees.tsx"
@@ -40,7 +40,7 @@ export default function StandardBurrow() {
     const { data, isLoading, error, refetch } = useQuery({
         queryKey: ["burrow", id],
         enabled: auth !== "" && id !== null,
-        queryFn: async () => await getMeeting(id!)
+        queryFn: async () => await getBurrow(id!)
     })
 
     useSync(data?.burrow?.id ?? null, data?.membership?.status === "JOINED")
@@ -255,12 +255,12 @@ export default function StandardBurrow() {
 
                                         {/* user count badges */}
                                         <div className="mt-2 flex flex-row items-center gap-2 md:mt-0">
-                                            <JoinMeeting
+                                            <JoinBurrow
                                                 data={data}
                                                 inPast={inPast}
                                             />
 
-                                            <MeetingCapacityBadges
+                                            <BurrowCapacity
                                                 burrow={burrow}
                                             />
                                         </div>
@@ -304,7 +304,7 @@ export default function StandardBurrow() {
 
                         <div className="order-[-1] col-span-1 space-y-6 md:order-2">
                             {!isLoggedOut && (
-                                <MeetingLocation location={burrow.location} />
+                                <BurrowLocation location={burrow.location} />
                             )}
 
                             {inMeeting && <ViewAttendees />}

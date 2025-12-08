@@ -4,7 +4,8 @@ import type {
     BurrowKind,
     BurrowMembershipResponse,
     BurrowRole,
-    ScheduleBurrowResponse
+    ScheduleBurrowResponse,
+    BurrowLocation
 } from "./burrows.types.tsx"
 import type { PaginatedResponse } from "@api/api.types.ts"
 import { del, get, patch, post } from "@api/api.ts"
@@ -15,8 +16,15 @@ import { del, get, patch, post } from "@api/api.ts"
  * @param id The ID of the meeting
  * @return The meeting response, including membership and meeting information.
  */
-export async function getMeeting(id: string): Promise<BurrowResponse> {
-    return get(`/burrows/${id}`)
+export async function getBurrow(id: string): Promise<BurrowResponse> {
+    return await get(`/burrows/${id}`)
+}
+
+/**
+ * Get a list of {@link BurrowLocation}s to create a map.
+ */
+export async function getMap(): Promise<BurrowLocation[]> {
+    return await get("/burrows/map")
 }
 
 /**

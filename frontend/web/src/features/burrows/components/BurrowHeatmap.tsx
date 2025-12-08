@@ -87,7 +87,7 @@ function monthLabel(date: Date): { monthName: string; year: number } {
  * A heatmap of how many Burrows were made on what day.
  * @constructor
  */
-export default function MeetingHeatmap({
+export default function BurrowHeatmap({
     range = 1,
     onSelectDate
 }: {

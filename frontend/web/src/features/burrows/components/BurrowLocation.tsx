@@ -16,6 +16,12 @@ type Building = {
 // possible buildings at the umn
 // could be extended
 const umnBuildings: Building[] = [
+    // yord
+    {
+        name: "Yord",
+        query: "2000 Hwy 13 E, Burnsville, MN 55337",
+        aliases: ["eshete", "yordanos"]
+    },
     // --- East Bank (Minneapolis) ---
     {
         name: "Akerman Hall",
@@ -470,9 +476,9 @@ const umnBuildings: Building[] = [
 const API_KEY = "AIzaSyB2NIWI3Tv9iDPrlnowr_0ZqZWoAQydKJU"
 
 /**
- * {@link MeetingLocation}
+ * {@link BurrowLocation}
  */
-type MeetingLocationProps = {
+type BurrowLocationProps = {
     location: string
 }
 
@@ -481,10 +487,10 @@ type MeetingLocationProps = {
  *
  * @param location The user-provided location of the meeting.
  */
-export default function MeetingLocation({ location }: MeetingLocationProps) {
+export default function BurrowLocation({ location }: BurrowLocationProps) {
     // see if one of the building includes location
     const hit = useMemo(() => {
-        if (!location) return null
+        if (!location || !location.trim()) return null
 
         const lower = location.toLowerCase()
 
@@ -495,6 +501,11 @@ export default function MeetingLocation({ location }: MeetingLocationProps) {
             if (building.aliases?.some((a) => lower.includes(a.toLowerCase())))
                 return building.query
         }
+
+        // render it if it includes mn
+        // TODO: this is sketchy
+        if (lower.includes("mn") || lower.includes("minnesota"))
+            return lower
 
         return null
     }, [location])

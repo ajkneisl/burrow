@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { Archive, Calendar } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
-import { getMeeting } from "@features/burrows/burrows.api.ts"
+import { getBurrow } from "@features/burrows/burrows.api.ts"
 import DeleteBurrow from "@features/burrows/controls/DeleteBurrow.tsx"
 import { dayLabel } from "@api/util.ts"
 import ChatBox from "@features/chat/components/ChatBox.tsx"
@@ -17,8 +17,8 @@ import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import ShareMeeting from "@features/burrows/controls/ShareMeeting.tsx"
 import BookmarkMeeting from "@features/burrows/controls/BookmarkMeeting.tsx"
-import MeetingCapacityBadges from "@features/burrows/components/MeetingCapacityBadges.tsx"
-import JoinMeeting from "@features/burrows/components/JoinMeeting.tsx"
+import BurrowCapacity from "@features/burrows/components/BurrowCapacity.tsx"
+import JoinBurrow from "@features/burrows/components/JoinBurrow.tsx"
 import EditBurrow from "@features/burrows/controls/EditBurrow.tsx"
 
 /**
@@ -38,7 +38,7 @@ export default function ProjectBurrow() {
     const { data, isLoading, error, refetch } = useQuery({
         queryKey: ["burrow", id],
         enabled: auth !== "" && id !== null,
-        queryFn: async () => await getMeeting(id!)
+        queryFn: async () => await getBurrow(id!)
     })
 
     useSync(data?.burrow?.id ?? null, data?.membership?.status === "JOINED")
@@ -224,12 +224,12 @@ export default function ProjectBurrow() {
 
                                         {/* team member count */}
                                         <div className="mt-2 flex flex-row items-center gap-2 md:mt-0">
-                                            <JoinMeeting
+                                            <JoinBurrow
                                                 inPast={isPastDue}
                                                 data={data}
                                             />
 
-                                            <MeetingCapacityBadges
+                                            <BurrowCapacity
                                                 enforceCapacity={10}
                                                 burrow={burrow}
                                             />

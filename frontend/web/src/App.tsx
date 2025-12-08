@@ -22,6 +22,8 @@ import { Provider } from "jotai"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { store } from "@api/api.atom.ts"
 import { authToken } from "@features/auth/auth.atom.ts"
+import { APIProvider } from "@vis.gl/react-google-maps"
+import MapView from "@pages/Map.view.tsx";
 
 /**
  * This defines all routes in Burrow.
@@ -39,6 +41,7 @@ const router = createBrowserRouter([
             { path: "browse", element: <Browse /> },
             { path: "friends", element: <Friends /> },
             { path: "history", element: <History /> },
+            { path: "map", element: <MapView /> },
             { path: "user/:username", element: <ProfileView /> },
             { path: "settings", element: <SettingsView /> },
             { path: "discuss", element: <Discuss /> },
@@ -68,9 +71,11 @@ export default function App() {
     return (
         <Provider store={store}>
             <QueryClientProvider client={queryClient}>
-                <div className="flex flex-row items-center justify-center">
-                    <RouterProvider router={router} />
-                </div>
+                <APIProvider apiKey="AIzaSyBbJ5soUo8NhOpS32-D-Sr-NRksOQcwydc" channel="beta">
+                    <div className="flex flex-row items-center justify-center">
+                        <RouterProvider router={router} />
+                    </div>
+                </APIProvider>
             </QueryClientProvider>
         </Provider>
     )

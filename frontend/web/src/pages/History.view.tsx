@@ -219,7 +219,7 @@ export default function History() {
                             open={recreateModal.open}
                             onClose={closeRecreateModal}
                             mode="update"
-                            meeting={recreateModal.burrow.burrow}
+                            burrow={recreateModal.burrow.burrow}
                             modalTitle="Recreate Study Group"
                             onSubmit={handleSubmitRecreate}
                         />

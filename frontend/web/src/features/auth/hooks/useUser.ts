@@ -12,13 +12,13 @@ export default function useUser(): User | null {
     const [auth, setAuth] = useAtom(authToken)
     const nav = useNavigate()
 
-    const { data, error } = useQuery({
+    const { data, error, isLoading } = useQuery({
         queryKey: ["user"],
         queryFn: async () => await getUser()
     })
 
     // if the request fails, log the user out
-    if (auth !== "" && error) {
+    if (auth !== "" && error && !isLoading) {
         void setAuth("")
         nav("/welcome")
         return null

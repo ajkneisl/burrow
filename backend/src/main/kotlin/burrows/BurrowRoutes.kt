@@ -63,6 +63,10 @@ val BURROW_ROUTES: Route.() -> Unit = {
     // get a user's bookmarks
     get("/bookmarks") { call.respond(getUserBookmarks(call.userID)) }
 
+    // GET /burrows/map
+    // get a list of burrows and their locations to show on a map
+    get("/map") { call.respond(getMap()) }
+
     // GET /burrows/heatmap
     // get a heatmap of groups created this month
     get("/heatmap") {

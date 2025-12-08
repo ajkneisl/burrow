@@ -14,7 +14,7 @@ type MeetingCapacityProps = {
  * The badges on a meeting, conveying the capacity and waitlist.
  * @constructor
  */
-export default function MeetingCapacityBadges({
+export default function BurrowCapacity({
     burrow,
     enforceCapacity
 }: MeetingCapacityProps) {

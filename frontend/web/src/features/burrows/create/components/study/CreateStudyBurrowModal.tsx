@@ -21,7 +21,7 @@ type BurrowModalProps = {
     open: boolean
     onClose: () => void
     mode?: "create" | "update"
-    meeting?: Burrow
+    burrow?: Burrow
     modalTitle?: string
     onSubmit: (payload: SubmittedBurrow) => Promise<unknown>
 }
@@ -44,7 +44,7 @@ export default function CreateStudyBurrowModal({
     open,
     onClose,
     mode = "create",
-    meeting,
+    burrow,
     modalTitle,
     onSubmit
 }: BurrowModalProps) {
@@ -63,10 +63,10 @@ export default function CreateStudyBurrowModal({
             setServerErrors([])
             setCurrentStep(1)
 
-            // if updating and a meeting is provided
-            if (mode === "update" && meeting) {
-                const start = new Date(meeting.beginningTime)
-                const end = new Date(meeting.endTime)
+            // if updating and a burrow is provided
+            if (mode === "update" && burrow) {
+                const start = new Date(burrow.beginningTime)
+                const end = new Date(burrow.endTime)
 
                 const yyyy = start.getFullYear()
                 const mm = String(start.getMonth() + 1).padStart(2, "0")
@@ -78,18 +78,18 @@ export default function CreateStudyBurrowModal({
 
                 setFormState({
                     kind: "STUDY",
-                    title: meeting.title ?? "",
-                    location: meeting.location ?? "",
+                    title: burrow.title ?? "",
+                    location: burrow.location ?? "",
                     capacity:
-                        meeting.capacity && meeting.capacity > 0
-                            ? meeting.capacity
+                        burrow.capacity && burrow.capacity > 0
+                            ? burrow.capacity
                             : 0,
-                    tags: Array.isArray(meeting.tags)
-                        ? meeting.tags.join(", ")
+                    tags: Array.isArray(burrow.tags)
+                        ? burrow.tags.join(", ")
                         : "",
-                    description: meeting.description ?? "",
-                    visibility: meeting.visibility ?? "PUBLIC",
-                    requestToJoin: meeting.requestToJoin ?? false,
+                    description: burrow.description ?? "",
+                    visibility: burrow.visibility ?? "PUBLIC",
+                    requestToJoin: burrow.requestToJoin ?? false,
                     date: `${yyyy}-${mm}-${dd}`,
                     beginningTime: `${hhStart}:${minStart}`,
                     endTime: `${hhEnd}:${minEnd}`
@@ -98,7 +98,7 @@ export default function CreateStudyBurrowModal({
                 setFormState(initialFormState)
             }
         }
-    }, [open, mode, meeting])
+    }, [open, mode, burrow])
 
     function applyServerErrors(errs: string[]) {
         setServerErrors(errs)
@@ -197,12 +197,12 @@ export default function CreateStudyBurrowModal({
             const response = await onSubmit(payload)
 
             // if updating, update query data and close
-            if (mode === "update" && meeting) {
+            if (mode === "update" && burrow) {
                 setServerErrors([])
                 onClose()
 
                 void queryClient.invalidateQueries({
-                    queryKey: ["burrow", meeting.id]
+                    queryKey: ["burrow", burrow.id]
                 })
 
                 return

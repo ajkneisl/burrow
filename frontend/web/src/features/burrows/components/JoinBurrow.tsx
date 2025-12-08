@@ -8,7 +8,7 @@ import { useMemo, useState } from "react"
 import { cancelJoinRequest } from "@features/burrows/attendees/attendees.api.ts"
 
 /**
- * {@see JoinMeeting}
+ * {@see JoinBurrow}
  */
 type JoinMeetingProps = {
     inPast: boolean
@@ -22,7 +22,7 @@ type JoinMeetingProps = {
  *
  * @author AJ Kneisl
  */
-export default function JoinMeeting({ data, inPast }: JoinMeetingProps) {
+export default function JoinBurrow({ data, inPast }: JoinMeetingProps) {
     const user = useUser()
     const queryClient = useQueryClient()
 

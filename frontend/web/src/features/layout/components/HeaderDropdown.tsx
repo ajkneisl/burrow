@@ -1,5 +1,5 @@
 import { useRef, useState } from "react"
-import { useSetAtom} from "jotai"
+import { useSetAtom } from "jotai"
 import { authToken } from "@features/auth/auth.atom.ts"
 import { Dropdown, DropdownItem } from "@umnburrow/core"
 import HeaderButton from "@features/layout/components/HeaderButton.tsx"
@@ -13,9 +13,10 @@ import {
     AlertTriangle,
     LogOut,
     UserIcon,
-    History
+    History,
+    Map
 } from "lucide-react"
-import useUser from "@features/auth/hooks/useUser.ts";
+import useUser from "@features/auth/hooks/useUser.ts"
 
 /**
  * Animation variants for {@link HeaderDropdown}
@@ -91,6 +92,16 @@ export default function HeaderDropdown() {
                             nav("/history")
                         }}
                         rightIcon={<History width="18" height="18" />}
+                    />
+
+                    {/* map */}
+                    <DropdownItem
+                        label={`Map`}
+                        onSelect={() => {
+                            setOpen(false)
+                            nav(`/map`)
+                        }}
+                        rightIcon={<Map width="18" height="18" />}
                     />
 
                     {/* feedback */}

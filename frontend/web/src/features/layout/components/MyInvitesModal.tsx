@@ -5,7 +5,7 @@ import {
     acceptInvite,
     declineInvite
 } from "@features/burrows/attendees/attendees.api.ts"
-import { getMeeting } from "@features/burrows/burrows.api.ts"
+import { getBurrow } from "@features/burrows/burrows.api.ts"
 import type { InviteWithUsers } from "@features/burrows/burrows.types.tsx"
 import { Button, Card, Modal } from "@umnburrow/core"
 import { formatTimeAgo, humanDateLabel } from "@api/util.ts"
@@ -23,7 +23,7 @@ function ReceivedInviteItem({ invite }: { invite: InviteWithUsers }) {
     // get burrow details
     const { data: burrowData } = useQuery({
         queryKey: ["burrow", invite.invite.burrowID],
-        queryFn: async () => await getMeeting(invite.invite.burrowID)
+        queryFn: async () => await getBurrow(invite.invite.burrowID)
     })
 
     // accept the invitation

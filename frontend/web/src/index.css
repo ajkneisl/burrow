@@ -17,3 +17,28 @@ body {
 .invite-border-dashed:hover {
     border-style: solid;
 }
+
+/* Google Places Autocomplete styling to match Input component */
+gmp-place-autocomplete {
+    display: block;
+    width: 100%;
+}
+
+gmp-place-autocomplete::part(textfield-container) {
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+    padding: 0;
+    background: transparent;
+}
+
+gmp-place-autocomplete::part(textfield-input) {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    padding: 0.5rem 0.75rem;
+    outline: none;
+    background: transparent;
+}
+
+gmp-place-autocomplete::part(textfield-container):focus-within {
+    border-color: var(--primary);
+}

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import { searchMeetings } from "@features/burrows/burrows.api.ts"
-import MeetingHeatmap from "@features/burrows/components/MeetingHeatmap.tsx"
+import BurrowHeatmap from "@features/burrows/components/BurrowHeatmap.tsx"
 import { Input, useDateRangePicker, ViewErrors } from "@umnburrow/core"
 import clsx from "clsx"
 import { humanDateLabel, weekRangeLabel } from "@api/util.ts"
@@ -404,7 +404,7 @@ export default function Browse() {
                 </section>
 
                 <aside className="col-span-1 mt-5 lg:max-w-sm">
-                    <MeetingHeatmap />
+                    <BurrowHeatmap />
                 </aside>
             </section>
         </section>

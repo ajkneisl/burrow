@@ -43,7 +43,7 @@ export default function EditBurrow({ burrow }: EditBurrowProps) {
                 open={open}
                 onClose={() => setOpen(false)}
                 mode="update"
-                meeting={burrow}
+                burrow={burrow}
                 modalTitle={`Edit: ${burrow.title}`}
                 onSubmit={async (payload) => {
                     return await updateBurrow(burrow.id, payload)

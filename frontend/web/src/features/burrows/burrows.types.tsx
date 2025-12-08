@@ -1,12 +1,21 @@
 import type { User } from "@features/auth/user.types.ts"
 import type { Profile } from "@features/profile/profile.model.ts"
 import { BookOpen, FolderKanban, PartyPopper, Users } from "lucide-react"
-import type {ChatMessage} from "@features/chat/chat.types.ts";
+import type { ChatMessage } from "@features/chat/chat.types.ts"
 
 /**
  * The type of group meeting.
  */
 export type BurrowKind = "STUDY" | "EVENT" | "CLUB" | "PROJECT"
+
+/**
+ * The location of a Burrow.
+ */
+export interface BurrowLocation {
+    burrow: Burrow
+    lat: number
+    lng: number
+}
 
 /**
  * An icon and label that describes burrow kinds.
@@ -38,7 +47,6 @@ export const BURROW_KIND_CONFIG: Record<
         className: "text-error"
     }
 }
-
 
 /**
  * Visibility of the Burrow.
@@ -126,10 +134,10 @@ export interface BurrowResponse {
  * Information on a Burrow that's in your schedule.
  */
 export interface ScheduleBurrowResponse {
-    burrow: Burrow,
+    burrow: Burrow
     burrowAuthor: string
-    membership: BurrowMembershipResponse,
-    isPinned: boolean,
+    membership: BurrowMembershipResponse
+    isPinned: boolean
     latestChatMessage?: ChatMessage
 }
 

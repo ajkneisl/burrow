@@ -9,7 +9,7 @@ import { Badge, Card } from "@umnburrow/core"
 import clsx from "clsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useMemo } from "react"
-import MeetingCapacityBadges from "@features/burrows/components/MeetingCapacityBadges.tsx"
+import BurrowCapacity from "@features/burrows/components/BurrowCapacity.tsx"
 import { Calendar, Check, Star, Bookmark, MapPin } from "lucide-react"
 
 /**
@@ -244,7 +244,7 @@ export function BurrowCard({
                             {actionBadge}
 
                             {/* capacity */}
-                            <MeetingCapacityBadges burrow={burrow} />
+                            <BurrowCapacity burrow={burrow} />
                         </div>
                     </div>
                 )}

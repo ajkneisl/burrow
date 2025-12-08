@@ -53,6 +53,7 @@ export default function HomeView() {
                     <MyProfile />
 
                     <div className="hidden md:block">
+                        {/* discuss preview */}
                         <Topics />
                     </div>
                 </aside>

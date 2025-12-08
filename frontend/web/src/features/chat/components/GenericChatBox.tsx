@@ -14,7 +14,7 @@ type GenericChatBoxProps = {
     retry?: string
     /** Array of messages to display */
     messages: ChatMessage[]
-    /** Map of user IDs to member information */
+    /** MapView of user IDs to member information */
     members: Record<string, ChatMember>
     /** Current input text value */
     text: string
