@@ -58,7 +58,7 @@ private val httpClient =
     HttpClient(CIO) { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
 
 /** Google Maps API key */
-private const val GOOGLE_MAPS_API_KEY = "AIzaSyBbJ5soUo8NhOpS32-D-Sr-NRksOQcwydc"
+private val GOOGLE_MAPS_API_KEY = System.getenv("GMAP_API") ?: ""
 
 private val logger: Logger = LoggerFactory.getLogger("BurrowMap")
 
@@ -131,7 +131,8 @@ private fun isInMinnesota(lat: Double, lng: Double): Boolean {
 /**
  * Get all burrows with their geocoded locations.
  *
- * @return A list of [BurrowLocation] for all burrows that could be successfully geocoded and are located within Minnesota.
+ * @return A list of [BurrowLocation] for all burrows that could be successfully geocoded and are
+ *   located within Minnesota.
  */
 suspend fun getMap(): List<BurrowLocation> {
     // if less than a day old, return the cached version

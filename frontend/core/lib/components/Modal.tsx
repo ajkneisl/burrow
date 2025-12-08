@@ -50,7 +50,7 @@ export default function Modal({
                     className="fixed inset-0 z-50 overflow-y-auto"
                 >
                     <motion.div
-                        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+                        className="fixed inset-0 bg-black/30 backdrop-blur-sm"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}

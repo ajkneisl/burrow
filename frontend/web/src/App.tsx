@@ -71,7 +71,7 @@ export default function App() {
     return (
         <Provider store={store}>
             <QueryClientProvider client={queryClient}>
-                <APIProvider apiKey="AIzaSyBbJ5soUo8NhOpS32-D-Sr-NRksOQcwydc" channel="beta">
+                <APIProvider apiKey="AIzaSyBbJ5soUo8NhOpS32-D-Sr-NRksOQcwydc">
                     <div className="flex flex-row items-center justify-center">
                         <RouterProvider router={router} />
                     </div>

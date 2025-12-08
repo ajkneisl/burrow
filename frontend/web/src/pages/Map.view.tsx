@@ -1,9 +1,5 @@
 import { useState } from "react"
-import {
-    APIProvider,
-    Map as GMap,
-    AdvancedMarker
-} from "@vis.gl/react-google-maps"
+import { Map as GMap, AdvancedMarker } from "@vis.gl/react-google-maps"
 import { useQuery } from "@tanstack/react-query"
 import { X } from "lucide-react"
 import { Button } from "@umnburrow/core"

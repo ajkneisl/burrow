@@ -29,33 +29,33 @@ export default function ScheduleStep({
             <div className="grid gap-6 md:grid-cols-2">
                 {/* date */}
                 <Field
-                label="Date"
-                error={errors.date}
-                className="min-w-0 md:col-span-2"
-            >
-                <Input
-                    type="date"
-                    value={formState.date}
-                    onChange={(e) => updateField("date", e.target.value)}
-                    error={errors.date !== undefined}
-                />
-            </Field>
+                    label="Date"
+                    error={errors.date}
+                    className="min-w-0 md:col-span-2"
+                >
+                    <Input
+                        type="date"
+                        value={formState.date}
+                        onChange={(e) => updateField("date", e.target.value)}
+                        error={errors.date !== undefined}
+                    />
+                </Field>
 
-            {/* start time */}
-            <Field
-                label="Start Time"
-                error={errors.startTime}
-                className="min-w-0"
-            >
-                <Input
-                    type="time"
-                    value={formState.beginningTime}
-                    onChange={(e) =>
-                        updateField("beginningTime", e.target.value)
-                    }
-                    error={errors.startTime !== undefined}
-                />
-            </Field>
+                {/* start time */}
+                <Field
+                    label="Start Time"
+                    error={errors.startTime}
+                    className="min-w-0"
+                >
+                    <Input
+                        type="time"
+                        value={formState.beginningTime}
+                        onChange={(e) =>
+                            updateField("beginningTime", e.target.value)
+                        }
+                        error={errors.startTime !== undefined}
+                    />
+                </Field>
 
                 {/* end time */}
                 <Field
