@@ -113,7 +113,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         router: {
             origin: false
         },
-        apiUrl: "http://192.168.0.142:8080/api",
+        apiUrl: "http://localhost:8080/api",
         eas: {
             projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID || ""
         }

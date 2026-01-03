@@ -65,6 +65,7 @@ export function EditableProfile({
 
             const updates: Partial<Profile> = {
                 name: name.trim(),
+                visibility: profile.visibility,
                 bio: bio.trim() || null,
                 gradYear: gradYear ? parseInt(gradYear) : null,
                 major: major.trim() || null,
