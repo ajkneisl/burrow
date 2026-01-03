@@ -1,19 +1,23 @@
 import { View, Text, Pressable } from "react-native"
 import { useRouter } from "expo-router"
+import { Settings } from "lucide-react-native"
 import { Card } from "@components/core"
 import { ProfilePicture } from "@components/profile/ProfilePicture"
 import useUser from "@features/auth/hooks/useUser"
 import useProfile from "@features/auth/hooks/useProfile"
 import { convertGraduationYear } from "@api/util"
+import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**
- * Profile card component for the home screen.
- * Matches the web's MyProfile design.
+ * self profile card for the homescreen
+ *
+ * @author AJ Kneisl
  */
 export function MyProfileCard() {
     const user = useUser()
     const profile = useProfile()
     const router = useRouter()
+    const colors = useThemeColors()
 
     if (!user || !profile) {
         return (
@@ -32,48 +36,46 @@ export function MyProfileCard() {
     return (
         <Card variant="bordered" className="mb-4">
             <View className="flex-row items-center gap-4">
-                {/* Profile Picture */}
+                {/* profile picture */}
                 <Pressable onPress={() => router.push("/settings")}>
                     <ProfilePicture
+                        size="md"
                         name={profile?.name || user?.username}
                         userID={user?.id}
                     />
                 </Pressable>
 
-                {/* Profile Info */}
                 <View className="flex-1 min-w-0">
-                    <Text
-                        className="text-lg font-semibold text-text mb-1"
-                        numberOfLines={1}
-                    >
-                        {profile?.name || user?.username}
-                    </Text>
+                    {/* username and year*/}
+                    <View className="flex flex-row items-center gap-2">
+                        {/* username */}
+                        <Text
+                            className="text-lg font-semibold text-text"
+                            numberOfLines={1}
+                        >
+                            {profile?.name || user?.username}
+                        </Text>
 
-                    {/* Graduation Year Badge */}
-                    {profile.gradYear && (
-                        <View className="mb-2 self-start">
-                            <View className="bg-primary bg-opacity-10 px-2 py-1 rounded-full">
-                                <Text className="text-xs font-medium text-primary">
-                                    {convertGraduationYear(profile.gradYear)}
-                                </Text>
+                        {/* grad year badge */}
+                        {profile.gradYear && (
+                            <View>
+                                <View className="bg-primary bg-opacity-10 px-2 py-1 rounded-full">
+                                    <Text className="text-xs font-bold text-text">
+                                        {convertGraduationYear(2028)}
+                                    </Text>
+                                </View>
                             </View>
-                        </View>
-                    )}
-
-                    {/* Links */}
-                    <View className="flex-row gap-3">
-                        <Pressable onPress={() => router.push(`/user/${user.username}`)}>
-                            <Text className="text-xs text-text text-opacity-60 underline">
-                                View profile
-                            </Text>
-                        </Pressable>
-                        <Pressable onPress={() => router.push("/friends")}>
-                            <Text className="text-xs text-text text-opacity-60 underline">
-                                View friends
-                            </Text>
-                        </Pressable>
+                        )}
                     </View>
                 </View>
+
+                {/* settings */}
+                <Pressable
+                    onPress={() => router.push("/settings")}
+                    className="p-2"
+                >
+                    <Settings size={24} color={colors.text} />
+                </Pressable>
             </View>
         </Card>
     )
