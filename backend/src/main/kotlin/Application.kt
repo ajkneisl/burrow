@@ -2,7 +2,9 @@ package app.burrow
 
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
+import app.burrow.account.alt.createAlternativeAccount
 import app.burrow.account.chat.ChatSync
+import app.burrow.account.models.Users
 import app.burrow.account.models.getUserByUsername
 import app.burrow.account.models.userID
 import app.burrow.account.settings.SETTINGS_ROUTES
@@ -10,8 +12,12 @@ import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.admin.log.DB_LOG
 import app.burrow.admin.log.DatabaseLogAppender
 import app.burrow.burrows.BURROW_ROUTES
+import app.burrow.burrows.createBurrow
 import app.burrow.burrows.getBurrow
 import app.burrow.burrows.getBurrowResponse
+import app.burrow.burrows.models.BurrowKind
+import app.burrow.burrows.models.BurrowVisibility
+import app.burrow.burrows.models.SubmittedStudyEventBurrow
 import app.burrow.burrows.sync.BurrowSync
 import app.burrow.notifications.NOTIFICATION_ROUTES
 import app.burrow.notifications.NotificationKind
@@ -44,11 +50,18 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.ktor.server.websocket.*
+import io.ktor.util.date.getTimeMillis
 import java.io.File
+import kotlin.random.Random
+import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.v1.r2dbc.select
+import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
+import org.mindrot.jbcrypt.BCrypt
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.slf4j.event.Level
@@ -66,10 +79,12 @@ const val ADMIN_AUTH = "administrator"
 /** path for the frontend directory. */
 lateinit var FRONTEND_DIR: String
 
-fun main(args: Array<String>) {
+suspend fun main(args: Array<String>) {
     var port = 8080
 
     burrowLogger.info(DB_LOG, "Started Burrow Instance")
+
+    initDb()
 
     // debug stuff
     args.forEach { arg ->
@@ -92,6 +107,45 @@ fun main(args: Array<String>) {
             arg.startsWith("--use-port=") -> {
                 port = arg.removePrefix("--use-port=").toInt()
             }
+
+            // generate burrows
+            arg.startsWith("--gen-burrow") -> {
+                val burrowCount = arg.removePrefix("--gen-burrow=").toIntOrNull() ?: exitProcess(-1)
+
+                burrowLogger.info("Generating {} Burrows, hold on!", burrowCount)
+
+                query {
+                    val userIDs = Users.select(Users.id).toList().map { it[Users.id] }
+
+                    repeat(burrowCount) {
+                        val userID = userIDs.random()
+
+                        val now = getTimeMillis()
+                        val thirtyDaysInMillis = 30L * 24 * 60 * 60 * 1000
+                        val randomOffset = (Random.nextDouble() * thirtyDaysInMillis).toLong()
+                        val beginningTime = now + randomOffset
+
+                        val twoHoursInMillis = 2L * 60 * 60 * 1000
+                        val endTime = beginningTime + twoHoursInMillis
+
+                        createBurrow(
+                            userID,
+                            SubmittedStudyEventBurrow(
+                                "burrow burrow burrow ${Random.nextDouble()}",
+                                "this is a generated burrow :)",
+                                "yord",
+                                if (Random.nextBoolean()) BurrowKind.STUDY else BurrowKind.EVENT,
+                                beginningTime,
+                                endTime,
+                                emptySet(),
+                                Random.nextInt(5, 50),
+                                BurrowVisibility.PUBLIC,
+                                false,
+                            ),
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -105,7 +159,6 @@ fun main(args: Array<String>) {
 }
 
 suspend fun Application.module() {
-    initDb()
     notificationWorker()
 
     val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
@@ -347,7 +400,7 @@ suspend fun Application.module() {
 
         val defaultMeta =
             MetaTags(
-                title = "Burrow — Study Together @ UMN",
+                title = "Burrow",
                 description = "Host and discover your next study group. Learn better with Burrow.",
                 image = "/image/burrow.png",
             )

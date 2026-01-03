@@ -64,11 +64,11 @@ export default function LandingView() {
                 setNewUser(true)
 
                 toast.success("Welcome to Burrow!")
+                nav("/?new=t")
             } else {
                 toast.success("Welcome back to Burrow!")
+                nav("/")
             }
-
-            nav("/")
         },
 
         onError: (error: Error) => {

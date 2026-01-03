@@ -6,7 +6,7 @@ export interface MetaTagsState {
 }
 
 export const defaultMetaTags: MetaTagsState = {
-    title: "Burrow — Study Together @ UMN",
+    title: "Burrow",
     description:
         "Host and discover your next study group. Learn better with Burrow.",
     image: "https://umn.app/image/burrow.png",

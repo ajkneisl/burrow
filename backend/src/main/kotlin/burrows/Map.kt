@@ -21,21 +21,63 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 /**
- * A few details about a Burrow to aggregate on a map representation.
- *
- * [lat] and [lng] are generated from [Burrow.location] in [burrow].
- *
- * @param burrow The Burrow itself.
- * @param lat The latitude of the location.
- * @param lng The longitude of the location.
+ * The type of general location.
  */
-@Serializable data class BurrowLocation(val burrow: Burrow, val lat: Double, val lng: Double)
+@Serializable
+enum class LocationType {
+    PARKING,
+    VENDING,
+    STUDY,
+    RESTROOM,
+    FOOD,
+    OTHER
+}
 
-/** The last time [burrowMapCache] was created. */
-private var burrowMapLastCached: Long = -1
+/**
+ * Sealed class representing any location on the map.
+ */
+@Serializable
+sealed class Location {
+    abstract val type: String
+    abstract val lat: Double
+    abstract val lng: Double
 
-/** A cache of all Burrow's and their location. */
-private var burrowMapCache: List<BurrowLocation> = listOf()
+    /**
+     * A few details about a Burrow to aggregate on a map representation.
+     *
+     * [lat] and [lng] are generated from [Burrow.location] in [burrow].
+     *
+     * @param burrow The Burrow itself.
+     * @param lat The latitude of the location.
+     * @param lng The longitude of the location.
+     */
+    @Serializable
+    data class BurrowLocation(
+        override val type: String = "BurrowLocation",
+        val burrow: Burrow,
+        override val lat: Double,
+        override val lng: Double
+    ) : Location()
+
+    /**
+     * A general location for specific amenities or points of interest.
+     *
+     * @param name The name of the location (e.g., "Wilson Library Study Room").
+     * @param locationType The type of location (parking, vending, study, etc.).
+     * @param lat The latitude of the location.
+     * @param lng The longitude of the location.
+     * @param description Optional description with additional details.
+     */
+    @Serializable
+    data class GeneralLocation(
+        override val type: String = "GeneralLocation",
+        val name: String,
+        val locationType: LocationType,
+        override val lat: Double,
+        override val lng: Double,
+        val description: String? = null
+    ) : Location()
+}
 
 /**
  * Cache of the geocode cache. A location name, like "Lind Hall" to it's Pair<lat, lng> or null if
@@ -131,15 +173,10 @@ private fun isInMinnesota(lat: Double, lng: Double): Boolean {
 /**
  * Get all burrows with their geocoded locations.
  *
- * @return A list of [BurrowLocation] for all burrows that could be successfully geocoded and are
+ * @return A list of [Location.BurrowLocation] for all burrows that could be successfully geocoded and are
  *   located within Minnesota.
  */
-suspend fun getMap(): List<BurrowLocation> {
-    // if less than a day old, return the cached version
-    if (getTimeMillis() - burrowMapLastCached < TimeUnit.DAYS.toMillis(1)) {
-        return burrowMapCache
-    }
-
+suspend fun getMap(): List<Location.BurrowLocation> {
     // get all burrows that are active
     val allBurrows = query {
         Burrows.selectAll()
@@ -154,14 +191,15 @@ suspend fun getMap(): List<BurrowLocation> {
             val coordinates = geocodeLocation(burrow.location)
 
             if (coordinates != null && isInMinnesota(coordinates.first, coordinates.second)) {
-                BurrowLocation(burrow, coordinates.first, coordinates.second)
+                Location.BurrowLocation(
+                    burrow = burrow,
+                    lat = coordinates.first,
+                    lng = coordinates.second
+                )
             } else {
                 null
             }
         }
-
-    burrowMapCache = burrowLocations
-    burrowMapLastCached = getTimeMillis()
 
     return burrowLocations
 }

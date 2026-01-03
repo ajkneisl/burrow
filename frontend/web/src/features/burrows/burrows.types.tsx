@@ -9,12 +9,35 @@ import type { ChatMessage } from "@features/chat/chat.types.ts"
 export type BurrowKind = "STUDY" | "EVENT" | "CLUB" | "PROJECT"
 
 /**
- * The location of a Burrow.
+ * The type of general location.
+ */
+export type LocationType = "PARKING" | "VENDING" | "STUDY" | "RESTROOM" | "FOOD" | "OTHER"
+
+/**
+ * Base type for all locations on the map.
+ */
+export type Location = BurrowLocation | GeneralLocation
+
+/**
+ * A location representing a Burrow.
  */
 export interface BurrowLocation {
+    type: "BurrowLocation"
     burrow: Burrow
     lat: number
     lng: number
+}
+
+/**
+ * A general location for specific amenities or points of interest.
+ */
+export interface GeneralLocation {
+    type: "GeneralLocation"
+    name: string
+    locationType: LocationType
+    lat: number
+    lng: number
+    description?: string
 }
 
 /**

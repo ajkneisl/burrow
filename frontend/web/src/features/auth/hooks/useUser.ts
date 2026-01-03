@@ -9,7 +9,7 @@ import { useNavigate } from "react-router"
  * Retrieve the `User` object.
  */
 export default function useUser(): User | null {
-    const [auth, setAuth] = useAtom(authToken)
+    const [auth] = useAtom(authToken)
     const nav = useNavigate()
 
     const { data, error, isLoading } = useQuery({
@@ -19,7 +19,7 @@ export default function useUser(): User | null {
 
     // if the request fails, log the user out
     if (auth !== "" && error && !isLoading) {
-        void setAuth("")
+        // void setAuth("")
         nav("/welcome")
         return null
     }

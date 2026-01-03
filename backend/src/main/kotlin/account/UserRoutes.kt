@@ -1,6 +1,7 @@
 package app.burrow.account
 
 import app.burrow.InvalidAuthorization
+import app.burrow.account.alt.login
 import app.burrow.account.models.User
 import app.burrow.account.models.deleteUser
 import app.burrow.account.models.getUserByID
@@ -182,5 +183,22 @@ val USER_ROUTES: Route.() -> Unit = {
         val user = retrieveUser(body) ?: throw InvalidAuthorization()
 
         call.respond(user)
+    }
+
+    /**
+     * A request to login to an alternative account.
+     *
+     * @param username The username to the account.
+     * @param password The password to the account.
+     */
+    @Serializable data class AltAccountLoginRequest(val username: String, val password: String)
+
+    // PUT /alt/login
+    // login to an alternative account
+    put("/altlogin") {
+        val (username, password) = call.receive<AltAccountLoginRequest>()
+        val authorizedUser = login(username, password) ?: throw InvalidAuthorization()
+
+        call.respond(authorizedUser)
     }
 }

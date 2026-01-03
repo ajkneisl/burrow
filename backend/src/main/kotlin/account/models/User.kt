@@ -116,7 +116,7 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
 
         val user = query { Users.selectAll().where { Users.id eq googleID }.singleOrNull() }
 
-        // User does not exist - create new account
+        // user does not exist - create new account
         if (user == null) {
             val createdDate = getTimeMillis()
             val username = email.removeSuffix("@umn.edu")
