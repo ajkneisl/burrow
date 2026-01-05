@@ -46,15 +46,33 @@ export function EditableProfile({
 
             // validate name
             if (!name.trim()) {
-                validationErrors.name = "Name is required"
+                validationErrors.name = "Please enter your name"
+            } else if (name.trim().length < 2) {
+                validationErrors.name = "Name must be at least 2 characters"
             }
 
             // validate grad year
-            if (
-                gradYear &&
-                (parseInt(gradYear) < 2020 || parseInt(gradYear) > 2035)
-            ) {
-                validationErrors.gradYear = "Year must be between 2020-2035"
+            if (gradYear) {
+                const year = parseInt(gradYear)
+                if (isNaN(year) || year < 2020 || year > 2035) {
+                    validationErrors.gradYear =
+                        "Please enter a valid year between 2020 and 2035"
+                }
+            }
+
+            // validate instagram format (@username)
+            if (instagram.trim()) {
+                const instaValue = instagram.trim()
+                if (!instaValue.startsWith("@")) {
+                    validationErrors.instagram =
+                        "Instagram handle must start with @ (e.g., @johndoe)"
+                } else if (instaValue.length < 2) {
+                    validationErrors.instagram =
+                        "Please enter a valid Instagram handle"
+                } else if (!/^@[a-zA-Z0-9._]+$/.test(instaValue)) {
+                    validationErrors.instagram =
+                        "Instagram handle can only contain letters, numbers, periods, and underscores"
+                }
             }
 
             // check if failed
@@ -174,9 +192,19 @@ export function EditableProfile({
                 <Input
                     label="Instagram"
                     value={instagram}
-                    onChangeText={setInstagram}
-                    placeholder="e.g., johndoe or instagram.com/johndoe"
+                    onChangeText={(value) => {
+                        setInstagram(value)
+                        if (errors.instagram) {
+                            setErrors((prev) => {
+                                const next = { ...prev }
+                                delete next.instagram
+                                return next
+                            })
+                        }
+                    }}
+                    placeholder="@username"
                     variant="outline"
+                    error={errors.instagram}
                 />
 
                 {/* LinkedIn */}

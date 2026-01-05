@@ -51,14 +51,10 @@ export async function request<T = unknown, R = unknown>(
     }
 
     if (auth) {
-        console.log("Getting token...")
         const token = await store.get(authToken)
-        console.log("Token retrieved:", token ? "exists" : "missing")
 
         if (token) {
             requestHeaders.Authorization = `Bearer ${token}`
-
-            console.log(`Using token: ${token}`)
         } else {
             return Promise.reject("Unauthorized.")
         }
@@ -83,11 +79,8 @@ export async function request<T = unknown, R = unknown>(
             typeof data === "string" ? data : JSON.stringify(data)
     }
 
-    console.log("Making request:", method, fullUrl)
-
     let response: Response
     try {
-        // Add a timeout to prevent hanging requests
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
 
@@ -97,12 +90,11 @@ export async function request<T = unknown, R = unknown>(
         })
 
         clearTimeout(timeoutId)
-        console.log("4 - fetch completed", response.status)
     } catch (error) {
-        console.error("Fetch error:", error)
         if (error instanceof Error && error.name === "AbortError") {
             return Promise.reject("Request timeout - server did not respond")
         }
+
         return Promise.reject(
             `Network request failed: ${error instanceof Error ? error.message : String(error)}`
         )
@@ -118,10 +110,8 @@ export async function request<T = unknown, R = unknown>(
         try {
             const body = await response.json()
 
-            console.error("Request failed to :", fullUrl, response.status, body)
             return Promise.reject(body.message || body)
         } catch {
-            console.error("Request failed with status:", response.status)
             return Promise.reject(
                 `Request failed with status ${response.status}`
             )
@@ -140,7 +130,6 @@ export async function request<T = unknown, R = unknown>(
         return undefined as R
     }
 
-    // Parse and return JSON response
     const body = await response.json()
     return body as R
 }
