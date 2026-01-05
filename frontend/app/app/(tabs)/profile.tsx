@@ -87,46 +87,13 @@ export default function ProfileScreen() {
                             </Button>
                         </View>
 
-                        {/* Stats */}
-                        <View className="flex-row gap-3 mb-6">
-                            <Card variant="bordered" className="flex-1">
-                                <View className="items-center">
-                                    <Text className="text-2xl font-bold text-text">
-                                        0
-                                    </Text>
-                                    <Text className="text-sm text-text text-opacity-60">
-                                        Burrows
-                                    </Text>
-                                </View>
-                            </Card>
-                            <Card variant="bordered" className="flex-1">
-                                <View className="items-center">
-                                    <Text className="text-2xl font-bold text-text">
-                                        0
-                                    </Text>
-                                    <Text className="text-sm text-text text-opacity-60">
-                                        Friends
-                                    </Text>
-                                </View>
-                            </Card>
-                            <Card variant="bordered" className="flex-1">
-                                <View className="items-center">
-                                    <Text className="text-2xl font-bold text-text">
-                                        0
-                                    </Text>
-                                    <Text className="text-sm text-text text-opacity-60">
-                                        Joined
-                                    </Text>
-                                </View>
-                            </Card>
-                        </View>
-
                         {/* About Section */}
                         {profile.bio && (
                             <Card variant="bordered" className="mb-4">
                                 <Text className="text-lg font-semibold text-text mb-2">
                                     About
                                 </Text>
+
                                 <Text className="text-text text-opacity-80">
                                     {profile.bio}
                                 </Text>
@@ -178,6 +145,7 @@ export default function ProfileScreen() {
                                             url={formatInstagramUrl(profile.instagram)}
                                         />
                                     )}
+
                                     {profile.linkedIn && (
                                         <SocialLink
                                             icon={<Linkedin size={20} color="#0A66C2" />}
@@ -194,9 +162,10 @@ export default function ProfileScreen() {
                             <Text className="text-lg font-semibold text-text mb-3">
                                 My Burrows
                             </Text>
+
                             <View className="items-center py-4">
                                 <Text className="text-text text-opacity-60">
-                                    No burrows created yet
+                                    No Burrows created yet
                                 </Text>
                                 <Text className="text-text text-opacity-60 text-sm mt-1">
                                     Tap the + button to create one

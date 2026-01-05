@@ -3,12 +3,9 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Header } from "@features/layout/components"
-import { BurrowCard } from "@features/burrows/components/BurrowCard"
+import { UpcomingBurrowCard } from "@features/home/components/UpcomingBurrowCard"
 import { getBurrows, searchMeetings } from "@features/burrows/burrows.api"
-import type {
-    BurrowKind,
-    BurrowResponse
-} from "@features/burrows/burrows.types"
+import type { BurrowKind, BurrowResponse } from "@features/burrows/burrows.types"
 import { Search, Filter, ChevronDown, ChevronUp } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import {
@@ -223,7 +220,9 @@ export default function BrowseScreen() {
             <FlatList
                 data={data?.contents ?? []}
                 keyExtractor={(item: BurrowResponse) => item.burrow.id}
-                renderItem={({ item }) => <BurrowCard burrow={item.burrow} />}
+                renderItem={({ item }) => (
+                    <UpcomingBurrowCard burrowResponse={item} verbose />
+                )}
                 contentContainerStyle={{ padding: 24, paddingBottom: 100 }}
                 refreshControl={
                     <RefreshControl
