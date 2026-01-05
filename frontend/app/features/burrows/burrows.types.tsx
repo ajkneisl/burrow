@@ -1,7 +1,13 @@
 import type { User } from "@features/auth/user.types.ts"
 import type { Profile } from "@features/profile/profile.model.ts"
-import { BookOpen, FolderKanban, PartyPopper, Users } from "lucide-react-native"
 import type { ChatMessage } from "@features/chat/chat.types.ts"
+import {
+    BookOpen,
+    FolderKanban,
+    PartyPopper,
+    Users,
+    type LucideIcon
+} from "lucide-react-native"
 
 /**
  * The type of group meeting.
@@ -47,33 +53,33 @@ export interface GeneralLocation {
 }
 
 /**
- * An icon and label that describes burrow kinds.
+ * An icon and label that describes Burrow kinds.
  *
  * @see BurrowKind
  */
 export const BURROW_KIND_CONFIG: Record<
     BurrowKind,
-    { label: string; icon: React.ReactNode; className: string }
+    { label: string; Icon: LucideIcon; colorKey: "success" | "secondary" | "info" | "error" }
 > = {
     STUDY: {
         label: "Study",
-        icon: <BookOpen className="h-3 w-3" />,
-        className: "text-success"
+        Icon: BookOpen,
+        colorKey: "success"
     },
     EVENT: {
         label: "Event",
-        icon: <PartyPopper className="h-3 w-3" />,
-        className: "text-secondary"
+        Icon: PartyPopper,
+        colorKey: "secondary"
     },
     CLUB: {
         label: "Club",
-        icon: <Users className="h-3 w-3" />,
-        className: "text-info"
+        Icon: Users,
+        colorKey: "info"
     },
     PROJECT: {
         label: "Project",
-        icon: <FolderKanban className="h-3 w-3" />,
-        className: "text-error"
+        Icon: FolderKanban,
+        colorKey: "error"
     }
 }
 

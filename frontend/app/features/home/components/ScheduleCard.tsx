@@ -1,25 +1,24 @@
 import { View, Text, Pressable } from "react-native"
 import { useRouter } from "expo-router"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import {
-    BookOpen,
-    PartyPopper,
-    Users,
-    FolderKanban,
-    MessageSquare,
-    Pin
-} from "lucide-react-native"
+import { MessageSquare, Pin } from "lucide-react-native"
 import type { ScheduleBurrowResponse } from "@features/burrows/burrows.types"
 import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { formatDateTime, humanDateLabel } from "@api/util"
 
+/**
+ * {@link ScheduleCard}
+ */
 type ScheduleCardProps = {
     item: ScheduleBurrowResponse
 }
 
 /**
- * A scheduled burrow card with design matching the web version.
- * Features colored border, compact layout, and chat preview.
+ * A Burrow on the user's schedule.
+ *
+ * @param item The scheduled Burrow response.
+ *
+ * @author AJ Kneisl
  */
 export function ScheduleCard({ item }: ScheduleCardProps) {
     const router = useRouter()
@@ -32,15 +31,8 @@ export function ScheduleCard({ item }: ScheduleCardProps) {
 
     const kindConfig =
         BURROW_KIND_CONFIG[burrow.kind] || BURROW_KIND_CONFIG.STUDY
-
-    // Get border color based on burrow kind
-    const borderColor =
-        {
-            STUDY: colors.success,
-            EVENT: colors.secondary,
-            CLUB: colors.info,
-            PROJECT: colors.error
-        }[burrow.kind] || colors.success
+    const KindIcon = kindConfig.Icon
+    const kindColor = colors[kindConfig.colorKey]
 
     const isProject = burrow.kind === "PROJECT"
 
@@ -48,7 +40,7 @@ export function ScheduleCard({ item }: ScheduleCardProps) {
         <Pressable onPress={handlePress} className="mb-3">
             <View
                 className="bg-card border border-card-border rounded-2xl p-4 overflow-hidden"
-                style={{ borderRightWidth: 4, borderRightColor: borderColor }}
+                style={{ borderRightWidth: 4, borderRightColor: kindColor }}
             >
                 {/* Title and Time Row */}
                 <View className="flex-row items-start justify-between mb-2">
@@ -58,6 +50,7 @@ export function ScheduleCard({ item }: ScheduleCardProps) {
                     >
                         {burrow.title}
                     </Text>
+
                     <Text className="text-sm text-text text-opacity-80 shrink-0">
                         {isProject
                             ? `Due ${humanDateLabel(burrow.endTime)}`
@@ -68,55 +61,32 @@ export function ScheduleCard({ item }: ScheduleCardProps) {
                     </Text>
                 </View>
 
-                {/* Kind Badge, Tags, and Chat Preview Row */}
+                {/* chat preview, kind badge */}
                 {!isProject && (
-                    <View className="flex-row items-center justify-between">
-                        {/* Left side: Kind badge */}
+                    <View className="flex-row items-center justify-between w-full">
                         <View className="flex-row items-center gap-2 shrink-0">
                             <View
                                 className="px-2 py-1 rounded-full flex-row items-center gap-1"
-                                style={{ backgroundColor: `${borderColor}33` }}
+                                style={{ backgroundColor: `${kindColor}33` }}
                             >
-                                {burrow.kind === "STUDY" && (
-                                    <BookOpen
-                                        size={13}
-                                        color={borderColor}
-                                        strokeWidth={2.5}
-                                    />
-                                )}
-                                {burrow.kind === "EVENT" && (
-                                    <PartyPopper
-                                        size={13}
-                                        color={borderColor}
-                                        strokeWidth={2.5}
-                                    />
-                                )}
-                                {burrow.kind === "CLUB" && (
-                                    <Users
-                                        size={13}
-                                        color={borderColor}
-                                        strokeWidth={2.5}
-                                    />
-                                )}
-                                {burrow.kind === "PROJECT" && (
-                                    <FolderKanban
-                                        size={13}
-                                        color={borderColor}
-                                        strokeWidth={2.5}
-                                    />
-                                )}
+                                <KindIcon
+                                    size={13}
+                                    color={kindColor}
+                                    strokeWidth={2.5}
+                                />
+
                                 <Text
                                     className="text-xs font-bold"
-                                    style={{ color: borderColor }}
+                                    style={{ color: kindColor }}
                                 >
                                     {kindConfig.label}
                                 </Text>
                             </View>
                         </View>
 
-                        {/* Right side: Chat preview */}
+                        {/* chat preview */}
                         {item.latestChatMessage ? (
-                            <View className="flex-row items-center gap-1.5 flex-1 ml-2 min-w-0">
+                            <View className="flex-row items-center gap-1.5 shrink min-w-0">
                                 {item.isPinned ? (
                                     <Pin
                                         size={14}
@@ -131,19 +101,16 @@ export function ScheduleCard({ item }: ScheduleCardProps) {
                                     />
                                 )}
                                 <Text
-                                    className="text-xs text-text text-opacity-60 flex-1"
+                                    className="text-xs text-text text-opacity-60"
                                     numberOfLines={1}
                                 >
                                     {item.latestChatMessage.message}
                                 </Text>
                             </View>
                         ) : (
-                            <View className="flex-row items-center gap-1.5 flex-1 ml-2">
-                                <MessageSquare
-                                    size={14}
-                                    color={colors.text}
-                                    style={{ opacity: 0.4, flexShrink: 0 }}
-                                />
+                            <View className="flex-row items-center gap-1.5">
+                                <MessageSquare size={14} color={colors.text} />
+
                                 <Text className="text-xs text-text text-opacity-40 italic">
                                     No messages yet
                                 </Text>

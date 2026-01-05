@@ -5,14 +5,21 @@ import type { ScheduleBurrowResponse } from "@features/burrows/burrows.types"
 import { dayLabel } from "@api/util"
 import { ScheduleCard } from "./ScheduleCard"
 
+/**
+ * {@see ScheduleSection}
+ */
 type ScheduleSectionProps = {
     schedule: ScheduleBurrowResponse[] | undefined
     isLoading: boolean
 }
 
 /**
- * Schedule section component for the home screen.
- * Displays user's scheduled burrows grouped by day.
+ * The schedule section on the homepage.
+ *
+ * @param schedule All the user's scheduled Burrows from the API.
+ * @param isLoading If {@link schedule} is still loading.
+ *
+ * @author AJ Kneisl
  */
 export function ScheduleSection({ schedule, isLoading }: ScheduleSectionProps) {
     const colors = useThemeColors()
@@ -54,9 +61,11 @@ export function ScheduleSection({ schedule, isLoading }: ScheduleSectionProps) {
             <View className="mb-6">
                 <View className="items-center py-8">
                     <Calendar size={48} className="text-text text-opacity-20" />
+
                     <Text className="text-text text-opacity-60 mt-4">
                         No upcoming Burrows
                     </Text>
+
                     <Text className="text-text text-opacity-40 text-sm mt-1">
                         Create or join one to get started!
                     </Text>
@@ -76,10 +85,14 @@ export function ScheduleSection({ schedule, isLoading }: ScheduleSectionProps) {
                         {groupedSchedule[day]
                             .sort(
                                 (a, b) =>
-                                    a.burrow.beginningTime - b.burrow.beginningTime
+                                    a.burrow.beginningTime -
+                                    b.burrow.beginningTime
                             )
                             .map((item) => (
-                                <ScheduleCard key={item.burrow.id} item={item} />
+                                <ScheduleCard
+                                    key={item.burrow.id}
+                                    item={item}
+                                />
                             ))}
                     </View>
                 ))}

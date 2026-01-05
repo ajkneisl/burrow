@@ -60,7 +60,7 @@ export function MyProfileCard() {
                         {profile.gradYear && (
                             <View>
                                 <View className="bg-primary bg-opacity-10 px-2 py-1 rounded-full">
-                                    <Text className="text-xs font-bold text-text">
+                                    <Text className="text-xs font-bold text-white">
                                         {convertGraduationYear(2028)}
                                     </Text>
                                 </View>
