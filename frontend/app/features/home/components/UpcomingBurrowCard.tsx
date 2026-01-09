@@ -53,12 +53,37 @@ export function UpcomingBurrowCard({
                 <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1 mr-3">
                         {/* title */}
-                        <Text
-                            className="text-base font-bold text-text"
-                            numberOfLines={1}
-                        >
-                            {burrow.title}
-                        </Text>
+                        <View className="flex-row gap-1">
+                            <Text
+                                className="text-base font-bold"
+                                style={{
+                                    color: isHost
+                                        ? colors.secondary
+                                        : isJoined
+                                          ? colors.success
+                                          : colors.text
+                                }}
+                                numberOfLines={1}
+                            >
+                                {burrow.title}
+                            </Text>
+
+                            {isJoined && !isHost && (
+                                <View className="flex-row items-center gap-1">
+                                    <Check size={18} color={colors.success} />
+                                </View>
+                            )}
+
+                            {isHost && (
+                                <View className="flex-row items-center gap-1">
+                                    <Star
+                                        size={18}
+                                        color={colors.warn}
+                                        fill={colors.warn}
+                                    />
+                                </View>
+                            )}
+                        </View>
 
                         {/*time*/}
                         {burrow.beginningTime && burrow.endTime && (
@@ -120,39 +145,6 @@ export function UpcomingBurrowCard({
                     </Text>
                 )}
 
-                {/* chips chips and more chips! */}
-                <View className="flex-row items-center justify-between mb-3">
-                    {/* Status badges */}
-                    <View className="flex-row items-center gap-2">
-                        {isHost && (
-                            <View className="flex-row items-center gap-1">
-                                <Star
-                                    size={14}
-                                    color={colors.warn}
-                                    fill={colors.warn}
-                                />
-
-                                <Text
-                                    className="text-xs font-semibold"
-                                    style={{ color: colors.warn }}
-                                >
-                                    Host
-                                </Text>
-                            </View>
-                        )}
-
-                        {isJoined && !isHost && (
-                            <View className="flex-row items-center gap-1">
-                                <Text className="text-xs text-text">
-                                    Joined
-                                </Text>
-
-                                <Check size={18} color={colors.text} />
-                            </View>
-                        )}
-                    </View>
-                </View>
-
                 {/* Kind chip underneath date */}
                 <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center gap-2">
@@ -177,11 +169,11 @@ export function UpcomingBurrowCard({
 
                         {/* Tags */}
                         {burrow.tags && burrow.tags.length > 0 && (
-                            <View className="flex-row flex-wrap gap-1">
+                            <View className="flex-row flex-wrap gap-1 mr-1">
                                 {burrow.tags.slice(0, 2).map((tag) => (
                                     <View
                                         key={tag}
-                                        className="bg-background px-2 py-1 rounded-full"
+                                        className="bg-background border-card-border border px-2 py-1 rounded-full"
                                     >
                                         <Text className="text-xs text-text text-opacity-70">
                                             {tag}

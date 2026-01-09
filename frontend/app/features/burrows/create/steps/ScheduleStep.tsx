@@ -54,14 +54,6 @@ export function ScheduleStep({
                 placeholder="Select end time"
             />
 
-            {/* Helpful hint */}
-            <View className="bg-info/10 rounded-lg p-3 mt-2">
-                <Text className="text-xs text-text text-opacity-80">
-                    💡 Tip: The start and end times must be on the same day. For
-                    multi-day events, create separate burrows.
-                </Text>
-            </View>
-
             {/* Bottom spacing */}
             <View className="h-8" />
         </ScrollView>

@@ -6,16 +6,16 @@ import {
     Users,
     FolderKanban
 } from "lucide-react-native"
-import type { BurrowType } from "@features/burrows/burrows.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
+import { BurrowKind } from "@features/burrows/burrows.types"
 
 type BurrowTypeSelectorProps = {
-    onSelect: (type: BurrowType) => void
+    onSelect: (type: BurrowKind) => void
     onClose: () => void
 }
 
 const BURROW_TYPES: {
-    type: BurrowType
+    type: BurrowKind
     label: string
     description: string
     icon: typeof BookOpen
@@ -107,14 +107,6 @@ export function BurrowTypeSelector({
                             </Pressable>
                         )
                     })}
-                </View>
-
-                {/* Info */}
-                <View className="mt-8 bg-primary/10 rounded-lg p-4">
-                    <Text className="text-sm text-text text-opacity-80">
-                        💡 Tip: You can change most settings after creating your
-                        burrow.
-                    </Text>
                 </View>
             </View>
         </SafeAreaView>
