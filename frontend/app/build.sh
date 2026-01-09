@@ -1,0 +1,1 @@
+config=$(npx expo config --json) && eas build --platform ios --clear-cache --local --output "./builds/burrow-$(echo $config | jq -r .version).ipa"
