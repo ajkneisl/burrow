@@ -60,19 +60,32 @@ export function UpcomingBurrowCard({
                             {burrow.title}
                         </Text>
 
-                        {/* description */}
-                        {verbose && burrow.description && (
-                            <Text
-                                className="text-sm text-text text-opacity-60 mt-1"
-                                numberOfLines={2}
+                        {/*time*/}
+                        {burrow.beginningTime && burrow.endTime && (
+                            <View
+                                className={`flex-row items-center gap-2 ${verbose && `mb-1`}`}
                             >
-                                {burrow.description}
-                            </Text>
+                                <Clock
+                                    size={14}
+                                    color={colors.text}
+                                    style={{ opacity: 0.8 }}
+                                />
+
+                                <Text
+                                    className="text-sm text-text"
+                                    style={{ opacity: 0.8 }}
+                                >
+                                    {formatDateTime(
+                                        burrow.beginningTime,
+                                        burrow.endTime
+                                    )}
+                                </Text>
+                            </View>
                         )}
                     </View>
 
                     <View className="flex-row items-center gap-2">
-                        {/* Bookmarked badge */}
+                        {/*bookmarked*/}
                         {bookmarked && (
                             <View
                                 className="p-1.5 rounded-full"
@@ -86,7 +99,7 @@ export function UpcomingBurrowCard({
                             </View>
                         )}
 
-                        {/* Author profile picture */}
+                        {/* author profile picture */}
                         {burrowAuthorProfile && (
                             <ProfilePicture
                                 name={burrowAuthorProfile.name}
@@ -97,25 +110,18 @@ export function UpcomingBurrowCard({
                     </View>
                 </View>
 
-                {/* Date/Time row */}
-                <View className="flex-row items-center justify-between mb-2">
-                    {burrow.beginningTime && burrow.endTime && (
-                        <View className="flex-row items-center gap-2">
-                            <Clock
-                                size={14}
-                                color={colors.text}
-                                style={{ opacity: 0.8 }}
-                            />
+                {/* description */}
+                {verbose && burrow.description && (
+                    <Text
+                        className="text-sm w-full text-text mb-2"
+                        numberOfLines={2}
+                    >
+                        {burrow.description.replaceAll(/\n/g, " ")}
+                    </Text>
+                )}
 
-                            <Text className="text-sm text-text text-opacity-80">
-                                {formatDateTime(
-                                    burrow.beginningTime,
-                                    burrow.endTime
-                                )}
-                            </Text>
-                        </View>
-                    )}
-
+                {/* chips chips and more chips! */}
+                <View className="flex-row items-center justify-between mb-3">
                     {/* Status badges */}
                     <View className="flex-row items-center gap-2">
                         {isHost && (
@@ -191,18 +197,21 @@ export function UpcomingBurrowCard({
                         {/* Location chip */}
                         {burrow.location && (
                             <View
-                                className="flex-row items-center gap-1 px-2 py-1 rounded-full"
-                                style={{ backgroundColor: `${colors.primary}1A` }}
+                                className="flex-row items-center gap-1 px-2 py-1 rounded-full border"
+                                style={{
+                                    backgroundColor: `${colors.secondary}1A`,
+                                    borderColor: colors.secondary
+                                }}
                             >
                                 <MapPin
                                     size={12}
-                                    color={colors.primary}
+                                    color={colors.secondary}
                                     style={{ opacity: 0.8 }}
                                 />
 
                                 <Text
                                     className="text-xs max-w-[8rem]"
-                                    style={{ color: colors.primary }}
+                                    style={{ color: colors.secondary }}
                                     numberOfLines={1}
                                 >
                                     {burrow.location}

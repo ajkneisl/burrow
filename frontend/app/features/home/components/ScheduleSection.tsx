@@ -60,7 +60,7 @@ export function ScheduleSection({ schedule, isLoading }: ScheduleSectionProps) {
         return (
             <View className="mb-6">
                 <View className="items-center py-8">
-                    <Calendar size={48} className="text-text text-opacity-20" />
+                    <Calendar size={48} color={colors.text} />
 
                     <Text className="text-text text-opacity-60 mt-4">
                         No upcoming Burrows

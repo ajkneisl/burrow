@@ -1,4 +1,5 @@
 import { Tabs } from "expo-router"
+import { useColorScheme } from "react-native"
 import { Home, Search, MapPin, Users, User } from "lucide-react-native"
 import { SearchModal } from "@features/layout/components"
 import { CreateBurrowModal } from "@features/burrows/create/CreateBurrowModal"
@@ -11,6 +12,8 @@ import { useThemeColors } from "@api/theme/useThemeColors"
  */
 export default function TabsLayout() {
     const colors = useThemeColors()
+    const colorScheme = useColorScheme()
+    const isDark = colorScheme === "dark"
 
     return (
         <>
@@ -21,9 +24,12 @@ export default function TabsLayout() {
                     tabBarInactiveTintColor: "#9CA3AF",
                     tabBarStyle: {
                         backgroundColor: colors.background,
-                        borderTopColor: colors.cardBorder,
+                        borderTopColor: isDark ? "#333333" : colors.cardBorder,
                         borderTopWidth: 1,
-                        paddingTop: 8
+                        paddingHorizontal: 16
+                    },
+                    tabBarItemStyle: {
+                        paddingVertical: 4
                     }
                 }}
             >

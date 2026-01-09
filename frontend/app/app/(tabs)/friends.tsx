@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
 import { Header } from "@features/layout/components"
 import { Card, Button } from "@components/core"
+import { ProfilePicture } from "@components/profile/ProfilePicture"
 import { Users, UserPlus } from "lucide-react-native"
 import {
     getRelations,
@@ -89,7 +90,7 @@ export default function FriendsScreen() {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-background">
+        <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
             <Header title="Friends" />
 
             {/* tabs */}
@@ -289,10 +290,12 @@ function FriendCard({
     return (
         <Card variant="bordered">
             <View className="flex-row items-center">
-                <View className="bg-primary rounded-full w-12 h-12 items-center justify-center mr-3">
-                    <Text className="text-white font-bold text-lg">
-                        {friend.username?.[0]?.toUpperCase()}
-                    </Text>
+                <View className="mr-3">
+                    <ProfilePicture
+                        name={friend.name || friend.username}
+                        userID={friend.userID}
+                        size="md"
+                    />
                 </View>
                 <View className="flex-1">
                     <Text className="text-text font-semibold">
@@ -324,10 +327,12 @@ function UserCard({
     return (
         <Card variant="bordered">
             <View className="flex-row items-center">
-                <View className="bg-primary rounded-full w-12 h-12 items-center justify-center mr-3">
-                    <Text className="text-white font-bold text-lg">
-                        {user.username?.[0]?.toUpperCase()}
-                    </Text>
+                <View className="mr-3">
+                    <ProfilePicture
+                        name={user.name || user.username}
+                        userID={user.userID}
+                        size="md"
+                    />
                 </View>
                 <View className="flex-1">
                     <Text className="text-text font-semibold">
@@ -338,13 +343,10 @@ function UserCard({
                     </Text>
                     {user.reasoning && (
                         <Text className="text-text text-opacity-60 text-xs mt-1">
-                            {user.reasoning === "SHARED_BURROW" &&
-                                "In a burrow together"}
-                            {user.reasoning === "FRIEND_FOLLOWS" &&
-                                "Followed by a friend"}
+                            {user.reasoning === "SHARED_BURROW" && "In a burrow together"}
+                            {user.reasoning === "FRIEND_FOLLOWS" && "Followed by a friend"}
                             {user.reasoning === "THEY_FOLLOW" && "Follows you"}
-                            {user.reasoning === "SHARED_FRIEND" &&
-                                "Mutual friends"}
+                            {user.reasoning === "SHARED_FRIEND" && "Mutual friends"}
                         </Text>
                     )}
                 </View>

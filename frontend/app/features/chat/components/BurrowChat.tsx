@@ -220,7 +220,7 @@ export function BurrowChat({ burrowId, isMember }: BurrowChatProps) {
     return (
         <Card variant="bordered">
             <Text className="text-lg font-semibold text-text mb-3">Chat</Text>
-            <View className="h-96 border border-gray-200 rounded-lg overflow-hidden">
+            <View className="h-96 rounded-lg overflow-hidden">
                 <GenericChatBox
                     status={status}
                     messages={messages}

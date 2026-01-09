@@ -61,7 +61,7 @@ export default function BrowseScreen() {
     })
 
     return (
-        <SafeAreaView className="flex-1 bg-background">
+        <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
             <Header title="Browse" />
 
             {/* all filters */}

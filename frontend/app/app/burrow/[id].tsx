@@ -27,6 +27,7 @@ import {
     UserPlus,
     ListChecks
 } from "lucide-react-native"
+import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { Button, Card, Modal } from "@components/core"
 import { formatDateTime, dayLabel } from "@api/util"
 import {
@@ -255,12 +256,10 @@ export default function BurrowDetailScreen() {
     const isPast = burrow.endTime < Date.now()
     const isProject = burrow.kind === "PROJECT"
 
-    const kindColors = {
-        STUDY: "bg-info/10 text-info",
-        EVENT: "bg-success/10 text-success",
-        CLUB: "bg-warn/10 text-warn",
-        PROJECT: "bg-primary/10 text-primary"
-    }
+    const kindConfig =
+        BURROW_KIND_CONFIG[burrow.kind] || BURROW_KIND_CONFIG.STUDY
+    const KindIcon = kindConfig.Icon
+    const kindColor = colors[kindConfig.colorKey]
 
     return (
         <SafeAreaView className="flex-1 bg-background">
@@ -311,10 +310,19 @@ export default function BurrowDetailScreen() {
                             {burrow.title}
                         </Text>
                         <View
-                            className={`px-3 py-1.5 rounded-full ${kindColors[burrow.kind]}`}
+                            className="px-3 py-1.5 rounded-full flex-row items-center gap-1.5"
+                            style={{ backgroundColor: `${kindColor}33` }}
                         >
-                            <Text className="text-xs font-semibold">
-                                {burrow.kind}
+                            <KindIcon
+                                size={14}
+                                color={kindColor}
+                                strokeWidth={2.5}
+                            />
+                            <Text
+                                className="text-xs font-bold"
+                                style={{ color: kindColor }}
+                            >
+                                {kindConfig.label}
                             </Text>
                         </View>
                     </View>
@@ -328,7 +336,7 @@ export default function BurrowDetailScreen() {
                     >
                         <ProfilePicture
                             userID={data.burrow.ownerID}
-                            name={data.burrowAuthorProfile?.name}
+                            name={data.burrowAuthorProfile?.name ?? "?"}
                             size={"md"}
                         />
 
@@ -462,10 +470,10 @@ export default function BurrowDetailScreen() {
 
                     {/* Details Card */}
                     <Card variant="bordered">
-                        <Text className="text-lg font-semibold text-text mb-3">
+                        <Text className="text-lg font-semibold text-text mb-4">
                             Details
                         </Text>
-                        <View className="space-y-3">
+                        <View className="gap-4">
                             {isProject ? (
                                 <>
                                     {burrow.className && (
@@ -520,7 +528,6 @@ export default function BurrowDetailScreen() {
                                     )}
                                 </>
                             )}
-
                             <DetailRow
                                 icon={
                                     <Users size={20} color={colors.primary} />
@@ -618,11 +625,19 @@ export default function BurrowDetailScreen() {
                                                     }}
                                                     className="flex-row items-center py-2"
                                                 >
-                                                    <View className="bg-primary rounded-full w-10 h-10 items-center justify-center mr-3">
-                                                        <Text className="text-white font-bold text-sm">
-                                                            {item.user.username?.[0]?.toUpperCase() ||
-                                                                "?"}
-                                                        </Text>
+                                                    <View className="mr-3">
+                                                        <ProfilePicture
+                                                            name={
+                                                                item.profile
+                                                                    .name ||
+                                                                item.user
+                                                                    .username
+                                                            }
+                                                            userID={
+                                                                item.user.id
+                                                            }
+                                                            size="sm"
+                                                        />
                                                     </View>
                                                     <View className="flex-1">
                                                         <Text className="text-text font-medium">
@@ -813,13 +828,17 @@ function DetailRow({
     value: string
 }) {
     return (
-        <View className="flex-row items-start">
-            <View className="mr-3 mt-0.5">{icon}</View>
+        <View className="flex-row items-center">
+            <View className="w-10 h-10 rounded-full bg-card items-center justify-center mr-3">
+                {icon}
+            </View>
             <View className="flex-1">
-                <Text className="text-sm text-text text-opacity-60 mb-0.5">
+                <Text className="text-xs text-text text-opacity-50 uppercase tracking-wide">
                     {label}
                 </Text>
-                <Text className="text-base text-text font-medium">{value}</Text>
+                <Text className="text-base text-text font-medium mt-0.5">
+                    {value}
+                </Text>
             </View>
         </View>
     )

@@ -27,7 +27,7 @@ export default function ProfileScreen() {
 
     if (!user || !profile) {
         return (
-            <SafeAreaView className="flex-1 bg-background">
+            <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
                 <View className="flex-1 items-center justify-center">
                     <Text className="text-text dark:text-text opacity-60">Loading profile...</Text>
                 </View>
@@ -36,7 +36,7 @@ export default function ProfileScreen() {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-background">
+        <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
             <Header
                 title="Profile"
                 showSearch={false}
