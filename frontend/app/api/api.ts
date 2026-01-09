@@ -31,6 +31,8 @@ export async function request<T = unknown, R = unknown>(
 
     // make query parameters
     let fullUrl = `${BASE_URL}${url}`
+
+    console.log(fullUrl)
     if (query && Object.keys(query).length > 0) {
         const params = new URLSearchParams()
 

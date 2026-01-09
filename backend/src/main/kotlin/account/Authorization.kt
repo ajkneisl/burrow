@@ -56,8 +56,6 @@ object Authorization {
                 exitProcess(-1)
             }
 
-            val text = keyStorage.readText().trim()
-
             try {
                 Base64.decode(keyStorage.readText().trim())
             } catch (ex: Exception) {

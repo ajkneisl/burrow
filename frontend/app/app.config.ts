@@ -6,7 +6,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     slug: "burrow",
     version: "0.4.0",
     orientation: "portrait",
-    icon: "./assets/images/icon.png",
+    icon: "./assets/images/burrow.png",
     scheme: "burrow",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
@@ -16,23 +16,25 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         backgroundColor: "#7A0019"
     },
     ios: {
-        bundler: "metro",
-        supportsTablet: true,
-        bundleIdentifier: "com.umn.burrow",
+        supportsTablet: false,
+        bundleIdentifier: "app.umn.burrow",
         associatedDomains: ["applinks:burrow.umn.edu"],
         infoPlist: {
             NSLocationWhenInUseUsageDescription:
                 "Burrow needs your location to help you find nearby study groups.",
             NSCameraUsageDescription:
-                "Burrow needs camera access to scan QR codes."
+                "Burrow needs camera access to scan QR codes.",
+            ITSAppUsesNonExemptEncryption: false
+        },
+        "entitlements": {
+            "com.apple.developer.maps": true
         },
         config: {
-            googleMapsApiKey:
-                process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY_IOS || ""
+            googleMapsApiKey: "AIzaSyBvjCvJM5WjNB_QYKhB-3-RaaWumVZ3mKw"
         }
     },
     android: {
-        package: "com.umn.burrow",
+        package: "",
         adaptiveIcon: {
             backgroundColor: "#7A0019",
             foregroundImage: "./assets/images/android-icon-foreground.png",
@@ -75,6 +77,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         favicon: "./assets/images/favicon.png"
     },
     plugins: [
+        "expo-web-browser",
         "expo-router",
         "expo-font",
         [
@@ -113,9 +116,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         router: {
             origin: false
         },
-        apiUrl: "http://localhost:8080/api",
+        apiUrl: "https://umn.app/api",
         eas: {
-            projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID || ""
+            projectId: "3dc55916-e2a2-4081-a6cd-b76056b7386f"
         }
     }
 })

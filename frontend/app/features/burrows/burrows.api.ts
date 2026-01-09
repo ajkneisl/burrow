@@ -232,12 +232,8 @@ export async function toggleBanMember(
  * Get the schedule.
  */
 export async function getSchedule(): Promise<ScheduleBurrowResponse[]> {
-
-    console.log("starasdt")
     const req: ScheduleBurrowResponse[] =
         await get(`/burrows/schedule`)
-
-    console.log("hello %o")
 
     return req
 }

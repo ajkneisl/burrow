@@ -43,13 +43,14 @@ private val LOGGER = LoggerFactory.getLogger("User")
  */
 private val googleVerifier: GoogleIdTokenVerifier? by lazy {
     val clientId = System.getenv("GOOGLE_CLIENT_ID")
+    val iosClientId = System.getenv("GOOGLE_CLIENT_ID_IOS")
 
-    if (clientId.isNullOrBlank()) {
-        LOGGER.error("GOOGLE_CLIENT_ID environment variable is not set.")
+    if (clientId.isNullOrBlank() || iosClientId.isNullOrBlank()) {
+        LOGGER.error("GOOGLE_CLIENT_ID or GOOGLE_CLIENT_ID_IOS environment variable is not set.")
         null
     } else {
         GoogleIdTokenVerifier.Builder(NetHttpTransport(), GsonFactory.getDefaultInstance())
-            .setAudience(listOf(clientId))
+            .setAudience(listOf(clientId, iosClientId))
             .build()
     }
 }

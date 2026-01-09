@@ -248,9 +248,11 @@ function DiscoverTab({
         return (
             <View className="items-center justify-center py-12 px-6">
                 <Users size={48} color={colors.text} style={{ opacity: 0.2 }} />
+
                 <Text className="text-text text-opacity-60 text-lg mt-4">
                     No suggestions yet
                 </Text>
+
                 <Text className="text-text text-opacity-40 text-sm mt-1 text-center">
                     Join some Burrows to discover other Gophers
                 </Text>
