@@ -356,87 +356,109 @@ export default function BurrowDetailScreen() {
                     {/* Owner/Moderator Controls */}
                     {isOwner && !isPast && (
                         <Card variant="bordered">
-                            <View className="space-y-2 gap-2">
-                                <View className="flex-row gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        leftIcon={
-                                            <Edit2
-                                                size={16}
-                                                color={colors.primary}
-                                            />
-                                        }
-                                        onPress={() => setEditModalOpen(true)}
-                                        className="flex-1"
+                            <View className="flex-row flex-wrap gap-3 justify-evenly">
+                                <Pressable
+                                    onPress={() => setEditModalOpen(true)}
+                                    className="items-center"
+                                >
+                                    <View
+                                        className="w-12 h-12 rounded-full items-center justify-center mb-1"
+                                        style={{
+                                            backgroundColor: `${colors.primary}1A`
+                                        }}
                                     >
+                                        <Edit2
+                                            size={20}
+                                            color={colors.primary}
+                                        />
+                                    </View>
+                                    <Text className="text-xs text-text">
                                         Edit
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        leftIcon={
-                                            <Settings
-                                                size={16}
-                                                color={colors.primary}
-                                            />
-                                        }
-                                        onPress={() =>
-                                            setFeaturesModalOpen(true)
-                                        }
-                                        className="flex-1"
-                                    >
-                                        Features
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        leftIcon={
-                                            <Trash2
-                                                size={16}
-                                                color={colors.error}
-                                            />
-                                        }
-                                        onPress={() => deleteMutation.mutate()}
-                                        loading={deleteMutation.isPending}
-                                        className="flex-1"
-                                    >
-                                        Delete
-                                    </Button>
-                                </View>
+                                    </Text>
+                                </Pressable>
 
-                                <View className="flex-row gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        leftIcon={
-                                            <UserPlus
-                                                size={16}
-                                                color={colors.secondary}
-                                            />
-                                        }
-                                        onPress={() => setInviteModalOpen(true)}
-                                        className="flex-1"
+                                <Pressable
+                                    onPress={() => setFeaturesModalOpen(true)}
+                                    className="items-center"
+                                >
+                                    <View
+                                        className="w-12 h-12 rounded-full items-center justify-center mb-1"
+                                        style={{
+                                            backgroundColor: `${colors.secondary}1A`
+                                        }}
                                     >
-                                        Invite User
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        leftIcon={
-                                            <ListChecks
-                                                size={16}
-                                                color={colors.info}
-                                            />
-                                        }
-                                        onPress={() =>
-                                            setManageInvitesModalOpen(true)
-                                        }
-                                        className="flex-1"
+                                        <Settings
+                                            size={20}
+                                            color={colors.secondary}
+                                        />
+                                    </View>
+                                    <Text className="text-xs text-text">
+                                        Features
+                                    </Text>
+                                </Pressable>
+
+                                <Pressable
+                                    onPress={() => setInviteModalOpen(true)}
+                                    className="items-center"
+                                >
+                                    <View
+                                        className="w-12 h-12 rounded-full items-center justify-center mb-1"
+                                        style={{
+                                            backgroundColor: `${colors.info}1A`
+                                        }}
                                     >
-                                        Manage Invites
-                                    </Button>
-                                </View>
+                                        <UserPlus
+                                            size={20}
+                                            color={colors.info}
+                                        />
+                                    </View>
+                                    <Text className="text-xs text-text">
+                                        Invite
+                                    </Text>
+                                </Pressable>
+
+                                <Pressable
+                                    onPress={() =>
+                                        setManageInvitesModalOpen(true)
+                                    }
+                                    className="items-center"
+                                >
+                                    <View
+                                        className="w-12 h-12 rounded-full items-center justify-center mb-1"
+                                        style={{
+                                            backgroundColor: `${colors.info}1A`
+                                        }}
+                                    >
+                                        <ListChecks
+                                            size={20}
+                                            color={colors.info}
+                                        />
+                                    </View>
+                                    <Text className="text-xs text-text">
+                                        Invites
+                                    </Text>
+                                </Pressable>
+
+                                <Pressable
+                                    onPress={() => deleteMutation.mutate()}
+                                    disabled={deleteMutation.isPending}
+                                    className="items-center"
+                                >
+                                    <View
+                                        className="w-12 h-12 rounded-full items-center justify-center mb-1"
+                                        style={{
+                                            backgroundColor: `${colors.error}1A`
+                                        }}
+                                    >
+                                        <Trash2
+                                            size={20}
+                                            color={colors.error}
+                                        />
+                                    </View>
+                                    <Text className="text-xs text-text">
+                                        Delete
+                                    </Text>
+                                </Pressable>
                             </View>
                         </Card>
                     )}
@@ -457,7 +479,7 @@ export default function BurrowDetailScreen() {
                                         isPast ? "text-error" : "text-success"
                                     }`}
                                 >
-                                    {isPast ? "⚠️ Overdue" : "✅ In Progress"}
+                                    {isPast ? "Overdue" : "In Progress"}
                                 </Text>
                                 {isPast && (
                                     <Text className="text-text text-opacity-60 text-sm">
@@ -556,11 +578,12 @@ export default function BurrowDetailScreen() {
                             <Text className="text-lg font-semibold text-text mb-3">
                                 Tags
                             </Text>
+
                             <View className="flex-row flex-wrap gap-2">
                                 {burrow.tags.map((tag, index) => (
                                     <View
                                         key={index}
-                                        className="bg-card dark:bg-card px-3 py-1.5 rounded-md"
+                                        className="bg-background border-card-border border px-2 py-1 rounded-full"
                                     >
                                         <Text className="text-sm text-text dark:text-text">
                                             {tag}
@@ -708,6 +731,7 @@ export default function BurrowDetailScreen() {
                             variant="outline"
                             size="lg"
                             fullWidth
+                            leftIcon={<Archive size={18} color={colors.text} />}
                             onPress={() => leaveMutation.mutate()}
                             loading={leaveMutation.isPending}
                         >
@@ -718,6 +742,7 @@ export default function BurrowDetailScreen() {
                             variant="primary"
                             size="lg"
                             fullWidth
+                            leftIcon={<Users size={18} color="#FFFFFF" />}
                             onPress={() => joinMutation.mutate()}
                             loading={joinMutation.isPending}
                         >
@@ -752,7 +777,7 @@ export default function BurrowDetailScreen() {
             <Modal
                 visible={featuresModalOpen}
                 onClose={() => setFeaturesModalOpen(false)}
-                size="md"
+                size="full"
                 scrollable={false}
             >
                 {id && (

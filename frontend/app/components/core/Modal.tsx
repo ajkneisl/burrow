@@ -69,6 +69,8 @@ export function Modal({
                         <ScrollView className="flex-1 px-6 py-4">
                             {children}
                         </ScrollView>
+                    ) : size === "full" ? (
+                        children
                     ) : (
                         <View className="flex-1 px-6 py-4">{children}</View>
                     )}

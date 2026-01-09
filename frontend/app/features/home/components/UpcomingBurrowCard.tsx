@@ -135,6 +135,23 @@ export function UpcomingBurrowCard({
                     </View>
                 </View>
 
+                {verbose && burrow.tags && burrow.tags.length > 0 && (
+                    <View className="flex flex-row mb-2">
+                            <View className="flex-row flex-wrap gap-1 mr-1">
+                                {burrow.tags.slice(0, 2).map((tag) => (
+                                    <View
+                                        key={tag}
+                                        className="bg-background border-card-border border px-2 py-1 rounded-full"
+                                    >
+                                        <Text className="text-xs text-text text-opacity-70">
+                                            {tag}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
+                    </View>
+                )}
+
                 {/* description */}
                 {verbose && burrow.description && (
                     <Text
@@ -166,22 +183,6 @@ export function UpcomingBurrowCard({
                                 {kindConfig.label}
                             </Text>
                         </View>
-
-                        {/* Tags */}
-                        {burrow.tags && burrow.tags.length > 0 && (
-                            <View className="flex-row flex-wrap gap-1 mr-1">
-                                {burrow.tags.slice(0, 2).map((tag) => (
-                                    <View
-                                        key={tag}
-                                        className="bg-background border-card-border border px-2 py-1 rounded-full"
-                                    >
-                                        <Text className="text-xs text-text text-opacity-70">
-                                            {tag}
-                                        </Text>
-                                    </View>
-                                ))}
-                            </View>
-                        )}
                     </View>
 
                     {/* Location, Capacity and Waitlist */}
