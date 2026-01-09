@@ -1,13 +1,26 @@
-import { View, Image, Text } from "react-native"
+import { View, Text } from "react-native"
+import { Image } from "expo-image"
 import { CDN_URL } from "@api/util"
 import { useState, useMemo } from "react"
 
+/**
+ * {@link ProfilePicture}
+ */
 type ProfilePictureProps = {
     name: string
     userID: string
-    size?: "sm" | "md" | "lg"
+    size?: "sm" | "md" | "lg" | "xl"
 }
 
+/**
+ * A user's profile picture.
+ *
+ * @param name The name for fallback if the user doesn't have a profile picture.
+ * @param userID The ID of the user.
+ * @param size The size to display the profile picture.
+ *
+ * @author AJ Kneisl
+ */
 export function ProfilePicture({
     name,
     userID,
@@ -30,13 +43,15 @@ export function ProfilePicture({
     const sizeClasses = {
         sm: "h-8 w-8",
         md: "h-12 w-12",
-        lg: "h-16 w-16"
+        lg: "h-16 w-16",
+        xl: "h-24 w-24"
     }
 
     const textSizes = {
         sm: "text-sm",
         md: "text-base",
-        lg: "text-xl"
+        lg: "text-xl",
+        xl: "text-4xl"
     }
 
     return (
@@ -45,8 +60,9 @@ export function ProfilePicture({
         >
             {!imageError ? (
                 <Image
-                    source={{ uri: avatarUrl }}
-                    className="h-full w-full"
+                    source={avatarUrl}
+                    style={{ width: "100%", height: "100%" }}
+                    autoplay={false}
                     onError={() => setImageError(true)}
                 />
             ) : (

@@ -1,27 +1,9 @@
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { View, Text, Pressable } from "react-native"
 import { Pencil, Pin, X } from "lucide-react-native"
 import type { ChatMember, ChatMessage } from "@features/chat/chat.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
-
-function getUserColor(userID: string): string {
-    const colors = [
-        "#3B82F6", // blue
-        "#10B981", // green
-        "#A855F7", // purple
-        "#EC4899", // pink
-        "#F59E0B", // yellow
-        "#06B6D4", // cyan
-        "#F97316", // orange
-        "#6366F1" // indigo
-    ]
-
-    const hash = userID.split("").reduce((acc, char) => {
-        return char.charCodeAt(0) + ((acc << 5) - acc)
-    }, 0)
-
-    return colors[Math.abs(hash) % colors.length]
-}
+import { ProfilePicture } from "@components/profile/ProfilePicture"
 
 type ChatProps = {
     message: ChatMessage
@@ -52,11 +34,6 @@ export default function Chat({
     const colors = useThemeColors()
     const [isPressed, setIsPressed] = useState(false)
 
-    const userColor = useMemo(
-        () => getUserColor(message.senderID),
-        [message.senderID]
-    )
-
     const dateStr = new Date(message.createdAt).toLocaleTimeString([], {
         hour: "numeric",
         minute: "2-digit"
@@ -74,16 +51,11 @@ export default function Chat({
                 {/* Avatar column */}
                 <View className="w-10 items-center justify-start pt-0.5">
                     {!isConsecutive ? (
-                        <View
-                            className="w-10 h-10 rounded-full items-center justify-center"
-                            style={{ backgroundColor: userColor }}
-                        >
-                            <Text className="text-white font-bold text-lg">
-                                {members[
-                                    message.senderID
-                                ]?.name?.[0]?.toUpperCase() || "?"}
-                            </Text>
-                        </View>
+                        <ProfilePicture
+                            name={members[message.senderID]?.name || "Unknown"}
+                            userID={message.senderID}
+                            size="sm"
+                        />
                     ) : (
                         isPressed && (
                             <Text className="text-text dark:text-text opacity-50 text-xs">
@@ -99,7 +71,7 @@ export default function Chat({
                         <View className="flex-row items-baseline gap-2 mb-1">
                             <Text
                                 className="font-semibold text-base"
-                                style={{ color: userColor }}
+                                style={{ color: colors.primary }}
                             >
                                 {members[message.senderID]?.name ||
                                     "Unknown User"}

@@ -10,6 +10,7 @@ import {
 import { Search, X, UserPlus } from "lucide-react-native"
 import { get } from "@api/api"
 import { useThemeColors } from "@api/theme/useThemeColors"
+import { ProfilePicture } from "@components/profile/ProfilePicture"
 
 type UserSearchResult = {
     id: string
@@ -106,10 +107,12 @@ export function UserPicker({
                 }`}
             >
                 {/* Avatar */}
-                <View className="bg-primary rounded-full w-10 h-10 items-center justify-center mr-3">
-                    <Text className="text-white font-bold">
-                        {item.username[0]?.toUpperCase() || "?"}
-                    </Text>
+                <View className="mr-3">
+                    <ProfilePicture
+                        name={item.name || item.username}
+                        userID={item.id}
+                        size="sm"
+                    />
                 </View>
 
                 {/* User Info */}

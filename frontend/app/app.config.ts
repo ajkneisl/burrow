@@ -117,6 +117,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
             origin: false
         },
         apiUrl: "https://umn.app/api",
+        cdnUrl: "https://cdn.umn.app",
         eas: {
             projectId: "3dc55916-e2a2-4081-a6cd-b76056b7386f"
         }

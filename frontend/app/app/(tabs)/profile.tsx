@@ -6,6 +6,7 @@ import useUser from "@features/auth/hooks/useUser"
 import useProfile from "@features/auth/hooks/useProfile"
 import { Header } from "@features/layout/components"
 import { Card, Button } from "@components/core"
+import { ProfilePicture } from "@components/profile/ProfilePicture"
 import { Settings, Edit, Calendar, Users, Instagram, Linkedin } from "lucide-react-native"
 import { useGoogleAuth } from "@features/auth/hooks/useGoogleAuth"
 import { EditableProfile } from "@features/profile/components/EditableProfile"
@@ -61,10 +62,12 @@ export default function ProfileScreen() {
                         {/* Profile Header */}
                         <View className="items-center mb-6">
                             {/* Avatar */}
-                            <View className="bg-primary rounded-full w-24 h-24 items-center justify-center mb-4">
-                                <Text className="text-white text-4xl font-bold">
-                                    {user.username?.[0]?.toUpperCase() || "?"}
-                                </Text>
+                            <View className="mb-4">
+                                <ProfilePicture
+                                    name={profile.name || user.username}
+                                    userID={user.id}
+                                    size="xl"
+                                />
                             </View>
 
                             {/* Name & Username */}

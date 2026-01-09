@@ -49,15 +49,18 @@ export function UpcomingBurrowCard({
             className="mb-3"
         >
             <View className="bg-card border border-card-border rounded-2xl p-4">
-                {/* Header: Title and Author with Location */}
+                {/* header */}
                 <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1 mr-3">
+                        {/* title */}
                         <Text
                             className="text-base font-bold text-text"
                             numberOfLines={1}
                         >
                             {burrow.title}
                         </Text>
+
+                        {/* description */}
                         {verbose && burrow.description && (
                             <Text
                                 className="text-sm text-text text-opacity-60 mt-1"
@@ -68,7 +71,6 @@ export function UpcomingBurrowCard({
                         )}
                     </View>
 
-                    {/* Right side: Bookmarked, Author */}
                     <View className="flex-row items-center gap-2">
                         {/* Bookmarked badge */}
                         {bookmarked && (
@@ -123,6 +125,7 @@ export function UpcomingBurrowCard({
                                     color={colors.warn}
                                     fill={colors.warn}
                                 />
+
                                 <Text
                                     className="text-xs font-semibold"
                                     style={{ color: colors.warn }}
@@ -137,6 +140,7 @@ export function UpcomingBurrowCard({
                                 <Text className="text-xs text-text">
                                     Joined
                                 </Text>
+
                                 <Check size={18} color={colors.text} />
                             </View>
                         )}
@@ -195,8 +199,9 @@ export function UpcomingBurrowCard({
                                     color={colors.primary}
                                     style={{ opacity: 0.8 }}
                                 />
+
                                 <Text
-                                    className="text-xs"
+                                    className="text-xs max-w-[8rem]"
                                     style={{ color: colors.primary }}
                                     numberOfLines={1}
                                 >

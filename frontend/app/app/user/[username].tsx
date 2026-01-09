@@ -18,6 +18,7 @@ import {
 } from "@features/auth/user.api"
 import { Header } from "@features/layout/components"
 import { Card, Button } from "@components/core"
+import { ProfilePicture } from "@components/profile/ProfilePicture"
 import {
     Calendar,
     Mail,
@@ -168,10 +169,12 @@ export default function UserProfileScreen() {
                 {/* Profile Header */}
                 <View className="items-center mb-6">
                     {/* Avatar */}
-                    <View className="bg-primary rounded-full w-24 h-24 items-center justify-center mb-4">
-                        <Text className="text-white text-4xl font-bold">
-                            {user.username?.[0]?.toUpperCase() || "?"}
-                        </Text>
+                    <View className="mb-4">
+                        <ProfilePicture
+                            name={profile.name || user.username}
+                            userID={user.id}
+                            size="xl"
+                        />
                     </View>
 
                     {/* Name & Username */}

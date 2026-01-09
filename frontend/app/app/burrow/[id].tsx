@@ -50,6 +50,7 @@ import { AttendeeActionsModal } from "@features/burrows/attendees/AttendeeAction
 import { blockStatus } from "@features/sync/sync.atom"
 import useSync from "@features/sync/hooks/useSync"
 import { useThemeColors } from "@api/theme/useThemeColors"
+import { ProfilePicture } from "@components/profile/ProfilePicture"
 
 /**
  * Burrow details screen
@@ -323,13 +324,14 @@ export default function BurrowDetailScreen() {
                         onPress={() =>
                             router.push(`/user/${data.burrowAuthor}`)
                         }
-                        className="flex-row items-center mb-3"
+                        className="flex-row items-center mb-3 gap-2"
                     >
-                        <View className="bg-primary rounded-full w-10 h-10 items-center justify-center mr-3">
-                            <Text className="text-white font-bold text-base">
-                                {data.burrowAuthor?.[0]?.toUpperCase() || "?"}
-                            </Text>
-                        </View>
+                        <ProfilePicture
+                            userID={data.burrow.ownerID}
+                            name={data.burrowAuthorProfile?.name}
+                            size={"md"}
+                        />
+
                         <View>
                             <Text className="text-sm text-text text-opacity-60">
                                 {isProject ? "Created by" : "Hosted by"}
