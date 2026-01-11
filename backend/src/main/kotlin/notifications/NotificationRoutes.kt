@@ -3,10 +3,11 @@ package app.burrow.notifications
 import app.burrow.account.models.userID
 import app.burrow.notifications.delivery.channels.Browser
 import app.burrow.notifications.delivery.channels.Sse
+import app.burrow.notifications.delivery.subscribeToMobilePush
 import app.burrow.notifications.delivery.subscribeToPush
+import app.burrow.notifications.delivery.unsubscribeFromMobilePush
 import app.burrow.notifications.delivery.unsubscribeFromPush
 import app.burrow.optionalIntQueryParameter
-import app.burrow.queryParameter
 import app.burrow.urlParameter
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
@@ -92,6 +93,27 @@ val NOTIFICATION_ROUTES: Route.() -> Unit = {
 
             call.respond(HttpStatusCode.OK)
         }
+
+        // POST /mobile/subscribe
+        // subscribe to mobile notifications
+        post("/mobile/subscribe") {
+            val request = call.receive<MobileSubscribeRequest>()
+
+            val subscription =
+                subscribeToMobilePush(userID = call.userID, deviceToken = request.deviceToken)
+
+            call.respond(HttpStatusCode.Created, subscription)
+        }
+
+        // POST /mobile/unsubscribe
+        // unsubscribe from mobile notifications
+        post("/mobile/unsubscribe") {
+            val request = call.receive<MobileUnsubscribeRequest>()
+
+            unsubscribeFromMobilePush(call.userID, request.deviceToken)
+
+            call.respond(HttpStatusCode.OK)
+        }
     }
 
     // GET /notifications/push/vapid
@@ -110,3 +132,9 @@ val NOTIFICATION_ROUTES: Route.() -> Unit = {
 
 /** Request to unsubscribe from push notifications. */
 @Serializable private data class PushUnsubscribeRequest(val endpoint: String)
+
+/** Request to subscribe to mobile push notifications. */
+@Serializable private data class MobileSubscribeRequest(val deviceToken: String)
+
+/** Request to unsubscribe from mobile push notifications. */
+@Serializable private data class MobileUnsubscribeRequest(val deviceToken: String)

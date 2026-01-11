@@ -1,5 +1,6 @@
 package app.burrow.notifications.delivery
 
+import app.burrow.env
 import app.burrow.notifications.Notification
 import org.slf4j.LoggerFactory
 
@@ -91,5 +92,5 @@ private fun escapeHtml(text: String): String {
 
 /** The base URL. */
 private fun getBaseUrl(): String {
-    return System.getenv("BASE_URL") ?: "http://localhost:5173"
+    return env("BASE_URL") ?: "http://localhost:5173"
 }

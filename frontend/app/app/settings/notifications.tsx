@@ -24,6 +24,7 @@ export default function NotificationSettingsScreen() {
                 >
                     <ArrowLeft size={24} color={colors.text} />
                 </Pressable>
+
                 <View className="flex-1">
                     <Text className="text-2xl font-bold text-text">
                         Notification Preferences

@@ -67,6 +67,9 @@ dependencies {
     // Web Push for browser notifications
     implementation("nl.martijndwars:web-push:5.1.1")
 
+    // expo push for mobile notif
+    implementation("io.github.hlspablo:expo-server-sdk-java:3.1.6")
+
     testImplementation("io.kotest:kotest-runner-junit5:6.0.4")
     testImplementation("io.kotest:kotest-assertions-core:6.0.4")
     testImplementation("io.kotest:kotest-property:6.0.4")

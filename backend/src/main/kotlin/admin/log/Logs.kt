@@ -1,5 +1,6 @@
 package app.burrow.admin.log
 
+import app.burrow.env
 import app.burrow.query
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.spi.ILoggingEvent
@@ -76,12 +77,11 @@ data class LogEntry(
 )
 
 /** If logging to the database is enabled */
-private var databaseLoggingEnabled: Boolean =
-    System.getenv("DATABASE_LOGGING_ENABLED")?.toBoolean() ?: true
+private var databaseLoggingEnabled: Boolean = env("DATABASE_LOGGING_ENABLED")?.toBoolean() ?: true
 
 /** Minimum log level to save to database. */
 private var minLogLevel: Level =
-    System.getenv("DATABASE_LOG_MIN_LEVEL")?.let {
+    env("DATABASE_LOG_MIN_LEVEL")?.let {
         try {
             Level.valueOf(it)
         } catch (_: IllegalArgumentException) {

@@ -1,6 +1,7 @@
 package app.burrow.burrows
 
 import app.burrow.burrows.models.Burrows
+import app.burrow.env
 import app.burrow.query
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -100,7 +101,7 @@ private val httpClient =
     HttpClient(CIO) { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
 
 /** Google Maps API key */
-private val GOOGLE_MAPS_API_KEY = System.getenv("GMAP_API") ?: ""
+private val GOOGLE_MAPS_API_KEY = env("GMAP_API") ?: ""
 
 private val logger: Logger = LoggerFactory.getLogger("BurrowMap")
 

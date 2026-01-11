@@ -23,12 +23,19 @@ import { saveTheme } from "@api/theme/theme.api"
 import type { Theme, ThemeColors } from "@api/theme/theme.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
+/**
+ * The settings page.
+ *
+ * @author AJ Kneisl
+ */
 export default function SettingsScreen() {
     const router = useRouter()
     const user = useUser()
-    const { signOut } = useGoogleAuth()
-    const [theme, setTheme] = useAtom(themeAtom)
     const colors = useThemeColors()
+
+    const { signOut } = useGoogleAuth()
+
+    const [theme, setTheme] = useAtom(themeAtom)
 
     const handleThemeChange = async (newTheme: Theme) => {
         setTheme(newTheme)
@@ -43,11 +50,12 @@ export default function SettingsScreen() {
         <SafeAreaView className="flex-1 bg-background">
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* Header */}
+            {/* header */}
             <View className="px-6 py-4 border-b border-card-border flex-row items-center">
                 <Pressable onPress={() => router.back()} className="p-2 mr-2">
                     <ArrowLeft size={24} color={colors.text} />
                 </Pressable>
+
                 <Text className="text-2xl font-bold text-text">Settings</Text>
             </View>
 
@@ -90,11 +98,13 @@ export default function SettingsScreen() {
                                 active={theme === "LIGHT"}
                                 onPress={() => handleThemeChange("LIGHT")}
                             />
+
                             <ThemeButton
                                 label="Dark"
                                 active={theme === "DARK"}
                                 onPress={() => handleThemeChange("DARK")}
                             />
+
                             <ThemeButton
                                 label="Auto"
                                 active={theme === "AUTO"}

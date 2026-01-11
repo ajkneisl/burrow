@@ -1,6 +1,7 @@
 package app.burrow.notifications.delivery.channels
 
 import app.burrow.account.models.getUserByID
+import app.burrow.env
 import app.burrow.notifications.delivery.Delivery
 import app.burrow.notifications.delivery.DeliveryChannel
 import app.burrow.notifications.delivery.generateNotificationEmail
@@ -33,7 +34,7 @@ object Email : DeliveryChannel {
 
     /** The AWS client for SES. */
     private val sesClient: SesClient? by lazy {
-        val region = Region.of(System.getenv("AWS_REGION") ?: "us-east-1")
+        val region = Region.of(env("AWS_REGION") ?: "us-east-1")
 
         val credentialsProvider =
             try {

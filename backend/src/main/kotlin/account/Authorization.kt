@@ -1,6 +1,7 @@
 package app.burrow.account
 
 import app.burrow.admin.log.DB_LOG
+import app.burrow.env
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
@@ -32,7 +33,7 @@ object Authorization {
      */
     private val SECRET_BYTES: ByteArray by lazy {
         // try KEY_B64 environment variable.
-        System.getenv("KEY_B64")
+        env("KEY_B64")
             ?.trim()
             ?.takeIf { it.isNotEmpty() }
             ?.let { b64 ->
@@ -45,7 +46,7 @@ object Authorization {
             }
 
         // start trying file
-        val keyLocation = System.getenv("KEY_LOCATION") ?: "/etc/burrow/key"
+        val keyLocation = env("KEY_LOCATION") ?: "/etc/burrow/key"
         val keyStorage = File(keyLocation)
 
         if (keyStorage.exists()) {

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Platform } from "react-native"
 import * as Device from "expo-device"
 import * as Notifications from "expo-notifications"
@@ -8,28 +8,26 @@ import {
     unsubscribeFromPushMobile
 } from "@features/notifications/notifications.api"
 import Toast from "react-native-toast-message"
+import { NotificationBehavior } from "expo-notifications"
 
 // Configure notification handler
 Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true
-    })
+    handleNotification: async () =>
+        ({
+            shouldShowAlert: true,
+            shouldPlaySound: true,
+            shouldSetBadge: true
+        }) as NotificationBehavior
 })
 
 /**
- * Hook for managing push notifications on mobile using expo-notifications.
+ * Hooks for managing push notifications with Expo.
  *
- * Handles:
- * - Permission requests
- * - Getting Expo Push Token
- * - Subscribing/unsubscribing from push notifications
- * - Foreground/background notification handlers
- * - Deep linking from notification taps
+ * @author AJ Kneisl
  */
 export function usePushNotifications() {
     const router = useRouter()
+
     const [expoPushToken, setExpoPushToken] = useState<string>()
     const [isSubscribed, setIsSubscribed] = useState(false)
     const [permission, setPermission] = useState<
@@ -49,11 +47,13 @@ export function usePushNotifications() {
                 type: "error",
                 text1: "Push notifications don't work on simulator"
             })
+
             return null
         }
 
         const { status: existingStatus } =
             await Notifications.getPermissionsAsync()
+
         let finalStatus = existingStatus
 
         if (existingStatus !== "granted") {
@@ -74,12 +74,11 @@ export function usePushNotifications() {
         setPermission("granted")
 
         try {
-            const token = (
+            return (
                 await Notifications.getExpoPushTokenAsync({
-                    projectId: "your-project-id" // TODO: Replace with actual project ID
+                    projectId: "3dc55916-e2a2-4081-a6cd-b76056b7386f"
                 })
             ).data
-            return token
         } catch (error) {
             console.error("Error getting Expo push token:", error)
             Toast.show({

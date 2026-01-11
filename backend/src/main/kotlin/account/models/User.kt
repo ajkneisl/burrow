@@ -4,6 +4,7 @@ import app.burrow.Error
 import app.burrow.NotFound
 import app.burrow.account.Authorization
 import app.burrow.account.profile.Profiles
+import app.burrow.env
 import app.burrow.photo.deletePhoto
 import app.burrow.query
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
@@ -42,8 +43,8 @@ private val LOGGER = LoggerFactory.getLogger("User")
  * and caches Google's public keys.
  */
 private val googleVerifier: GoogleIdTokenVerifier? by lazy {
-    val clientId = System.getenv("GOOGLE_CLIENT_ID")
-    val iosClientId = System.getenv("GOOGLE_CLIENT_ID_IOS")
+    val clientId = env("GOOGLE_CLIENT_ID")
+    val iosClientId = env("GOOGLE_CLIENT_ID_IOS")
 
     if (clientId.isNullOrBlank() || iosClientId.isNullOrBlank()) {
         LOGGER.error("GOOGLE_CLIENT_ID or GOOGLE_CLIENT_ID_IOS environment variable is not set.")

@@ -21,7 +21,7 @@ var DB: R2dbcDatabase? = null
 suspend fun <T> query(block: suspend R2dbcTransaction.() -> T): T =
     withContext(Dispatchers.IO) { suspendTransaction(DB, block) }
 
-private val runningDocker = System.getenv("DOCKER")?.toBoolean() == true
+private val runningDocker = env("DOCKER")?.toBoolean() == true
 private val LOGGER = LoggerFactory.getLogger("Database")
 
 /** Initialize and connect to the database. */

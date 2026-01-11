@@ -1,7 +1,8 @@
 import { useMemo } from "react"
-import { View, Text, FlatList } from "react-native"
+import { View, Text, FlatList, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { Bell } from "lucide-react-native"
+import { useRouter } from "expo-router"
+import { Bell, ChevronLeft } from "lucide-react-native"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {
     useNotificationsQuery,
@@ -20,15 +21,19 @@ import Toast from "react-native-toast-message"
 import type { Notification } from "@features/notifications/notifications.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
-/**
- * View all notifications screen (React Native).
- */
 export default function NotificationsScreen() {
+    const router = useRouter()
     const queryClient = useQueryClient()
     const colors = useThemeColors()
 
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
         useNotificationsQuery()
+
+    const BackButton = (
+        <Pressable onPress={() => router.back()} className="p-2 -ml-2">
+            <ChevronLeft size={28} color={colors.text} />
+        </Pressable>
+    )
 
     const deleteMutation = useDeleteNotification()
     const toggleReadMutation = useToggleReadNotification()
@@ -122,9 +127,11 @@ export default function NotificationsScreen() {
     const renderEmpty = () => (
         <View className="items-center justify-center py-12">
             <Bell size={48} color={colors.text} style={{ opacity: 0.2 }} />
-            <Text className="text-text dark:text-text opacity-60 text-lg mt-4">No notifications</Text>
-            <Text className="text-text dark:text-text opacity-50 text-sm mt-1">
-                You're all caught up!
+            <Text className="text-text opacity-60 text-lg mt-4">
+                No notifications
+            </Text>
+            <Text className="text-text opacity-50 text-sm mt-1">
+                You&apos;re all caught up!
             </Text>
         </View>
     )
@@ -134,7 +141,7 @@ export default function NotificationsScreen() {
 
         return (
             <View className="py-4">
-                <Text className="text-text dark:text-text opacity-60 text-center text-sm">
+                <Text className="text-text opacity-60 text-center text-sm">
                     Loading more...
                 </Text>
             </View>
@@ -150,9 +157,9 @@ export default function NotificationsScreen() {
                 >
                     <View className="flex-row items-start gap-3">
                         <View className="flex-1 space-y-3">
-                            <View className="bg-card dark:bg-card h-5 w-48 rounded opacity-50" />
-                            <View className="bg-card dark:bg-card h-4 w-full rounded opacity-50" />
-                            <View className="bg-card dark:bg-card h-3 w-32 rounded opacity-50" />
+                            <View className="bg-card-border h-5 w-48 rounded" />
+                            <View className="bg-card-border h-4 w-full rounded" />
+                            <View className="bg-card-border h-3 w-32 rounded" />
                         </View>
                     </View>
                 </View>
@@ -162,34 +169,23 @@ export default function NotificationsScreen() {
 
     return (
         <SafeAreaView className="flex-1 bg-background">
-            <Header title="Notifications" showSearch={false} />
-
-            {/* Header with count and clear all */}
-            <View className="px-6 py-4 border-b border-card-border flex-row items-center justify-between">
-                <View className="flex-row items-center gap-2">
-                    <Text className="text-lg font-bold text-text">
-                        {items.length}{" "}
-                        {items.length === 1 ? "Notification" : "Notifications"}
-                    </Text>
-
-                    {unreadCount > 0 && (
-                        <View className="bg-primary/20 rounded-full px-2 py-0.5">
-                            <Text className="text-xs font-semibold text-text dark:text-text">
-                                {unreadCount} unread
-                            </Text>
-                        </View>
-                    )}
-                </View>
-
-                <Button
-                    variant="danger"
-                    size="sm"
-                    onPress={() => clearAllMutation.mutate()}
-                    disabled={items.length === 0}
-                >
-                    Clear All
-                </Button>
-            </View>
+            <Header
+                title="Notifications"
+                badge={unreadCount}
+                showSearch={false}
+                showNotifications={false}
+                leftAction={BackButton}
+                rightAction={
+                    <Button
+                        variant="danger"
+                        size="sm"
+                        onPress={() => clearAllMutation.mutate()}
+                        disabled={items.length === 0}
+                    >
+                        Clear All
+                    </Button>
+                }
+            />
 
             {/* Notifications list */}
             {isLoading ? (

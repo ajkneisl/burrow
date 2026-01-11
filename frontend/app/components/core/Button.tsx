@@ -97,6 +97,7 @@ export function Button({
             ) : (
                 <View className="flex-row items-center gap-2">
                     {leftIcon && <View>{leftIcon}</View>}
+
                     <Text
                         className={clsx(
                             textSizeStyles[size],
@@ -105,6 +106,7 @@ export function Button({
                     >
                         {children}
                     </Text>
+
                     {rightIcon && <View>{rightIcon}</View>}
                 </View>
             )}

@@ -8,11 +8,14 @@ import {
 import {
     isChannelEnabled,
     enableChannel,
-    disableChannel,
-    PUSH_CHANNEL,
-    EMAIL_CHANNEL
+    disableChannel
 } from "@features/settings/settings.api"
-import type { NotificationPreferences } from "@features/settings/settings.types"
+import {
+    PUSH_CHANNEL,
+    EMAIL_CHANNEL,
+    NotificationKind,
+    type NotificationPreferences
+} from "@features/settings/settings.types"
 import { Bell, Mail, Smartphone, AlertCircle } from "lucide-react-native"
 import { useState, useEffect } from "react"
 import Toast from "react-native-toast-message"
@@ -39,11 +42,11 @@ export function NotificationPreferencesComponent() {
         }
     }, [preferences])
 
-    const handleToggleEnabled = (notifType: string, currentChannels: number) => {
+    const handleToggleEnabled = (kind: NotificationKind, currentChannels: number) => {
         if (!localPreferences) return
 
         const updated = localPreferences.map((pref) => {
-            if (pref.notificationType === notifType) {
+            if (pref.kind === kind) {
                 // If currently enabled (has any channels), disable all
                 // If disabled (no channels), enable push by default
                 const newChannels =
@@ -62,14 +65,14 @@ export function NotificationPreferencesComponent() {
     }
 
     const handleToggleChannel = (
-        notifType: string,
+        kind: NotificationKind,
         currentChannels: number,
         channel: number
     ) => {
         if (!localPreferences) return
 
         const updated = localPreferences.map((pref) => {
-            if (pref.notificationType === notifType) {
+            if (pref.kind === kind) {
                 const newChannels = isChannelEnabled(currentChannels, channel)
                     ? disableChannel(currentChannels, channel)
                     : enableChannel(currentChannels, channel)
@@ -129,13 +132,14 @@ export function NotificationPreferencesComponent() {
         )
     }
 
-    const notificationTypeLabels: Record<string, string> = {
-        BURROW_INVITE: "Burrow Invitations",
-        BURROW_REMINDER: "Burrow Reminders",
-        BURROW_UPDATE: "Burrow Updates",
-        BURROW_CANCELLED: "Burrow Cancellations",
-        CHAT_MESSAGE: "Chat Messages",
-        SYSTEM_ANNOUNCEMENT: "System Announcements"
+    const notificationKindLabels: Record<NotificationKind, string> = {
+        [NotificationKind.BURROW_INVITE]: "Burrow Invitations",
+        [NotificationKind.BURROW_STARTS_SOON]: "Burrow Reminders",
+        [NotificationKind.BURROW_UPDATED]: "Burrow Updates",
+        [NotificationKind.BURROW_CANCELLED]: "Burrow Cancellations",
+        [NotificationKind.BURROW_CHAT_MESSAGE]: "Chat Messages",
+        [NotificationKind.FRIEND_REQUEST]: "Friend Requests",
+        [NotificationKind.NEW_FRIEND]: "New Friends"
     }
 
     return (
@@ -170,7 +174,7 @@ export function NotificationPreferencesComponent() {
 
                 return (
                     <Card
-                        key={pref.notificationType}
+                        key={pref.kind}
                         variant="bordered"
                         className={
                             isEnabled ? "border-primary border-opacity-20" : ""
@@ -179,15 +183,13 @@ export function NotificationPreferencesComponent() {
                         {/* Main Toggle */}
                         <View className="flex-row items-center justify-between mb-3">
                             <Text className="text-text font-semibold flex-1">
-                                {notificationTypeLabels[
-                                    pref.notificationType
-                                ] || pref.notificationType}
+                                {notificationKindLabels[pref.kind]}
                             </Text>
                             <Switch
                                 value={isEnabled}
                                 onValueChange={() =>
                                     handleToggleEnabled(
-                                        pref.notificationType,
+                                        pref.kind,
                                         pref.deliveryChannels
                                     )
                                 }
@@ -222,7 +224,7 @@ export function NotificationPreferencesComponent() {
                                         value={hasPush}
                                         onValueChange={() =>
                                             handleToggleChannel(
-                                                pref.notificationType,
+                                                pref.kind,
                                                 pref.deliveryChannels,
                                                 PUSH_CHANNEL
                                             )
@@ -251,7 +253,7 @@ export function NotificationPreferencesComponent() {
                                         value={hasEmail}
                                         onValueChange={() =>
                                             handleToggleChannel(
-                                                pref.notificationType,
+                                                pref.kind,
                                                 pref.deliveryChannels,
                                                 EMAIL_CHANNEL
                                             )
