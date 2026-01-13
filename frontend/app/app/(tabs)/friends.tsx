@@ -2,11 +2,12 @@ import { View, Text, FlatList, Pressable, RefreshControl } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useRouter } from "expo-router"
 import Toast from "react-native-toast-message"
 import { Header } from "@features/layout/components"
 import { Card, Button } from "@components/core"
 import { ProfilePicture } from "@components/profile/ProfilePicture"
-import { Users, UserPlus, UserMinus } from "lucide-react-native"
+import { Users, UserPlus, UserMinus, ChevronRight } from "lucide-react-native"
 import {
     getRelations,
     getDiscoveredUsers,
@@ -27,34 +28,33 @@ export default function FriendsScreen() {
     const [activeTab, setActiveTab] = useState<TabType>("friends")
     const queryClient = useQueryClient()
 
-    // get friends (mutual follows)
     const friendsQuery = useQuery({
         queryKey: ["relations", "friends"],
         queryFn: () => getRelations("friends")
     })
 
-    // get following (people I follow, excluding friends)
     const followingQuery = useQuery({
         queryKey: ["relations", "following"],
         queryFn: () => getRelations("following")
     })
 
-    // get followers (people who follow me, excluding friends)
     const followersQuery = useQuery({
         queryKey: ["relations", "followers"],
         queryFn: () => getRelations("followers")
     })
 
-    // get discovered
     const discoverQuery = useQuery({
         queryKey: ["relations", "discover"],
         queryFn: () => getDiscoveredUsers()
     })
 
-    // Filter out friends from following and followers lists
-    const friendIds = new Set((friendsQuery.data || []).map(f => f.userID))
-    const filteredFollowing = (followingQuery.data || []).filter(u => !friendIds.has(u.userID))
-    const filteredFollowers = (followersQuery.data || []).filter(u => !friendIds.has(u.userID))
+    const friendIds = new Set((friendsQuery.data || []).map((f) => f.userID))
+    const filteredFollowing = (followingQuery.data || []).filter(
+        (u) => !friendIds.has(u.userID)
+    )
+    const filteredFollowers = (followersQuery.data || []).filter(
+        (u) => !friendIds.has(u.userID)
+    )
 
     // unfollow a user
     const unfollowMutation = useMutation({
@@ -261,7 +261,17 @@ function FriendsTab({
             data={friends}
             keyExtractor={(item) => item.userID}
             renderItem={({ item }) => (
-                <FriendCard user={item} onUnfollow={onUnfollow} />
+                <UserCard
+                    userID={item.userID}
+                    name={item.name}
+                    username={item.username}
+                    action={{
+                        label: "Unfriend",
+                        variant: "outline",
+                        icon: <UserMinus size={14} color="#666" />,
+                        onPress: () => onUnfollow(item.userID)
+                    }}
+                />
             )}
             ItemSeparatorComponent={() => <View className="h-3" />}
             contentContainerClassName="px-6 py-4"
@@ -319,7 +329,17 @@ function FollowingTab({
             data={following}
             keyExtractor={(item) => item.userID}
             renderItem={({ item }) => (
-                <FollowingCard user={item} onUnfollow={onUnfollow} />
+                <UserCard
+                    userID={item.userID}
+                    name={item.name}
+                    username={item.username}
+                    action={{
+                        label: "Unfollow",
+                        variant: "outline",
+                        icon: <UserMinus size={14} color="#666" />,
+                        onPress: () => onUnfollow(item.userID)
+                    }}
+                />
             )}
             ItemSeparatorComponent={() => <View className="h-3" />}
             contentContainerClassName="px-6 py-4"
@@ -376,9 +396,31 @@ function FollowersTab({
         <FlatList
             data={followers}
             keyExtractor={(item) => item.userID}
-            renderItem={({ item }) => (
-                <FollowerCard user={item} onFollow={onFollow} />
-            )}
+            renderItem={({ item }) => {
+                const isFollowingBack = !!item.youFollowedAt
+                return (
+                    <UserCard
+                        userID={item.userID}
+                        name={item.name}
+                        username={item.username}
+                        subtitle={
+                            isFollowingBack ? "Following each other" : undefined
+                        }
+                        action={
+                            !isFollowingBack
+                                ? {
+                                      label: "Follow Back",
+                                      variant: "primary",
+                                      icon: (
+                                          <UserPlus size={14} color="#FFFFFF" />
+                                      ),
+                                      onPress: () => onFollow(item.userID)
+                                  }
+                                : undefined
+                        }
+                    />
+                )
+            }}
             ItemSeparatorComponent={() => <View className="h-3" />}
             contentContainerClassName="px-6 py-4"
             refreshControl={
@@ -432,12 +474,38 @@ function DiscoverTab({
         )
     }
 
+    const getReasoningText = (reasoning?: string) => {
+        switch (reasoning) {
+            case "SHARED_BURROW":
+                return "In a Burrow together"
+            case "FRIEND_FOLLOWS":
+                return "Followed by a friend"
+            case "THEY_FOLLOW":
+                return "Follows you"
+            case "SHARED_FRIEND":
+                return "Mutual friends"
+            default:
+                return undefined
+        }
+    }
+
     return (
         <FlatList
             data={users}
             keyExtractor={(item) => item.userID}
             renderItem={({ item }) => (
-                <UserCard user={item} onFollow={onFollow} />
+                <UserCard
+                    userID={item.userID}
+                    name={item.name}
+                    username={item.username}
+                    subtitle={getReasoningText(item.reasoning)}
+                    action={{
+                        label: "Follow",
+                        variant: "primary",
+                        icon: <UserPlus size={14} color="#FFFFFF" />,
+                        onPress: () => onFollow(item.userID)
+                    }}
+                />
             )}
             ItemSeparatorComponent={() => <View className="h-3" />}
             contentContainerClassName="px-6 py-4"
@@ -451,174 +519,75 @@ function DiscoverTab({
     )
 }
 
-function FriendCard({
-    user,
-    onUnfollow
-}: {
-    user: Relation
-    onUnfollow: (userId: string) => void
-}) {
-    return (
-        <Card variant="bordered">
-            <View className="flex-row items-center">
-                <View className="mr-3">
-                    <ProfilePicture
-                        name={user.name || user.username}
-                        userID={user.userID}
-                        size="md"
-                    />
-                </View>
-                <View className="flex-1">
-                    <Text className="text-text font-semibold">
-                        {user.name || user.username}
-                    </Text>
-                    <Text className="text-text text-opacity-60 text-sm">
-                        @{user.username}
-                    </Text>
-                </View>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    leftIcon={<UserMinus size={14} color="#666" />}
-                    onPress={() => onUnfollow(user.userID)}
-                >
-                    Unfriend
-                </Button>
-            </View>
-        </Card>
-    )
-}
-
-function FollowingCard({
-    user,
-    onUnfollow
-}: {
-    user: Relation
-    onUnfollow: (userId: string) => void
-}) {
-    return (
-        <Card variant="bordered">
-            <View className="flex-row items-center">
-                <View className="mr-3">
-                    <ProfilePicture
-                        name={user.name || user.username}
-                        userID={user.userID}
-                        size="md"
-                    />
-                </View>
-                <View className="flex-1">
-                    <Text className="text-text font-semibold">
-                        {user.name || user.username}
-                    </Text>
-                    <Text className="text-text text-opacity-60 text-sm">
-                        @{user.username}
-                    </Text>
-                </View>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    leftIcon={<UserMinus size={14} color="#666" />}
-                    onPress={() => onUnfollow(user.userID)}
-                >
-                    Unfollow
-                </Button>
-            </View>
-        </Card>
-    )
-}
-
-function FollowerCard({
-    user,
-    onFollow
-}: {
-    user: Relation
-    onFollow: (userId: string) => void
-}) {
-    const isFollowingBack = !!user.youFollowedAt
-
-    return (
-        <Card variant="bordered">
-            <View className="flex-row items-center">
-                <View className="mr-3">
-                    <ProfilePicture
-                        name={user.name || user.username}
-                        userID={user.userID}
-                        size="md"
-                    />
-                </View>
-                <View className="flex-1">
-                    <Text className="text-text font-semibold">
-                        {user.name || user.username}
-                    </Text>
-                    <Text className="text-text text-opacity-60 text-sm">
-                        @{user.username}
-                    </Text>
-                    {isFollowingBack && (
-                        <Text className="text-success text-xs mt-0.5">
-                            Following each other
-                        </Text>
-                    )}
-                </View>
-                {!isFollowingBack && (
-                    <Button
-                        variant="primary"
-                        size="sm"
-                        leftIcon={<UserPlus size={14} color="#FFFFFF" />}
-                        onPress={() => onFollow(user.userID)}
-                    >
-                        Follow Back
-                    </Button>
-                )}
-            </View>
-        </Card>
-    )
+type UserCardAction = {
+    label: string
+    variant: "primary" | "outline"
+    icon: React.ReactNode
+    onPress: () => void
 }
 
 function UserCard({
-    user,
-    onFollow
+    userID,
+    name,
+    username,
+    subtitle,
+    action
 }: {
-    user: DiscoveredUser
-    onFollow: (userId: string) => void
+    userID: string
+    name?: string | null
+    username: string
+    subtitle?: string
+    action?: UserCardAction
 }) {
+    const router = useRouter()
+    const colors = useThemeColors()
+
     return (
-        <Card variant="bordered">
-            <View className="flex-row items-center">
-                <View className="mr-3">
-                    <ProfilePicture
-                        name={user.name || user.username}
-                        userID={user.userID}
-                        size="md"
-                    />
-                </View>
-                <View className="flex-1">
-                    <Text className="text-text font-semibold">
-                        {user.name || user.username}
-                    </Text>
-                    <Text className="text-text text-opacity-60 text-sm">
-                        @{user.username}
-                    </Text>
-                    {user.reasoning && (
-                        <Text className="text-text text-opacity-60 text-xs mt-1">
-                            {user.reasoning === "SHARED_BURROW" &&
-                                "In a burrow together"}
-                            {user.reasoning === "FRIEND_FOLLOWS" &&
-                                "Followed by a friend"}
-                            {user.reasoning === "THEY_FOLLOW" && "Follows you"}
-                            {user.reasoning === "SHARED_FRIEND" &&
-                                "Mutual friends"}
+        <Pressable onPress={() => router.push(`/user/${username}`)}>
+            <Card variant="bordered">
+                <View className="flex-row items-center">
+                    <View className="mr-3">
+                        <ProfilePicture
+                            name={name || username}
+                            userID={userID}
+                            size="md"
+                        />
+                    </View>
+
+                    <View className="flex-1">
+                        <Text className="text-text font-semibold">
+                            {name || username}
                         </Text>
+                        <Text className="text-text text-opacity-60 text-sm">
+                            @{username}
+                        </Text>
+                        {subtitle && (
+                            <Text className="text-text text-opacity-50 text-xs mt-0.5">
+                                {subtitle}
+                            </Text>
+                        )}
+                    </View>
+                    {action ? (
+                        <Button
+                            variant={action.variant}
+                            size="sm"
+                            leftIcon={action.icon}
+                            onPress={(e) => {
+                                e.stopPropagation()
+                                action.onPress()
+                            }}
+                        >
+                            {action.label}
+                        </Button>
+                    ) : (
+                        <ChevronRight
+                            size={20}
+                            color={colors.text}
+                            style={{ opacity: 0.4 }}
+                        />
                     )}
                 </View>
-                <Button
-                    variant="primary"
-                    size="sm"
-                    leftIcon={<UserPlus size={16} color="#FFFFFF" />}
-                    onPress={() => onFollow(user.userID)}
-                >
-                    Follow
-                </Button>
-            </View>
-        </Card>
+            </Card>
+        </Pressable>
     )
 }

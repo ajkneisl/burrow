@@ -1,9 +1,15 @@
-import { View, Text, ActivityIndicator } from "react-native"
-import { Calendar } from "lucide-react-native"
+import { View, Text, ActivityIndicator, Pressable } from "react-native"
+import { Calendar, ChevronDown } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import type { ScheduleBurrowResponse } from "@features/burrows/burrows.types"
 import { dayLabel } from "@api/util"
 import { ScheduleCard } from "./ScheduleCard"
+import { useMemo, useState, useEffect } from "react"
+import Animated, {
+    useAnimatedStyle,
+    withTiming,
+    useSharedValue
+} from "react-native-reanimated"
 
 /**
  * {@see ScheduleSection}
@@ -21,12 +27,37 @@ type ScheduleSectionProps = {
  *
  * @author AJ Kneisl
  */
-export function ScheduleSection({ schedule, isLoading }: ScheduleSectionProps) {
+export function ScheduleSection({
+    schedule,
+    isLoading
+}: ScheduleSectionProps) {
     const colors = useThemeColors()
+    const [projectsExpanded, setProjectsExpanded] = useState(true)
+    const rotation = useSharedValue(0)
+    const height = useSharedValue(1)
+    const opacity = useSharedValue(1)
 
-    // group schedule by day
-    const groupedSchedule =
-        schedule?.reduce(
+    const { projects, scheduledBurrows } = useMemo(() => {
+        if (!schedule) return { projects: [], scheduledBurrows: [] }
+
+        const projects: ScheduleBurrowResponse[] = []
+        const scheduledBurrows: ScheduleBurrowResponse[] = []
+
+        schedule.forEach((item) => {
+            if (item.burrow.beginningTime === 0) {
+                projects.push(item)
+            } else {
+                scheduledBurrows.push(item)
+            }
+        })
+
+        projects.sort((a, b) => a.burrow.endTime - b.burrow.endTime)
+
+        return { projects, scheduledBurrows }
+    }, [schedule])
+
+    const groupedSchedule = useMemo(() => {
+        return scheduledBurrows.reduce(
             (acc, item) => {
                 const day = dayLabel(item.burrow.beginningTime)
                 if (!acc[day]) acc[day] = []
@@ -34,14 +65,50 @@ export function ScheduleSection({ schedule, isLoading }: ScheduleSectionProps) {
                 return acc
             },
             {} as Record<string, ScheduleBurrowResponse[]>
-        ) || {}
+        )
+    }, [scheduledBurrows])
 
-    // get day keys
-    const sortedDays = Object.keys(groupedSchedule).sort((a, b) => {
-        const aItem = groupedSchedule[a][0]
-        const bItem = groupedSchedule[b][0]
-        return aItem.burrow.beginningTime - bItem.burrow.beginningTime
-    })
+    const sortedDays = useMemo(() => {
+        return Object.keys(groupedSchedule).sort((a, b) => {
+            const aItem = groupedSchedule[a][0]
+            const bItem = groupedSchedule[b][0]
+            return aItem.burrow.beginningTime - bItem.burrow.beginningTime
+        })
+    }, [groupedSchedule])
+
+    useEffect(() => {
+        if (projects.length > 3) {
+            setProjectsExpanded(false)
+            rotation.value = -90
+            height.value = 0
+            opacity.value = 0
+        }
+    }, [projects.length, rotation, height, opacity])
+
+    useEffect(() => {
+        rotation.value = withTiming(projectsExpanded ? 0 : -90, {
+            duration: 200
+        })
+        height.value = withTiming(projectsExpanded ? 1 : 0, {
+            duration: 250
+        })
+        opacity.value = withTiming(projectsExpanded ? 1 : 0, {
+            duration: 200
+        })
+    }, [projectsExpanded, rotation, height, opacity])
+
+    const chevronStyle = useAnimatedStyle(() => ({
+        transform: [{ rotate: `${rotation.value}deg` }]
+    }))
+
+    const contentStyle = useAnimatedStyle(() => ({
+        opacity: opacity.value,
+        overflow: "hidden" as const,
+        maxHeight: height.value * 1000,
+        marginTop: height.value * 8
+    }))
+
+    const hasContent = sortedDays.length > 0 || projects.length > 0
 
     if (isLoading) {
         return (
@@ -56,7 +123,7 @@ export function ScheduleSection({ schedule, isLoading }: ScheduleSectionProps) {
         )
     }
 
-    if (sortedDays.length === 0) {
+    if (!hasContent) {
         return (
             <View className="mb-6">
                 <View className="items-center py-8">
@@ -76,10 +143,41 @@ export function ScheduleSection({ schedule, isLoading }: ScheduleSectionProps) {
 
     return (
         <View className="mb-6">
-            <View className="space-y-4">
+            <View className="gap-4">
+                {/* Projects Section */}
+                {projects.length > 0 && (
+                    <View className="mb-4">
+                        <Pressable
+                            onPress={() => setProjectsExpanded(!projectsExpanded)}
+                            className="flex-row items-center gap-2 mb-2"
+                        >
+                            <Animated.View style={chevronStyle}>
+                                <ChevronDown
+                                    size={16}
+                                    color={colors.text}
+                                    style={{ opacity: 0.6 }}
+                                />
+                            </Animated.View>
+                            <Text className="text-sm font-semibold text-text text-opacity-60 uppercase">
+                                Projects ({projects.length})
+                            </Text>
+                        </Pressable>
+
+                        <Animated.View style={contentStyle}>
+                            {projects.map((item) => (
+                                <ScheduleCard
+                                    key={item.burrow.id}
+                                    item={item}
+                                />
+                            ))}
+                        </Animated.View>
+                    </View>
+                )}
+
+                {/* Scheduled Burrows by Day */}
                 {sortedDays.map((day) => (
                     <View key={day} className="mb-4">
-                        <Text className="text-sm font-semibold text-text text-opacity-80 mb-2">
+                        <Text className="text-sm font-semibold text-text text-opacity-60 mb-2 uppercase">
                             {day}
                         </Text>
                         {groupedSchedule[day]

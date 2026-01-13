@@ -87,12 +87,12 @@ export default function SignInScreen() {
 
                     {/* notice for students */}
                     <View className="bg-red-500/30 border border-red-800/30 border-opacity-10 rounded-lg p-4">
-                        <Text className="text-warn font-semibold mb-2">
+                        <Text className="text-text font-semibold mb-2">
                             Note
                         </Text>
 
                         <Text className="text-text text-opacity-80 text-sm">
-                            If you're a UMN student, please use the{" "}
+                            If you're a student, please use the{" "}
                             <Text className="font-semibold">
                                 "Sign in with Google"
                             </Text>{" "}

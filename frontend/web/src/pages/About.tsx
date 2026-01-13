@@ -16,14 +16,14 @@ const faqItems: {
                 You can find a study group by searching on the{" "}
                 <Link
                     to="/"
-                    className="font-medium text-secondary hover:underline"
+                    className="text-secondary font-medium hover:underline"
                 >
                     home page
                 </Link>
                 . You can also{" "}
                 <Link
                     to="/browse"
-                    className="font-medium text-secondary hover:underline"
+                    className="text-secondary font-medium hover:underline"
                 >
                     browse all burrows
                 </Link>{" "}
@@ -119,7 +119,7 @@ const faqItems: {
                 Press the menu in the top right of the site, and press "Give
                 Feedback". Here, you can tell us anything, including problems
                 with a user, Burrow, or the website itself. If further
-                discussion is required, we will email you and contintue the
+                discussion is required, we will email you and continue the
                 conversation.
             </>
         )
@@ -162,7 +162,7 @@ const teamMembers = [
 ]
 
 /**
- * About page.
+ * AboutView page.
  *
  * @author AJ Kneisl, Yordanos Eshete
  */
@@ -182,14 +182,14 @@ export default function About() {
                         Burrow
                     </h1>
                     <p className="max-w-2xl text-lg font-medium text-white/90 drop-shadow-lg sm:text-xl">
-                        Connecting students, one burrow at a time
+                        Connect with classmates, join study sessions, and ace your courses together. All in one place.
                     </p>
                 </div>
             </section>
 
             {/* mission */}
             <section className="mb-24">
-                <div className="bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/5 rounded-3xl p-8 sm:p-12">
+                <div className="from-primary/5 via-secondary/5 to-primary/5 rounded-3xl bg-gradient-to-br p-8 sm:p-12">
                     <div className="mx-auto max-w-3xl text-center">
                         <h2 className="text-text mb-6 text-3xl font-bold sm:text-4xl">
                             Our Mission
@@ -266,7 +266,7 @@ export default function About() {
                                         alt={member.name}
                                         className="ring-card-border h-full w-full rounded-full object-cover ring-2"
                                     />
-                                    <div className="bg-primary absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full opacity-0 shadow-lg transition-all duration-300 group-hover:opacity-100">
+                                    <div className="bg-primary absolute -right-1 -bottom-1 flex h-7 w-7 items-center justify-center rounded-full opacity-0 shadow-lg transition-all duration-300 group-hover:opacity-100">
                                         <ExternalLink className="h-3.5 w-3.5 text-white" />
                                     </div>
                                 </div>

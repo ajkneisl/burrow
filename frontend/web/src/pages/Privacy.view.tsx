@@ -1,3 +1,8 @@
+/**
+ * The Privacy Policy
+ *
+ * @author AJ Kneisl
+ */
 export default function Privacy() {
     return (
         <main className="bg-background text-text min-h-screen">

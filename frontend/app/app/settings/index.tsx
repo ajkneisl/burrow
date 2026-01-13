@@ -70,9 +70,7 @@ export default function SettingsScreen() {
                         icon={<User size={20} color={colors.primary} />}
                         label="Edit Profile"
                         subtitle={user ? `@${user.username}` : ""}
-                        onPress={() => {
-                            // TODO: Navigate to edit profile
-                        }}
+                        onPress={() => router.push("/settings/profile")}
                         colors={colors}
                     />
                 </Card>
@@ -147,15 +145,15 @@ export default function SettingsScreen() {
 
                 <View className="h-3" />
 
-                {/* About Section */}
+                {/* AboutView Section */}
                 <Text className="text-sm font-semibold text-text text-opacity-50 mb-3 uppercase">
-                    About
+                    AboutView
                 </Text>
 
                 <Card variant="bordered" className="mb-6">
                     <SettingItem
                         icon={<Info size={20} color={colors.primary} />}
-                        label="About Burrow"
+                        label="AboutView Burrow"
                         subtitle="Version 0.4.0"
                         onPress={() => {
                             router.push("/settings/about")

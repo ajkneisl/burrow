@@ -15,6 +15,7 @@ import { formatDateTime } from "@api/util"
 type UpcomingBurrowCardProps = {
     burrowResponse: BurrowResponse
     verbose?: boolean
+    actionBadge?: React.ReactNode
 }
 
 /**
@@ -27,7 +28,8 @@ type UpcomingBurrowCardProps = {
  */
 export function UpcomingBurrowCard({
     burrowResponse,
-    verbose = false
+    verbose = false,
+    actionBadge
 }: UpcomingBurrowCardProps) {
     const router = useRouter()
     const colors = useThemeColors()
@@ -110,6 +112,9 @@ export function UpcomingBurrowCard({
                     </View>
 
                     <View className="flex-row items-center gap-2">
+                        {/* action badge */}
+                        {actionBadge}
+
                         {/*bookmarked*/}
                         {bookmarked && (
                             <View

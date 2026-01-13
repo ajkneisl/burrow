@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from "react-native"
 import { useRouter } from "expo-router"
-import { Settings } from "lucide-react-native"
+import { Settings, History } from "lucide-react-native"
 import { Card } from "@components/core"
 import { ProfilePicture } from "@components/profile/ProfilePicture"
 import useUser from "@features/auth/hooks/useUser"
@@ -68,6 +68,14 @@ export function MyProfileCard() {
                         )}
                     </View>
                 </View>
+
+                {/* history */}
+                <Pressable
+                    onPress={() => router.push("/history")}
+                    className="p-2"
+                >
+                    <History size={24} color={colors.text} />
+                </Pressable>
 
                 {/* settings */}
                 <Pressable

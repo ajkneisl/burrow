@@ -1,18 +1,17 @@
 import { useMemo, useState, useCallback } from "react"
 import { View, Text, SectionList, RefreshControl, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { useQuery } from "@tanstack/react-query"
+import { ArrowLeft, Calendar, RotateCcw } from "lucide-react-native"
 import { useRouter } from "expo-router"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { Calendar, RotateCcw } from "lucide-react-native"
-import { getUserHistory, createBurrow } from "@features/burrows/burrows.api"
-import { BurrowCard } from "@features/burrows/components/BurrowCard"
+import { getUserHistory } from "@features/burrows/burrows.api"
+import { UpcomingBurrowCard } from "@features/home/components/UpcomingBurrowCard"
 import { Header } from "@features/layout/components"
 import { humanDateLabel } from "@api/util"
 import type { BurrowResponse } from "@features/burrows/burrows.types"
 import { Modal } from "@components/core"
 import { CreateBurrowWizard } from "@features/burrows/create/CreateBurrowWizard"
 import type { SubmittedBurrowFormState } from "@features/burrows/create/create.types"
-import Toast from "react-native-toast-message"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**
@@ -20,9 +19,8 @@ import { useThemeColors } from "@api/theme/useThemeColors"
  */
 export default function HistoryScreen() {
     const router = useRouter()
-    const queryClient = useQueryClient()
     const colors = useThemeColors()
-    const [currentPage, setCurrentPage] = useState(1)
+    const [currentPage] = useState(1)
     const [recreateModalOpen, setRecreateModalOpen] = useState(false)
     const [selectedBurrow, setSelectedBurrow] = useState<BurrowResponse | null>(
         null
@@ -102,34 +100,6 @@ export default function HistoryScreen() {
         []
     )
 
-    // Recreation mutation
-    const recreateMutation = useMutation({
-        mutationFn: createBurrow,
-        onSuccess: (data) => {
-            void queryClient.invalidateQueries({ queryKey: ["burrows"] })
-            void queryClient.invalidateQueries({ queryKey: ["schedule"] })
-
-            Toast.show({
-                type: "success",
-                text1: "Burrow recreated!",
-                text2: "Opening the new burrow..."
-            })
-
-            setRecreateModalOpen(false)
-            setSelectedBurrow(null)
-
-            // Navigate to the new burrow
-            router.push(`/burrow/${data.id}`)
-        },
-        onError: (error: any) => {
-            Toast.show({
-                type: "error",
-                text1: "Failed to recreate burrow",
-                text2: error.message || "Please try again"
-            })
-        }
-    })
-
     const handleRecreate = useCallback((burrowResponse: BurrowResponse) => {
         setSelectedBurrow(burrowResponse)
         setRecreateModalOpen(true)
@@ -144,7 +114,7 @@ export default function HistoryScreen() {
             <Text className="text-base font-semibold text-text">
                 {section.title}
             </Text>
-            <View className="flex-1 h-px bg-card-border dark:bg-card-border" />
+            <View className="flex-1 h-px bg-card-border" />
         </View>
     )
 
@@ -154,27 +124,31 @@ export default function HistoryScreen() {
         const canRecreate = isPast && burrow.kind !== "PROJECT"
 
         return (
-            <View className="mb-3">
-                <BurrowCard burrow={burrow} />
-                {canRecreate && (
-                    <Pressable
-                        onPress={() => handleRecreate(item)}
-                        className="absolute top-4 right-4 bg-secondary bg-opacity-10 rounded-full px-3 py-1.5 flex-row items-center gap-1.5 border border-secondary border-opacity-30"
-                        style={{
-                            shadowColor: "#000",
-                            shadowOffset: { width: 0, height: 1 },
-                            shadowOpacity: 0.1,
-                            shadowRadius: 2,
-                            elevation: 2
-                        }}
-                    >
-                        <RotateCcw size={14} color={colors.secondary} />
-                        <Text className="text-secondary text-xs font-semibold">
-                            Recreate
-                        </Text>
-                    </Pressable>
-                )}
-            </View>
+            <UpcomingBurrowCard
+                burrowResponse={item}
+                verbose
+                actionBadge={
+                    canRecreate ? (
+                        <Pressable
+                            onPress={() => handleRecreate(item)}
+                            className="rounded-full px-3 py-1.5 flex-row items-center gap-1.5 active:opacity-70"
+                            style={{
+                                backgroundColor: `${colors.secondary}1A`,
+                                borderWidth: 1,
+                                borderColor: colors.secondary
+                            }}
+                        >
+                            <RotateCcw size={12} color={colors.secondary} />
+                            <Text
+                                className="text-xs font-bold"
+                                style={{ color: colors.secondary }}
+                            >
+                                Recreate
+                            </Text>
+                        </Pressable>
+                    ) : undefined
+                }
+            />
         )
     }
 
@@ -189,22 +163,22 @@ export default function HistoryScreen() {
     )
 
     const renderLoading = () => (
-        <View className="px-6 space-y-3">
+        <View className="px-6 gap-3">
             {Array.from({ length: 5 }).map((_, i) => (
                 <View
                     key={i}
                     className="bg-card border border-card-border rounded-xl p-4"
                 >
                     <View className="flex-row items-start justify-between gap-4">
-                        <View className="flex-1 space-y-2">
-                            <View className="bg-card dark:bg-card h-5 w-48 rounded opacity-50" />
-                            <View className="bg-card dark:bg-card h-3 w-32 rounded opacity-50" />
-                            <View className="mt-2 space-y-1.5">
-                                <View className="bg-card dark:bg-card h-3 w-full rounded opacity-50" />
-                                <View className="bg-card dark:bg-card h-3 w-3/4 rounded opacity-50" />
+                        <View className="flex-1 gap-2">
+                            <View className="bg-text/10 h-5 w-48 rounded" />
+                            <View className="bg-text/10 h-3 w-32 rounded" />
+                            <View className="mt-2 gap-1.5">
+                                <View className="bg-text/10 h-3 w-full rounded" />
+                                <View className="bg-text/10 h-3 w-3/4 rounded" />
                             </View>
                         </View>
-                        <View className="bg-card dark:bg-card h-10 w-10 rounded-full opacity-50" />
+                        <View className="bg-text/10 h-10 w-10 rounded-full" />
                     </View>
                 </View>
             ))}
@@ -214,7 +188,15 @@ export default function HistoryScreen() {
     if (isError) {
         return (
             <SafeAreaView className="flex-1 bg-background">
-                <Header title="History" showSearch={false} />
+                <Header
+                    title="History"
+                    showSearch={false}
+                    leftAction={
+                        <Pressable onPress={() => router.back()} className="p-2 -ml-2">
+                            <ArrowLeft size={24} color={colors.text} />
+                        </Pressable>
+                    }
+                />
                 <View className="flex-1 items-center justify-center px-6">
                     <Text className="text-error text-base font-medium">
                         Failed to load history
@@ -229,11 +211,19 @@ export default function HistoryScreen() {
 
     return (
         <SafeAreaView className="flex-1 bg-background">
-            <Header title="History" showSearch={false} />
+            <Header
+                title="History"
+                showSearch={false}
+                leftAction={
+                    <Pressable onPress={() => router.back()} className="p-2 -ml-2">
+                        <ArrowLeft size={24} color={colors.text} />
+                    </Pressable>
+                }
+            />
 
             <View className="px-6 pt-4 pb-2">
                 <Text className="text-text text-opacity-60 text-sm">
-                    View your Burrows and past activity
+                    View your current and past Burrows
                 </Text>
             </View>
 

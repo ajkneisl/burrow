@@ -261,7 +261,7 @@ type AboutProps = {
  *
  * @param profile The profile of the user.
  */
-export default function About({ profile }: AboutProps) {
+export default function AboutView({ profile }: AboutProps) {
     const [isEditing] = useAtom(isEditingProfile)
     const [edits, setEdits] = useAtom(profileEdits)
 
@@ -464,7 +464,7 @@ export default function About({ profile }: AboutProps) {
     )
 
     return (
-        <Card title="About" className="lg:min-w-lg">
+        <Card title="AboutView" className="lg:min-w-lg">
             {isEditing ? editView : normalView}
         </Card>
     )

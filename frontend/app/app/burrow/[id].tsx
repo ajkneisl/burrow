@@ -25,7 +25,8 @@ import {
     Trash2,
     Settings,
     UserPlus,
-    ListChecks
+    ListChecks,
+    X
 } from "lucide-react-native"
 import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { Button, Card, Modal } from "@components/core"
@@ -37,6 +38,7 @@ import {
     getAttendees,
     deleteMeeting
 } from "@features/burrows/burrows.api"
+import { cancelJoinRequest } from "@features/burrows/attendees/attendees.api"
 import useUser from "@features/auth/hooks/useUser"
 import Toast from "react-native-toast-message"
 import { BurrowChat } from "@features/chat/components/BurrowChat"
@@ -142,6 +144,27 @@ export default function BurrowDetailScreen() {
         }
     })
 
+    // cancel join request mutation
+    const cancelRequestMutation = useMutation({
+        mutationFn: async () => await cancelJoinRequest(id!),
+
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ["burrow", id] })
+            Toast.show({
+                type: "success",
+                text1: "Request cancelled"
+            })
+        },
+
+        onError: (error: any) => {
+            Toast.show({
+                type: "error",
+                text1: "Failed to cancel request",
+                text2: error.message || "Please try again"
+            })
+        }
+    })
+
     // delete burrow mutation
     const deleteMutation = useMutation({
         mutationFn: async () => await deleteMeeting(id!),
@@ -241,8 +264,9 @@ export default function BurrowDetailScreen() {
             <SafeAreaView className="flex-1 bg-background">
                 <View className="flex-1 items-center justify-center px-6">
                     <Text className="text-text text-opacity-60 text-lg mb-4">
-                        Failed to load burrow
+                        Failed to load Burrow
                     </Text>
+
                     <Button onPress={() => router.back()}>Go Back</Button>
                 </View>
             </SafeAreaView>
@@ -300,7 +324,7 @@ export default function BurrowDetailScreen() {
                                 This{" "}
                                 {isProject
                                     ? "project is past due"
-                                    : "burrow has ended"}
+                                    : "Burrow has ended"}
                             </Text>
                         </View>
                     )}
@@ -465,29 +489,55 @@ export default function BurrowDetailScreen() {
 
                     {/* Project Status Badge */}
                     {isProject && (
-                        <Card
-                            variant="bordered"
-                            className={`${
-                                isPast
-                                    ? "bg-error bg-opacity-10 border-error border-opacity-30"
-                                    : "bg-success bg-opacity-10 border-success border-opacity-30"
-                            }`}
+                        <View
+                            className="rounded-2xl p-4"
+                            style={{
+                                backgroundColor: isPast
+                                    ? `${colors.error}15`
+                                    : `${colors.success}15`,
+                                borderWidth: 1,
+                                borderColor: isPast
+                                    ? `${colors.error}30`
+                                    : `${colors.success}30`
+                            }}
                         >
                             <View className="flex-row items-center justify-between">
-                                <Text
-                                    className={`font-semibold ${
-                                        isPast ? "text-error" : "text-success"
-                                    }`}
-                                >
-                                    {isPast ? "Overdue" : "In Progress"}
-                                </Text>
-                                {isPast && (
-                                    <Text className="text-text text-opacity-60 text-sm">
-                                        Due {dayLabel(burrow.endTime)}
-                                    </Text>
-                                )}
+                                <View className="flex-row items-center gap-3">
+                                    <View
+                                        className="rounded-full p-2"
+                                        style={{
+                                            backgroundColor: isPast
+                                                ? `${colors.error}25`
+                                                : `${colors.success}25`
+                                        }}
+                                    >
+                                        <Clock
+                                            size={18}
+                                            color={isPast ? colors.error : colors.success}
+                                        />
+                                    </View>
+
+                                    <View>
+                                        <Text
+                                            className="font-bold text-base"
+                                            style={{
+                                                color: isPast
+                                                    ? colors.error
+                                                    : colors.success
+                                            }}
+                                        >
+                                            {isPast ? "Overdue" : "In Progress"}
+                                        </Text>
+
+                                        {isPast && (
+                                            <Text className="text-text text-opacity-70 text-sm">
+                                                Due {dayLabel(burrow.endTime)}
+                                            </Text>
+                                        )}
+                                    </View>
+                                </View>
                             </View>
-                        </Card>
+                        </View>
                     )}
 
                     {/* Details Card */}
@@ -696,26 +746,71 @@ export default function BurrowDetailScreen() {
                         )}
 
                     {/* Request to Join Notice */}
-                    {!isMember && burrow.requestToJoin && (
-                        <Card variant="bordered" className="bg-info/5">
-                            <View className="flex-row items-start">
-                                <BookOpen
-                                    size={20}
-                                    color={colors.primary}
-                                    className="mt-0.5 mr-3"
-                                />
+                    {!isMember && burrow.requestToJoin && !data?.requestedToJoin && (
+                        <View
+                            className="rounded-2xl p-4"
+                            style={{
+                                backgroundColor: `${colors.info}15`,
+                                borderWidth: 1,
+                                borderColor: `${colors.info}30`
+                            }}
+                        >
+                            <View className="flex-row items-center gap-3">
+                                <View
+                                    className="rounded-full p-2.5"
+                                    style={{ backgroundColor: `${colors.info}25` }}
+                                >
+                                    <BookOpen size={20} color={colors.info} />
+                                </View>
+
                                 <View className="flex-1">
-                                    <Text className="text-text font-semibold mb-1">
+                                    <Text
+                                        className="font-bold text-base mb-0.5"
+                                        style={{ color: colors.info }}
+                                    >
                                         Request to Join
                                     </Text>
-                                    <Text className="text-text text-opacity-60 text-sm">
-                                        This burrow requires approval to join.
-                                        Your request will be reviewed by the
-                                        host.
+
+                                    <Text className="text-text text-opacity-70 text-sm">
+                                        Approval required from the host.
                                     </Text>
                                 </View>
                             </View>
-                        </Card>
+                        </View>
+                    )}
+
+                    {/* Pending Request Notice */}
+                    {!isMember && data?.requestedToJoin && (
+                        <View
+                            className="rounded-2xl p-4"
+                            style={{
+                                backgroundColor: `${colors.warn}15`,
+                                borderWidth: 1,
+                                borderColor: `${colors.warn}30`
+                            }}
+                        >
+                            <View className="flex-row items-center gap-3">
+                                <View
+                                    className="rounded-full p-2.5"
+                                    style={{ backgroundColor: `${colors.warn}25` }}
+                                >
+                                    <Clock size={20} color={colors.warn} />
+                                </View>
+
+                                <View className="flex-1">
+                                    <Text
+                                        className="font-bold text-base mb-0.5"
+                                        style={{ color: colors.warn }}
+                                    >
+                                        Request Pending
+                                    </Text>
+
+                                    <Text className="text-text text-opacity-70 text-sm">
+                                        Waiting for approval from the host.
+                                    </Text>
+                                </View>
+                            </View>
+                        </View>
                     )}
 
                     {/* Spacer for bottom button */}
@@ -736,6 +831,19 @@ export default function BurrowDetailScreen() {
                             loading={leaveMutation.isPending}
                         >
                             {isProject ? "Leave Project" : "Leave Burrow"}
+                        </Button>
+                    ) : !isMember && data?.requestedToJoin ? (
+                        <Button
+                            variant="outline"
+                            size="lg"
+                            fullWidth
+                            leftIcon={<X size={18} color={colors.error} />}
+                            onPress={() => cancelRequestMutation.mutate()}
+                            loading={cancelRequestMutation.isPending}
+                        >
+                            <Text style={{ color: colors.error }}>
+                                Cancel Request
+                            </Text>
                         </Button>
                     ) : !isMember ? (
                         <Button

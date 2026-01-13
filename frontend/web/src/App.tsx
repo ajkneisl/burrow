@@ -1,4 +1,4 @@
-import HomeView from "@pages/Home.view.tsx"
+import Home from "@pages/Home.view.tsx"
 import StandardBurrow from "@pages/burrows/StandardBurrow.view.tsx"
 import ProjectBurrow from "@pages/burrows/ProjectBurrow.view.tsx"
 import Browse from "@pages/burrows/Browse.view.tsx"
@@ -23,7 +23,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { store } from "@api/api.atom.ts"
 import { authToken } from "@features/auth/auth.atom.ts"
 import { APIProvider } from "@vis.gl/react-google-maps"
-import MapView from "@pages/Map.view.tsx";
+import MapView from "@pages/Map.view.tsx"
+import Delete from "@pages/Delete.view.tsx"
 
 /**
  * This defines all routes in Burrow.
@@ -34,9 +35,10 @@ const router = createBrowserRouter([
         element: <RootLayout />,
         errorElement: <ErrorElement />,
         children: [
-            { index: true, element: <HomeView /> },
+            { index: true, element: <Home /> },
             { path: "about", element: <About /> },
             { path: "yord", element: <Yordanos /> },
+            { path: "delete", element: <Delete /> },
             { path: "welcome", element: <LandingView /> },
             { path: "browse", element: <Browse /> },
             { path: "friends", element: <Friends /> },
