@@ -34,7 +34,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         }
     },
     android: {
-        package: "",
+        package: "app.umn.burrow",
         adaptiveIcon: {
             backgroundColor: "#7A0019",
             foregroundImage: "./assets/images/android-icon-foreground.png",
@@ -66,8 +66,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         ],
         config: {
             googleMaps: {
-                apiKey:
-                    process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY_ANDROID || ""
+                apiKey: "AIzaSyB4R5ZLFEx7Qs822dlJ9GoZud2pDw5RjTk"
             }
         }
     },

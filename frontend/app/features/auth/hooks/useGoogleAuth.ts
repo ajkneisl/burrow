@@ -28,6 +28,7 @@ export function useGoogleAuth() {
     const [request, response, promptAsync] = Google.useAuthRequest({
         iosClientId:
             "808386876282-51cc5ue6pkbplbhtbugko3hhhometbq4.apps.googleusercontent.com",
+        androidClientId: "808386876282-kcf8lq37gn0q6o5mrha6krcf5vlf2uru.apps.googleusercontent.com",
         scopes: ["profile", "email"],
         redirectUri: makeRedirectUri({
             scheme: "com.googleusercontent.apps.808386876282-51cc5ue6pkbplbhtbugko3hhhometbq4"

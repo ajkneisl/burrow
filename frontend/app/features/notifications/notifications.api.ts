@@ -39,19 +39,28 @@ export async function toggleReadNotification(id: string): Promise<void> {
 }
 
 /**
- * Subscribe to push notifications with Expo Push Token.
+ * Get mobile push notification subscription status.
  *
- * @param token The Expo push token from the device.
+ * @returns Whether the user has any mobile push subscriptions.
  */
-export async function subscribeToPushMobile(token: string): Promise<void> {
-    return await post("/notifications/push/expo/subscribe", { token })
+export async function getMobileSubscriptionStatus(): Promise<{ subscribed: boolean }> {
+    return await get("/notifications/mobile/status")
 }
 
 /**
- * Unsubscribe from push notifications.
+ * Subscribe to mobile push notifications with Expo Push Token.
  *
- * @param token The Expo push token to unsubscribe.
+ * @param deviceToken The Expo push token from the device.
  */
-export async function unsubscribeFromPushMobile(token: string): Promise<void> {
-    return await post("/notifications/push/expo/unsubscribe", { token })
+export async function subscribeToPushMobile(deviceToken: string): Promise<void> {
+    return await post("/notifications/mobile/subscribe", { deviceToken })
+}
+
+/**
+ * Unsubscribe from mobile push notifications.
+ *
+ * @param deviceToken The Expo push token to unsubscribe.
+ */
+export async function unsubscribeFromPushMobile(): Promise<void> {
+    return await post("/notifications/mobile/unsubscribe")
 }

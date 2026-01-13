@@ -4,6 +4,7 @@ import * as Device from "expo-device"
 import * as Notifications from "expo-notifications"
 import { useRouter } from "expo-router"
 import {
+    getMobileSubscriptionStatus,
     subscribeToPushMobile,
     unsubscribeFromPushMobile
 } from "@features/notifications/notifications.api"
@@ -33,10 +34,48 @@ export function usePushNotifications() {
     const [permission, setPermission] = useState<
         "granted" | "denied" | "undetermined"
     >("undetermined")
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
 
-    const notificationListener = useRef<Notifications.Subscription>()
-    const responseListener = useRef<Notifications.Subscription>()
+    const notificationListener = useRef<Notifications.EventSubscription | null>(
+        null
+    )
+    const responseListener = useRef<Notifications.EventSubscription | null>(
+        null
+    )
+
+    /**
+     * Fetch subscription status from backend on mount.
+     */
+    useEffect(() => {
+        const fetchStatus = async () => {
+            try {
+                setIsLoading(true)
+                const { subscribed } = await getMobileSubscriptionStatus()
+                setIsSubscribed(subscribed)
+
+                // Also check permission status
+                const { status } = await Notifications.getPermissionsAsync()
+                setPermission(
+                    status === "granted"
+                        ? "granted"
+                        : status === "denied"
+                          ? "denied"
+                          : "undetermined"
+                )
+            } catch (error) {
+                console.error(
+                    "Error fetching mobile subscription status:",
+                    error
+                )
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        if (Device.isDevice) {
+            fetchStatus()
+        }
+    }, [])
 
     /**
      * Register for push notifications and get Expo Push Token.
@@ -115,9 +154,10 @@ export function usePushNotifications() {
             })
         } catch (error) {
             console.error("Error subscribing to push notifications:", error)
+
             Toast.show({
                 type: "error",
-                text1: "Failed to enable notifications"
+                text1: `Failed to enable notifications`
             })
         } finally {
             setIsLoading(false)
@@ -128,7 +168,7 @@ export function usePushNotifications() {
      * Unsubscribe from push notifications.
      */
     const unsubscribe = useCallback(async () => {
-        if (!expoPushToken) {
+        if (!isSubscribed) {
             Toast.show({
                 type: "info",
                 text1: "Not subscribed to notifications"
@@ -139,7 +179,8 @@ export function usePushNotifications() {
         setIsLoading(true)
 
         try {
-            await unsubscribeFromPushMobile(expoPushToken)
+            await unsubscribeFromPushMobile()
+
             setIsSubscribed(false)
             setExpoPushToken(undefined)
 
@@ -169,11 +210,7 @@ export function usePushNotifications() {
             })
 
         return () => {
-            if (notificationListener.current) {
-                // Notifications.removeNotificationSubscription(
-                //     notificationListener.current
-                // )
-            }
+            notificationListener.current?.remove()
         }
     }, [])
 
@@ -198,11 +235,7 @@ export function usePushNotifications() {
             )
 
         return () => {
-            if (responseListener.current) {
-                // Notifications.removeNotificationSubscription(
-                //     responseListener.current
-                // )
-            }
+            responseListener.current?.remove()
         }
     }, [router])
 

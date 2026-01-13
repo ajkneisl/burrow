@@ -23,7 +23,7 @@ export async function getNotificationPreferences(): Promise<
 export async function saveNotificationPreferences(
     preferences: NotificationPreferences[]
 ): Promise<void> {
-    await post("/settings/notifications", preferences)
+    await post("/settings/notifications", { preferences })
 }
 
 /**

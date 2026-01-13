@@ -11,14 +11,15 @@ import {
     disableChannel
 } from "@features/settings/settings.api"
 import {
-    PUSH_CHANNEL,
+    MOBILE_CHANNEL,
     EMAIL_CHANNEL,
     NotificationKind,
     type NotificationPreferences
 } from "@features/settings/settings.types"
-import { Bell, Mail, Smartphone, AlertCircle } from "lucide-react-native"
+import { Mail, Smartphone, AlertCircle } from "lucide-react-native"
 import { useState, useEffect } from "react"
 import Toast from "react-native-toast-message"
+import { usePushNotifications } from "@features/notifications/hooks/usePushNotifications"
 
 /**
  * Notification preferences component.
@@ -26,6 +27,7 @@ import Toast from "react-native-toast-message"
  */
 export function NotificationPreferencesComponent() {
     const colors = useThemeColors()
+    const { isSubscribed: isMobileEnabled } = usePushNotifications()
 
     const { data: preferences, isLoading, isError } = useNotificationPreferences()
     const saveMutation = useSaveNotificationPreferences()
@@ -48,9 +50,9 @@ export function NotificationPreferencesComponent() {
         const updated = localPreferences.map((pref) => {
             if (pref.kind === kind) {
                 // If currently enabled (has any channels), disable all
-                // If disabled (no channels), enable push by default
-                const newChannels =
-                    currentChannels === 0 ? PUSH_CHANNEL : 0
+                // If disabled (no channels), enable mobile (if available) or email
+                const defaultChannel = isMobileEnabled ? MOBILE_CHANNEL : EMAIL_CHANNEL
+                const newChannels = currentChannels === 0 ? defaultChannel : 0
 
                 return {
                     ...pref,
@@ -133,39 +135,22 @@ export function NotificationPreferencesComponent() {
     }
 
     const notificationKindLabels: Record<NotificationKind, string> = {
-        [NotificationKind.BURROW_INVITE]: "Burrow Invitations",
-        [NotificationKind.BURROW_STARTS_SOON]: "Burrow Reminders",
-        [NotificationKind.BURROW_UPDATED]: "Burrow Updates",
-        [NotificationKind.BURROW_CANCELLED]: "Burrow Cancellations",
-        [NotificationKind.BURROW_CHAT_MESSAGE]: "Chat Messages",
-        [NotificationKind.FRIEND_REQUEST]: "Friend Requests",
-        [NotificationKind.NEW_FRIEND]: "New Friends"
+        [NotificationKind.UPCOMING_MEETING]: "Upcoming Burrows",
+        [NotificationKind.NEW_MEETING]: "New Burrows",
+        [NotificationKind.MEETING_MESSAGE]: "Burrow Messages",
+        [NotificationKind.INVITE_RECEIVED]: "Invites Received",
+        [NotificationKind.NEWSLETTER]: "Newsletter",
+        [NotificationKind.RECOMMENDED]: "Recommendations"
     }
 
     return (
         <View className="space-y-4 gap-4">
-            {/* Info Card */}
-            <Card variant="bordered" className="bg-info bg-opacity-5">
-                <View className="flex-row items-start gap-3">
-                    <Bell size={20} color={colors.info} />
-                    <View className="flex-1">
-                        <Text className="text-text font-semibold mb-1">
-                            Manage Your Notifications
-                        </Text>
-                        <Text className="text-text text-opacity-60 text-sm">
-                            Control which notifications you receive and how you
-                            receive them.
-                        </Text>
-                    </View>
-                </View>
-            </Card>
-
             {/* Notification Preferences */}
             {localPreferences.map((pref) => {
                 const isEnabled = pref.deliveryChannels > 0
-                const hasPush = isChannelEnabled(
+                const hasMobile = isChannelEnabled(
                     pref.deliveryChannels,
-                    PUSH_CHANNEL
+                    MOBILE_CHANNEL
                 )
                 const hasEmail = isChannelEnabled(
                     pref.deliveryChannels,
@@ -208,25 +193,34 @@ export function NotificationPreferencesComponent() {
                                     Delivery Methods
                                 </Text>
 
-                                {/* Push Channel */}
+                                {/* Mobile Channel */}
                                 <View className="flex-row items-center justify-between">
                                     <View className="flex-row items-center gap-2 flex-1">
                                         <Smartphone
                                             size={16}
                                             color={colors.text}
-                                            style={{ opacity: 0.6 }}
+                                            style={{ opacity: isMobileEnabled ? 0.6 : 0.3 }}
                                         />
-                                        <Text className="text-text text-opacity-80 text-sm">
-                                            Push Notifications
-                                        </Text>
+                                        <View>
+                                            <Text
+                                                className={`text-sm ${isMobileEnabled ? "text-text text-opacity-80" : "text-text text-opacity-40"}`}
+                                            >
+                                                Mobile
+                                            </Text>
+                                            {!isMobileEnabled && (
+                                                <Text className="text-xs text-text text-opacity-40">
+                                                    Enable above
+                                                </Text>
+                                            )}
+                                        </View>
                                     </View>
                                     <Switch
-                                        value={hasPush}
+                                        value={hasMobile && isMobileEnabled}
                                         onValueChange={() =>
                                             handleToggleChannel(
                                                 pref.kind,
                                                 pref.deliveryChannels,
-                                                PUSH_CHANNEL
+                                                MOBILE_CHANNEL
                                             )
                                         }
                                         trackColor={{
@@ -234,6 +228,7 @@ export function NotificationPreferencesComponent() {
                                             true: colors.success
                                         }}
                                         thumbColor="#FFFFFF"
+                                        disabled={!isMobileEnabled}
                                     />
                                 </View>
 

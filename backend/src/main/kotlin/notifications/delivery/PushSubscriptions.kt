@@ -207,11 +207,10 @@ suspend fun subscribeToMobilePush(
  * Unsubscribe from mobile push notifications.
  *
  * @param userID The user ID.
- * @param deviceToken The device token to remove.
  */
-suspend fun unsubscribeFromMobilePush(userID: String, deviceToken: String) = query {
+suspend fun unsubscribeFromMobilePush(userID: String) = query {
     MobilePushSubscriptions.deleteWhere {
-        (MobilePushSubscriptions.userID eq userID) and (MobilePushSubscriptions.deviceToken eq deviceToken)
+        (MobilePushSubscriptions.userID eq userID)
     }
 }
 

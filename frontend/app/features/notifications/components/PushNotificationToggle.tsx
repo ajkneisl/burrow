@@ -4,9 +4,9 @@ import { Card } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**
- * Toggle component for enabling/disabling push notifications in settings.
+ * Toggle component for enabling/disabling mobile notifications in settings.
  */
-export default function PushNotificationToggle() {
+export default function MobileNotificationToggle() {
     const {
         isSupported,
         isSubscribed,
@@ -22,10 +22,10 @@ export default function PushNotificationToggle() {
             <Card variant="bordered">
                 <View>
                     <Text className="text-base font-medium text-text">
-                        Push Notifications
+                        Mobile Notifications
                     </Text>
                     <Text className="text-sm text-text text-opacity-60 mt-1">
-                        Push notifications are not supported on this device.
+                        Mobile notifications are not supported on this device.
                     </Text>
                 </View>
             </Card>
@@ -45,11 +45,11 @@ export default function PushNotificationToggle() {
             <View className="flex-row items-center justify-between">
                 <View className="flex-1 mr-3">
                     <Text className="text-base font-medium text-text">
-                        Push Notifications
+                        Mobile Notifications
                     </Text>
                     <Text className="text-sm text-text text-opacity-60 mt-1">
                         {permission === "granted"
-                            ? "Receive notifications about Burrows and messages"
+                            ? "Receive notifications on this device"
                             : permission === "denied"
                               ? "Permission denied. Enable in device settings."
                               : "Get notified about important updates"}

@@ -3,6 +3,7 @@ package app.burrow.notifications
 import app.burrow.account.models.userID
 import app.burrow.notifications.delivery.channels.Browser
 import app.burrow.notifications.delivery.channels.Sse
+import app.burrow.notifications.delivery.getUserMobilePushSubscriptions
 import app.burrow.notifications.delivery.subscribeToMobilePush
 import app.burrow.notifications.delivery.subscribeToPush
 import app.burrow.notifications.delivery.unsubscribeFromMobilePush
@@ -94,6 +95,13 @@ val NOTIFICATION_ROUTES: Route.() -> Unit = {
             call.respond(HttpStatusCode.OK)
         }
 
+        // GET /mobile/status
+        // check if user has mobile push subscriptions
+        get("/mobile/status") {
+            val subscriptions = getUserMobilePushSubscriptions(call.userID)
+            call.respond(MobileStatusResponse(subscribed = subscriptions.isNotEmpty()))
+        }
+
         // POST /mobile/subscribe
         // subscribe to mobile notifications
         post("/mobile/subscribe") {
@@ -108,9 +116,7 @@ val NOTIFICATION_ROUTES: Route.() -> Unit = {
         // POST /mobile/unsubscribe
         // unsubscribe from mobile notifications
         post("/mobile/unsubscribe") {
-            val request = call.receive<MobileUnsubscribeRequest>()
-
-            unsubscribeFromMobilePush(call.userID, request.deviceToken)
+            unsubscribeFromMobilePush(call.userID)
 
             call.respond(HttpStatusCode.OK)
         }
@@ -136,5 +142,5 @@ val NOTIFICATION_ROUTES: Route.() -> Unit = {
 /** Request to subscribe to mobile push notifications. */
 @Serializable private data class MobileSubscribeRequest(val deviceToken: String)
 
-/** Request to unsubscribe from mobile push notifications. */
-@Serializable private data class MobileUnsubscribeRequest(val deviceToken: String)
+/** Response for mobile subscription status. */
+@Serializable private data class MobileStatusResponse(val subscribed: Boolean)
