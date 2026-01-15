@@ -17,8 +17,13 @@ export function ProjectInfoStep({
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             className="flex-1"
+            keyboardVerticalOffset={Platform.OS === "ios" ? 120 : 0}
         >
-            <ScrollView className="flex-1 px-6">
+            <ScrollView
+                className="flex-1 px-6"
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+            >
                 {/* Info Card */}
                 <View className="bg-primary/10 rounded-lg border border-primary/20 p-4 mb-6">
                     <Text className="text-text text-sm font-semibold mb-2">
@@ -61,8 +66,7 @@ export function ProjectInfoStep({
                     error={errors.objective}
                 />
 
-                {/* Bottom spacing for keyboard */}
-                <View className="h-8" />
+                <View className="h-32" />
             </ScrollView>
         </KeyboardAvoidingView>
     )

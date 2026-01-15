@@ -33,10 +33,67 @@ import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.forms.submitForm
+import io.ktor.http.parameters
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.slf4j.LoggerFactory
 
 /** Logger for user operations. */
 private val LOGGER = LoggerFactory.getLogger("User")
+
+/** HTTP client for OAuth token exchange */
+private val httpClient = HttpClient(CIO) {
+    install(ContentNegotiation) {
+        json(Json { ignoreUnknownKeys = true })
+    }
+}
+
+/** Android OAuth client ID */
+private val ANDROID_CLIENT_ID = env("GOOGLE_CLIENT_ID_ANDROID")
+    ?: "808386876282-kcf8lq37gn0q6o5mrha6krcf5vlf2uru.apps.googleusercontent.com"
+
+/**
+ * Exchange an authorization code for an ID token using Google's token endpoint.
+ * Used for Android OAuth flow where the client sends the auth code to the backend.
+ *
+ * @param code The authorization code from Google OAuth
+ * @param codeVerifier The PKCE code verifier used in the authorization request
+ * @param redirectUri The redirect URI used in the authorization request
+ * @return The ID token string
+ * @throws Exception if token exchange fails
+ */
+suspend fun exchangeCodeForIdToken(code: String, codeVerifier: String, redirectUri: String): String {
+    val response = httpClient.submitForm(
+        url = "https://oauth2.googleapis.com/token",
+        formParameters = parameters {
+            append("code", code)
+            append("client_id", ANDROID_CLIENT_ID)
+            append("redirect_uri", redirectUri)
+            append("grant_type", "authorization_code")
+            append("code_verifier", codeVerifier)
+        }
+    )
+
+    val tokenData = response.body<JsonObject>()
+
+    val idToken = tokenData["id_token"]?.jsonPrimitive?.content
+    if (idToken == null) {
+        val error = tokenData["error_description"]?.jsonPrimitive?.content
+            ?: tokenData["error"]?.jsonPrimitive?.content
+            ?: "Unknown error"
+        LOGGER.error("Failed to exchange code for token: {}", error)
+        throw Exception("Token exchange failed: $error")
+    }
+
+    return idToken
+}
 
 /**
  * Google ID token verifier for validating OAuth tokens locally. This verifier automatically fetches
@@ -51,7 +108,7 @@ private val googleVerifier: GoogleIdTokenVerifier? by lazy {
         null
     } else {
         GoogleIdTokenVerifier.Builder(NetHttpTransport(), GsonFactory.getDefaultInstance())
-            .setAudience(listOf(clientId, iosClientId))
+            .setAudience(listOf(clientId, iosClientId, ANDROID_CLIENT_ID))
             .build()
     }
 }

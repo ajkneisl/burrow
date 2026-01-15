@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo } from "react"
 import {
     View,
     Text,
@@ -12,9 +12,10 @@ import { useRouter } from "expo-router"
 import { useQuery } from "@tanstack/react-query"
 import { Modal } from "@components/core"
 import { searchModalOpen } from "../layout.atom"
-import { Search, X, Users, MapPin } from "lucide-react-native"
+import { Search, X, MapPin } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { themeColors } from "@api/theme/theme.types"
+import { ProfilePicture } from "@components/profile/ProfilePicture"
 import {
     search,
     isUserResult,
@@ -33,17 +34,15 @@ export function SearchModal() {
         setQuery("")
     }
 
-    // Search query with debouncing
     const { data, isLoading } = useQuery({
         queryKey: ["search", query],
         queryFn: async () => await search(query, 1),
         enabled: query.length >= 2,
-        staleTime: 1000 * 60 // 1 minute
+        staleTime: 1000 * 60
     })
 
     const results = useMemo(() => data?.contents ?? [], [data])
 
-    // Group results by type
     const sections = useMemo(() => {
         const burrows = results.filter(isBurrowResult)
         const users = results.filter(isUserResult)
@@ -74,52 +73,90 @@ export function SearchModal() {
             size="full"
             scrollable={false}
         >
-            {/* Search Input */}
-            <View className="mb-6">
+            {/* Search Header */}
+            <View className="px-4 pt-2 pb-4">
                 <View className="flex-row items-center gap-3">
-                    <View className="flex-1 flex-row items-center bg-card dark:bg-card rounded-lg px-4 py-3">
-                        <Search size={20} color={colors.text} style={{ opacity: 0.6 }} />
+                    {/* Search Input */}
+                    <View
+                        className="flex-1 flex-row items-center rounded-xl px-4"
+                        style={{
+                            backgroundColor: colors.card,
+                            height: 48
+                        }}
+                    >
+                        <Search
+                            size={20}
+                            color={colors.text}
+                            style={{ opacity: 0.5 }}
+                        />
                         <TextInput
                             value={query}
                             onChangeText={setQuery}
-                            placeholder="Search Burrows, users, or topics..."
-                            placeholderTextColor="#9CA3AF"
-                            className="flex-1 ml-3 text-base text-text"
+                            placeholder="Search Burrows or users..."
+                            placeholderTextColor={`${colors.text}80`}
                             autoFocus
+                            style={{
+                                flex: 1,
+                                marginLeft: 12,
+                                fontSize: 16,
+                                color: colors.text,
+                                height: 48
+                            }}
                         />
                         {query.length > 0 && (
-                            <Pressable onPress={() => setQuery("")}>
-                                <X size={20} color={colors.text} style={{ opacity: 0.6 }} />
+                            <Pressable
+                                onPress={() => setQuery("")}
+                                hitSlop={8}
+                            >
+                                <X
+                                    size={18}
+                                    color={colors.text}
+                                    style={{ opacity: 0.5 }}
+                                />
                             </Pressable>
                         )}
                     </View>
+
+                    {/* Cancel Button */}
                     <Pressable
                         onPress={handleClose}
-                        className="py-3 px-2 min-h-[44px] items-center justify-center"
-                        accessibilityRole="button"
-                        accessibilityLabel="Close search"
+                        hitSlop={8}
+                        className="active:opacity-70"
                     >
-                        <Text className="text-primary text-base font-semibold">Cancel</Text>
+                        <Text
+                            className="font-semibold"
+                            style={{ color: colors.primary, fontSize: 16 }}
+                        >
+                            Cancel
+                        </Text>
                     </Pressable>
                 </View>
             </View>
 
-            {/* Results */}
+            {/* Content */}
             {query.length === 0 ? (
                 <EmptyState colors={colors} />
             ) : query.length < 2 ? (
-                <View className="flex-1 items-center justify-center py-12">
-                    <Text className="text-text text-opacity-60">
+                <View className="flex-1 items-center justify-center">
+                    <Text style={{ color: `${colors.text}99`, fontSize: 15 }}>
                         Type at least 2 characters to search
                     </Text>
                 </View>
             ) : isLoading ? (
-                <View className="flex-1 items-center justify-center py-12">
+                <View className="flex-1 items-center justify-center">
                     <ActivityIndicator size="large" color={colors.primary} />
-                    <Text className="text-text text-opacity-60 mt-4">Searching...</Text>
+                    <Text
+                        style={{
+                            color: `${colors.text}99`,
+                            fontSize: 15,
+                            marginTop: 16
+                        }}
+                    >
+                        Searching...
+                    </Text>
                 </View>
             ) : sections.length === 0 ? (
-                <NoResults query={query} />
+                <NoResults query={query} colors={colors} />
             ) : (
                 <SectionList
                     sections={sections}
@@ -134,15 +171,26 @@ export function SearchModal() {
                         />
                     )}
                     renderSectionHeader={({ section }) => (
-                        <View className="bg-background py-2">
-                            <Text className="text-sm font-semibold text-text text-opacity-60 uppercase">
+                        <View
+                            className="py-3"
+                            style={{ backgroundColor: colors.background }}
+                        >
+                            <Text
+                                className="text-xs font-bold uppercase tracking-wider"
+                                style={{ color: `${colors.text}80` }}
+                            >
                                 {section.title}
                             </Text>
                         </View>
                     )}
-                    ItemSeparatorComponent={() => <View className="h-2" />}
+                    ItemSeparatorComponent={() => <View className="h-3" />}
+                    SectionSeparatorComponent={() => <View className="h-2" />}
                     stickySectionHeadersEnabled={false}
-                    contentContainerStyle={{ paddingBottom: 20 }}
+                    contentContainerStyle={{
+                        paddingHorizontal: 16,
+                        paddingBottom: 40
+                    }}
+                    showsVerticalScrollIndicator={false}
                 />
             )}
         </Modal>
@@ -151,26 +199,55 @@ export function SearchModal() {
 
 function EmptyState({ colors }: { colors: typeof themeColors.light }) {
     return (
-        <View className="flex-1 items-center justify-center py-12">
-            <Search size={48} color={colors.text} style={{ opacity: 0.2 }} />
-            <Text className="text-text text-opacity-60 text-lg mt-4">
-                Search for Burrows, users, or topics
+        <View className="flex-1 items-center justify-center px-8">
+            <View
+                className="rounded-full p-5 mb-4"
+                style={{ backgroundColor: `${colors.text}10` }}
+            >
+                <Search size={32} color={colors.text} style={{ opacity: 0.3 }} />
+            </View>
+            <Text
+                className="text-center font-medium"
+                style={{ color: `${colors.text}99`, fontSize: 17 }}
+            >
+                Search for Burrows or users
             </Text>
-            <Text className="text-text text-opacity-40 text-sm mt-2 text-center px-6">
-                Find study groups, events, clubs, and connect with other Gophers
+            <Text
+                className="text-center mt-2"
+                style={{ color: `${colors.text}60`, fontSize: 14 }}
+            >
+                Find study groups, events, and connect with Gophers
             </Text>
         </View>
     )
 }
 
-function NoResults({ query }: { query: string }) {
+function NoResults({
+    query,
+    colors
+}: {
+    query: string
+    colors: typeof themeColors.light
+}) {
     return (
-        <View className="flex-1 items-center justify-center py-12">
-            <Text className="text-text text-opacity-60 text-lg">
-                No results for "{query}"
+        <View className="flex-1 items-center justify-center px-8">
+            <View
+                className="rounded-full p-5 mb-4"
+                style={{ backgroundColor: `${colors.text}10` }}
+            >
+                <Search size={32} color={colors.text} style={{ opacity: 0.3 }} />
+            </View>
+            <Text
+                className="text-center font-medium"
+                style={{ color: `${colors.text}99`, fontSize: 17 }}
+            >
+                No results for {`"${query}"`}
             </Text>
-            <Text className="text-text text-opacity-40 text-sm mt-2">
-                Try searching for something else
+            <Text
+                className="text-center mt-2"
+                style={{ color: `${colors.text}60`, fontSize: 14 }}
+            >
+                Try a different search term
             </Text>
         </View>
     )
@@ -189,17 +266,36 @@ function SearchResultItem({
         return (
             <Pressable
                 onPress={onPress}
-                className="bg-card border border-card-border rounded-lg p-4 flex-row items-center gap-3 active:opacity-70"
+                className="flex-row items-center gap-3 p-4 rounded-2xl active:opacity-70"
+                style={{
+                    backgroundColor: colors.card,
+                    borderWidth: 1,
+                    borderColor: `${colors.text}10`
+                }}
             >
-                <View className="bg-primary/10 rounded-full w-12 h-12 items-center justify-center">
-                    <MapPin size={20} color={colors.primary} />
+                <View
+                    className="rounded-full items-center justify-center"
+                    style={{
+                        width: 48,
+                        height: 48,
+                        backgroundColor: `${colors.primary}20`
+                    }}
+                >
+                    <MapPin size={22} color={colors.primary} />
                 </View>
                 <View className="flex-1">
-                    <Text className="text-text font-semibold" numberOfLines={1}>
+                    <Text
+                        className="font-semibold"
+                        style={{ color: colors.text, fontSize: 16 }}
+                        numberOfLines={1}
+                    >
                         {item.burrow.title}
                     </Text>
-                    <Text className="text-text text-opacity-60 text-sm" numberOfLines={1}>
-                        {item.burrow.kind} • by @{item.ownerUsername}
+                    <Text
+                        style={{ color: `${colors.text}80`, fontSize: 14, marginTop: 2 }}
+                        numberOfLines={1}
+                    >
+                        {item.burrow.kind} &bull; by @{item.ownerUsername}
                     </Text>
                 </View>
             </Pressable>
@@ -207,25 +303,37 @@ function SearchResultItem({
     }
 
     if (isUserResult(item)) {
+        const displayName = item.profile.name || item.username
+
         return (
             <Pressable
                 onPress={onPress}
-                className="bg-card border border-card-border rounded-lg p-4 flex-row items-center gap-3 active:opacity-70"
+                className="flex-row items-center gap-3 p-4 rounded-2xl active:opacity-70"
+                style={{
+                    backgroundColor: colors.card,
+                    borderWidth: 1,
+                    borderColor: `${colors.text}10`
+                }}
             >
-                <View className="bg-primary rounded-full w-12 h-12 items-center justify-center">
-                    <Text className="text-white font-bold text-lg">
-                        {item.username[0]?.toUpperCase() || "?"}
-                    </Text>
-                </View>
+                <ProfilePicture
+                    name={displayName}
+                    userID={item.userID}
+                    size="md"
+                />
                 <View className="flex-1">
-                    <Text className="text-text font-semibold" numberOfLines={1}>
-                        {item.profile.firstName && item.profile.lastName
-                            ? `${item.profile.firstName} ${item.profile.lastName}`
-                            : item.username}
+                    <Text
+                        className="font-semibold"
+                        style={{ color: colors.text, fontSize: 16 }}
+                        numberOfLines={1}
+                    >
+                        {displayName}
                     </Text>
-                    <Text className="text-text text-opacity-60 text-sm" numberOfLines={1}>
+                    <Text
+                        style={{ color: `${colors.text}80`, fontSize: 14, marginTop: 2 }}
+                        numberOfLines={1}
+                    >
                         @{item.username}
-                        {item.profile.major && ` • ${item.profile.major}`}
+                        {item.profile.major && ` \u2022 ${item.profile.major}`}
                     </Text>
                 </View>
             </Pressable>

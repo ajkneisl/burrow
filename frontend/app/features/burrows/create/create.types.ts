@@ -13,6 +13,7 @@ export type CreateStepProps = {
         field: K,
         value: SubmittedBurrowFormState[K]
     ) => void
+    isEditMode?: boolean
 }
 
 /**

@@ -53,7 +53,7 @@ export function CreateBurrowWizard({
     const totalSteps = 3
     const isEditMode = mode === "update"
 
-    const createMutation = useMutation({
+    const mutation = useMutation({
         mutationFn: async (payload: SubmittedBurrow) => {
             if (isEditMode && burrowId) {
                 await updateBurrow(burrowId, payload)
@@ -72,8 +72,8 @@ export function CreateBurrowWizard({
                 type: "success",
                 text1: isEditMode ? "Burrow updated!" : "Burrow created!",
                 text2: isEditMode
-                    ? `Your ${burrowType.toLowerCase()} burrow has been updated.`
-                    : `Your ${burrowType.toLowerCase()} burrow has been created.`
+                    ? `Your ${burrowType.toLowerCase()} Burrow has been updated.`
+                    : `Your ${burrowType.toLowerCase()} Burrow has been created.`
             })
 
             handleClose()
@@ -83,7 +83,6 @@ export function CreateBurrowWizard({
             }
         },
         onError: (error: any) => {
-            // Parse server errors
             if (Array.isArray(error)) {
                 const fieldErrors: Record<string, string> = {}
                 error.forEach((msg: string) => {
@@ -114,7 +113,6 @@ export function CreateBurrowWizard({
             value: SubmittedBurrowFormState[K]
         ) => {
             setFormState((prev) => ({ ...prev, [field]: value }))
-            // Clear error for this field
             if (errors[field]) {
                 setErrors((prev) => {
                     const next = { ...prev }
@@ -130,19 +128,17 @@ export function CreateBurrowWizard({
         const nextErrors: Record<string, string> = {}
 
         if (isProjectBurrow) {
-            // Project validation
             if (currentStep === 1) {
                 if (!formState.name.trim()) nextErrors.name = "Required"
                 if (!formState.objective.trim())
                     nextErrors.objective = "Required"
             } else if (currentStep === 2) {
-                if (formState.teamMembers.length === 0)
+                if (formState.teamMembers.length === 0 && !isEditMode)
                     nextErrors.teamMembers = "At least 1 member required"
             } else if (currentStep === 3) {
                 if (!formState.dueDate) nextErrors.dueDate = "Required"
             }
         } else {
-            // Study/Event/Club validation
             if (currentStep === 1) {
                 if (!formState.title.trim()) nextErrors.title = "Required"
                 if (!formState.location.trim()) nextErrors.location = "Required"
@@ -152,7 +148,6 @@ export function CreateBurrowWizard({
                     nextErrors.beginningTime = "Required"
                 if (!formState.endTime) nextErrors.endTime = "Required"
 
-                // Validate times
                 if (formState.beginningTime && formState.endTime) {
                     if (formState.beginningTime >= formState.endTime) {
                         nextErrors.endTime = "End time must be after start time"
@@ -185,7 +180,6 @@ export function CreateBurrowWizard({
         if (!validateCurrentStep()) return
 
         if (isProjectBurrow) {
-            // Create project burrow payload
             if (!formState.dueDate) return
 
             const payload: SubmittedProjectBurrow = {
@@ -197,9 +191,8 @@ export function CreateBurrowWizard({
                 dueDate: formState.dueDate.getTime()
             }
 
-            createMutation.mutate(payload)
+            mutation.mutate(payload)
         } else {
-            // Create study/event/club burrow payload
             if (
                 !formState.date ||
                 !formState.beginningTime ||
@@ -207,7 +200,6 @@ export function CreateBurrowWizard({
             )
                 return
 
-            // Combine date and times
             const beginDateTime = new Date(formState.date)
             beginDateTime.setHours(
                 formState.beginningTime.getHours(),
@@ -240,14 +232,14 @@ export function CreateBurrowWizard({
                 requestToJoin: formState.requestToJoin
             }
 
-            createMutation.mutate(payload)
+            mutation.mutate(payload)
         }
     }, [
         validateCurrentStep,
         formState,
         burrowType,
         isProjectBurrow,
-        createMutation
+        mutation
     ])
 
     const handleClose = () => {
@@ -261,7 +253,8 @@ export function CreateBurrowWizard({
         const stepProps = {
             errors,
             formState,
-            updateField
+            updateField,
+            isEditMode
         }
 
         if (isProjectBurrow) {
@@ -317,7 +310,6 @@ export function CreateBurrowWizard({
 
     return (
         <SafeAreaView className="flex-1 bg-background">
-            {/* Header */}
             <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-200">
                 <View className="flex-row items-center">
                     {currentStep > 1 && (
@@ -347,7 +339,6 @@ export function CreateBurrowWizard({
                 </Pressable>
             </View>
 
-            {/* Progress Indicator */}
             <View className="px-6 py-3 flex-row gap-2">
                 {Array.from({ length: totalSteps }).map((_, index) => (
                     <View
@@ -361,16 +352,14 @@ export function CreateBurrowWizard({
                 ))}
             </View>
 
-            {/* Step Content */}
             <View className="flex-1">{renderStep()}</View>
 
-            {/* Footer */}
             <View className="px-6 py-4 border-t border-gray-200 flex-row gap-3">
                 <Button
                     variant="outline"
                     onPress={handleClose}
                     className="flex-1"
-                    disabled={createMutation.isPending}
+                    disabled={mutation.isPending}
                 >
                     Cancel
                 </Button>
@@ -388,9 +377,9 @@ export function CreateBurrowWizard({
                         variant="primary"
                         onPress={handleSubmit}
                         className="flex-1"
-                        loading={createMutation.isPending}
+                        loading={mutation.isPending}
                     >
-                        Create
+                        {isEditMode ? "Save" : "Create"}
                     </Button>
                 )}
             </View>

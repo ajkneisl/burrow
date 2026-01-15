@@ -25,6 +25,7 @@ type UserPickerProps = {
     label?: string
     error?: string
     mode?: "single" | "multiple"
+    disabled?: boolean
 }
 
 export function UserPicker({
@@ -33,7 +34,8 @@ export function UserPicker({
     maxSelection,
     label,
     error,
-    mode = "multiple"
+    mode = "multiple",
+    disabled = false
 }: UserPickerProps) {
     const colors = useThemeColors()
     const [searchQuery, setSearchQuery] = useState("")
@@ -156,47 +158,53 @@ export function UserPicker({
                 </Text>
             )}
 
-            {/* Search Input */}
-            <View
-                className={`flex-row items-center px-4 py-3 rounded-lg border ${
-                    error
-                        ? "border-error"
-                        : "border-card-border dark:border-card-border"
-                } bg-background dark:bg-background mb-2`}
-            >
-                <Search
-                    size={20}
-                    color={colors.text}
-                    style={{ opacity: 0.6 }}
-                />
-                <TextInput
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                    placeholder={
-                        mode === "single"
-                            ? "Search for a user..."
-                            : "Search by username or name..."
-                    }
-                    className="flex-1 ml-2 text-base text-text"
-                    placeholderTextColor="#9CA3AF"
-                />
-                {loading && (
-                    <ActivityIndicator size="small" color={colors.primary} />
-                )}
-            </View>
+            {!disabled && (
+                <>
+                    <View
+                        className={`flex-row items-center px-4 py-3 rounded-lg border ${
+                            error
+                                ? "border-error"
+                                : "border-card-border dark:border-card-border"
+                        } bg-background dark:bg-background mb-2`}
+                    >
+                        <Search
+                            size={20}
+                            color={colors.text}
+                            style={{ opacity: 0.6 }}
+                        />
+                        <TextInput
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            placeholder={
+                                mode === "single"
+                                    ? "Search for a user..."
+                                    : "Search by username or name..."
+                            }
+                            className="flex-1 ml-2 text-base text-text"
+                            placeholderTextColor="#9CA3AF"
+                        />
+                        {loading && (
+                            <ActivityIndicator
+                                size="small"
+                                color={colors.primary}
+                            />
+                        )}
+                    </View>
 
-            {error && <Text className="text-sm text-error mb-2">{error}</Text>}
+                    {error && (
+                        <Text className="text-sm text-error mb-2">{error}</Text>
+                    )}
+                </>
+            )}
 
-            {/* Selection count - only show in multiple mode */}
             {mode === "multiple" && (
                 <Text className="text-xs text-text dark:text-text opacity-60 mb-2">
                     {selectedUserIds.length} / {effectiveMaxSelection} members
-                    selected
+                    {disabled ? "" : " selected"}
                 </Text>
             )}
 
-            {/* Search Results */}
-            {results.length > 0 && (
+            {!disabled && results.length > 0 && (
                 <View className="border border-card-border dark:border-card-border rounded-lg bg-background dark:bg-background max-h-64">
                     <FlatList
                         data={results}
@@ -207,8 +215,7 @@ export function UserPicker({
                 </View>
             )}
 
-            {/* No results message */}
-            {!loading && debouncedQuery && results.length === 0 && (
+            {!disabled && !loading && debouncedQuery && results.length === 0 && (
                 <View className="p-4 border border-card-border dark:border-card-border rounded-lg bg-card dark:bg-card">
                     <Text className="text-text dark:text-text opacity-70 text-center">
                         No users found for &quot;{debouncedQuery}&quot;
@@ -216,8 +223,7 @@ export function UserPicker({
                 </View>
             )}
 
-            {/* Empty state */}
-            {!searchQuery && selectedUserIds.length === 0 && (
+            {!disabled && !searchQuery && selectedUserIds.length === 0 && (
                 <View className="p-4 border border-card-border dark:border-card-border rounded-lg bg-card dark:bg-card">
                     <Text className="text-text dark:text-text opacity-70 text-center text-sm">
                         {mode === "single"

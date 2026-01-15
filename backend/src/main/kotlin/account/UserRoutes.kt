@@ -7,6 +7,7 @@ import app.burrow.account.models.deleteUser
 import app.burrow.account.models.getUserByID
 import app.burrow.account.models.getUserByUsername
 import app.burrow.account.models.getUserResponse
+import app.burrow.account.models.exchangeCodeForIdToken
 import app.burrow.account.models.retrieveUser
 import app.burrow.account.models.searchUsers
 import app.burrow.account.models.updateUsername
@@ -176,11 +177,25 @@ val USER_ROUTES: Route.() -> Unit = {
         call.respond(HttpStatusCode.OK)
     }
 
+    /** Android OAuth code exchange request */
+    @Serializable
+    data class AndroidAuthRequest(
+        val code: String,
+        val codeVerifier: String,
+        val redirectUri: String
+    )
+
     // PUT /user/login
     // login
     put("/login") {
-        val body = call.receiveText()
-        val user = retrieveUser(body) ?: throw InvalidAuthorization()
+        val idToken = if (call.queryParameter("platform") == "android") {
+            val request = call.receive<AndroidAuthRequest>()
+            exchangeCodeForIdToken(request.code, request.codeVerifier, request.redirectUri)
+        } else {
+            call.receiveText()
+        }
+
+        val user = retrieveUser(idToken) ?: throw InvalidAuthorization()
 
         call.respond(user)
     }

@@ -22,7 +22,7 @@ export function Input({
     className,
     ...props
 }: InputProps) {
-    const baseInputStyles = "flex-1 text-base text-text py-4 px-4"
+    const baseInputStyles = "flex-1 text-base text-text py-3 px-4"
 
     const variantStyles = {
         default: "border-b border-card-border",

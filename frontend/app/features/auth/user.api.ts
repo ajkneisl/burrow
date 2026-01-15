@@ -45,6 +45,26 @@ export async function login(credentials: string): Promise<AuthorizedUser> {
 }
 
 /**
+ * Login with an authorization code (for Android OAuth flow).
+ * The backend exchanges the code for tokens.
+ *
+ * @param code The authorization code from Google OAuth
+ * @param codeVerifier The PKCE code verifier
+ * @param redirectUri The redirect URI used in the auth request
+ */
+export async function loginWithCode(
+    code: string,
+    codeVerifier: string,
+    redirectUri: string
+): Promise<AuthorizedUser> {
+    return put(
+        "/user/login",
+        { code, codeVerifier, redirectUri },
+        { auth: false, query: { platform: "android" } }
+    )
+}
+
+/**
  * Alternative login with username and password.
  *
  * @param username The username

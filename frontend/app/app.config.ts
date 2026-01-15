@@ -4,10 +4,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
     name: "Burrow",
     slug: "burrow",
-    version: "0.4.0",
+    version: "0.4.1",
     orientation: "portrait",
     icon: "./assets/images/burrow.png",
-    scheme: "burrow",
+    scheme: "app.umn.burrow",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     splash: {
@@ -18,7 +18,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ios: {
         supportsTablet: false,
         bundleIdentifier: "app.umn.burrow",
-        associatedDomains: ["applinks:burrow.umn.edu"],
+        associatedDomains: ["applinks:umn.app"],
         infoPlist: {
             NSLocationWhenInUseUsageDescription:
                 "Burrow needs your location to help you find nearby study groups.",
@@ -35,12 +35,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     android: {
         package: "app.umn.burrow",
-        adaptiveIcon: {
-            backgroundColor: "#7A0019",
-            foregroundImage: "./assets/images/android-icon-foreground.png",
-            backgroundImage: "./assets/images/android-icon-background.png",
-            monochromeImage: "./assets/images/android-icon-monochrome.png"
-        },
+        icon: "./assets/images/burrow.png",
         edgeToEdgeEnabled: true,
         predictiveBackGestureEnabled: false,
         permissions: [
@@ -56,9 +51,22 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
                     {
                         scheme: "https",
                         host: "umn.app"
+                    }
+                ],
+                category: ["BROWSABLE", "DEFAULT"]
+            },
+            {
+                action: "VIEW",
+                data: [
+                    {
+                        scheme: "burrow",
+                        path: "/oauth"
                     },
                     {
                         scheme: "burrow"
+                    },
+                    {
+                        scheme: "app.umn.burrow"
                     }
                 ],
                 category: ["BROWSABLE", "DEFAULT"]
@@ -104,6 +112,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
             {
                 locationAlwaysAndWhenInUsePermission:
                     "Allow Burrow to use your location to find nearby study groups."
+            }
+        ],
+        [
+            "@react-native-google-signin/google-signin",
+            {
+                iosUrlScheme:
+                    "com.googleusercontent.apps.808386876282-51cc5ue6pkbplbhtbugko3hhhometbq4"
             }
         ]
     ],
