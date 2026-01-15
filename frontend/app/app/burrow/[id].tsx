@@ -5,7 +5,8 @@ import {
     Pressable,
     ActivityIndicator,
     Share as RNShare,
-    RefreshControl
+    RefreshControl,
+    Platform
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter, Stack } from "expo-router"
@@ -189,13 +190,14 @@ export default function BurrowDetailScreen() {
         }
     })
 
-    // share
     const handleShare = async () => {
+        const url = `https://umn.app/${id}`
         try {
-            await RNShare.share({
-                message: `Check out this Burrow: ${data?.burrow.title}`,
-                url: `https://umn.app/${id}`
-            })
+            await RNShare.share(
+                Platform.OS === "android"
+                    ? { message: `Check out this Burrow: ${data?.burrow.title}\n${url}` }
+                    : { message: `Check out this Burrow: ${data?.burrow.title}`, url }
+            )
         } catch {
             // User cancelled share
         }
