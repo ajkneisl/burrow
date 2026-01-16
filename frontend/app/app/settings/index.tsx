@@ -22,6 +22,7 @@ import { themeAtom } from "@api/theme/theme.atom"
 import { saveTheme } from "@api/theme/theme.api"
 import type { Theme, ThemeColors } from "@api/theme/theme.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
+import * as Application from "expo-application";
 
 /**
  * The settings page.
@@ -145,22 +146,24 @@ export default function SettingsScreen() {
 
                 <View className="h-3" />
 
-                {/* AboutView Section */}
+                {/* About Section */}
                 <Text className="text-sm font-semibold text-text text-opacity-50 mb-3 uppercase">
-                    AboutView
+                    About
                 </Text>
 
                 <Card variant="bordered" className="mb-6">
                     <SettingItem
                         icon={<Info size={20} color={colors.primary} />}
-                        label="AboutView Burrow"
-                        subtitle="Version 0.4.0"
+                        label="About Burrow"
+                        subtitle={"Version " + (Application.nativeApplicationVersion ?? "INDEV")}
                         onPress={() => {
                             router.push("/settings/about")
                         }}
                         colors={colors}
                     />
+
                     <View className="h-px bg-card-border my-3" />
+
                     <SettingItem
                         icon={<Shield size={20} color={colors.primary} />}
                         label="Privacy Policy"
@@ -169,7 +172,9 @@ export default function SettingsScreen() {
                         }}
                         colors={colors}
                     />
+
                     <View className="h-px bg-card-border my-3" />
+
                     <SettingItem
                         icon={<FileText size={20} color={colors.primary} />}
                         label="Terms of Service"
@@ -178,7 +183,9 @@ export default function SettingsScreen() {
                         }}
                         colors={colors}
                     />
+
                     <View className="h-px bg-card-border my-3" />
+
                     <SettingItem
                         icon={<AlertCircle size={20} color={colors.error} />}
                         label="Report a Problem"
@@ -231,7 +238,11 @@ function SettingItem({
                     </Text>
                 )}
             </View>
-            <ChevronRight size={20} color={colors.text} style={{ opacity: 0.4 }} />
+            <ChevronRight
+                size={20}
+                color={colors.text}
+                style={{ opacity: 0.4 }}
+            />
         </Pressable>
     )
 }

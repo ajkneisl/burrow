@@ -1,11 +1,4 @@
-import {
-    View,
-    Text,
-    ScrollView,
-    Pressable,
-    Image,
-    Linking
-} from "react-native"
+import { View, Text, ScrollView, Pressable, Image, Linking } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack } from "expo-router"
 import { useState } from "react"
@@ -52,43 +45,39 @@ const faqItems = [
     {
         id: "how-find",
         question: "How do I find a study group?",
-        answer:
-            "You can find a study group by searching on the home page or browsing all burrows. Search for relevant coursework or topics to find groups that match your interests."
+        answer: "You can find a study group by searching on the home page or browsing all burrows. Search for relevant coursework or topics to find groups that match your interests."
     },
     {
         id: "how-built",
         question: "How was Burrow built?",
-        answer:
-            "Burrow was built using Kotlin & Ktor for the backend, paired with MinIO for image hosting and PostgreSQL for the database. The frontend uses React with TypeScript and TailwindCSS. The mobile app uses React Native and Expo. View the code on GitHub at github.com/ajkneisl/burrow"
+        answer: "Burrow was built using Kotlin & Ktor for the backend, paired with MinIO for image hosting and PostgreSQL for the database. The frontend uses React with TypeScript and TailwindCSS. The mobile app uses React Native and Expo. View the code on GitHub at github.com/ajkneisl/burrow"
     },
     {
         id: "how-create",
         question: "How do I create my own Burrow?",
-        answer:
-            'Tap the "+" button at the bottom of the app and choose your wanted type of Burrow. Then, follow through the process and fill in the correct details.'
+        answer: 'Tap the "+" button at the bottom of the app and choose your wanted type of Burrow. Then, follow through the process and fill in the correct details.'
     },
     {
         id: "how-join",
         question: "How do I join a Burrow?",
-        answer:
-            'Once you find a Burrow you\'re interested in, tap the Burrow and find the "Join" button. If the Burrow is full, you will be added to the waitlist. Otherwise, you\'re in and can begin chatting with other members.'
+        answer: "Once you find a Burrow you're interested in, tap the Burrow and find the \"Join\" button. If the Burrow is full, you will be added to the waitlist. Otherwise, you're in and can begin chatting with other members."
     },
     {
         id: "safety",
         question: "What are the safety measures?",
-        answer:
-            "We take your safety seriously. All users must authenticate with their University of Minnesota credentials. If you have any concerns, please email us at support@umn.app"
+        answer: "We take your safety seriously. All users must authenticate with their University of Minnesota credentials. If you have any concerns, please email us at support@umn.app"
     },
     {
         id: "how-cancel",
         question: "How do I cancel a Burrow?",
-        answer:
-            'Navigate to your Burrow\'s page and tap "Delete". You\'ll be asked to confirm, and if so, the Burrow will be deleted.'
+        answer: "Navigate to your Burrow's page and tap \"Delete\". You'll be asked to confirm, and if so, the Burrow will be deleted."
     }
 ]
 
 /**
  * About Burrow screen.
+ *
+ * @author AJ Kneisl
  */
 export default function AboutScreen() {
     const router = useRouter()
@@ -97,12 +86,6 @@ export default function AboutScreen() {
 
     const leadMember = teamMembers.find((m) => m.lead)
     const otherMembers = teamMembers.filter((m) => !m.lead)
-
-    const openLink = (url: string) => {
-        Linking.openURL(url).catch(() => {
-            // Silently fail
-        })
-    }
 
     return (
         <SafeAreaView className="flex-1 bg-background">
@@ -116,6 +99,7 @@ export default function AboutScreen() {
                 >
                     <ArrowLeft size={24} color={colors.text} />
                 </Pressable>
+
                 <Text className="text-2xl font-bold text-text">
                     About Burrow
                 </Text>
@@ -131,37 +115,23 @@ export default function AboutScreen() {
                             }}
                             className="w-20 h-20 mb-4 rounded-2xl"
                         />
+
                         <Text className="text-white text-4xl font-bold mb-2">
                             Burrow
                         </Text>
+
                         <Text className="text-white text-opacity-90 text-center text-base">
                             Connecting students, one burrow at a time
                         </Text>
+
                         <Text className="text-white text-opacity-70 text-sm mt-4">
-                            Version {Application.nativeApplicationVersion || "0.4.0"}
+                            Version{" "}
+                            {Application.nativeApplicationVersion ?? "INDEV"}
                         </Text>
                     </View>
                 </View>
 
                 <View className="px-6">
-                    {/* Mission */}
-                    <Card variant="bordered" className="mb-6 bg-primary bg-opacity-5">
-                        <Text className="text-text text-xl font-bold mb-3">
-                            Our Mission
-                        </Text>
-                        <Text className="text-text text-opacity-80 leading-relaxed">
-                            Burrow is built{" "}
-                            <Text className="text-secondary font-semibold">
-                                by students at the University of Minnesota
-                            </Text>
-                            , for students at the University of Minnesota. Our
-                            goal is to make studying and connecting with one
-                            another easier. Whether that's a group study session,
-                            a club meeting, or a social event, Burrow helps keep
-                            things organized and collaborative.
-                        </Text>
-                    </Card>
-
                     {/* Team Section */}
                     <Text className="text-text text-xl font-bold mb-4">
                         Meet the Team
@@ -170,7 +140,7 @@ export default function AboutScreen() {
                     {/* Lead Member */}
                     {leadMember && (
                         <Pressable
-                            onPress={() => openLink(leadMember.linkedin)}
+                            onPress={() => Linking.openURL(leadMember.linkedin)}
                             className="mb-4"
                         >
                             <Card
@@ -181,14 +151,17 @@ export default function AboutScreen() {
                                     source={{ uri: leadMember.image }}
                                     className="w-24 h-24 rounded-full mb-3"
                                 />
+
                                 <Text className="text-text text-lg font-bold">
                                     {leadMember.name}
                                 </Text>
+
                                 <Text className="text-text text-opacity-70 text-sm mb-2">
                                     {leadMember.role}
                                 </Text>
+
                                 <View className="bg-secondary bg-opacity-20 px-3 py-1 rounded-full flex-row items-center gap-1">
-                                    <Text className="text-secondary text-xs font-semibold">
+                                    <Text className="text-primary text-xs font-semibold">
                                         Project Lead
                                     </Text>
                                 </View>
@@ -201,17 +174,22 @@ export default function AboutScreen() {
                         {otherMembers.map((member) => (
                             <Pressable
                                 key={member.name}
-                                onPress={() => openLink(member.linkedin)}
+                                onPress={() => Linking.openURL(member.linkedin)}
                                 className="flex-1 min-w-[45%]"
                             >
-                                <Card variant="bordered" className="items-center">
+                                <Card
+                                    variant="bordered"
+                                    className="items-center"
+                                >
                                     <Image
                                         source={{ uri: member.image }}
                                         className="w-16 h-16 rounded-full mb-2"
                                     />
+
                                     <Text className="text-text font-semibold text-sm text-center">
                                         {member.name}
                                     </Text>
+
                                     <Text className="text-text text-opacity-60 text-xs text-center">
                                         {member.role}
                                     </Text>
@@ -219,6 +197,24 @@ export default function AboutScreen() {
                             </Pressable>
                         ))}
                     </View>
+
+                    {/* Mission */}
+                    <Text className="text-text text-xl font-bold mb-4">
+                        Our Mission
+                    </Text>
+                    <Card variant="bordered" className="px-6 mb-6">
+                        <Text className="text-text text-opacity-80 leading-relaxed">
+                            Burrow is built{" "}
+                            <Text className="text-secondary font-semibold">
+                                by students at the University of Minnesota
+                            </Text>
+                            , for students at the University of Minnesota. Our
+                            goal is to make studying and connecting with one
+                            another easier. Whether that's a group study
+                            session, a club meeting, or a social event, Burrow
+                            helps keep things organized and collaborative.
+                        </Text>
+                    </Card>
 
                     {/* FAQ Section */}
                     <Text className="text-text text-xl font-bold mb-4">
@@ -258,6 +254,7 @@ export default function AboutScreen() {
                                                 }}
                                             />
                                         </View>
+
                                         {isOpen && (
                                             <Text className="text-text text-opacity-70 text-sm mt-3 leading-relaxed">
                                                 {item.answer}
@@ -273,27 +270,24 @@ export default function AboutScreen() {
                     <Card variant="bordered" className="mb-6">
                         <Pressable
                             onPress={() =>
-                                openLink("https://github.com/ajkneisl/burrow")
+                                Linking.openURL(
+                                    "https://github.com/ajkneisl/burrow"
+                                )
                             }
                             className="flex-row items-center justify-between"
                         >
                             <Text className="text-text font-medium">
                                 View on GitHub
                             </Text>
-                            <ExternalLink
-                                size={18}
-                                color={colors.primary}
-                            />
+
+                            <ExternalLink size={18} color={colors.primary} />
                         </Pressable>
                     </Card>
 
                     {/* Footer */}
                     <View className="items-center py-8">
-                        <Text className="text-text text-opacity-40 text-xs text-center">
-                            Made with ❤️ at the University of Minnesota
-                        </Text>
                         <Text className="text-text text-opacity-40 text-xs text-center mt-1">
-                            © 2024-2025 Burrow Team
+                            © {new Date().getFullYear()} Burrow Team
                         </Text>
                     </View>
                 </View>

@@ -1,8 +1,14 @@
-import { View, Text, ScrollView, Pressable, TextInput } from "react-native"
+import {
+    View,
+    Text,
+    ScrollView,
+    Pressable,
+    KeyboardAvoidingView,
+    Platform
+} from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack, usePathname } from "expo-router"
 import { useState } from "react"
-import { useColorScheme } from "nativewind"
 import { useMutation } from "@tanstack/react-query"
 import {
     ArrowLeft,
@@ -15,20 +21,20 @@ import {
     Send
 } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { Card, Button } from "@components/core"
+import { Card, Button, Input } from "@components/core"
 import { submitReport } from "@features/problem/problem.api"
 import type { ReportCategory } from "@features/problem/problem.types"
 import Toast from "react-native-toast-message"
 import * as Application from "expo-application"
-import Constants from "expo-constants"
 
 /**
  * Report a problem screen.
+ *
+ * @author AJ Kneisl
  */
 export default function ReportProblemScreen() {
     const router = useRouter()
     const pathname = usePathname()
-    const { colorScheme } = useColorScheme()
     const colors = useThemeColors()
 
     const [category, setCategory] = useState<ReportCategory>("Bug")
@@ -43,11 +49,10 @@ export default function ReportProblemScreen() {
                 text1: "Report submitted",
                 text2: "Thank you for helping us improve!"
             })
-
-            // Navigate back to settings
             router.back()
         },
         onError: (error: any) => {
+            console.log(error)
             Toast.show({
                 type: "error",
                 text1: "Failed to submit report",
@@ -75,12 +80,7 @@ export default function ReportProblemScreen() {
             return
         }
 
-        // Auto-capture system info
-        const userAgent = `${Constants.platform?.ios ? "iOS" : "Android"} ${
-            Constants.platform?.ios?.systemVersion ||
-            Constants.platform?.android?.versionCode ||
-            "Unknown"
-        } / App ${Application.nativeApplicationVersion || "Unknown"}`
+        const userAgent = `${Platform.OS} ${Platform.Version} / App ${Application.nativeApplicationVersion || "Unknown"}`
 
         submitMutation.mutate({
             summary: summary.trim(),
@@ -88,21 +88,21 @@ export default function ReportProblemScreen() {
             category,
             path: pathname,
             userAgent,
-            burrowInfo: "" // Could be populated if user is viewing a burrow
+            burrowInfo: ""
         })
     }
 
-    const categories: Array<{
+    const categories: {
         value: ReportCategory
         label: string
         icon: React.ReactNode
         description: string
-    }> = [
+    }[] = [
         {
             value: "Bug",
             label: "Bug",
             icon: <Bug size={20} color={colors.error} />,
-            description: "Something isn't working correctly"
+            description: "Something is not working correctly"
         },
         {
             value: "Content",
@@ -134,7 +134,6 @@ export default function ReportProblemScreen() {
         <SafeAreaView className="flex-1 bg-background">
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* Header */}
             <View className="px-6 py-4 border-b border-card-border flex-row items-center">
                 <Pressable
                     onPress={() => router.back()}
@@ -152,127 +151,110 @@ export default function ReportProblemScreen() {
                 </View>
             </View>
 
-            <ScrollView className="flex-1 px-6 py-4">
-                {/* Info Card */}
-                <Card variant="bordered" className="bg-info bg-opacity-5 mb-6">
-                    <View className="flex-row items-start gap-3">
-                        <AlertCircle size={20} color={colors.info} />
-                        <View className="flex-1">
-                            <Text className="text-text font-semibold mb-1">
-                                We're here to help
-                            </Text>
-                            <Text className="text-text text-opacity-60 text-sm">
-                                Report bugs, content issues, or provide feedback.
-                                We'll review your report and get back to you.
-                            </Text>
-                        </View>
-                    </View>
-                </Card>
-
-                {/* Category Selection */}
-                <Text className="text-text font-semibold mb-3">
-                    What type of problem?
-                </Text>
-
-                <View className="space-y-2 gap-2 mb-6">
-                    {categories.map((cat) => (
-                        <Pressable
-                            key={cat.value}
-                            onPress={() => setCategory(cat.value)}
-                            className={`flex-row items-center p-4 rounded-lg border ${
-                                category === cat.value
-                                    ? "bg-primary bg-opacity-10 border-primary"
-                                    : "bg-card border-card-border"
-                            }`}
-                        >
-                            <View className="mr-3">{cat.icon}</View>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                className="flex-1"
+            >
+                <ScrollView
+                    className="flex-1 px-6 py-4"
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                >
+                    <Card variant="bordered" className="bg-opacity-5 mb-6">
+                        <View className="flex-row items-start gap-3">
+                            <AlertCircle size={20} color={colors.info} />
                             <View className="flex-1">
-                                <Text
-                                    className={`font-semibold mb-0.5 ${
-                                        category === cat.value
-                                            ? "text-primary"
-                                            : "text-text"
-                                    }`}
-                                >
-                                    {cat.label}
+                                <Text className="text-text font-semibold mb-1">
+                                    We are here to help
                                 </Text>
-                                <Text className="text-text text-opacity-60 text-xs">
-                                    {cat.description}
+                                <Text className="text-text text-opacity-60 text-sm">
+                                    Report bugs, content issues, or provide
+                                    feedback. We will review your report and get
+                                    back to you.
                                 </Text>
                             </View>
-                        </Pressable>
-                    ))}
-                </View>
+                        </View>
+                    </Card>
 
-                {/* Summary Input */}
-                <Text className="text-text font-semibold mb-2">
-                    Summary <Text className="text-error">*</Text>
-                </Text>
-                <Text className="text-text text-opacity-60 text-sm mb-3">
-                    Brief description of the problem
-                </Text>
-                <Card variant="bordered" className="mb-6">
-                    <TextInput
+                    <Text className="text-text font-semibold mb-3">
+                        What type of problem?
+                    </Text>
+
+                    <View className="gap-2 mb-6">
+                        {categories.map((cat) => (
+                            <Pressable
+                                key={cat.value}
+                                onPress={() => setCategory(cat.value)}
+                                className={`flex-row items-center p-4 rounded-lg border ${
+                                    category === cat.value
+                                        ? "bg-primary bg-opacity-10 border-primary"
+                                        : "bg-card border-card-border"
+                                }`}
+                            >
+                                <View className="mr-3">{cat.icon}</View>
+                                <View className="flex-1">
+                                    <Text
+                                        className={`font-semibold mb-0.5 ${category === cat.value ? "text-white" : "text-text"}`}
+                                    >
+                                        {cat.label}
+                                    </Text>
+
+                                    <Text
+                                        className={
+                                            `text-text text-opacity-60 text-xs ${category === cat.value ? "text-white" : "text-text"}`
+                                        }
+                                    >
+                                        {cat.description}
+                                    </Text>
+                                </View>
+                            </Pressable>
+                        ))}
+                    </View>
+
+                    <Input
+                        label="Summary *"
                         value={summary}
                         onChangeText={setSummary}
-                        placeholder="e.g., Can't join burrow"
-                        placeholderTextColor={
-                            colorScheme === "dark" ? "#94A3B8" : "#64748B"
-                        }
-                        className="text-text text-base"
+                        placeholder="e.g., Cannot join burrow"
+                        helperText="Brief description of the problem"
                         maxLength={100}
                     />
-                </Card>
 
-                {/* Details Input */}
-                <Text className="text-text font-semibold mb-2">
-                    Details <Text className="text-error">*</Text>
-                </Text>
-                <Text className="text-text text-opacity-60 text-sm mb-3">
-                    Provide as much detail as possible. What were you doing when
-                    the problem occurred?
-                </Text>
-                <Card variant="bordered" className="mb-6">
-                    <TextInput
+                    <Input
+                        label="Details *"
                         value={details}
                         onChangeText={setDetails}
                         placeholder="Describe the problem in detail..."
-                        placeholderTextColor={
-                            colorScheme === "dark" ? "#94A3B8" : "#64748B"
-                        }
-                        className="text-text text-base"
+                        helperText="What were you doing when the problem occurred?"
                         multiline
-                        numberOfLines={8}
+                        numberOfLines={6}
                         textAlignVertical="top"
                         style={{ minHeight: 120 }}
                     />
-                </Card>
 
-                {/* Auto-captured Info Notice */}
-                <Card variant="bordered" className="bg-card mb-6">
-                    <Text className="text-text text-opacity-60 text-xs">
-                        <Text className="font-semibold">Note:</Text> We
-                        automatically collect device info, app version, and
-                        current screen to help diagnose the issue.
-                    </Text>
-                </Card>
+                    <Card variant="bordered" className="bg-card mb-6">
+                        <Text className="text-text text-opacity-60 text-xs">
+                            <Text className="font-semibold">Note:</Text> We
+                            automatically collect device info, app version, and
+                            current screen to help diagnose the issue.
+                        </Text>
+                    </Card>
 
-                {/* Submit Button */}
-                <Button
-                    variant="primary"
-                    size="lg"
-                    fullWidth
-                    onPress={handleSubmit}
-                    loading={submitMutation.isPending}
-                    leftIcon={<Send size={20} color="#FFFFFF" />}
-                    disabled={!summary.trim() || !details.trim()}
-                >
-                    Submit Report
-                </Button>
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        fullWidth
+                        onPress={handleSubmit}
+                        loading={submitMutation.isPending}
+                        leftIcon={<Send size={20} color="#FFFFFF" />}
+                        disabled={!summary.trim() || !details.trim()}
+                    >
+                        Submit Report
+                    </Button>
 
-                {/* Bottom Spacer */}
-                <View className="h-12" />
-            </ScrollView>
+                    <View className="h-32" />
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     )
 }

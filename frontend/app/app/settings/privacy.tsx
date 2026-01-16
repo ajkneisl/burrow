@@ -36,9 +36,10 @@ export default function PrivacyScreen() {
 
             <ScrollView className="flex-1 px-6 py-4">
                 {/* Hero */}
-                <Card variant="bordered" className="bg-primary bg-opacity-5 mb-6">
+                <Card variant="bordered" className="bg-opacity-5 mb-6">
                     <View className="flex-row items-start gap-3">
                         <Shield size={24} color={colors.primary} />
+
                         <View className="flex-1">
                             <Text className="text-text font-semibold mb-2 text-lg">
                                 Your Privacy Matters

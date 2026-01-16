@@ -15,6 +15,7 @@ import {
     Zap,
     CheckCircle2
 } from "lucide-react-native"
+import * as Application from "expo-application";
 
 /**
  * The welcome / landing page.
@@ -241,7 +242,7 @@ export default function WelcomeScreen() {
                     </View>
 
                     <Text className="text-xs text-text text-opacity-40 text-center mb-4">
-                        Version 0.4.0
+                        {Application.nativeApplicationVersion ?? "INDEV"}
                     </Text>
                 </View>
             </View>
