@@ -70,7 +70,7 @@ export default function SettingsScreen() {
                         icon={<User size={20} color={colors.primary} />}
                         label="Edit Profile"
                         subtitle={user ? `@${user.username}` : ""}
-                        onPress={() => router.push("/settings/profile")}
+                        onPress={() => router.push("/settings/edit-profile")}
                         colors={colors}
                     />
                 </Card>

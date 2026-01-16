@@ -1,6 +1,4 @@
-import React from "react"
-import { View, Text, TextInput } from "react-native"
-import type { TextInputProps } from "react-native"
+import { View, Text, TextInput, type TextInputProps } from "react-native"
 import clsx from "clsx"
 
 interface InputProps extends TextInputProps {
@@ -22,15 +20,12 @@ export function Input({
     className,
     ...props
 }: InputProps) {
-    const baseInputStyles = "flex-1 text-base text-text py-3 px-4"
-
     const variantStyles = {
-        default: "border-b border-card-border",
-        outline: "border border-card-border rounded-lg",
-        filled: "bg-card rounded-lg"
+        default: "border-b border-gray-300 dark:border-gray-600",
+        outline:
+            "border border-gray-300 dark:border-gray-600 rounded-lg bg-background",
+        filled: "bg-card dark:bg-card rounded-lg"
     }
-
-    const errorStyles = error ? "border-error" : ""
 
     return (
         <View className="mb-4">
@@ -51,9 +46,9 @@ export function Input({
                 <TextInput
                     {...props}
                     className={clsx(
-                        baseInputStyles,
+                        "flex-1 text-base text-text py-3 px-4",
                         variantStyles[variant],
-                        errorStyles,
+                        error && "border-error",
                         className
                     )}
                     placeholderTextColor="#9CA3AF"
