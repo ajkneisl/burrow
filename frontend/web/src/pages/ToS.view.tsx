@@ -1,3 +1,8 @@
+/**
+ * The Terms of Service
+ *
+ * @author AJ Kneisl
+ */
 export default function ToS() {
     return (
         <main className="bg-background text-text min-h-screen">

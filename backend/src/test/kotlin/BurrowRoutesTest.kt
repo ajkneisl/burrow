@@ -72,7 +72,7 @@ class BurrowRoutesTest :
 
         // Helper to create a valid burrow JSON
         fun createValidBurrowJson(
-            title: String = "Study Session",
+            title: String = "Study Se1ssion",
             description: String = "Let's study together",
             location: String = "Library",
             kind: BurrowKind = BurrowKind.STUDY,

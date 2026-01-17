@@ -67,7 +67,7 @@ export default function ScheduleBurrowCard({
             >
                 {/* burrow title */}
                 <div className="flex w-full items-center justify-between ">
-                    <h4 className="text-text truncate text-base font-semibold">
+                    <h4 className="text-text max-w-1/2 truncate text-base font-semibold">
                         {burrowResponse.burrow.title}
                     </h4>
 

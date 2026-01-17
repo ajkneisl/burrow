@@ -54,14 +54,11 @@ data class SubmittedReport(
     fun validate(): Boolean {
         val allowedCategories = setOf("Bug", "Content", "Performance", "Accessibility", "Other")
 
-        return summary.length in 6..255 &&
-            details.length in 10..5000 &&
+        return summary.length in 1..255 &&
+            details.length in 1..5000 &&
             category in allowedCategories &&
-            userAgent.isNotBlank() &&
             userAgent.length <= 512 &&
-            path.isNotBlank() &&
             path.length <= 512 &&
-            burrowInfo.isNotBlank() &&
             burrowInfo.length <= 64
     }
 }

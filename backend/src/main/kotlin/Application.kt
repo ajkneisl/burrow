@@ -3,6 +3,7 @@ package app.burrow
 import app.burrow.account.Authorization
 import app.burrow.account.USER_ROUTES
 import app.burrow.account.chat.ChatSync
+import app.burrow.account.models.Users
 import app.burrow.account.models.getUserByUsername
 import app.burrow.account.models.userID
 import app.burrow.account.settings.SETTINGS_ROUTES
@@ -10,8 +11,12 @@ import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.admin.log.DB_LOG
 import app.burrow.admin.log.DatabaseLogAppender
 import app.burrow.burrows.BURROW_ROUTES
+import app.burrow.burrows.createBurrow
 import app.burrow.burrows.getBurrow
 import app.burrow.burrows.getBurrowResponse
+import app.burrow.burrows.models.BurrowKind
+import app.burrow.burrows.models.BurrowVisibility
+import app.burrow.burrows.models.SubmittedStudyEventBurrow
 import app.burrow.burrows.sync.BurrowSync
 import app.burrow.notifications.NOTIFICATION_ROUTES
 import app.burrow.notifications.NotificationKind
@@ -30,25 +35,28 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
-import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.*
 import io.ktor.server.plugins.autohead.*
-import io.ktor.server.plugins.calllogging.CallLogging
-import io.ktor.server.plugins.calllogging.processingTimeMillis
+import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.request.httpMethod
-import io.ktor.server.request.uri
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.ktor.server.websocket.*
+import io.ktor.util.date.*
 import java.io.File
+import kotlin.random.Random
+import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.v1.r2dbc.select
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.slf4j.event.Level
@@ -66,10 +74,50 @@ const val ADMIN_AUTH = "administrator"
 /** path for the frontend directory. */
 lateinit var FRONTEND_DIR: String
 
-fun main(args: Array<String>) {
+/**
+ * secrets from Bitwarden Secret Manager.
+ *
+ * please refer to Bitwarden's docs on the secret manager cli for this :)
+ */
+private val bwsEnv by lazy {
+    hashMapOf<String, String>().apply {
+        try {
+            ProcessBuilder(
+                    "bws",
+                    "secret",
+                    "list",
+                    "--output",
+                    "env",
+                    "--access-token",
+                    System.getenv("BWS_ACCESS_TOKEN"),
+                )
+                .start()
+                .inputStream
+                .bufferedReader()
+                .forEachLine { line ->
+                    val spl = line.split("=")
+
+                    val varName = spl[0]
+                    val varValue = spl[1].removeSurrounding("\"")
+
+                    put(varName, varValue)
+                }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            burrowLogger.error("There was an issue loading secrets. Please check BWS.")
+        }
+    }
+}
+
+/** Retrieve an environment variable from Bitwarden, fallback to System if it's not there. */
+fun env(name: String): String? = bwsEnv[name] ?: System.getenv(name)
+
+suspend fun main(args: Array<String>) {
     var port = 8080
 
     burrowLogger.info(DB_LOG, "Started Burrow Instance")
+
+    initDb()
 
     // debug stuff
     args.forEach { arg ->
@@ -92,6 +140,45 @@ fun main(args: Array<String>) {
             arg.startsWith("--use-port=") -> {
                 port = arg.removePrefix("--use-port=").toInt()
             }
+
+            // generate burrows
+            arg.startsWith("--gen-burrow") -> {
+                val burrowCount = arg.removePrefix("--gen-burrow=").toIntOrNull() ?: exitProcess(-1)
+
+                burrowLogger.info("Generating {} Burrows, hold on!", burrowCount)
+
+                query {
+                    val userIDs = Users.select(Users.id).toList().map { it[Users.id] }
+
+                    repeat(burrowCount) {
+                        val userID = userIDs.random()
+
+                        val now = getTimeMillis()
+                        val thirtyDaysInMillis = 30L * 24 * 60 * 60 * 1000
+                        val randomOffset = (Random.nextDouble() * thirtyDaysInMillis).toLong()
+                        val beginningTime = now + randomOffset
+
+                        val twoHoursInMillis = 2L * 60 * 60 * 1000
+                        val endTime = beginningTime + twoHoursInMillis
+
+                        createBurrow(
+                            userID,
+                            SubmittedStudyEventBurrow(
+                                "burrow burrow burrow ${Random.nextDouble()}",
+                                "this is a generated burrow :)",
+                                "yord",
+                                if (Random.nextBoolean()) BurrowKind.STUDY else BurrowKind.EVENT,
+                                beginningTime,
+                                endTime,
+                                emptySet(),
+                                Random.nextInt(5, 50),
+                                BurrowVisibility.PUBLIC,
+                                false,
+                            ),
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -105,7 +192,6 @@ fun main(args: Array<String>) {
 }
 
 suspend fun Application.module() {
-    initDb()
     notificationWorker()
 
     val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
@@ -347,7 +433,7 @@ suspend fun Application.module() {
 
         val defaultMeta =
             MetaTags(
-                title = "Burrow — Study Together @ UMN",
+                title = "Burrow",
                 description = "Host and discover your next study group. Learn better with Burrow.",
                 image = "/image/burrow.png",
             )

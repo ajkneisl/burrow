@@ -14,7 +14,7 @@ import Topics from "@features/chat/components/Topics.tsx";
  *
  * @author AJ Kneisl
  */
-export default function HomeView() {
+export default function Home() {
     const nav = useNavigate()
     const [params] = useSearchParams()
     const auth = useToken()

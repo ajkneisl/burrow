@@ -1,5 +1,6 @@
 package app.burrow.notifications.delivery.channels
 
+import app.burrow.env
 import app.burrow.notifications.delivery.Delivery
 import app.burrow.notifications.delivery.DeliveryChannel
 import app.burrow.notifications.delivery.deletePushSubscription
@@ -20,14 +21,14 @@ object Browser : DeliveryChannel {
     }
 
     /** The VAPID public key for web push. */
-    val vapidPublicKey: String? by lazy { System.getenv("VAPID_PUBLIC_KEY") }
+    val vapidPublicKey: String? by lazy { env("VAPID_PUBLIC_KEY") }
 
     /** The VAPID private key for web push. */
-    private val vapidPrivateKey: String? by lazy { System.getenv("VAPID_PRIVATE_KEY") }
+    private val vapidPrivateKey: String? by lazy { env("VAPID_PRIVATE_KEY") }
 
     /** The subject for VAPID (mailto: or https:// URL). */
     private val vapidSubject: String by lazy {
-        System.getenv("VAPID_SUBJECT") ?: "mailto:noreply@umn.app"
+        env("VAPID_SUBJECT") ?: "mailto:noreply@umn.app"
     }
 
     /** The push service instance. */
@@ -160,7 +161,7 @@ object Browser : DeliveryChannel {
 
     /** Get the icon URL for notifications. */
     private fun getIconUrl(): String {
-        val baseUrl = System.getenv("BASE_URL") ?: "http://localhost:5173"
+        val baseUrl = env("BASE_URL") ?: "http://localhost:5173"
         return "$baseUrl/image/burrow.png"
     }
 }

@@ -3,6 +3,7 @@ package app.burrow.notifications.delivery
 import app.burrow.notifications.Notification
 import app.burrow.notifications.delivery.channels.Browser
 import app.burrow.notifications.delivery.channels.Email
+import app.burrow.notifications.delivery.channels.Mobile
 import app.burrow.notifications.delivery.channels.Sse
 import app.burrow.notifications.getDeliveryChannels
 import kotlin.time.measureTimedValue
@@ -29,7 +30,8 @@ interface DeliveryChannel {
 enum class DeliveryChannels(val id: Short, val instance: DeliveryChannel) {
     EMAIL(0b0100, Email),
     BROWSER(0b0010, Browser),
-    SSE(0b0001, Sse);
+    SSE(0b0001, Sse),
+    MOBILE(0b1000, Mobile);
 
     companion object {
         private val LOGGER = LoggerFactory.getLogger(this::class.java)

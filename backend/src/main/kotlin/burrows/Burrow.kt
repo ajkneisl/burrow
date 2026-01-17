@@ -350,7 +350,7 @@ suspend fun getBurrowResponse(burrowID: String, requestingUserID: String?): Burr
         return BurrowResponse(
             burrow = burrow,
             burrowAuthor = "Fellow Burrower",
-            burrowAuthorProfile = authorProfile,
+            burrowAuthorProfile = null,
             membership = null,
             bookmarked = false,
         )

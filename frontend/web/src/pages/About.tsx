@@ -16,14 +16,14 @@ const faqItems: {
                 You can find a study group by searching on the{" "}
                 <Link
                     to="/"
-                    className="font-medium text-secondary hover:underline"
+                    className="text-secondary font-medium hover:underline"
                 >
                     home page
                 </Link>
                 . You can also{" "}
                 <Link
                     to="/browse"
-                    className="font-medium text-secondary hover:underline"
+                    className="text-secondary font-medium hover:underline"
                 >
                     browse all burrows
                 </Link>{" "}
@@ -119,7 +119,7 @@ const faqItems: {
                 Press the menu in the top right of the site, and press "Give
                 Feedback". Here, you can tell us anything, including problems
                 with a user, Burrow, or the website itself. If further
-                discussion is required, we will email you and contintue the
+                discussion is required, we will email you and continue the
                 conversation.
             </>
         )
@@ -130,39 +130,39 @@ const faqItems: {
 const teamMembers = [
     {
         name: "AJ Kneisl",
-        role: "Project Lead",
-        image: "https://media.licdn.com/dms/image/v2/D4E03AQGT_Ldmt0E6Kw/profile-displayphoto-crop_800_800/B4EZgV.cvDHEAI-/0/1752715349325?e=1765411200&v=beta&t=CxcxaCEJGtOWHlACrRyY0tV8gkQFdzYFHeYqXM7tM88",
+        role: "App, Web, & Backend",
+        image: "https://umn.app/image/team/aj.jpeg",
         linkedin: "https://www.linkedin.com/in/ajkn/",
         lead: true
     },
     {
         name: "Joshua Westerlund",
         role: "Design & Outreach",
-        image: "https://media.licdn.com/dms/image/v2/D4D03AQFCD2cI2Xre6A/profile-displayphoto-shrink_400_400/B4DZZkHO1HG0Ag-/0/1745436340497?e=1765411200&v=beta&t=zH-Hjuz4XzsjIllWroKNbOkmCo3efvKJnQ3cNo-Z-VY",
+        image: "https://umn.app/image/team/josh.jpeg",
         linkedin: "https://www.linkedin.com/in/weste637/"
     },
     {
         name: "Yordanos Eshete",
-        role: "Frontend Developer & Outreach",
-        image: "https://media.licdn.com/dms/image/v2/D5603AQG7O6l6A-4I9g/profile-displayphoto-scale_400_400/B56Zpfpt44J8Ag-/0/1762541363865?e=1765411200&v=beta&t=LyBxJPH9YxNOSgT02Hrl-xgzXbrAJcfjfJjF_ParZp8",
+        role: "Web Developer & Outreach",
+        image: "https://umn.app/image/team/yord.jpeg",
         linkedin: "https://www.linkedin.com/in/yordanoseshete/"
     },
     {
         name: "Ben Stortroen",
-        role: "Frontend Developer",
-        image: "https://media.licdn.com/dms/image/v2/D4E03AQGixrra3miq3g/profile-displayphoto-shrink_800_800/B4EZR4XfynGgAc-/0/1737186213397?e=1765411200&v=beta&t=V_96vF_0cR1weSo_FR6O3R8B0YvokV4fEh1kdy-UAUY",
+        role: "Web Developer",
+        image: "https://umn.app/image/team/ben.jpeg",
         linkedin: "https://www.linkedin.com/in/benjamin-stortroen-b61400347/"
     },
     {
         name: "Thien-Tri Nguyen",
-        role: "Design & Frontend Developer",
-        image: "https://media.licdn.com/dms/image/v2/D4E03AQGay0bvqdcevA/profile-displayphoto-crop_800_800/B4EZoAJEUfJ0AI-/0/1760938970089?e=1765411200&v=beta&t=yS6Go62tOjrMKpng-RrOvdWfaJCo2JaKkVkJnqogTZ8",
+        role: "Design & Web Developer",
+        image: "https://umn.app/image/team/tri.jpeg",
         linkedin: "https://www.linkedin.com/in/thientri-nguyen/"
     }
 ]
 
 /**
- * About page.
+ * AboutView page.
  *
  * @author AJ Kneisl, Yordanos Eshete
  */
@@ -182,14 +182,14 @@ export default function About() {
                         Burrow
                     </h1>
                     <p className="max-w-2xl text-lg font-medium text-white/90 drop-shadow-lg sm:text-xl">
-                        Connecting students, one burrow at a time
+                        Connect with classmates, join study sessions, and ace your courses together. All in one place.
                     </p>
                 </div>
             </section>
 
             {/* mission */}
             <section className="mb-24">
-                <div className="bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/5 rounded-3xl p-8 sm:p-12">
+                <div className="from-primary/5 via-secondary/5 to-primary/5 rounded-3xl bg-gradient-to-br p-8 sm:p-12">
                     <div className="mx-auto max-w-3xl text-center">
                         <h2 className="text-text mb-6 text-3xl font-bold sm:text-4xl">
                             Our Mission
@@ -266,7 +266,7 @@ export default function About() {
                                         alt={member.name}
                                         className="ring-card-border h-full w-full rounded-full object-cover ring-2"
                                     />
-                                    <div className="bg-primary absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full opacity-0 shadow-lg transition-all duration-300 group-hover:opacity-100">
+                                    <div className="bg-primary absolute -right-1 -bottom-1 flex h-7 w-7 items-center justify-center rounded-full opacity-0 shadow-lg transition-all duration-300 group-hover:opacity-100">
                                         <ExternalLink className="h-3.5 w-3.5 text-white" />
                                     </div>
                                 </div>

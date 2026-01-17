@@ -1,8 +1,10 @@
 package app.burrow.account
 
 import app.burrow.InvalidAuthorization
+import app.burrow.account.alt.login
 import app.burrow.account.models.User
 import app.burrow.account.models.deleteUser
+import app.burrow.account.models.exchangeCodeForIdToken
 import app.burrow.account.models.getUserByID
 import app.burrow.account.models.getUserByUsername
 import app.burrow.account.models.getUserResponse
@@ -175,12 +177,44 @@ val USER_ROUTES: Route.() -> Unit = {
         call.respond(HttpStatusCode.OK)
     }
 
+    /** Android OAuth code exchange request */
+    @Serializable
+    data class AndroidAuthRequest(
+        val code: String,
+        val codeVerifier: String,
+        val redirectUri: String,
+    )
+
     // PUT /user/login
     // login
     put("/login") {
-        val body = call.receiveText()
-        val user = retrieveUser(body) ?: throw InvalidAuthorization()
+        val idToken =
+            if (call.queryParameters["platform"] == "android") {
+                val request = call.receive<AndroidAuthRequest>()
+                exchangeCodeForIdToken(request.code, request.codeVerifier, request.redirectUri)
+            } else {
+                call.receiveText()
+            }
+
+        val user = retrieveUser(idToken) ?: throw InvalidAuthorization()
 
         call.respond(user)
+    }
+
+    /**
+     * A request to login to an alternative account.
+     *
+     * @param username The username to the account.
+     * @param password The password to the account.
+     */
+    @Serializable data class AltAccountLoginRequest(val username: String, val password: String)
+
+    // PUT /alt/login
+    // login to an alternative account
+    put("/altlogin") {
+        val (username, password) = call.receive<AltAccountLoginRequest>()
+        val authorizedUser = login(username, password) ?: throw InvalidAuthorization()
+
+        call.respond(authorizedUser)
     }
 }
