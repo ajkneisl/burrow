@@ -11,7 +11,10 @@ import { useQuery } from "@tanstack/react-query"
 import { Header } from "@features/layout/components"
 import { UpcomingBurrowCard } from "@features/home/components/UpcomingBurrowCard"
 import { getBurrows, searchMeetings } from "@features/burrows/burrows.api"
-import type { BurrowKind, BurrowResponse } from "@features/burrows/burrows.types"
+import type {
+    BurrowKind,
+    BurrowResponse
+} from "@features/burrows/burrows.types"
 import {
     Search,
     Filter,
@@ -32,6 +35,9 @@ import Animated, {
     useSharedValue
 } from "react-native-reanimated"
 
+/**
+ * {@link BrowseScreen}
+ */
 type GroupedSection = {
     week: string
     dayKey: string
@@ -116,7 +122,8 @@ export default function BrowseScreen() {
         let lastWeek = ""
 
         entries.forEach(([dayKey, burrows]) => {
-            const firstTime = burrows[0]?.burrow.beginningTime ?? new Date(dayKey).getTime()
+            const firstTime =
+                burrows[0]?.burrow.beginningTime ?? new Date(dayKey).getTime()
             const week = weekRangeLabel(firstTime)
             const isFirstOfWeek = week !== lastWeek
             lastWeek = week
@@ -135,7 +142,6 @@ export default function BrowseScreen() {
         return sections
     }, [data])
 
-    // Auto-expand current week on load
     useEffect(() => {
         if (groupedSections.length > 0) {
             const currentWeek = weekRangeLabel(Date.now())
@@ -186,19 +192,13 @@ export default function BrowseScreen() {
                             onPress={() => setSelectedType("CLUB")}
                         />
 
-                        <FilterChip
-                            label="Project"
-                            active={selectedType === "PROJECT"}
-                            onPress={() => setSelectedType("PROJECT")}
-                        />
-
                         {/* more filters */}
                         <Pressable
                             onPress={() =>
                                 setShowAdvancedFilters(!showAdvancedFilters)
                             }
                             className={`px-4 py-2 rounded-full flex-row items-center gap-1 ${
-                                hasAdvancedFilters ? "bg-secondary" : "bg-card"
+                                hasAdvancedFilters ? "bg-primary" : "bg-card"
                             }`}
                         >
                             <Filter
@@ -243,7 +243,7 @@ export default function BrowseScreen() {
 
                 {/* advanced */}
                 {showAdvancedFilters && (
-                    <View className="px-6 pb-4 gap-3">
+                    <View className="mx-4 mb-4 p-4 bg-card rounded-xl gap-4">
                         {/* checkboxes */}
                         <View className="flex-row gap-4">
                             <LabeledSwitch
@@ -262,7 +262,7 @@ export default function BrowseScreen() {
                         {/* Date Range */}
                         <View className="flex-row gap-3">
                             <View className="flex-1">
-                                <Text className="text-text text-opacity-60 text-xs mb-1">
+                                <Text className="text-text/60 text-xs mb-1">
                                     Start Date
                                 </Text>
 
@@ -270,12 +270,12 @@ export default function BrowseScreen() {
                                     mode="date"
                                     value={startDate ?? null}
                                     onChange={setStartDate}
-                                    placeholder="Select start date"
+                                    placeholder="Select start"
                                 />
                             </View>
 
                             <View className="flex-1">
-                                <Text className="text-text text-opacity-60 text-xs mb-1">
+                                <Text className="text-text/60 text-xs mb-1">
                                     End Date
                                 </Text>
 
@@ -283,7 +283,7 @@ export default function BrowseScreen() {
                                     mode="date"
                                     value={endDate ?? null}
                                     onChange={setEndDate}
-                                    placeholder="Select end date"
+                                    placeholder="Select end"
                                 />
                             </View>
                         </View>
@@ -297,10 +297,10 @@ export default function BrowseScreen() {
                                     setStartDate(undefined)
                                     setEndDate(undefined)
                                 }}
-                                className="bg-error/10 px-4 py-2 rounded-lg"
+                                className="bg-error/10 py-2 rounded-lg"
                             >
-                                <Text className="text-error text-sm font-semibold text-center">
-                                    Clear Advanced Filters
+                                <Text className="text-error text-sm font-medium text-center">
+                                    Clear Filters
                                 </Text>
                             </Pressable>
                         )}

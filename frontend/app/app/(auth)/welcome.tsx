@@ -24,9 +24,10 @@ import * as Application from "expo-application";
  */
 export default function WelcomeScreen() {
     const router = useRouter()
-    const [auth] = useAtom(authToken)
     const { signIn, loading, error, isReady } = useGoogleAuth()
     const colors = useThemeColors()
+
+    const [auth] = useAtom(authToken)
 
     // go away if already authenticated
     useEffect(() => {
