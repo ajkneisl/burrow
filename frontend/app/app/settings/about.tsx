@@ -121,7 +121,7 @@ export default function AboutScreen() {
                         </Text>
 
                         <Text className="text-white text-opacity-90 text-center text-base">
-                            Connecting students, one burrow at a time
+                            Connecting students, one Burrow at a time
                         </Text>
 
                         <Text className="text-white text-opacity-70 text-sm mt-4">

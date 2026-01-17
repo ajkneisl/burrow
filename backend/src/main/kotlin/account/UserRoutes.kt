@@ -4,10 +4,10 @@ import app.burrow.InvalidAuthorization
 import app.burrow.account.alt.login
 import app.burrow.account.models.User
 import app.burrow.account.models.deleteUser
+import app.burrow.account.models.exchangeCodeForIdToken
 import app.burrow.account.models.getUserByID
 import app.burrow.account.models.getUserByUsername
 import app.burrow.account.models.getUserResponse
-import app.burrow.account.models.exchangeCodeForIdToken
 import app.burrow.account.models.retrieveUser
 import app.burrow.account.models.searchUsers
 import app.burrow.account.models.updateUsername
@@ -182,18 +182,19 @@ val USER_ROUTES: Route.() -> Unit = {
     data class AndroidAuthRequest(
         val code: String,
         val codeVerifier: String,
-        val redirectUri: String
+        val redirectUri: String,
     )
 
     // PUT /user/login
     // login
     put("/login") {
-        val idToken = if (call.queryParameter("platform") == "android") {
-            val request = call.receive<AndroidAuthRequest>()
-            exchangeCodeForIdToken(request.code, request.codeVerifier, request.redirectUri)
-        } else {
-            call.receiveText()
-        }
+        val idToken =
+            if (call.queryParameters["platform"] == "android") {
+                val request = call.receive<AndroidAuthRequest>()
+                exchangeCodeForIdToken(request.code, request.codeVerifier, request.redirectUri)
+            } else {
+                call.receiveText()
+            }
 
         val user = retrieveUser(idToken) ?: throw InvalidAuthorization()
 
