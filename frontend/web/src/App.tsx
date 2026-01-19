@@ -24,8 +24,9 @@ import { store } from "@api/api.atom.ts"
 import { authToken } from "@features/auth/auth.atom.ts"
 import { APIProvider } from "@vis.gl/react-google-maps"
 import MapView from "@pages/Map.view.tsx"
-import Delete from "@pages/Delete.view.tsx"
+import Delete from "@pages/info/Delete.view.tsx"
 import TaView from "@pages/Ta.view.tsx"
+import Support from "@pages/info/Support.view.tsx";
 
 /**
  * This defines all routes in Burrow.
@@ -40,6 +41,7 @@ const router = createBrowserRouter([
             { path: "about", element: <About /> },
             { path: "yord", element: <Yordanos /> },
             { path: "delete", element: <Delete /> },
+            { path: "support", element: <Support /> },
             { path: "welcome", element: <LandingView /> },
             { path: "browse", element: <Browse /> },
             { path: "friends", element: <Friends /> },

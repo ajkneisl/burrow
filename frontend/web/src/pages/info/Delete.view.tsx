@@ -1,5 +1,7 @@
 /**
  * Request to delete an account.
+ *
+ * @author AJ Kneisl
  */
 export default function Delete() {
     return (
