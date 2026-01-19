@@ -16,6 +16,8 @@ import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.innerJoin
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.QueryBuilder
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.core.or
@@ -87,12 +89,20 @@ suspend fun search(searchQuery: String, page: Int = 1): PaginatedResponse<Search
                 .count()
 
         // count total burrows
+        val tagsSearchExpr = object : Op<Boolean>() {
+            override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+                queryBuilder.append(
+                    "lower(array_to_string(burrows.tags, ' ')) LIKE '$pattern'"
+                )
+            }
+        }
+
         val burrowSearchExpr =
             (Burrows.visibility eq BurrowVisibility.PUBLIC) and
                 ((Burrows.title.lowerCase() like pattern) or
                     (Burrows.description.lowerCase() like pattern) or
                     (Burrows.location.lowerCase() like pattern) or
-                    (Burrows.tags.lowerCase() like pattern))
+                    tagsSearchExpr)
 
         val totalBurrows = Burrows.select(Burrows.id).where { burrowSearchExpr }.count()
 

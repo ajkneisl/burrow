@@ -135,7 +135,8 @@ export async function searchMeetings(
     startDate?: number,
     endDate?: number,
     isHost?: boolean,
-    isBookmarked?: boolean
+    isBookmarked?: boolean,
+    isTa?: boolean
 ): Promise<PaginatedResponse<BurrowResponse>> {
     return await get("/burrows/search", {
         query: {
@@ -145,7 +146,8 @@ export async function searchMeetings(
             start: startDate,
             end: endDate,
             host: isHost ?? undefined,
-            bookmarked: isBookmarked ?? undefined
+            bookmarked: isBookmarked ?? undefined,
+            ta: isTa ?? undefined
         }
     })
 }

@@ -1,5 +1,6 @@
 package app.burrow.burrows
 
+import app.burrow.burrows.models.BurrowVisibility
 import app.burrow.burrows.models.Burrows
 import app.burrow.query
 import java.time.Instant
@@ -9,6 +10,7 @@ import java.time.ZoneId
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -28,7 +30,6 @@ suspend fun getHeatmapRange(start: YearMonth, end: YearMonth): Map<String, Map<I
 
         var current = start
 
-        // Inclusive of the end month
         while (!current.isAfter(end)) {
             val key = "%04d-%02d".format(current.year, current.monthValue)
             buckets.putIfAbsent(key, mutableMapOf())
@@ -37,8 +38,9 @@ suspend fun getHeatmapRange(start: YearMonth, end: YearMonth): Map<String, Map<I
 
         Burrows.selectAll()
             .where {
-                (Burrows.beginningTime greaterEq startMillis) and
-                    (Burrows.beginningTime less endMillis)
+                (Burrows.beginningTime greaterEq startMillis) and       // ensure correct timeframe
+                    (Burrows.beginningTime less endMillis) and
+                    (Burrows.visibility eq BurrowVisibility.PUBLIC)     // ensure burrow public
             }
             .map {
                 val ld = Instant.ofEpochMilli(it[Burrows.beginningTime]).atZone(zone).toLocalDate()

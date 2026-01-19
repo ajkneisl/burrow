@@ -160,6 +160,7 @@ export default function UserProfileScreen() {
                     profile={profile}
                     following={following}
                     recentBurrows={data.recentHostedBurrows}
+                    isTa={data.isTa}
                     actionButton={
                         <Button
                             variant={isFollowing ? "outline" : "primary"}

@@ -27,7 +27,8 @@ import {
     Settings,
     UserPlus,
     ListChecks,
-    X
+    X,
+    GraduationCap
 } from "lucide-react-native"
 import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { Button, Card, Modal } from "@components/core"
@@ -366,14 +367,32 @@ export default function BurrowDetailScreen() {
                             size={"md"}
                         />
 
-                        <View>
+                        <View className="flex-1">
                             <Text className="text-sm text-text text-opacity-60">
                                 {isProject ? "Created by" : "Hosted by"}
                             </Text>
-                            <Text className="text-base text-text font-semibold">
-                                {data.burrowAuthorProfile?.name ||
-                                    data.burrowAuthor}
-                            </Text>
+                            <View className="flex-row items-center gap-2">
+                                <Text className="text-base text-text font-semibold">
+                                    {data.burrowAuthorProfile?.name ||
+                                        data.burrowAuthor}
+                                </Text>
+
+                                {/* TA badge */}
+                                {data.hostedByTa && (
+                                    <View
+                                        className="px-2 py-0.5 rounded-full flex-row items-center gap-1"
+                                        style={{ backgroundColor: `${colors.info}33` }}
+                                    >
+                                        <GraduationCap size={12} color={colors.info} />
+                                        <Text
+                                            className="text-xs font-bold"
+                                            style={{ color: colors.info }}
+                                        >
+                                            TA
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
                         </View>
                     </Pressable>
                 </View>

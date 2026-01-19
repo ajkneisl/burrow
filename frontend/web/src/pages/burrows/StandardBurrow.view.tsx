@@ -1,7 +1,7 @@
 import { Link, Navigate, useNavigate, useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
-import { Archive, Clock } from "lucide-react"
+import { Archive, Clock, GraduationCap } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { getBurrow } from "@features/burrows/burrows.api.ts"
 import BurrowLocation from "@features/burrows/components/BurrowLocation.tsx"
@@ -221,6 +221,14 @@ export default function StandardBurrow() {
                                                         ?.name || burrowAuthor}
                                                 </span>
                                             </p>
+
+                                            {/* TA badge */}
+                                            {data.hostedByTa && (
+                                                <span className="bg-info/10 text-info ring-info/30 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset">
+                                                    <GraduationCap className="h-3 w-3" />
+                                                    TA
+                                                </span>
+                                            )}
                                         </div>
 
                                         <span className="text-text/50 hidden md:block">

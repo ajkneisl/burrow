@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from "react-native"
 import { useRouter } from "expo-router"
-import { Clock, Check, MapPin, Star, Bookmark } from "lucide-react-native"
+import { Clock, Check, MapPin, Star, Bookmark, GraduationCap } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import useUser from "@features/auth/hooks/useUser"
 import { ProfilePicture } from "@components/profile/ProfilePicture"
@@ -34,7 +34,7 @@ export function UpcomingBurrowCard({
     const router = useRouter()
     const colors = useThemeColors()
     const user = useUser()
-    const { burrow, membership, bookmarked, burrowAuthorProfile } =
+    const { burrow, membership, bookmarked, burrowAuthorProfile, hostedByTa } =
         burrowResponse
 
     const kindConfig =
@@ -188,6 +188,22 @@ export function UpcomingBurrowCard({
                                 {kindConfig.label}
                             </Text>
                         </View>
+
+                        {/* TA badge */}
+                        {hostedByTa && (
+                            <View
+                                className="px-2 py-1 rounded-full flex-row items-center gap-1"
+                                style={{ backgroundColor: `${colors.info}33` }}
+                            >
+                                <GraduationCap size={12} color={colors.info} />
+                                <Text
+                                    className="text-xs font-bold"
+                                    style={{ color: colors.info }}
+                                >
+                                    TA
+                                </Text>
+                            </View>
+                        )}
                     </View>
 
                     {/* Location, Capacity and Waitlist */}

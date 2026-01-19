@@ -19,6 +19,7 @@ import kotlinx.serialization.Serializable
  *   be false.
  * @param highlightedTags The tags that are of interest to the user. This is a list of their indexes
  *   in [app.burrow.groups.Burrow.tags].
+ * @param hostedbyTa If the meeting is hosted by an approved TA for the class.
  */
 @Serializable
 data class BurrowResponse(
@@ -29,4 +30,5 @@ data class BurrowResponse(
     var requestedToJoin: Boolean? = null,
     var bookmarked: Boolean,
     var highlightedTags: List<Int> = listOf(),
+    var hostedByTa: Boolean? = null,
 )

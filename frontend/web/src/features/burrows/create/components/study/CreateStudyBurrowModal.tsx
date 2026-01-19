@@ -3,7 +3,7 @@ import { useNavigate } from "react-router"
 import type { Burrow } from "@features/burrows/burrows.types.tsx"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button, Modal, ViewErrors } from "@umnburrow/core"
-import ScheduleStep from "@features/burrows/create/components/study/ScheduleStep.tsx"
+import ScheduleStep from "@features/burrows/create/components/ScheduleStep.tsx"
 import {
     initialFormState,
     type SubmittedBurrow,

@@ -14,6 +14,7 @@ import About from "@features/profile/components/About.tsx"
 import Contact from "@features/profile/components/Contact.tsx"
 import EditProfile from "@features/profile/components/EditProfile.tsx"
 import { convertGraduationYear } from "@api/util.ts"
+import { GraduationCap } from "lucide-react"
 import Relations from "@features/profile/components/Relations.tsx"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 import { useAtom } from "jotai"
@@ -184,6 +185,14 @@ export default function ProfileView() {
                                             data.profile.gradYear
                                         )}
                                     </Badge>
+                                )}
+
+                                {/* TA badge */}
+                                {data.isTa && (
+                                    <span className="bg-info/10 text-info ring-info/30 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset">
+                                        <GraduationCap className="h-3 w-3" />
+                                        TA
+                                    </span>
                                 )}
                             </div>
 

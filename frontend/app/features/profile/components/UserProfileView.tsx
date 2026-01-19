@@ -1,5 +1,5 @@
 import { View, Text, Pressable, Linking, Alert } from "react-native"
-import { Calendar, Users, Instagram, Linkedin } from "lucide-react-native"
+import { Calendar, Users, Instagram, Linkedin, GraduationCap } from "lucide-react-native"
 import { Card } from "@components/core"
 import { ProfilePicture } from "@components/profile/ProfilePicture"
 import { UpcomingBurrowCard } from "@features/home/components/UpcomingBurrowCard"
@@ -14,6 +14,7 @@ type UserProfileViewProps = {
     following?: Following
     recentBurrows?: BurrowResponse[]
     actionButton?: React.ReactNode
+    isTa?: boolean
 }
 
 /**
@@ -24,7 +25,8 @@ export function UserProfileView({
     profile,
     following,
     recentBurrows,
-    actionButton
+    actionButton,
+    isTa
 }: UserProfileViewProps) {
     const colors = useThemeColors()
 
@@ -45,9 +47,27 @@ export function UserProfileView({
                 <Text className="text-2xl font-bold text-text">
                     {profile.name || user.username}
                 </Text>
-                <Text className="text-text text-opacity-60 mt-1">
-                    @{user.username}
-                </Text>
+                <View className="flex-row items-center gap-2 mt-1">
+                    <Text className="text-text text-opacity-60">
+                        @{user.username}
+                    </Text>
+
+                    {/* TA badge */}
+                    {isTa && (
+                        <View
+                            className="flex-row items-center gap-1 px-2 py-0.5 rounded-full"
+                            style={{ backgroundColor: `${colors.info}33` }}
+                        >
+                            <GraduationCap size={12} color={colors.info} />
+                            <Text
+                                className="text-xs font-bold"
+                                style={{ color: colors.info }}
+                            >
+                                TA
+                            </Text>
+                        </View>
+                    )}
+                </View>
 
                 {/* Follow/Following Stats */}
                 {following && (

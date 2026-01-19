@@ -4,6 +4,7 @@ import app.burrow.NotFound
 import app.burrow.account.models.Users
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
+import app.burrow.account.ta.getUserTAStatus
 import app.burrow.burrows.bookmarks.Bookmarks
 import app.burrow.burrows.invites.JoinRequestStatus
 import app.burrow.burrows.invites.createInvite
@@ -31,7 +32,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.and
@@ -116,7 +116,7 @@ data class Burrow(
                 endTime = row[Burrows.endTime],
                 beginningTime = row[Burrows.beginningTime],
                 capacity = row[Burrows.capacity],
-                tags = Json.decodeFromString<Set<String>>(row[Burrows.tags]),
+                tags = row[Burrows.tags].toSet(),
                 visibility = row[Burrows.visibility],
                 requestToJoin = row[Burrows.requestToJoin],
                 joined = joined,
@@ -162,7 +162,7 @@ suspend fun createProjectBurrow(userID: String, project: SubmittedProjectBurrow)
             it[kind] = projectBurrow.kind
             it[beginningTime] = projectBurrow.beginningTime
             it[endTime] = projectBurrow.endTime
-            it[tags] = Json.encodeToString(projectBurrow.tags)
+            it[tags] = projectBurrow.tags.toList()
             it[creationDate] = projectBurrow.creationDate
             it[capacity] = projectBurrow.capacity
             it[visibility] = projectBurrow.visibility
@@ -239,7 +239,7 @@ suspend fun createBurrow(userID: String, meeting: SubmittedStudyEventBurrow): Bu
             it[kind] = groupMeeting.kind
             it[beginningTime] = groupMeeting.beginningTime
             it[endTime] = groupMeeting.endTime
-            it[tags] = Json.encodeToString(groupMeeting.tags)
+            it[tags] = groupMeeting.tags.toList()
             it[creationDate] = groupMeeting.creationDate
             it[capacity] = groupMeeting.capacity
             it[visibility] = groupMeeting.visibility
@@ -345,6 +345,15 @@ suspend fun getBurrowResponse(burrowID: String, requestingUserID: String?): Burr
         if (!isMember) throw NotFound()
     }
 
+    // Check if the burrow owner is a TA for one of the classes in the tags
+    val hostedByTa = getUserTAStatus(burrow.ownerID)?.let { taStatus ->
+        val normalizedTags = burrow.tags.map { it.replace(Regex("[\\s_-]"), "").lowercase() }.toSet()
+        taStatus.classes.any { taClass ->
+            val normalizedClass = taClass.replace(Regex("[\\s_-]"), "").lowercase()
+            normalizedTags.contains(normalizedClass)
+        }
+    } ?: false
+
     // return response without user-specific data if no userID provided
     if (requestingUserID.isNullOrBlank()) {
         return BurrowResponse(
@@ -353,6 +362,7 @@ suspend fun getBurrowResponse(burrowID: String, requestingUserID: String?): Burr
             burrowAuthorProfile = null,
             membership = null,
             bookmarked = false,
+            hostedByTa = hostedByTa,
         )
     }
 
@@ -412,6 +422,7 @@ suspend fun getBurrowResponse(burrowID: String, requestingUserID: String?): Burr
         requestedToJoin = requestedToJoin,
         bookmarked = bookmarked,
         highlightedTags = highlightedTags,
+        hostedByTa = hostedByTa,
     )
 }
 
@@ -495,7 +506,7 @@ suspend fun updatedBurrow(meetingId: String, meeting: SubmittedStudyEventBurrow)
         it[Burrows.location] = meeting.location
         it[Burrows.beginningTime] = meeting.beginningTime
         it[Burrows.endTime] = meeting.endTime
-        it[Burrows.tags] = Json.encodeToString(meeting.tags)
+        it[Burrows.tags] = meeting.tags.toList()
         it[Burrows.capacity] = meeting.capacity
         it[Burrows.visibility] = meeting.visibility
         it[Burrows.requestToJoin] = meeting.requestToJoin

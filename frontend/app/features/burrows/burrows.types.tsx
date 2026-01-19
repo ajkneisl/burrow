@@ -164,6 +164,7 @@ export interface BurrowResponse {
     requestedToJoin: boolean
     bookmarked: boolean
     highlightedTags: number[]
+    hostedByTa?: boolean
 }
 
 /**

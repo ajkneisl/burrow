@@ -96,6 +96,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
 
         val bookmarked = call.optionalBooleanQueryParameter("bookmarked")
         val host = call.optionalBooleanQueryParameter("host")
+        val ta = call.optionalBooleanQueryParameter("ta")
 
         val range =
             if (startDate != null && endDate != null) {
@@ -112,6 +113,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
                 requestingUserID = call.userID
                 isHostedBy = if (host == true) call.userID else null
                 isBookmarked = bookmarked
+                isTa = ta == true
             }
         )
     }

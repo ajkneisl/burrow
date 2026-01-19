@@ -1,5 +1,10 @@
 import { Link } from "react-router"
 
+/**
+ * Footer
+ *
+ * @author AJ Kneisl
+ */
 export default function Footer() {
     return (
         <footer className="border-card-border mt-auto border-t py-6">
@@ -9,8 +14,8 @@ export default function Footer() {
                 </p>
 
                 <nav className="text-text/50 flex flex-wrap justify-center gap-x-6 gap-y-2">
-                    <Link to="/browse" className="hover:text-text transition-colors">
-                        Browse
+                    <Link to="/ta" className="hover:text-text transition-colors">
+                        Become a TA
                     </Link>
                     <Link to="/about" className="hover:text-text transition-colors">
                         About

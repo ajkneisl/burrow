@@ -3,10 +3,10 @@ import StandardBurrow from "@pages/burrows/StandardBurrow.view.tsx"
 import ProjectBurrow from "@pages/burrows/ProjectBurrow.view.tsx"
 import Browse from "@pages/burrows/Browse.view.tsx"
 import LandingView from "@pages/Landing.view.tsx"
-import About from "@pages/About.tsx"
+import About from "@pages/info/About.tsx"
 import NotFound from "@pages/NotFound.view.tsx"
-import Privacy from "@pages/Privacy.view.tsx"
-import ToS from "@pages/ToS.view.tsx"
+import Privacy from "@pages/info/Privacy.view.tsx"
+import ToS from "@pages/info/ToS.view.tsx"
 import SettingsView from "@pages/Settings.view.tsx"
 import ProfileView from "@pages/Profile.view.tsx"
 import Discuss from "@pages/Discuss.view.tsx"
@@ -14,7 +14,7 @@ import TopicView from "@pages/Topic.view.tsx"
 import Friends from "@pages/Friends.view.tsx"
 import History from "@pages/History.view.tsx"
 import { createBrowserRouter, RouterProvider } from "react-router"
-import Yordanos from "@pages/Yordanos.view.tsx"
+import Yordanos from "@pages/info/Yordanos.view.tsx"
 import ErrorElement from "@pages/Error.view.tsx"
 import BurrowRedirect from "@pages/burrows/Burrow.redirect.tsx"
 import RootLayout from "@features/layout/components/RootLayout.tsx"
@@ -25,6 +25,7 @@ import { authToken } from "@features/auth/auth.atom.ts"
 import { APIProvider } from "@vis.gl/react-google-maps"
 import MapView from "@pages/Map.view.tsx"
 import Delete from "@pages/Delete.view.tsx"
+import TaView from "@pages/Ta.view.tsx"
 
 /**
  * This defines all routes in Burrow.
@@ -50,6 +51,7 @@ const router = createBrowserRouter([
             { path: "discuss/:id", element: <TopicView /> },
             { path: "privacy", element: <Privacy /> },
             { path: "tos", element: <ToS /> },
+            { path: "ta", element: <TaView /> },
             { path: "burrow/:id", element: <StandardBurrow /> },
             { path: "project/:id", element: <ProjectBurrow /> },
             { path: ":id", element: <BurrowRedirect /> },

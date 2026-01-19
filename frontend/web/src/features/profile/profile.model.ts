@@ -39,6 +39,7 @@ export type UserResponse = {
     recentJoinedBurrows: BurrowResponse[]
     recentHostedBurrows: BurrowResponse[]
     email?: string
+    isTa?: boolean
 }
 
 /**

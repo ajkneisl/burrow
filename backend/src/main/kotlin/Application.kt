@@ -100,6 +100,8 @@ private val bwsEnv by lazy {
                     val varName = spl[0]
                     val varValue = spl[1].removeSurrounding("\"")
 
+                    burrowLogger.debug("Found $varName in BWS")
+
                     put(varName, varValue)
                 }
         } catch (ex: Exception) {

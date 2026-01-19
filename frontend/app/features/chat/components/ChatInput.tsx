@@ -59,8 +59,9 @@ export default function ChatInput({
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             keyboardVerticalOffset={100}
         >
-            <View className="border-t border-card-border pt-4 px-4 pb-2 bg-background dark:bg-background">
-                {/* Edit mode indicator */}
+            <View className="border-t border-card-border bg-card dark:bg-card">
+              <View className="pt-4 px-4 pb-2">
+                {/* edit mode indicator */}
                 {isEditing && (
                     <View className="bg-warn/10 border border-warn/20 rounded-lg px-3 py-2 mb-3 flex-row items-center justify-between">
                         <View className="flex-row items-center gap-2">
@@ -83,7 +84,7 @@ export default function ChatInput({
                     </View>
                 )}
 
-                {/* Input and send button */}
+                {/* input and send button */}
                 <View className="flex-row gap-2">
                     <TextInput
                         value={value}
@@ -91,7 +92,7 @@ export default function ChatInput({
                         placeholder={
                             isDisabled ? disconnectedPlaceholder : placeholder
                         }
-                        placeholderTextColor="#9CA3AF"
+                        placeholderTextColor={`${colors.text}99`}
                         editable={!isDisabled}
                         multiline
                         className="flex-1 border border-card-border rounded-lg px-4 py-3 text-base text-text dark:text-text bg-background dark:bg-background"
@@ -113,6 +114,7 @@ export default function ChatInput({
                         )}
                     </Button>
                 </View>
+              </View>
             </View>
         </KeyboardAvoidingView>
     )

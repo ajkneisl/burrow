@@ -5,6 +5,7 @@ import app.burrow.account.profile.FollowResponse
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
 import app.burrow.account.profile.getFollowing
+import app.burrow.account.ta.getUserTAStatus
 import app.burrow.burrows.models.BurrowResponse
 import app.burrow.burrows.searchBurrows
 import app.burrow.query
@@ -22,6 +23,8 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
  * @param following Following information.
  * @param recentJoinedBurrows The Burrows the user joined that are coming up.
  * @param recentHostedBurrows The Burrows the user is hosting that are coming up.
+ * @param email The user's email. This is only responded with if the user is requesting themself.
+ * @param isTa If the user is an approved TA.
  */
 @Serializable
 data class UserResponse(
@@ -31,6 +34,7 @@ data class UserResponse(
     val recentJoinedBurrows: List<BurrowResponse>,
     val recentHostedBurrows: List<BurrowResponse>,
     val email: String? = null,
+    val isTa: Boolean? = null,
 )
 
 /**
@@ -97,6 +101,9 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
             }
             .contents
 
+    // Check if the user is a TA
+    val isTa = getUserTAStatus(userID) != null
+
     UserResponse(
         user = User.fromRow(userRow),
         profile = profile,
@@ -104,5 +111,6 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
         recentJoinedBurrows = joinedMeetings,
         recentHostedBurrows = hostedMeetings,
         email = if (requestingUserID == userID) userRow[Users.email] else null,
+        isTa = isTa,
     )
 }

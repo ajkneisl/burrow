@@ -10,7 +10,7 @@ import clsx from "clsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useMemo } from "react"
 import BurrowCapacity from "@features/burrows/components/BurrowCapacity.tsx"
-import { Calendar, Check, Star, Bookmark, MapPin } from "lucide-react"
+import { Calendar, Check, Star, Bookmark, MapPin, GraduationCap } from "lucide-react"
 
 /**
  * {@see GroupMeetingCard}
@@ -181,6 +181,14 @@ export function BurrowCard({
                                 {BURROW_KIND_CONFIG[burrow.kind]?.label}
                             </span>
 
+                            {/* TA badge */}
+                            {meetingResponse.hostedByTa && (
+                                <span className="bg-info/10 text-info inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
+                                    <GraduationCap className="h-3 w-3" />
+                                    TA
+                                </span>
+                            )}
+
                             {Object.keys(tags)
                                 .slice(0, 2)
                                 .map((tag: string) => (
@@ -215,6 +223,14 @@ export function BurrowCard({
                                 {BURROW_KIND_CONFIG[burrow.kind]?.icon}
                                 {BURROW_KIND_CONFIG[burrow.kind]?.label}
                             </span>
+
+                            {/* TA badge */}
+                            {meetingResponse.hostedByTa && (
+                                <span className="bg-info/10 text-info inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
+                                    <GraduationCap className="h-3 w-3" />
+                                    TA
+                                </span>
+                            )}
 
                             {burrow.tags.map((tag: string) => (
                                 <Badge key={tag}>{tag}</Badge>

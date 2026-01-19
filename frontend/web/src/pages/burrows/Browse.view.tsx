@@ -23,6 +23,7 @@ export default function Browse() {
     const [showFilters, setShowFilters] = useState(false)
     const [isHost, setIsHost] = useState(false)
     const [isBookmarked, setIsBookmarked] = useState(false)
+    const [isTa, setIsTa] = useState(false)
 
     const [startDate, endDate, picker] = useDateRangePicker()
 
@@ -46,7 +47,7 @@ export default function Browse() {
     // go back to the first page when the search changes
     useEffect(() => {
         setCurrentPage(1)
-    }, [query, startDate, endDate, isHost, isBookmarked])
+    }, [query, startDate, endDate, isHost, isBookmarked, isTa])
 
     const { data, isLoading, isFetching, error, refetch } = useQuery({
         queryKey: [
@@ -56,7 +57,8 @@ export default function Browse() {
             startDate,
             endDate,
             isHost,
-            isBookmarked
+            isBookmarked,
+            isTa
         ],
         queryFn: async () =>
             await searchMeetings(
@@ -66,7 +68,8 @@ export default function Browse() {
                 startDate as number | undefined,
                 endDate as number | undefined,
                 isHost,
-                isBookmarked
+                isBookmarked,
+                isTa
             ),
         refetchOnWindowFocus: false
     })
@@ -183,35 +186,73 @@ export default function Browse() {
                                     transition={{ duration: 0.2 }}
                                     className="overflow-hidden"
                                 >
-                                    <div className="bg-card border-card-border space-y-3 rounded-lg border p-4">
+                                    <div className="bg-card border-card-border flex flex-wrap gap-4 rounded-lg border p-4">
                                         <label className="flex cursor-pointer items-center gap-3">
-                                            <input
-                                                type="checkbox"
-                                                checked={isHost}
-                                                onChange={(e) =>
-                                                    setIsHost(e.target.checked)
-                                                }
-                                                className="border-card-border bg-card checked:bg-primary checked:border-primary focus:ring-primary/20 h-4 w-4 cursor-pointer rounded transition-colors focus:ring-2"
-                                            />
-
+                                            <button
+                                                type="button"
+                                                role="switch"
+                                                aria-checked={isHost}
+                                                onClick={() => setIsHost(!isHost)}
+                                                className={clsx(
+                                                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary/20",
+                                                    isHost ? "bg-primary" : "bg-text/20"
+                                                )}
+                                            >
+                                                <span
+                                                    className={clsx(
+                                                        "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                                                        isHost ? "translate-x-5" : "translate-x-0"
+                                                    )}
+                                                />
+                                            </button>
                                             <span className="text-text text-sm font-medium">
                                                 Hosting
                                             </span>
                                         </label>
 
                                         <label className="flex cursor-pointer items-center gap-3">
-                                            <input
-                                                type="checkbox"
-                                                checked={isBookmarked}
-                                                onChange={(e) =>
-                                                    setIsBookmarked(
-                                                        e.target.checked
-                                                    )
-                                                }
-                                                className="border-card-border bg-card checked:bg-primary checked:border-primary focus:ring-primary/20 h-4 w-4 cursor-pointer rounded transition-colors focus:ring-2"
-                                            />
+                                            <button
+                                                type="button"
+                                                role="switch"
+                                                aria-checked={isBookmarked}
+                                                onClick={() => setIsBookmarked(!isBookmarked)}
+                                                className={clsx(
+                                                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary/20",
+                                                    isBookmarked ? "bg-primary" : "bg-text/20"
+                                                )}
+                                            >
+                                                <span
+                                                    className={clsx(
+                                                        "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                                                        isBookmarked ? "translate-x-5" : "translate-x-0"
+                                                    )}
+                                                />
+                                            </button>
                                             <span className="text-text text-sm font-medium">
                                                 Bookmarked
+                                            </span>
+                                        </label>
+
+                                        <label className="flex cursor-pointer items-center gap-3">
+                                            <button
+                                                type="button"
+                                                role="switch"
+                                                aria-checked={isTa}
+                                                onClick={() => setIsTa(!isTa)}
+                                                className={clsx(
+                                                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-info/20",
+                                                    isTa ? "bg-info" : "bg-text/20"
+                                                )}
+                                            >
+                                                <span
+                                                    className={clsx(
+                                                        "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                                                        isTa ? "translate-x-5" : "translate-x-0"
+                                                    )}
+                                                />
+                                            </button>
+                                            <span className="text-text text-sm font-medium">
+                                                TA Hosted
                                             </span>
                                         </label>
                                     </div>

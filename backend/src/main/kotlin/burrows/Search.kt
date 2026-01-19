@@ -3,6 +3,7 @@ package app.burrow.burrows
 import app.burrow.account.models.Users
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
+import app.burrow.account.ta.getTAUserIDs
 import app.burrow.burrows.bookmarks.Bookmark
 import app.burrow.burrows.bookmarks.Bookmarks
 import app.burrow.burrows.membership.Membership
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.QueryBuilder
 import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.countDistinct
@@ -116,14 +118,20 @@ data class SearchBurrowsBuilder(
     /** Filter by if the ID provided is in the Burrow. */
     var isJoinedBy: String? = null,
 
+    /** Filter by TA hosted. */
+    var isTa: Boolean? = null,
+
     /** Force all the Burrows responded to have a specific name. */
     var forceAuthorName: String? = null,
 
     /** Override the provided page and set how the request offset. */
     var offset: Long? = null,
 
-    /** Override the provided page and set a limit of how many Burrows.. */
+    /** Override the provided page and set a limit of how many Burrows. */
     var limit: Int? = null,
+
+    /** Ignore TA and prevent the request. */
+    var preventTa: Boolean = false,
 )
 
 /**
@@ -151,9 +159,11 @@ suspend fun searchBurrows(
         isBookmarked,
         isHostedBy,
         isJoinedBy,
+        isTa,
         forceAuthorName,
         offset,
-        limit) =
+        limit,
+        preventTa) =
         context
 
     // ensure the meeting is on the proper day
@@ -190,10 +200,19 @@ suspend fun searchBurrows(
             val cleanQuery = query.trim().lowercase().replace("%", "\\%").replace("_", "\\_")
             val pattern = "%$cleanQuery%"
 
+            // Custom expression to search in tags array (convert array to string)
+            val tagsSearchExpr = object : Op<Boolean>() {
+                override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+                    queryBuilder.append(
+                        "lower(array_to_string(burrows.tags, ' ')) LIKE '$pattern'"
+                    )
+                }
+            }
+
             ((Burrows.title.lowerCase() like pattern) or
                 (Burrows.description.lowerCase() like pattern) or
                 (Burrows.location.lowerCase() like pattern) or
-                (Burrows.tags.lowerCase() like pattern))
+                tagsSearchExpr)
         } else Op.TRUE
 
     // ensure the kind of burrow
@@ -208,8 +227,31 @@ suspend fun searchBurrows(
     // get only hosted burrows
     val hostExpr = if (isHostedBy != null) (Burrows.ownerID eq isHostedBy) else Op.TRUE
 
+    // ta filter - filter to burrows hosted by TAs where their classes overlap with the tags
+    val taExpr: Op<Boolean> =
+        if (isTa == true && !preventTa) {
+            // Check if the burrow owner is a TA AND their classes array overlaps with tags array
+            // Uses PostgreSQL && operator for array overlap
+            object : Op<Boolean>() {
+                override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+                    queryBuilder.append(
+                        """
+                        EXISTS (
+                            SELECT 1 FROM account_ta ta
+                            WHERE ta.user_id = burrows.owner_id
+                            AND ta.classes && burrows.tags
+                        )
+                        """.trimIndent()
+                    )
+                }
+            }
+        } else {
+            Op.TRUE
+        }
+
     // combination of all search requests
-    val whereExpr = dateExpr and searchExpr and kindExpr and privacyExpr and authorExpr and hostExpr
+    val whereExpr =
+        dateExpr and searchExpr and kindExpr and privacyExpr and authorExpr and hostExpr and taExpr
 
     val (meetingsCount, meetings) =
         query {
@@ -306,15 +348,32 @@ suspend fun searchBurrows(
             meetingsCount to meetings
         }
 
+    // Get all unique owner IDs and fetch their TA status with classes
+    val ownerIds = meetings.keys.map { it.ownerID }.distinct()
+    val taOwnerClasses = getTAUserIDs(ownerIds).toMap()
+
+    fun isHostedByTA(ownerID: String, tags: Set<String>): Boolean {
+        val taClasses = taOwnerClasses[ownerID] ?: return false
+        val normalizedTags = tags.map { it.replace(Regex("[\\s_-]"), "").lowercase() }.toSet()
+
+        return taClasses.any { taClass ->
+            val normalizedClass = taClass.replace(Regex("[\\s_-]"), "").lowercase()
+
+            normalizedTags.contains(normalizedClass)
+        }
+    }
+
     val responses =
         if (requestingUserID.isNullOrBlank())
             meetings.map { (meeting, row) ->
                 BurrowResponse(
                     burrow = meeting,
                     burrowAuthor = forceAuthorName ?: row[Users.username],
-                    burrowAuthorProfile = Profile.fromRow(row),
+                    burrowAuthorProfile =
+                        if (forceAuthorName != null) null else Profile.fromRow(row),
                     membership = null,
                     bookmarked = false,
+                    hostedByTa = isHostedByTA(meeting.ownerID, meeting.tags),
                 )
             }
         else {
@@ -338,10 +397,12 @@ suspend fun searchBurrows(
                 BurrowResponse(
                     burrow = meeting,
                     burrowAuthor = forceAuthorName ?: row[Users.username],
-                    burrowAuthorProfile = Profile.fromRow(row),
+                    burrowAuthorProfile =
+                        if (forceAuthorName != null) null else Profile.fromRow(row),
                     membership = context.memberships[meeting.id],
                     bookmarked = context.bookmarks.containsKey(meeting.id),
                     highlightedTags = highlightedTags,
+                    hostedByTa = isHostedByTA(meeting.ownerID, meeting.tags),
                 )
             }
         }

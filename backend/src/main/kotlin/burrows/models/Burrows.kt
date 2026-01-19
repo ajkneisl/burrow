@@ -31,7 +31,7 @@ object Burrows : Table("burrows") {
     val endTime = long("end_time").index()
 
     /** [app.burrow.burrows.Burrow.tags] */
-    val tags = text("tags")
+    val tags = array<String>("tags")
 
     /** [app.burrow.burrows.Burrow.creationDate] */
     val creationDate = long("creation_date")
