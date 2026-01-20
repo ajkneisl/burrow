@@ -75,8 +75,7 @@ const THEME_OPTIONS: ThemeOption[] = [
  * Settings involving the theme.
  */
 export default function ThemeSection() {
-    const [, setTheme] = useAtom(themeAtom)
-    const theme = "DARK"
+    const [theme, setTheme] = useAtom(themeAtom)
     const setLoading = useSetAtom(settingsSaveLoading)
 
     function selectTheme(newTheme: Theme) {
