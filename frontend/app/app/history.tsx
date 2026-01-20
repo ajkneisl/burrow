@@ -266,7 +266,7 @@ export default function HistoryScreen() {
                             setRecreateModalOpen(false)
                             setSelectedBurrow(null)
                         }}
-                        burrowType={selectedBurrow.burrow.kind}
+                        burrowKind={selectedBurrow.burrow.kind}
                         mode="create"
                         initialData={getFormDataFromBurrow(selectedBurrow)}
                     />

@@ -34,7 +34,7 @@ export function CreateBurrowModal() {
             ) : (
                 <CreateBurrowWizard
                     onClose={handleClose}
-                    burrowType={selectedType}
+                    burrowKind={selectedType}
                 />
             )}
         </Modal>

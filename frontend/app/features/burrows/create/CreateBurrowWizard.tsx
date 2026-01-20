@@ -1,11 +1,11 @@
 import { useState, useCallback } from "react"
-import { View, Text, Pressable, SafeAreaView } from "react-native"
+import { View, Text, Pressable, SafeAreaView, FlatList } from "react-native"
 import { useRouter } from "expo-router"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
 import { X, ChevronLeft } from "lucide-react-native"
-import { Button } from "@components/core"
-import type { BurrowType, Burrow } from "@features/burrows/burrows.types"
+import { Button, Card } from "@components/core"
+import type { Burrow, BurrowKind } from "@features/burrows/burrows.types"
 import { createBurrow, updateBurrow } from "../burrows.api"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import {
@@ -21,20 +21,35 @@ import { ScheduleStep } from "./steps/ScheduleStep"
 import { ProjectInfoStep } from "./steps/ProjectInfoStep"
 import { MembersStep } from "./steps/MembersStep"
 import { DueDateStep } from "./steps/DueDateStep"
+import ThemedIcon from "@components/core/ThemedIcon"
 
+/**
+ * {@link CreateBurrowWizard}
+ */
 type CreateBurrowWizardProps = {
     onClose: () => void
-    burrowType: BurrowType
+    burrowKind: BurrowKind
     mode?: "create" | "update"
-    burrowId?: string
+    burrowID?: string
     initialData?: Partial<SubmittedBurrowFormState>
 }
 
+/**
+ * Wizard to create a Burrow.
+ *
+ * @param onClose When the modal is closed.
+ * @param burrowKind The kind of Burrow to create.
+ * @param mode If the user is updating an existing or creating a new Burrow.
+ * @param burrowID The ID of the existing burrow if updating.
+ * @param initialData The initial data if updating.
+ *
+ * @author AJ Kneisl
+ */
 export function CreateBurrowWizard({
     onClose,
-    burrowType,
+    burrowKind,
     mode = "create",
-    burrowId,
+    burrowID,
     initialData
 }: CreateBurrowWizardProps) {
     const router = useRouter()
@@ -44,36 +59,45 @@ export function CreateBurrowWizard({
     const [currentStep, setCurrentStep] = useState(1)
     const [formState, setFormState] = useState<SubmittedBurrowFormState>({
         ...initialFormState,
-        kind: burrowType,
+        kind: burrowKind,
         ...initialData
     })
     const [errors, setErrors] = useState<Record<string, string>>({})
 
-    const isProjectBurrow = burrowType === "PROJECT"
+    // errors from backend
+    const [submissionErrors, setSubmissionErrors] = useState<string[]>([])
+
+    const isProjectBurrow = burrowKind === "PROJECT"
     const totalSteps = 3
     const isEditMode = mode === "update"
 
     const mutation = useMutation({
         mutationFn: async (payload: SubmittedBurrow) => {
-            if (isEditMode && burrowId) {
-                await updateBurrow(burrowId, payload)
-                return { burrow: { id: burrowId } as Burrow }
+            if (isEditMode && burrowID) {
+                await updateBurrow(burrowID, payload)
+
+                return { burrow: { id: burrowID } as Burrow }
             }
-            return await createBurrow(payload)
+
+            return { burrow: await createBurrow(payload) }
         },
-        onSuccess: (data: { burrow: Burrow }) => {
-            queryClient.invalidateQueries({ queryKey: ["burrows"] })
-            queryClient.invalidateQueries({ queryKey: ["schedule"] })
-            if (burrowId) {
-                queryClient.invalidateQueries({ queryKey: ["burrow", burrowId] })
+
+        onSuccess: async (data: { burrow: Burrow }) => {
+            await queryClient.invalidateQueries({ queryKey: ["burrows"] })
+            await queryClient.invalidateQueries({ queryKey: ["schedule"] })
+
+            if (burrowID) {
+                await queryClient.invalidateQueries({
+                    queryKey: ["burrow", burrowID]
+                })
             }
 
             Toast.show({
                 type: "success",
                 text1: isEditMode ? "Burrow updated!" : "Burrow created!",
                 text2: isEditMode
-                    ? `Your ${burrowType.toLowerCase()} Burrow has been updated.`
-                    : `Your ${burrowType.toLowerCase()} Burrow has been created.`
+                    ? `Your ${burrowKind.toLowerCase()} Burrow has been updated.`
+                    : `Your ${burrowKind.toLowerCase()} Burrow has been created.`
             })
 
             handleClose()
@@ -82,37 +106,30 @@ export function CreateBurrowWizard({
                 router.push(`/burrow/${data.burrow.id}`)
             }
         },
+
         onError: (error: any) => {
-            if (Array.isArray(error)) {
-                const fieldErrors: Record<string, string> = {}
-                error.forEach((msg: string) => {
-                    const match = msg.match(
-                        /^\s*([A-Za-z][\w.-]*)\s*[:=-]\s*(.+)$/
-                    )
-                    if (match) {
-                        fieldErrors[match[1]] = match[2]
-                    }
-                })
-                if (Object.keys(fieldErrors).length > 0) {
-                    setErrors(fieldErrors)
-                }
-            }
             Toast.show({
                 type: "error",
                 text1: isEditMode
-                    ? "Failed to update burrow"
-                    : "Failed to create burrow",
+                    ? "Failed to update Burrow"
+                    : "Failed to create Burrow",
                 text2: error.message || "Please try again"
             })
+
+            if (Array.isArray(error)) {
+                setSubmissionErrors(error)
+            }
         }
     })
 
+    // update a field
     const updateField = useCallback(
         <K extends keyof SubmittedBurrowFormState>(
             field: K,
             value: SubmittedBurrowFormState[K]
         ) => {
             setFormState((prev) => ({ ...prev, [field]: value }))
+
             if (errors[field]) {
                 setErrors((prev) => {
                     const next = { ...prev }
@@ -124,39 +141,123 @@ export function CreateBurrowWizard({
         [errors]
     )
 
+    // validate the step
     const validateCurrentStep = useCallback((): boolean => {
         const nextErrors: Record<string, string> = {}
 
         if (isProjectBurrow) {
             if (currentStep === 1) {
-                if (!formState.name.trim()) nextErrors.name = "Required"
-                if (!formState.objective.trim())
-                    nextErrors.objective = "Required"
+                const name = formState.name.trim()
+
+                if (!name) nextErrors.name = "Required"
+
+                // name len 1<=x<=64
+                if (name.length === 0 || name.length > 64)
+                    nextErrors.name = "Name must be between 1 and 64 characters"
+
+                const objective = formState.objective.trim()
+
+                if (!objective) nextErrors.objective = "Required"
+
+                // objective 1<=x<=256
+                if (objective.length === 0 || objective.length > 256)
+                    nextErrors.objective =
+                        "Objective must be between 1 and 256 characters"
+
+                const className = formState.className.trim()
+
+                if (className.length !== 0 && className.length > 64)
+                    nextErrors.className =
+                        "Class name may not be over 64 characters"
             } else if (currentStep === 2) {
                 if (formState.teamMembers.length === 0 && !isEditMode)
                     nextErrors.teamMembers = "At least 1 member required"
             } else if (currentStep === 3) {
-                if (!formState.dueDate) nextErrors.dueDate = "Required"
+                const dueDate = formState.dueDate
+
+                if (!dueDate) nextErrors.dueDate = "Required"
+
+                if (dueDate && new Date() > dueDate)
+                    nextErrors.date = "Due date must be in the future"
             }
         } else {
             if (currentStep === 1) {
-                if (!formState.title.trim()) nextErrors.title = "Required"
-                if (!formState.location.trim()) nextErrors.location = "Required"
-            } else if (currentStep === 3) {
-                if (!formState.date) nextErrors.date = "Required"
-                if (!formState.beginningTime)
-                    nextErrors.beginningTime = "Required"
-                if (!formState.endTime) nextErrors.endTime = "Required"
+                const title = formState.title.trim()
 
-                if (formState.beginningTime && formState.endTime) {
-                    if (formState.beginningTime >= formState.endTime) {
-                        nextErrors.endTime = "End time must be after start time"
-                    }
+                // has title
+                if (!title) {
+                    nextErrors.title = "Required"
                 }
+
+                // title between 1..32
+                if (title.length === 0 || title.length > 32) {
+                    nextErrors.title =
+                        "Title must be between 2 and 32 characters"
+                }
+
+                const description = formState.description.trim()
+
+                // if has description, must be under 256 characters
+                if (description.length !== 0 && description.length > 256) {
+                    nextErrors.description =
+                        "Description must be empty or at most 256 characters"
+                }
+
+                const location = formState.location.trim()
+
+                // if has location, must be under 256 characters
+                if (location.length !== 0 && location.length > 64) {
+                    nextErrors.location =
+                        "Location must be empty or at most 64 characters"
+                }
+
+                const tags = formState.tags.split(",")
+                // under 10 tags
+                if (tags.length > 10) {
+                    nextErrors.tags = "You must have under 10 tags"
+                }
+
+                // no long tags or 0 char tags
+                if (tags.filter((tag) => tag.length > 10).length > 0) {
+                    nextErrors.tags =
+                        "You may not have any empty tags or tags over 10 characters"
+                }
+
+                const capacity = formState.capacity
+
+                // capacity over 100
+                if (capacity > 100) {
+                    nextErrors.capacity = "Capacity must be less than 100"
+                }
+
+                // capacity cannot be 1 or 2
+                if (capacity <= 2 && capacity !== 0) {
+                    nextErrors.capacity = "Capacity must be greater than 2"
+                }
+            } else if (currentStep === 3) {
+                const date = formState.date
+
+                if (!date) nextErrors.date = "Required"
+
+                // must be in future
+                if (date && new Date() > date)
+                    nextErrors.date = "Date must be in the future"
+
+                const beginningTime = formState.beginningTime
+                if (!beginningTime) nextErrors.beginningTime = "Required"
+
+                const endTime = formState.endTime
+                if (!endTime) nextErrors.endTime = "Required"
+
+                // end is after beginning
+                if (endTime && beginningTime && endTime < beginningTime)
+                    nextErrors.endTime =
+                        "End time must be after the beginning time"
             }
         }
 
         setErrors(nextErrors)
+
         return Object.keys(nextErrors).length === 0
     }, [currentStep, formState, isProjectBurrow])
 
@@ -217,7 +318,7 @@ export function CreateBurrowWizard({
             )
 
             const payload: SubmittedStudyEventBurrow = {
-                kind: burrowType as "STUDY" | "EVENT" | "CLUB",
+                kind: burrowKind as "STUDY" | "EVENT" | "CLUB",
                 title: formState.title.trim(),
                 description: formState.description.trim(),
                 location: formState.location.trim(),
@@ -234,21 +335,17 @@ export function CreateBurrowWizard({
 
             mutation.mutate(payload)
         }
-    }, [
-        validateCurrentStep,
-        formState,
-        burrowType,
-        isProjectBurrow,
-        mutation
-    ])
+    }, [validateCurrentStep, formState, burrowKind, isProjectBurrow, mutation])
 
+    // close
     const handleClose = () => {
         setCurrentStep(1)
-        setFormState({ ...initialFormState, kind: burrowType })
+        setFormState({ ...initialFormState, kind: burrowKind })
         setErrors({})
         onClose()
     }
 
+    // get the current step
     const renderStep = () => {
         const stepProps = {
             errors,
@@ -282,6 +379,7 @@ export function CreateBurrowWizard({
         }
     }
 
+    // get title of step
     const getStepTitle = () => {
         if (isProjectBurrow) {
             switch (currentStep) {
@@ -310,6 +408,7 @@ export function CreateBurrowWizard({
 
     return (
         <SafeAreaView className="flex-1 bg-background">
+            {/* header */}
             <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-200">
                 <View className="flex-row items-center">
                     {currentStep > 1 && (
@@ -317,17 +416,19 @@ export function CreateBurrowWizard({
                             <ChevronLeft size={24} color={colors.text} />
                         </Pressable>
                     )}
+
                     <View>
                         <Text className="text-xl font-bold text-text">
                             {isEditMode ? "Edit" : "Create"}{" "}
-                            {burrowType === "STUDY"
+                            {burrowKind === "STUDY"
                                 ? "Study Group"
-                                : burrowType === "EVENT"
+                                : burrowKind === "EVENT"
                                   ? "Event"
-                                  : burrowType === "CLUB"
+                                  : burrowKind === "CLUB"
                                     ? "Club"
                                     : "Project"}
                         </Text>
+
                         <Text className="text-sm text-text text-opacity-60">
                             Step {currentStep} of {totalSteps}: {getStepTitle()}
                         </Text>
@@ -335,10 +436,11 @@ export function CreateBurrowWizard({
                 </View>
 
                 <Pressable onPress={handleClose}>
-                    <X size={24} color={colors.text} />
+                    <ThemedIcon icon={X} size={24} />
                 </Pressable>
             </View>
 
+            {/* page indicator */}
             <View className="px-6 py-3 flex-row gap-2">
                 {Array.from({ length: totalSteps }).map((_, index) => (
                     <View
@@ -352,8 +454,37 @@ export function CreateBurrowWizard({
                 ))}
             </View>
 
+            {/* step */}
             <View className="flex-1">{renderStep()}</View>
 
+            {/* handle backend errors */}
+            {submissionErrors.length > 0 && (
+                <Card
+                    variant="bordered"
+                    className="mx-6"
+                    style={{
+                        backgroundColor: `${colors.error}3A`
+                    }}
+                >
+                    <Text className="font-bold mb-1">
+                        There was an issue submitting your Burrow.
+                    </Text>
+
+                    <FlatList
+                        data={submissionErrors}
+                        renderItem={(err) => (
+                            <Text>
+                                <Text className="font-semibold">
+                                    {err.index + 1}.
+                                </Text>{" "}
+                                {err.item}
+                            </Text>
+                        )}
+                    />
+                </Card>
+            )}
+
+            {/* cancel / next */}
             <View className="px-6 py-4 border-t border-gray-200 flex-row gap-3">
                 <Button
                     variant="outline"

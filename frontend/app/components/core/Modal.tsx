@@ -83,7 +83,7 @@ export function Modal({
                     )}
                 >
                     {/* Header */}
-                    {(title || onClose) && (
+                    {(title) && (
                         <View className="flex-row items-center justify-between px-6 py-4 border-b border-card-border">
                             <Text className="text-xl font-bold text-text flex-1">
                                 {title}

@@ -9,17 +9,29 @@ import { Input } from "@components/core"
 import { LocationSelector } from "@features/burrows/components/LocationSelector"
 import type { CreateStepProps } from "../create.types"
 
+/**
+ * Info step for creating a Study / Event Burrow
+ *
+ * @param errors Any errors in the fields.
+ * @param formState The state of the form.
+ * @param updateField When a field is updated.
+ *
+ * @author AJ Kneisl
+ */
 export function StudyEventInfoStep({
     errors,
     formState,
     updateField
 }: CreateStepProps) {
+    // handle when capacity changed
     const handleCapacityChange = (value: string) => {
         if (value === "") {
             updateField("capacity", 0)
             return
         }
+
         const num = parseInt(value.replace(/\D/g, ""), 10)
+
         if (!isNaN(num)) {
             updateField("capacity", num)
         }
@@ -36,39 +48,42 @@ export function StudyEventInfoStep({
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-                {/* Info Card */}
+                {/* info */}
                 <View className="bg-primary/10 rounded-lg border border-primary/20 p-4 mb-6">
                     <Text className="text-text text-sm font-semibold mb-2">
                         Basic Information
                     </Text>
+
                     <Text className="text-text text-opacity-60 text-xs">
                         Add details about your {formState.kind.toLowerCase()}{" "}
-                        session. Be specific about the topic and location to
-                        help others find you.
+                        Burrow. Be specific about the title and location to help
+                        others find you.
                     </Text>
                 </View>
 
-                {/* Title */}
+                {/* title */}
                 <Input
                     label="Title *"
                     value={formState.title}
                     onChangeText={(value) => updateField("title", value)}
-                    placeholder="e.g., PHYS 1301W Final"
+                    placeholder="Calculus Final Cram"
                     variant="outline"
                     error={errors.title}
                 />
 
-                {/* Location */}
+                {/* location */}
                 <View className="mb-4">
                     <Text className="text-sm font-semibold text-text mb-2">
-                        Location *
+                        Location
                     </Text>
+
                     <LocationSelector
                         value={formState.location}
                         onLocationSelect={(loc) => {
                             updateField("location", loc.address)
                         }}
                     />
+
                     {errors.location && (
                         <Text className="text-sm text-error mt-1">
                             {errors.location}
@@ -95,8 +110,9 @@ export function StudyEventInfoStep({
                     label="Tags (comma separated)"
                     value={formState.tags}
                     onChangeText={(value) => updateField("tags", value)}
-                    placeholder="e.g., PHYS, FINAL"
+                    placeholder="CALC, STUDY, FINAL"
                     variant="outline"
+                    error={errors.tags}
                 />
 
                 {/* Description */}
@@ -108,6 +124,7 @@ export function StudyEventInfoStep({
                     variant="outline"
                     multiline
                     numberOfLines={4}
+                    error={errors.description}
                 />
 
                 <View className="h-32" />

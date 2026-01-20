@@ -3,6 +3,7 @@ import { Globe, Link2, Lock } from "lucide-react-native"
 import type { CreateStepProps } from "../create.types"
 import type { BurrowVisibility } from "@features/burrows/burrows.types"
 
+// the visibility options
 const VISIBILITY_OPTIONS: {
     value: BurrowVisibility
     label: string
@@ -29,21 +30,29 @@ const VISIBILITY_OPTIONS: {
     }
 ]
 
+/**
+ * The privacy step of a Burrow.
+ *
+ * @param formState State of form.
+ * @param updateField When a field is updated
+ *
+ * @author AJ Kneisl
+ */
 export function PrivacyStep({ formState, updateField }: CreateStepProps) {
     return (
         <ScrollView className="flex-1 px-6">
-            {/* Info Card */}
+            {/* info */}
             <View className="bg-primary/10 rounded-lg border border-primary/20 p-4 mb-6">
                 <Text className="text-text text-sm font-semibold mb-2">
                     Privacy Settings
                 </Text>
                 <Text className="text-text text-opacity-60 text-xs">
-                    Control who can see and join your burrow. You can change
+                    Control who can see and join your Burrow. You can change
                     these settings later.
                 </Text>
             </View>
 
-            {/* Visibility Options */}
+            {/* visibility */}
             <View className="mb-6">
                 <Text className="text-base font-semibold text-text mb-3">
                     Visibility
@@ -77,7 +86,7 @@ export function PrivacyStep({ formState, updateField }: CreateStepProps) {
                                 />
                             </View>
 
-                            {/* Text */}
+                            {/* text */}
                             <View className="flex-1">
                                 <Text
                                     className={`text-base font-semibold ${
@@ -88,12 +97,13 @@ export function PrivacyStep({ formState, updateField }: CreateStepProps) {
                                 >
                                     {option.label}
                                 </Text>
+
                                 <Text className="text-sm text-text text-opacity-60">
                                     {option.description}
                                 </Text>
                             </View>
 
-                            {/* Radio Circle */}
+                            {/* radio */}
                             <View
                                 className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
                                     isSelected
@@ -110,13 +120,14 @@ export function PrivacyStep({ formState, updateField }: CreateStepProps) {
                 })}
             </View>
 
-            {/* Request to Join Toggle */}
+            {/* request to join */}
             <View className="border-t border-gray-200 pt-6">
                 <View className="flex-row items-center justify-between">
                     <View className="flex-1 pr-4">
                         <Text className="text-base font-semibold text-text mb-1">
                             Require approval to join
                         </Text>
+
                         <Text className="text-sm text-text text-opacity-60">
                             Users must request to join and wait for approval
                             from a host or moderator

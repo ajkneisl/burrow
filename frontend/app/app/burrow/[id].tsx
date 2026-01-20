@@ -749,9 +749,9 @@ export default function BurrowDetailScreen() {
                 {data?.burrow && (
                     <CreateBurrowWizard
                         onClose={() => setEditModalOpen(false)}
-                        burrowType={data.burrow.kind}
+                        burrowKind={data.burrow.kind}
                         mode="update"
-                        burrowId={id}
+                        burrowID={id}
                         initialData={getInitialFormData()}
                     />
                 )}

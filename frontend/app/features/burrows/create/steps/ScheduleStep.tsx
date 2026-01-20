@@ -2,6 +2,15 @@ import { View, Text, ScrollView } from "react-native"
 import { CustomDateTimePicker } from "@components/core"
 import type { CreateStepProps } from "../create.types"
 
+/**
+ * The schedule section of a Burrow.
+ *
+ * @param errors Errors with fields.
+ * @param formState Current state of form.
+ * @param updateField When a field is updated.
+ *
+ * @author AJ Kneisl
+ */
 export function ScheduleStep({
     errors,
     formState,
@@ -12,18 +21,19 @@ export function ScheduleStep({
 
     return (
         <ScrollView className="flex-1 px-6">
-            {/* Info Card */}
+            {/* info */}
             <View className="bg-primary/10 rounded-lg border border-primary/20 p-4 mb-6">
                 <Text className="text-text text-sm font-semibold mb-2">
                     Schedule Your Session
                 </Text>
+
                 <Text className="text-text text-opacity-60 text-xs">
-                    Pick a date and time for your burrow. Make sure to choose a
+                    Pick a date and time for your Burrow. Make sure to choose a
                     time that works for your schedule.
                 </Text>
             </View>
 
-            {/* Date Picker */}
+            {/* date picker */}
             <CustomDateTimePicker
                 label="Date *"
                 value={formState.date}
@@ -34,7 +44,7 @@ export function ScheduleStep({
                 placeholder="Select date"
             />
 
-            {/* Beginning Time Picker */}
+            {/* beginning time */}
             <CustomDateTimePicker
                 label="Start Time *"
                 value={formState.beginningTime}
@@ -44,7 +54,7 @@ export function ScheduleStep({
                 placeholder="Select start time"
             />
 
-            {/* End Time Picker */}
+            {/* end time */}
             <CustomDateTimePicker
                 label="End Time *"
                 value={formState.endTime}

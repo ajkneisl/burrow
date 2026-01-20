@@ -53,19 +53,19 @@ data class SubmittedProjectBurrow(
         val errors = mutableListOf<String>()
 
         // ensure name is between 1..64 characters
-        val nameLen = name.length
+        val nameLen = name.trim().length
         if (nameLen !in 1..64) {
             errors += "Name must be between 1 and 64 characters."
         }
 
         // ensure objective is within 1..256
-        val objLen = objective.length
+        val objLen = objective.trim().length
         if (objLen !in 1..256) {
             errors += "Objective must be between 1 and 256 characters."
         }
 
         // ensure className is within 1..64
-        val classLen = className.length
+        val classLen = className.trim().length
         if (classLen !in 0..64) {
             errors += "Class name must be between 0 and 64 characters."
         }
@@ -126,19 +126,19 @@ data class SubmittedStudyEventBurrow(
         val errors = mutableListOf<String>()
 
         // ensure there's between 1..32 characters
-        val titleLen = title.length
+        val titleLen = title.trim().length
         if (titleLen !in 1..32) {
-            errors += "title must be between 2 and 32 characters."
+            errors += "Title must be between 1 and 32 characters."
         }
 
         // ensure description is within 0..256
-        val descLen = description.length
+        val descLen = description.trim().length
         if (descLen != 0 && descLen > 256) {
             errors += "Description must be empty or at most 256 characters."
         }
 
         // ensure location is within 0..64
-        val locLen = location.length
+        val locLen = location.trim().length
         if (locLen != 0 && locLen > 64) {
             errors += "Location must be empty or at most 64 characters."
         }
@@ -149,7 +149,8 @@ data class SubmittedStudyEventBurrow(
         }
 
         tags.forEachIndexed { idx, tag ->
-            if (tag.length > 10) errors += "Tag $idx must be under 10 characters."
+            if (tag.length > 10 || tag.trim().isEmpty())
+                errors += "Tag ${idx + 1} must be between 1 and 10 characters."
         }
 
         // capacity
@@ -158,7 +159,7 @@ data class SubmittedStudyEventBurrow(
         }
 
         // if capacity 0, then there's no limit
-        if (capacity < 2 && capacity != 0) {
+        if (capacity <= 2 && capacity != 0) {
             errors += "Capacity must be greater than 2."
         }
 
