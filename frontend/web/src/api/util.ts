@@ -13,7 +13,11 @@ export function humanDateLabel(key: string | number): string {
     const today = new Date()
     const tomorrow = new Date()
     tomorrow.setDate(today.getDate() + 1)
-    const keyDate = new Date(key)
+
+    const keyDate =
+        typeof key === "string" && /^\d{4}-\d{2}-\d{2}$/.test(key)
+            ? new Date(key + "T00:00:00")
+            : new Date(key)
 
     const isSame = (a: Date, b: Date) =>
         a.getFullYear() === b.getFullYear() &&

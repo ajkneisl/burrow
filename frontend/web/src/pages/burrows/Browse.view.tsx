@@ -107,9 +107,12 @@ export default function Browse() {
 
         filtered.forEach((m) => {
             const d = new Date(m.burrow.beginningTime)
+
             d.setHours(0, 0, 0, 0)
-            const key = d.toISOString().slice(0, 10) // YYYY-MM-DD, stable & sortable
+
+            const key = d.toISOString().slice(0, 10)
             const list = map.get(key) ?? []
+
             list.push(m)
             map.set(key, list)
         })
@@ -155,10 +158,10 @@ export default function Browse() {
             <section className="flex w-full grid-cols-3 flex-col-reverse lg:grid">
                 <section className="col-span-2 mx-auto w-full max-w-4xl p-4 sm:p-6">
                     {/* top controls */}
-                    <div className="mb-4 items-center flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="mb-4 flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <button
                             onClick={() => setShowFilters(!showFilters)}
-                            className="text-text/70 cursor-pointer hover:text-text flex items-center gap-2 text-sm font-medium transition-colors"
+                            className="text-text/70 hover:text-text flex cursor-pointer items-center gap-2 text-sm font-medium transition-colors"
                         >
                             <SlidersHorizontal className="h-5 w-5" />
                         </button>
@@ -192,16 +195,22 @@ export default function Browse() {
                                                 type="button"
                                                 role="switch"
                                                 aria-checked={isHost}
-                                                onClick={() => setIsHost(!isHost)}
+                                                onClick={() =>
+                                                    setIsHost(!isHost)
+                                                }
                                                 className={clsx(
-                                                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary/20",
-                                                    isHost ? "bg-primary" : "bg-text/20"
+                                                    "focus:ring-primary/20 relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:outline-none",
+                                                    isHost
+                                                        ? "bg-primary"
+                                                        : "bg-text/20"
                                                 )}
                                             >
                                                 <span
                                                     className={clsx(
                                                         "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-                                                        isHost ? "translate-x-5" : "translate-x-0"
+                                                        isHost
+                                                            ? "translate-x-5"
+                                                            : "translate-x-0"
                                                     )}
                                                 />
                                             </button>
@@ -215,16 +224,24 @@ export default function Browse() {
                                                 type="button"
                                                 role="switch"
                                                 aria-checked={isBookmarked}
-                                                onClick={() => setIsBookmarked(!isBookmarked)}
+                                                onClick={() =>
+                                                    setIsBookmarked(
+                                                        !isBookmarked
+                                                    )
+                                                }
                                                 className={clsx(
-                                                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary/20",
-                                                    isBookmarked ? "bg-primary" : "bg-text/20"
+                                                    "focus:ring-primary/20 relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:outline-none",
+                                                    isBookmarked
+                                                        ? "bg-primary"
+                                                        : "bg-text/20"
                                                 )}
                                             >
                                                 <span
                                                     className={clsx(
                                                         "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-                                                        isBookmarked ? "translate-x-5" : "translate-x-0"
+                                                        isBookmarked
+                                                            ? "translate-x-5"
+                                                            : "translate-x-0"
                                                     )}
                                                 />
                                             </button>
@@ -240,14 +257,18 @@ export default function Browse() {
                                                 aria-checked={isTa}
                                                 onClick={() => setIsTa(!isTa)}
                                                 className={clsx(
-                                                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-info/20",
-                                                    isTa ? "bg-info" : "bg-text/20"
+                                                    "focus:ring-info/20 relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:outline-none",
+                                                    isTa
+                                                        ? "bg-info"
+                                                        : "bg-text/20"
                                                 )}
                                             >
                                                 <span
                                                     className={clsx(
                                                         "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-                                                        isTa ? "translate-x-5" : "translate-x-0"
+                                                        isTa
+                                                            ? "translate-x-5"
+                                                            : "translate-x-0"
                                                     )}
                                                 />
                                             </button>
@@ -344,7 +365,6 @@ export default function Browse() {
 
                                         return (
                                             <React.Fragment key={dateKey}>
-                                                {/* Week header - only show at start of new week */}
                                                 {isFirstOfWeek && (
                                                     <button
                                                         onClick={() =>
