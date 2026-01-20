@@ -10,15 +10,35 @@ import type { ModalProps as RNModalProps } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { X } from "lucide-react-native"
 import clsx from "clsx"
+import {Button} from "@components/core/Button";
+import ThemedIcon from "@components/core/ThemedIcon";
 
+/**
+ * {@link Modal}
+ */
 interface ModalProps extends Omit<RNModalProps, "children"> {
     children: React.ReactNode
     title?: string
     onClose?: () => void
     size?: "sm" | "md" | "lg" | "full"
     scrollable?: boolean
+    centered?: boolean
 }
 
+/**
+ * A Modal.
+ *
+ * @param children Contents of the modal.
+ * @param title The title of the modal.
+ * @param onClose When the modal closes.
+ * @param size The size of the modal.
+ * @param visible If currently visible.
+ * @param scrollable If the contents are scrollable.
+ * @param centered If the modal is centered.
+ * @param props {@link RNModalProps}
+ *
+ * @author AJ Kneisl
+ */
 export function Modal({
     children,
     title,
@@ -26,6 +46,7 @@ export function Modal({
     size = "md",
     visible,
     scrollable = true,
+    centered = false,
     ...props
 }: ModalProps) {
     const sizeStyles = {
@@ -40,17 +61,23 @@ export function Modal({
     return (
         <RNModal
             visible={visible}
-            animationType="slide"
+            animationType={centered ? "fade" : "slide"}
             transparent={size !== "full"}
             onRequestClose={onClose}
             {...props}
         >
-            <View className="flex-1 justify-end bg-black/50">
+            <View
+                className={clsx(
+                    "flex-1 bg-black/50",
+                    centered ? "justify-center items-center px-6" : "justify-end"
+                )}
+            >
                 <ModalContainer
                     className={clsx(
-                        "bg-background rounded-t-3xl",
+                        "bg-background",
+                        centered ? "rounded-3xl w-full" : "rounded-t-3xl",
                         size === "full"
-                            ? "h-full rounded-t-none"
+                            ? "h-full rounded-none"
                             : "max-h-[90%]",
                         sizeStyles[size]
                     )}
@@ -61,6 +88,10 @@ export function Modal({
                             <Text className="text-xl font-bold text-text flex-1">
                                 {title}
                             </Text>
+
+                            <Button variant="ghost" onPress={onClose}>
+                                <ThemedIcon icon={X} size={24}/>
+                            </Button>
                         </View>
                     )}
 
@@ -72,46 +103,10 @@ export function Modal({
                     ) : size === "full" ? (
                         children
                     ) : (
-                        <View className="flex-1 px-6 py-4">{children}</View>
+                        <View className="px-6 py-4">{children}</View>
                     )}
                 </ModalContainer>
             </View>
         </RNModal>
-    )
-}
-
-interface ModalHeaderProps {
-    children: React.ReactNode
-    className?: string
-}
-
-export function ModalHeader({ children, className }: ModalHeaderProps) {
-    return <View className={clsx("mb-4", className)}>{children}</View>
-}
-
-interface ModalBodyProps {
-    children: React.ReactNode
-    className?: string
-}
-
-export function ModalBody({ children, className }: ModalBodyProps) {
-    return <View className={clsx("flex-1", className)}>{children}</View>
-}
-
-interface ModalFooterProps {
-    children: React.ReactNode
-    className?: string
-}
-
-export function ModalFooter({ children, className }: ModalFooterProps) {
-    return (
-        <View
-            className={clsx(
-                "flex-row justify-end gap-3 mt-6 pt-4 border-t border-card-border",
-                className
-            )}
-        >
-            {children}
-        </View>
     )
 }

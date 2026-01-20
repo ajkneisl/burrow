@@ -1,6 +1,13 @@
 import { View, Text, Pressable } from "react-native"
 import { useRouter } from "expo-router"
-import { Clock, Check, MapPin, Star, Bookmark, GraduationCap } from "lucide-react-native"
+import {
+    Clock,
+    Check,
+    MapPin,
+    Star,
+    Bookmark,
+    GraduationCap
+} from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import useUser from "@features/auth/hooks/useUser"
 import { ProfilePicture } from "@components/profile/ProfilePicture"
@@ -8,6 +15,7 @@ import { CapacityBadge } from "@components/burrow/CapacityBadge"
 import type { BurrowResponse } from "@features/burrows/burrows.types"
 import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { formatDateTime } from "@api/util"
+import KindChip from "@components/burrow/KindChip"
 
 /**
  * {@link UpcomingBurrowCard}
@@ -36,11 +44,6 @@ export function UpcomingBurrowCard({
     const user = useUser()
     const { burrow, membership, bookmarked, burrowAuthorProfile, hostedByTa } =
         burrowResponse
-
-    const kindConfig =
-        BURROW_KIND_CONFIG[burrow.kind] || BURROW_KIND_CONFIG.STUDY
-    const KindIcon = kindConfig.Icon
-    const kindColor = colors[kindConfig.colorKey]
 
     const isJoined = membership?.status === "JOINED"
     const isHost = user !== null && burrow.ownerID === user.id
@@ -142,18 +145,18 @@ export function UpcomingBurrowCard({
 
                 {verbose && burrow.tags && burrow.tags.length > 0 && (
                     <View className="flex flex-row mb-2">
-                            <View className="flex-row flex-wrap gap-1 mr-1">
-                                {burrow.tags.slice(0, 2).map((tag) => (
-                                    <View
-                                        key={tag}
-                                        className="bg-background border-card-border border px-2 py-1 rounded-full"
-                                    >
-                                        <Text className="text-xs text-text text-opacity-70">
-                                            {tag}
-                                        </Text>
-                                    </View>
-                                ))}
-                            </View>
+                        <View className="flex-row flex-wrap gap-1 mr-1">
+                            {burrow.tags.slice(0, 2).map((tag) => (
+                                <View
+                                    key={tag}
+                                    className="bg-background border-card-border border px-2 py-1 rounded-full"
+                                >
+                                    <Text className="text-xs text-text text-opacity-70">
+                                        {tag}
+                                    </Text>
+                                </View>
+                            ))}
+                        </View>
                     </View>
                 )}
 
@@ -171,23 +174,7 @@ export function UpcomingBurrowCard({
                 <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center gap-2">
                         {/* Kind badge */}
-                        <View
-                            className="px-2 py-1 rounded-full flex-row items-center gap-1"
-                            style={{ backgroundColor: `${kindColor}33` }}
-                        >
-                            <KindIcon
-                                size={13}
-                                color={kindColor}
-                                strokeWidth={2.5}
-                            />
-
-                            <Text
-                                className="text-xs font-bold"
-                                style={{ color: kindColor }}
-                            >
-                                {kindConfig.label}
-                            </Text>
-                        </View>
+                        <KindChip kind={burrow.kind} />
 
                         {/* TA badge */}
                         {hostedByTa && (

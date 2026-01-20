@@ -1,45 +1,54 @@
-import { View, Text, Pressable, ScrollView } from "react-native"
+import { View, Text, ScrollView } from "react-native"
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { X, Send } from "lucide-react-native"
+import { Send } from "lucide-react-native"
 import { Button } from "@components/core"
 import { UserPicker } from "@components/core/UserPicker"
 import { createInvite } from "@features/burrows/attendees/attendees.api"
-import { useThemeColors } from "@api/theme/useThemeColors"
 import Toast from "react-native-toast-message"
 
+/**
+ * {@link InviteUserModal}
+ */
 type InviteUserModalProps = {
-    burrowId: string
+    burrowID: string
     onClose: () => void
 }
 
 /**
- * Modal for inviting a user to a burrow.
- * Host/moderator only.
+ * Modal for inviting a user to a Burrow.
+ *
+ * @param burrowID The Burrow to invite the user in.
+ * @param onClose Close the modal.
+ *
+ * @author AJ Kneisl
  */
-export function InviteUserModal({ burrowId, onClose }: InviteUserModalProps) {
-    const colors = useThemeColors()
+export function InviteUserModal({ burrowID, onClose }: InviteUserModalProps) {
     const queryClient = useQueryClient()
 
-    const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
+    const [selectedUserID, setSelectedUserID] = useState<string | null>(null)
 
     const inviteMutation = useMutation({
         mutationFn: async () => {
-            if (!selectedUserId) return
+            if (!selectedUserID) return
 
-            await createInvite(burrowId, selectedUserId, undefined)
+            await createInvite(burrowID, selectedUserID, undefined)
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ["invites", burrowId]
+
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: ["invites", burrowID]
             })
+
             Toast.show({
                 type: "success",
                 text1: "Invite sent!",
                 text2: "The user will be notified"
             })
+
             onClose()
         },
+
         onError: (error: any) => {
             Toast.show({
                 type: "error",
@@ -50,7 +59,7 @@ export function InviteUserModal({ burrowId, onClose }: InviteUserModalProps) {
     })
 
     const handleInvite = () => {
-        if (!selectedUserId) {
+        if (!selectedUserID) {
             Toast.show({
                 type: "error",
                 text1: "No user selected",
@@ -64,15 +73,6 @@ export function InviteUserModal({ burrowId, onClose }: InviteUserModalProps) {
 
     return (
         <View className="flex-1 bg-background">
-            {/* Header */}
-            <View className="flex-row items-center justify-between px-6 py-4 border-b border-card-border">
-                <Text className="text-xl font-bold text-text">Invite User</Text>
-                <Pressable onPress={onClose}>
-                    <X size={24} color={colors.text} />
-                </Pressable>
-            </View>
-
-            {/* Content */}
             <ScrollView className="flex-1 px-6 py-4" nestedScrollEnabled={true}>
                 <Text className="text-text text-opacity-60 text-sm mb-4">
                     Search for a user and send them an invitation to join this
@@ -83,9 +83,11 @@ export function InviteUserModal({ burrowId, onClose }: InviteUserModalProps) {
                 <UserPicker
                     mode="multiple"
                     maxSelection={1}
-                    selectedUserIds={selectedUserId ? [selectedUserId] : []}
+                    selectedUserIds={selectedUserID ? [selectedUserID] : []}
                     onUserToggle={(userId) => {
-                        setSelectedUserId(selectedUserId === userId ? null : userId)
+                        setSelectedUserID(
+                            selectedUserID === userId ? null : userId
+                        )
                     }}
                     label="Select User"
                 />
@@ -115,7 +117,7 @@ export function InviteUserModal({ burrowId, onClose }: InviteUserModalProps) {
                         variant="primary"
                         size="lg"
                         onPress={handleInvite}
-                        disabled={!selectedUserId}
+                        disabled={!selectedUserID}
                         loading={inviteMutation.isPending}
                         leftIcon={<Send size={20} color="#FFFFFF" />}
                         className="flex-1"

@@ -4,9 +4,7 @@ import {
     ScrollView,
     Pressable,
     ActivityIndicator,
-    Share as RNShare,
-    RefreshControl,
-    Platform
+    RefreshControl
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter, Stack } from "expo-router"
@@ -14,12 +12,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState, useCallback } from "react"
 import { useAtom } from "jotai"
 import {
-    Calendar,
-    MapPin,
     Users,
     Clock,
     ChevronLeft,
-    Share2,
     Archive,
     BookOpen,
     Edit2,
@@ -32,30 +27,32 @@ import {
 } from "lucide-react-native"
 import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { Button, Card, Modal } from "@components/core"
-import { formatDateTime, dayLabel } from "@api/util"
+import { dayLabel } from "@api/util"
 import {
     getBurrow,
     joinBurrow,
     leaveBurrow,
-    getAttendees,
     deleteMeeting
 } from "@features/burrows/burrows.api"
 import { cancelJoinRequest } from "@features/burrows/attendees/attendees.api"
 import useUser from "@features/auth/hooks/useUser"
 import Toast from "react-native-toast-message"
 import { BurrowChat } from "@features/chat/components/BurrowChat"
-import type { BurrowMembershipResponse } from "@features/burrows/burrows.types"
 import { CreateBurrowWizard } from "@features/burrows/create/CreateBurrowWizard"
 import type { SubmittedBurrowFormState } from "@features/burrows/create/create.types"
 import { BurrowFeaturesModal } from "@features/sync/components/BurrowFeaturesModal"
 import { Pomodoro } from "@features/sync/components/Pomodoro"
 import { InviteUserModal } from "@features/burrows/invites/InviteUserModal"
 import { ManageInvitesModal } from "@features/burrows/invites/ManageInvitesModal"
-import { AttendeeActionsModal } from "@features/burrows/attendees/AttendeeActionsModal"
 import { blockStatus } from "@features/sync/sync.atom"
 import useSync from "@features/sync/hooks/useSync"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { ProfilePicture } from "@components/profile/ProfilePicture"
+import Share from "@features/burrows/attendees/Share"
+import Attendees from "@features/burrows/attendees/Attendees"
+import ThemedIcon from "@components/core/ThemedIcon"
+import Details from "@features/burrows/attendees/Details"
+import KindChip from "@components/burrow/KindChip"
 
 /**
  * Burrow details screen
@@ -70,26 +67,18 @@ export default function BurrowDetailScreen() {
     const colors = useThemeColors()
 
     const [blocks] = useAtom(blockStatus)
+
+    // modals
     const [editModalOpen, setEditModalOpen] = useState(false)
     const [featuresModalOpen, setFeaturesModalOpen] = useState(false)
     const [inviteModalOpen, setInviteModalOpen] = useState(false)
     const [manageInvitesModalOpen, setManageInvitesModalOpen] = useState(false)
-    const [attendeeActionsModalOpen, setAttendeeActionsModalOpen] =
-        useState(false)
-    const [selectedAttendee, setSelectedAttendee] =
-        useState<BurrowMembershipResponse | null>(null)
     const [refreshing, setRefreshing] = useState(false)
 
-    const { data, isLoading, isError, refetch } = useQuery({
+    const { data, isLoading, isError } = useQuery({
         queryKey: ["burrow", id],
         queryFn: async () => await getBurrow(id!),
         enabled: !!id
-    })
-
-    const { data: attendeesData, refetch: refetchAttendees } = useQuery({
-        queryKey: ["attendees", id],
-        queryFn: async () => await getAttendees(id!),
-        enabled: !!id && !!data?.membership
     })
 
     // Burrow membership and sync
@@ -97,7 +86,6 @@ export default function BurrowDetailScreen() {
         data?.membership?.status === "JOINED" ||
         currentUser?.id === data?.burrow.ownerID
 
-    // WebSocket sync for real-time features (chat, pomodoro, etc.)
     useSync(data?.burrow?.id ?? null, isMember)
 
     // join burrow mutation
@@ -191,28 +179,19 @@ export default function BurrowDetailScreen() {
         }
     })
 
-    const handleShare = async () => {
-        const url = `https://umn.app/${id}`
-        try {
-            await RNShare.share(
-                Platform.OS === "android"
-                    ? { message: `Check out this Burrow: ${data?.burrow.title}\n${url}` }
-                    : { message: `Check out this Burrow: ${data?.burrow.title}`, url }
-            )
-        } catch {
-            // User cancelled share
-        }
-    }
-
     // Handle pull-to-refresh
     const handleRefresh = useCallback(async () => {
         setRefreshing(true)
+
         try {
-            await Promise.all([refetch(), refetchAttendees()])
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ["burrow", id] }),
+                queryClient.invalidateQueries({ queryKey: ["attendees", id] })
+            ])
         } finally {
             setRefreshing(false)
         }
-    }, [refetch, refetchAttendees])
+    }, [queryClient, id])
 
     // Convert burrow data to form state for editing
     const getInitialFormData = useCallback(():
@@ -228,11 +207,10 @@ export default function BurrowDetailScreen() {
                 name: burrow.title,
                 objective: burrow.description,
                 className: burrow.className || "",
-                teamMembers: [], // Would need to fetch from attendees
+                teamMembers: [],
                 dueDate: new Date(burrow.endTime)
             }
         } else {
-            // Study/Event/Club
             const beginDateTime = new Date(burrow.beginningTime)
             const endDateTime = new Date(burrow.endTime)
 
@@ -283,23 +261,19 @@ export default function BurrowDetailScreen() {
     const isPast = burrow.endTime < Date.now()
     const isProject = burrow.kind === "PROJECT"
 
-    const kindConfig =
-        BURROW_KIND_CONFIG[burrow.kind] || BURROW_KIND_CONFIG.STUDY
-    const KindIcon = kindConfig.Icon
-    const kindColor = colors[kindConfig.colorKey]
-
     return (
         <SafeAreaView className="flex-1 bg-background">
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* Header */}
+            {/* header */}
             <View className="px-6 py-4 border-b border-card-border flex-row items-center justify-between">
+                {/* back button */}
                 <Pressable onPress={() => router.back()} className="p-2 -ml-2">
-                    <ChevronLeft size={28} color={colors.text} />
+                    <ThemedIcon icon={ChevronLeft} size={28} />
                 </Pressable>
-                <Pressable onPress={handleShare} className="p-2 -mr-2">
-                    <Share2 size={24} color={colors.text} />
-                </Pressable>
+
+                {/* share */}
+                <Share burrowID={burrow.id} title={burrow.title} />
             </View>
 
             <ScrollView
@@ -314,47 +288,36 @@ export default function BurrowDetailScreen() {
                     />
                 }
             >
-                {/* Title & Type */}
+                {/* main burrow info  */}
                 <View className="px-6 pt-6 pb-4">
+                    {/* archived / past due indicator */}
                     {isPast && (
                         <View className="bg-card dark:bg-card rounded-lg px-3 py-2 mb-3 flex-row items-center">
-                            <Archive
+                            <ThemedIcon
+                                icon={Archive}
                                 size={16}
-                                color={colors.text}
-                                style={{ opacity: 0.6 }}
+                                opacity={0.6}
                             />
+
                             <Text className="text-text dark:text-text opacity-70 text-sm ml-2 font-medium">
                                 This{" "}
                                 {isProject
                                     ? "project is past due"
-                                    : "Burrow has ended"}
+                                    : "Burrow has been archived"}
                             </Text>
                         </View>
                     )}
 
+                    {/* title + kind */}
                     <View className="flex-row items-start justify-between mb-3">
                         <Text className="text-3xl font-bold text-text flex-1 mr-4">
                             {burrow.title}
                         </Text>
-                        <View
-                            className="px-3 py-1.5 rounded-full flex-row items-center gap-1.5"
-                            style={{ backgroundColor: `${kindColor}33` }}
-                        >
-                            <KindIcon
-                                size={14}
-                                color={kindColor}
-                                strokeWidth={2.5}
-                            />
-                            <Text
-                                className="text-xs font-bold"
-                                style={{ color: kindColor }}
-                            >
-                                {kindConfig.label}
-                            </Text>
-                        </View>
+
+                        <KindChip kind={burrow.kind} />
                     </View>
 
-                    {/* Host */}
+                    {/* burrow host */}
                     <Pressable
                         onPress={() =>
                             router.push(`/user/${data.burrowAuthor}`)
@@ -371,6 +334,7 @@ export default function BurrowDetailScreen() {
                             <Text className="text-sm text-text text-opacity-60">
                                 {isProject ? "Created by" : "Hosted by"}
                             </Text>
+
                             <View className="flex-row items-center gap-2">
                                 <Text className="text-base text-text font-semibold">
                                     {data.burrowAuthorProfile?.name ||
@@ -381,9 +345,16 @@ export default function BurrowDetailScreen() {
                                 {data.hostedByTa && (
                                     <View
                                         className="px-2 py-0.5 rounded-full flex-row items-center gap-1"
-                                        style={{ backgroundColor: `${colors.info}33` }}
+                                        style={{
+                                            backgroundColor: `${colors.info}33`
+                                        }}
                                     >
-                                        <GraduationCap size={12} color={colors.info} />
+                                        <ThemedIcon
+                                            icon={GraduationCap}
+                                            size={12}
+                                            overrideColor={"info"}
+                                        />
+
                                         <Text
                                             className="text-xs font-bold"
                                             style={{ color: colors.info }}
@@ -398,10 +369,11 @@ export default function BurrowDetailScreen() {
                 </View>
 
                 <View className="px-6 space-y-4 gap-4">
-                    {/* Owner/Moderator Controls */}
+                    {/* moderation tools */}
                     {isOwner && !isPast && (
                         <Card variant="bordered">
                             <View className="flex-row flex-wrap gap-3 justify-evenly">
+                                {/* edit burrow */}
                                 <Pressable
                                     onPress={() => setEditModalOpen(true)}
                                     className="items-center"
@@ -412,16 +384,19 @@ export default function BurrowDetailScreen() {
                                             backgroundColor: `${colors.primary}1A`
                                         }}
                                     >
-                                        <Edit2
+                                        <ThemedIcon
+                                            icon={Edit2}
                                             size={20}
-                                            color={colors.primary}
+                                            overrideColor="primary"
                                         />
                                     </View>
+
                                     <Text className="text-xs text-text">
                                         Edit
                                     </Text>
                                 </Pressable>
 
+                                {/* manage features */}
                                 <Pressable
                                     onPress={() => setFeaturesModalOpen(true)}
                                     className="items-center"
@@ -432,16 +407,19 @@ export default function BurrowDetailScreen() {
                                             backgroundColor: `${colors.secondary}1A`
                                         }}
                                     >
-                                        <Settings
+                                        <ThemedIcon
+                                            icon={Settings}
                                             size={20}
-                                            color={colors.secondary}
+                                            overrideColor="secondary"
                                         />
                                     </View>
+
                                     <Text className="text-xs text-text">
                                         Features
                                     </Text>
                                 </Pressable>
 
+                                {/* invite users */}
                                 <Pressable
                                     onPress={() => setInviteModalOpen(true)}
                                     className="items-center"
@@ -452,16 +430,19 @@ export default function BurrowDetailScreen() {
                                             backgroundColor: `${colors.info}1A`
                                         }}
                                     >
-                                        <UserPlus
+                                        <ThemedIcon
+                                            icon={UserPlus}
                                             size={20}
-                                            color={colors.info}
+                                            overrideColor={"info"}
                                         />
                                     </View>
+
                                     <Text className="text-xs text-text">
                                         Invite
                                     </Text>
                                 </Pressable>
 
+                                {/* manage invites*/}
                                 <Pressable
                                     onPress={() =>
                                         setManageInvitesModalOpen(true)
@@ -474,16 +455,19 @@ export default function BurrowDetailScreen() {
                                             backgroundColor: `${colors.info}1A`
                                         }}
                                     >
-                                        <ListChecks
+                                        <ThemedIcon
+                                            icon={ListChecks}
                                             size={20}
-                                            color={colors.info}
+                                            overrideColor={"info"}
                                         />
                                     </View>
+
                                     <Text className="text-xs text-text">
                                         Invites
                                     </Text>
                                 </Pressable>
 
+                                {/* delete */}
                                 <Pressable
                                     onPress={() => deleteMutation.mutate()}
                                     disabled={deleteMutation.isPending}
@@ -495,11 +479,13 @@ export default function BurrowDetailScreen() {
                                             backgroundColor: `${colors.error}1A`
                                         }}
                                     >
-                                        <Trash2
+                                        <ThemedIcon
+                                            icon={Trash2}
                                             size={20}
-                                            color={colors.error}
+                                            overrideColor={"error"}
                                         />
                                     </View>
+
                                     <Text className="text-xs text-text">
                                         Delete
                                     </Text>
@@ -508,7 +494,7 @@ export default function BurrowDetailScreen() {
                         </Card>
                     )}
 
-                    {/* Project Status Badge */}
+                    {/* project status */}
                     {isProject && (
                         <View
                             className="rounded-2xl p-4"
@@ -532,9 +518,12 @@ export default function BurrowDetailScreen() {
                                                 : `${colors.success}25`
                                         }}
                                     >
-                                        <Clock
+                                        <ThemedIcon
                                             size={18}
-                                            color={isPast ? colors.error : colors.success}
+                                            icon={Clock}
+                                            overrideColor={
+                                                isPast ? "error" : "success"
+                                            }
                                         />
                                     </View>
 
@@ -561,89 +550,29 @@ export default function BurrowDetailScreen() {
                         </View>
                     )}
 
-                    {/* Details Card */}
+                    {/* details */}
                     <Card variant="bordered">
                         <Text className="text-lg font-semibold text-text mb-4">
                             Details
                         </Text>
-                        <View className="gap-4">
-                            {isProject ? (
-                                <>
-                                    {burrow.className && (
-                                        <DetailRow
-                                            icon={
-                                                <BookOpen
-                                                    size={20}
-                                                    color={colors.secondary}
-                                                />
-                                            }
-                                            label="Course"
-                                            value={burrow.className}
-                                        />
-                                    )}
-                                    <DetailRow
-                                        icon={
-                                            <Calendar
-                                                size={20}
-                                                color={colors.primary}
-                                            />
-                                        }
-                                        label="Due Date"
-                                        value={dayLabel(burrow.endTime)}
-                                    />
-                                </>
-                            ) : (
-                                <>
-                                    <DetailRow
-                                        icon={
-                                            <Clock
-                                                size={20}
-                                                color={colors.primary}
-                                            />
-                                        }
-                                        label="When"
-                                        value={formatDateTime(
-                                            burrow.beginningTime,
-                                            burrow.endTime
-                                        )}
-                                    />
-                                    {burrow.location && (
-                                        <DetailRow
-                                            icon={
-                                                <MapPin
-                                                    size={20}
-                                                    color={colors.primary}
-                                                />
-                                            }
-                                            label="Where"
-                                            value={burrow.location}
-                                        />
-                                    )}
-                                </>
-                            )}
-                            <DetailRow
-                                icon={
-                                    <Users size={20} color={colors.primary} />
-                                }
-                                label={isProject ? "Team Size" : "Capacity"}
-                                value={`${burrow.joined || 0}${burrow.capacity ? `/${burrow.capacity}` : ""} ${isProject ? "members" : "joined"}`}
-                            />
-                        </View>
+
+                        <Details burrow={burrow} />
                     </Card>
 
-                    {/* Description/Objective */}
+                    {/* description */}
                     {burrow.description && (
                         <Card variant="bordered">
                             <Text className="text-lg font-semibold text-text mb-3">
                                 {isProject ? "Objective" : "Description"}
                             </Text>
+
                             <Text className="text-text text-opacity-80 leading-6">
                                 {burrow.description}
                             </Text>
                         </Card>
                     )}
 
-                    {/* Tags - with gap from description */}
+                    {/* tags */}
                     {burrow.tags && burrow.tags.length > 0 && (
                         <Card variant="bordered" className="mt-2">
                             <Text className="text-lg font-semibold text-text mb-3">
@@ -665,7 +594,7 @@ export default function BurrowDetailScreen() {
                         </Card>
                     )}
 
-                    {/* Pomodoro Timer - Only show if member and block enabled */}
+                    {/* pomodoro */}
                     {isMember &&
                         blocks.includes("POMODORO") &&
                         data.membership && (
@@ -675,132 +604,56 @@ export default function BurrowDetailScreen() {
                             />
                         )}
 
-                    {/* Chat - Only show if member and block enabled */}
+                    {/* chat */}
                     {isMember && blocks.includes("CHAT") && (
                         <BurrowChat burrowId={id} isMember={isMember} />
                     )}
 
-                    {/* Attendees/Members - Only show if member */}
-                    {isMember &&
-                        attendeesData &&
-                        attendeesData.contents.length > 0 && (
-                            <Card variant="bordered">
-                                <Text className="text-lg font-semibold text-text mb-3">
-                                    {isProject ? "Team Members" : "Attendees"} (
-                                    {attendeesData.contents.length})
-                                </Text>
-                                <View className="space-y-2">
-                                    {attendeesData.contents
-                                        .slice(0, 10)
-                                        .map(
-                                            (
-                                                item: BurrowMembershipResponse
-                                            ) => (
-                                                <Pressable
-                                                    key={item.user.id}
-                                                    onPress={() =>
-                                                        router.push(
-                                                            `/user/${item.user.username}`
-                                                        )
-                                                    }
-                                                    onLongPress={() => {
-                                                        if (
-                                                            isHostOrMod &&
-                                                            item.user.id !==
-                                                                currentUser?.id
-                                                        ) {
-                                                            setSelectedAttendee(
-                                                                item
-                                                            )
-                                                            setAttendeeActionsModalOpen(
-                                                                true
-                                                            )
-                                                        }
-                                                    }}
-                                                    className="flex-row items-center py-2"
-                                                >
-                                                    <View className="mr-3">
-                                                        <ProfilePicture
-                                                            name={
-                                                                item.profile
-                                                                    .name ||
-                                                                item.user
-                                                                    .username
-                                                            }
-                                                            userID={
-                                                                item.user.id
-                                                            }
-                                                            size="sm"
-                                                        />
-                                                    </View>
-                                                    <View className="flex-1">
-                                                        <Text className="text-text font-medium">
-                                                            {item.profile
-                                                                .name ||
-                                                                item.user
-                                                                    .username}
-                                                        </Text>
-                                                        <Text className="text-sm text-text text-opacity-60">
-                                                            @
-                                                            {item.user.username}
-                                                            {item.membership
-                                                                .role ===
-                                                                "HOST" &&
-                                                                " • Host"}
-                                                            {item.membership
-                                                                .role ===
-                                                                "MODERATOR" &&
-                                                                " • Moderator"}
-                                                        </Text>
-                                                    </View>
-                                                </Pressable>
-                                            )
-                                        )}
-                                </View>
-                                {attendeesData.contents.length > 10 && (
-                                    <Text className="text-sm text-text text-opacity-60 mt-2">
-                                        And {attendeesData.contents.length - 10}{" "}
-                                        more...
-                                    </Text>
-                                )}
-                            </Card>
-                        )}
+                    {/* attendees */}
+                    {isMember && burrow && <Attendees data={data} />}
 
                     {/* Request to Join Notice */}
-                    {!isMember && burrow.requestToJoin && !data?.requestedToJoin && (
-                        <View
-                            className="rounded-2xl p-4"
-                            style={{
-                                backgroundColor: `${colors.info}15`,
-                                borderWidth: 1,
-                                borderColor: `${colors.info}30`
-                            }}
-                        >
-                            <View className="flex-row items-center gap-3">
-                                <View
-                                    className="rounded-full p-2.5"
-                                    style={{ backgroundColor: `${colors.info}25` }}
-                                >
-                                    <BookOpen size={20} color={colors.info} />
-                                </View>
-
-                                <View className="flex-1">
-                                    <Text
-                                        className="font-bold text-base mb-0.5"
-                                        style={{ color: colors.info }}
+                    {!isMember &&
+                        burrow.requestToJoin &&
+                        !data?.requestedToJoin && (
+                            <View
+                                className="rounded-2xl p-4"
+                                style={{
+                                    backgroundColor: `${colors.info}15`,
+                                    borderWidth: 1,
+                                    borderColor: `${colors.info}30`
+                                }}
+                            >
+                                <View className="flex-row items-center gap-3">
+                                    <View
+                                        className="rounded-full p-2.5"
+                                        style={{
+                                            backgroundColor: `${colors.info}25`
+                                        }}
                                     >
-                                        Request to Join
-                                    </Text>
+                                        <BookOpen
+                                            size={20}
+                                            color={colors.info}
+                                        />
+                                    </View>
 
-                                    <Text className="text-text text-opacity-70 text-sm">
-                                        Approval required from the host.
-                                    </Text>
+                                    <View className="flex-1">
+                                        <Text
+                                            className="font-bold text-base mb-0.5"
+                                            style={{ color: colors.info }}
+                                        >
+                                            Request to Join
+                                        </Text>
+
+                                        <Text className="text-text text-opacity-70 text-sm">
+                                            Approval required from the host.
+                                        </Text>
+                                    </View>
                                 </View>
                             </View>
-                        </View>
-                    )}
+                        )}
 
-                    {/* Pending Request Notice */}
+                    {/* pending request */}
                     {!isMember && data?.requestedToJoin && (
                         <View
                             className="rounded-2xl p-4"
@@ -813,7 +666,9 @@ export default function BurrowDetailScreen() {
                             <View className="flex-row items-center gap-3">
                                 <View
                                     className="rounded-full p-2.5"
-                                    style={{ backgroundColor: `${colors.warn}25` }}
+                                    style={{
+                                        backgroundColor: `${colors.warn}25`
+                                    }}
                                 >
                                     <Clock size={20} color={colors.warn} />
                                 </View>
@@ -923,10 +778,11 @@ export default function BurrowDetailScreen() {
                 visible={inviteModalOpen}
                 onClose={() => setInviteModalOpen(false)}
                 size="full"
+                title="Invite User"
             >
                 {id && (
                     <InviteUserModal
-                        burrowId={id}
+                        burrowID={id}
                         onClose={() => setInviteModalOpen(false)}
                     />
                 )}
@@ -945,55 +801,6 @@ export default function BurrowDetailScreen() {
                     />
                 )}
             </Modal>
-
-            {/* Attendee Actions Modal */}
-            <Modal
-                visible={attendeeActionsModalOpen}
-                onClose={() => {
-                    setAttendeeActionsModalOpen(false)
-                    setSelectedAttendee(null)
-                }}
-                size="md"
-                presentationStyle="pageSheet"
-            >
-                {id && selectedAttendee && data?.membership && (
-                    <AttendeeActionsModal
-                        burrowId={id}
-                        attendee={selectedAttendee}
-                        currentUserRole={data.membership.role}
-                        onClose={() => {
-                            setAttendeeActionsModalOpen(false)
-                            setSelectedAttendee(null)
-                        }}
-                    />
-                )}
-            </Modal>
         </SafeAreaView>
-    )
-}
-
-function DetailRow({
-    icon,
-    label,
-    value
-}: {
-    icon: React.ReactNode
-    label: string
-    value: string
-}) {
-    return (
-        <View className="flex-row items-center">
-            <View className="w-10 h-10 rounded-full bg-card items-center justify-center mr-3">
-                {icon}
-            </View>
-            <View className="flex-1">
-                <Text className="text-xs text-text text-opacity-50 uppercase tracking-wide">
-                    {label}
-                </Text>
-                <Text className="text-base text-text font-medium mt-0.5">
-                    {value}
-                </Text>
-            </View>
-        </View>
     )
 }
