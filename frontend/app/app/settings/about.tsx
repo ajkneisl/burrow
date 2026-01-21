@@ -116,15 +116,15 @@ export default function AboutScreen() {
                             className="w-20 h-20 mb-4 rounded-2xl"
                         />
 
-                        <Text className="text-white text-4xl font-bold mb-2">
+                        <Text className="text-text text-4xl font-bold mb-2">
                             Burrow
                         </Text>
 
-                        <Text className="text-white text-opacity-90 text-center text-base">
+                        <Text className="text-text text-opacity-90 text-center text-base">
                             Connecting students, one Burrow at a time
                         </Text>
 
-                        <Text className="text-white text-opacity-70 text-sm mt-4">
+                        <Text className="text-text text-opacity-70 text-sm mt-4">
                             Version{" "}
                             {Application.nativeApplicationVersion ?? "INDEV"}
                         </Text>
