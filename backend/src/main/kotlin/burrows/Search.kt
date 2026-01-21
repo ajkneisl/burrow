@@ -25,8 +25,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.Op
-import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.QueryBuilder
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.TextColumnType
 import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.countDistinct
@@ -37,6 +38,7 @@ import org.jetbrains.exposed.v1.core.leftJoin
 import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.core.lowerCase
+import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -115,6 +117,9 @@ data class SearchBurrowsBuilder(
     /** Filter by if the ID provided is hosting the Burrow. */
     var isHostedBy: String? = null,
 
+    /** Filter by if the ID provided is NOT hosting the Burrow. */
+    var isNotHostedBy: String? = null,
+
     /** Filter by if the ID provided is in the Burrow. */
     var isJoinedBy: String? = null,
 
@@ -158,6 +163,7 @@ suspend fun searchBurrows(
         authorUserID,
         isBookmarked,
         isHostedBy,
+        isNotHostedBy,
         isJoinedBy,
         isTa,
         forceAuthorName,
@@ -200,14 +206,14 @@ suspend fun searchBurrows(
             val cleanQuery = query.trim().lowercase().replace("%", "\\%").replace("_", "\\_")
             val pattern = "%$cleanQuery%"
 
-            // Custom expression to search in tags array (convert array to string)
-            val tagsSearchExpr = object : Op<Boolean>() {
-                override fun toQueryBuilder(queryBuilder: QueryBuilder) {
-                    queryBuilder.append(
-                        "lower(array_to_string(burrows.tags, ' ')) LIKE '$pattern'"
-                    )
+            // Custom expression to search in tags array using parameterized query
+            val tagsSearchExpr =
+                object : Op<Boolean>() {
+                    override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+                        queryBuilder.append("lower(array_to_string(burrows.tags, ' ')) LIKE ")
+                        queryBuilder.registerArgument(TextColumnType(), pattern)
+                    }
                 }
-            }
 
             ((Burrows.title.lowerCase() like pattern) or
                 (Burrows.description.lowerCase() like pattern) or
@@ -225,7 +231,12 @@ suspend fun searchBurrows(
     val authorExpr = if (authorUserID != null) (Burrows.ownerID eq authorUserID) else Op.TRUE
 
     // get only hosted burrows
-    val hostExpr = if (isHostedBy != null) (Burrows.ownerID eq isHostedBy) else Op.TRUE
+    val hostExpr =
+        when {
+            isHostedBy != null -> (Burrows.ownerID eq isHostedBy)
+            isNotHostedBy != null -> (Burrows.ownerID neq isNotHostedBy)
+            else -> Op.TRUE
+        }
 
     // ta filter - filter to burrows hosted by TAs where their classes overlap with the tags
     val taExpr: Op<Boolean> =
@@ -241,7 +252,8 @@ suspend fun searchBurrows(
                             WHERE ta.user_id = burrows.owner_id
                             AND ta.classes && burrows.tags
                         )
-                        """.trimIndent()
+                        """
+                            .trimIndent()
                     )
                 }
             }

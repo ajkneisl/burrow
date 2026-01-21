@@ -159,7 +159,8 @@ export default function UserProfileScreen() {
                     user={user}
                     profile={profile}
                     following={following}
-                    recentBurrows={data.recentHostedBurrows}
+                    hostedBurrows={data.recentHostedBurrows}
+                    joinedBurrows={data.recentJoinedBurrows}
                     isTa={data.isTa}
                     actionButton={
                         <Button

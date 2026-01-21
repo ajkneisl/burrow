@@ -96,7 +96,7 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
         searchBurrows {
                 limit = 3
                 isJoinedBy = userID
-
+                isNotHostedBy = userID
                 this.requestingUserID = requestingUserID
             }
             .contents

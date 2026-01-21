@@ -8,23 +8,36 @@ import type { User } from "@features/auth/user.types"
 import type { Profile, Following } from "@features/profile/profile.model"
 import type { BurrowResponse } from "@features/burrows/burrows.types"
 
+/**
+ * {@link UserProfileView}
+ */
 type UserProfileViewProps = {
     user: User
     profile: Profile
     following?: Following
-    recentBurrows?: BurrowResponse[]
+    hostedBurrows?: BurrowResponse[]
+    joinedBurrows?: BurrowResponse[]
     actionButton?: React.ReactNode
     isTa?: boolean
 }
 
 /**
- * Shared profile view component used by both profile.tsx and [username].tsx
+ * View a user.
+ *
+ * @param user The user.
+ * @param profile The {@link user}'s profile.
+ * @param following The {@link user}'s following information.
+ * @param hostedBurrows The user's recent Burrows.
+ * @param joinedBurrows The user's joined Burrows.
+ * @param actionButton An action button.
+ * @param isTa If {@link user} is a TA.
  */
 export function UserProfileView({
     user,
     profile,
     following,
-    recentBurrows,
+    hostedBurrows,
+    joinedBurrows,
     actionButton,
     isTa
 }: UserProfileViewProps) {
@@ -47,6 +60,7 @@ export function UserProfileView({
                 <Text className="text-2xl font-bold text-text">
                     {profile.name || user.username}
                 </Text>
+
                 <View className="flex-row items-center gap-2 mt-1">
                     <Text className="text-text text-opacity-60">
                         @{user.username}
@@ -76,14 +90,17 @@ export function UserProfileView({
                             <Text className="text-lg font-bold text-text">
                                 {following.following}
                             </Text>
+
                             <Text className="text-sm text-text text-opacity-60">
                                 Following
                             </Text>
                         </View>
+
                         <View className="items-center">
                             <Text className="text-lg font-bold text-text">
                                 {following.followers}
                             </Text>
+
                             <Text className="text-sm text-text text-opacity-60">
                                 Followers
                             </Text>
@@ -131,6 +148,7 @@ export function UserProfileView({
                                 value={profile.major}
                             />
                         )}
+
                         {profile.gradYear && (
                             <InfoRow
                                 icon={
@@ -157,6 +175,7 @@ export function UserProfileView({
                             url={formatInstagramUrl(profile.instagram)}
                         />
                     )}
+
                     {profile.linkedIn && (
                         <SocialButton
                             icon={<Linkedin size={18} color="#0A66C2" />}
@@ -167,13 +186,30 @@ export function UserProfileView({
                 </View>
             )}
 
-            {/* Recent Burrows */}
-            {recentBurrows && recentBurrows.length > 0 && (
+            {/* Hosted Burrows */}
+            {hostedBurrows && hostedBurrows.length > 0 && (
                 <View className="mb-4">
                     <Text className="text-lg font-semibold text-text mb-3">
-                        Recent Burrows
+                        Hosted Burrows
                     </Text>
-                    {recentBurrows.slice(0, 3).map((burrowResponse) => (
+
+                    {hostedBurrows.slice(0, 3).map((burrowResponse) => (
+                        <UpcomingBurrowCard
+                            key={burrowResponse.burrow.id}
+                            burrowResponse={burrowResponse}
+                        />
+                    ))}
+                </View>
+            )}
+
+            {/* Joined Burrows */}
+            {joinedBurrows && joinedBurrows.length > 0 && (
+                <View className="mb-4">
+                    <Text className="text-lg font-semibold text-text mb-3">
+                        Joined Burrows
+                    </Text>
+
+                    {joinedBurrows.slice(0, 3).map((burrowResponse) => (
                         <UpcomingBurrowCard
                             key={burrowResponse.burrow.id}
                             burrowResponse={burrowResponse}
