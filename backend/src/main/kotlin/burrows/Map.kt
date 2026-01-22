@@ -1,5 +1,6 @@
 package app.burrow.burrows
 
+import app.burrow.account.block.getAllBlockedRelationships
 import app.burrow.burrows.models.Burrows
 import app.burrow.env
 import app.burrow.query
@@ -174,16 +175,22 @@ private fun isInMinnesota(lat: Double, lng: Double): Boolean {
 /**
  * Get all burrows with their geocoded locations.
  *
+ * @param requestingUserID The ID of the user requesting the map, used to filter blocked users.
  * @return A list of [Location.BurrowLocation] for all burrows that could be successfully geocoded and are
  *   located within Minnesota.
  */
-suspend fun getMap(): List<Location.BurrowLocation> {
-    // get all burrows that are active
+suspend fun getMap(requestingUserID: String?): List<Location.BurrowLocation> {
+    // get blocked users if requesting user is provided
+    val blockedUsers =
+        if (requestingUserID != null) getAllBlockedRelationships(requestingUserID) else emptySet()
+
+    // get all burrows that are active, excluding those from blocked users
     val allBurrows = query {
         Burrows.selectAll()
             .where { Burrows.endTime greaterEq getTimeMillis() }
             .toList()
             .map { Burrow.fromRow(it) }
+            .filter { it.ownerID !in blockedUsers }
     }
 
     // geocode all burrows and filter to only Minnesota locations

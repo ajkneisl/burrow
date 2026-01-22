@@ -1,3 +1,4 @@
+import { useState } from "react"
 import {
     View,
     Text,
@@ -15,10 +16,19 @@ import {
     unfollowUser
 } from "@features/auth/user.api"
 import { Header } from "@features/layout/components"
-import { Button } from "@components/core"
-import { UserPlus, UserMinus, ChevronLeft } from "lucide-react-native"
+import { Button, Modal } from "@components/core"
+import {
+    UserPlus,
+    UserMinus,
+    ChevronLeft,
+    EllipsisVertical,
+    ShieldBan,
+    Flag
+} from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { UserProfileView } from "@features/profile/components/UserProfileView"
+import { BlockUserModal } from "@features/profile/components/BlockUserModal"
+import { ReportUserModal } from "@features/profile/components/ReportUserModal"
 
 /**
  * User profile screen
@@ -86,9 +96,24 @@ export default function UserProfileScreen() {
         }
     })
 
+    // Menu/Block/Report modal state
+    const [showMenu, setShowMenu] = useState(false)
+    const [showBlockModal, setShowBlockModal] = useState(false)
+    const [showReportModal, setShowReportModal] = useState(false)
+
     const BackButton = (
         <Pressable onPress={() => router.back()} className="p-2 -ml-2">
             <ChevronLeft size={28} color={colors.text} />
+        </Pressable>
+    )
+
+    const MenuButton = (
+        <Pressable
+            onPress={() => setShowMenu(true)}
+            className="p-2 rounded-lg active:bg-card"
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+            <EllipsisVertical size={24} color={colors.text} />
         </Pressable>
     )
 
@@ -144,6 +169,7 @@ export default function UserProfileScreen() {
 
     const { user, profile, following } = data
     const isFollowing = following.youFollow
+    const displayName = profile.name || user.username
 
     return (
         <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
@@ -152,6 +178,67 @@ export default function UserProfileScreen() {
                 showSearch={false}
                 showNotifications={false}
                 leftAction={BackButton}
+                rightAction={MenuButton}
+            />
+
+            {/* Action Sheet Menu */}
+            <Modal
+                visible={showMenu}
+                onClose={() => setShowMenu(false)}
+                scrollable={false}
+            >
+                <View className="pb-2">
+                    <Pressable
+                        onPress={() => {
+                            setShowMenu(false)
+                            setTimeout(() => setShowBlockModal(true), 300)
+                        }}
+                        className="flex-row items-center gap-4 py-4 active:opacity-70"
+                    >
+                        <ShieldBan size={22} color={colors.error} />
+                        <Text className="text-text text-base">Block User</Text>
+                    </Pressable>
+
+                    <View className="h-px bg-card-border" />
+
+                    <Pressable
+                        onPress={() => {
+                            setShowMenu(false)
+                            setTimeout(() => setShowReportModal(true), 300)
+                        }}
+                        className="flex-row items-center gap-4 py-4 active:opacity-70"
+                    >
+                        <Flag size={22} color={colors.warn} />
+                        <Text className="text-text text-base">Report User</Text>
+                    </Pressable>
+
+                    <View className="h-px bg-card-border mt-2" />
+
+                    <Pressable
+                        onPress={() => setShowMenu(false)}
+                        className="py-4 active:opacity-70"
+                    >
+                        <Text className="text-text text-base text-center font-semibold">
+                            Cancel
+                        </Text>
+                    </Pressable>
+                </View>
+            </Modal>
+
+            {/* Block User Modal */}
+            <BlockUserModal
+                visible={showBlockModal}
+                onClose={() => setShowBlockModal(false)}
+                userID={user.id}
+                displayName={displayName}
+            />
+
+            {/* Report User Modal */}
+            <ReportUserModal
+                visible={showReportModal}
+                onClose={() => setShowReportModal(false)}
+                userID={user.id}
+                displayName={displayName}
             />
 
             <ScrollView className="flex-1 px-6 py-4">

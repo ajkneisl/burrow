@@ -11,17 +11,44 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 
+enum class ReportType(val categories: Set<String>) {
+    GENERAL(setOf("Bug", "Content", "Performance", "Accessibility", "Other")),
+    BURROW(setOf("Inappropriate Content", "Misleading Information", "Spam", "Other")),
+    USER(setOf("Spam", "Harassment", "Inappropriate Content", "Impersonation", "Other")),
+    CHAT(setOf("Harassment", "Spam", "Inappropriate Content", "Other")),
+}
+
 /** A single report. */
 @Serializable
 data class Report(
+    /** The unique ID of the report. */
     @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val id: UUID,
+
+    /** The ID of the user reporting. */
     val userID: String,
+
+    /** The type of report. */
+    val reportType: ReportType,
+
+    /** The summary of the report. */
     val summary: String,
+
+    /** Details of the report. */
     val details: String,
+
+    /** The category of the report. */
     val category: String,
-    val path: String,
-    val userAgent: String,
-    val burrowInfo: String,
+
+    /** Where the report originated from. */
+    val path: String?,
+
+    /** The user agent. */
+    val userAgent: String?,
+
+    /** The ID of the attached item, like a Burrow or user ID. */
+    val attachedID: String?,
+
+    /** When the user creates the report. */
     val createdAt: Long,
 ) {
     companion object {
@@ -29,12 +56,13 @@ data class Report(
             Report(
                 id = row[Reports.id],
                 userID = row[Reports.userID],
+                reportType = ReportType.valueOf(row[Reports.reportType]),
                 summary = row[Reports.summary],
                 details = row[Reports.details],
                 category = row[Reports.category],
                 path = row[Reports.path],
                 userAgent = row[Reports.userAgent],
-                burrowInfo = row[Reports.burrowInfo],
+                attachedID = row[Reports.attachedID],
                 createdAt = row[Reports.createdAt],
             )
     }
@@ -43,23 +71,22 @@ data class Report(
 /** A submitted report. */
 @Serializable
 data class SubmittedReport(
+    val reportType: ReportType,
     val summary: String,
     val category: String,
     val details: String,
-    val userAgent: String,
-    val path: String,
-    val burrowInfo: String,
+    val userAgent: String?,
+    val path: String?,
+    val attachedID: String?,
 ) {
     /** Validate a submitted report. */
     fun validate(): Boolean {
-        val allowedCategories = setOf("Bug", "Content", "Performance", "Accessibility", "Other")
-
         return summary.length in 1..255 &&
             details.length in 1..5000 &&
-            category in allowedCategories &&
-            userAgent.length <= 512 &&
-            path.length <= 512 &&
-            burrowInfo.length <= 64
+            category in reportType.categories &&
+            (userAgent?.length ?: 0) <= 512 &&
+            (path?.length ?: 0) <= 512 &&
+            (attachedID?.length ?: 0) <= 64
     }
 }
 
@@ -71,13 +98,14 @@ data class SubmittedReport(
  */
 suspend fun createReport(userId: String, report: SubmittedReport): UUID = query {
     Reports.insert {
-        it[Reports.summary] = report.summary
-        it[Reports.category] = report.category
         it[Reports.userID] = userId
+        it[Reports.reportType] = report.reportType.name
+        it[Reports.summary] = report.summary
         it[Reports.details] = report.details
-        it[Reports.userAgent] = report.userAgent
+        it[Reports.category] = report.category
         it[Reports.path] = report.path
-        it[Reports.burrowInfo] = report.burrowInfo
+        it[Reports.userAgent] = report.userAgent
+        it[Reports.attachedID] = report.attachedID
         it[Reports.createdAt] = getTimeMillis()
     } get Reports.id
 }

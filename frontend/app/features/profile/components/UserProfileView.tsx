@@ -1,5 +1,11 @@
 import { View, Text, Pressable, Linking, Alert } from "react-native"
-import { Calendar, Users, Instagram, Linkedin, GraduationCap } from "lucide-react-native"
+import {
+    Calendar,
+    Users,
+    Instagram,
+    Linkedin,
+    GraduationCap
+} from "lucide-react-native"
 import { Card } from "@components/core"
 import { ProfilePicture } from "@components/profile/ProfilePicture"
 import { UpcomingBurrowCard } from "@features/home/components/UpcomingBurrowCard"
@@ -188,7 +194,7 @@ export function UserProfileView({
 
             {/* Hosted Burrows */}
             {hostedBurrows && hostedBurrows.length > 0 && (
-                <View className="mb-4">
+                <View className="my-4">
                     <Text className="text-lg font-semibold text-text mb-3">
                         Hosted Burrows
                     </Text>
@@ -204,7 +210,7 @@ export function UserProfileView({
 
             {/* Joined Burrows */}
             {joinedBurrows && joinedBurrows.length > 0 && (
-                <View className="mb-4">
+                <View className="my-4">
                     <Text className="text-lg font-semibold text-text mb-3">
                         Joined Burrows
                     </Text>
@@ -219,6 +225,7 @@ export function UserProfileView({
             )}
         </>
     )
+
 }
 
 function InfoRow({

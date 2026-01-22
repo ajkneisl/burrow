@@ -1,5 +1,6 @@
 package app.burrow.burrows
 
+import app.burrow.account.block.getAllBlockedRelationships
 import app.burrow.account.models.Users
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
@@ -39,6 +40,7 @@ import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.notInList
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -238,7 +240,7 @@ suspend fun searchBurrows(
             else -> Op.TRUE
         }
 
-    // ta filter - filter to burrows hosted by TAs where their classes overlap with the tags
+    // filter to burrows hosted by TAs where their classes overlap with the tags
     val taExpr: Op<Boolean> =
         if (isTa == true && !preventTa) {
             // Check if the burrow owner is a TA AND their classes array overlaps with tags array
@@ -261,9 +263,20 @@ suspend fun searchBurrows(
             Op.TRUE
         }
 
+    // exclude burrows from users with whom the requesting user has a block relationship (either direction)
+    val blockedUserIds =
+        if (requestingUserID != null) getAllBlockedRelationships(requestingUserID) else emptySet()
+
+    val blockedExpr: Op<Boolean> =
+        if (blockedUserIds.isNotEmpty()) {
+            Burrows.ownerID notInList blockedUserIds.toList()
+        } else {
+            Op.TRUE
+        }
+
     // combination of all search requests
     val whereExpr =
-        dateExpr and searchExpr and kindExpr and privacyExpr and authorExpr and hostExpr and taExpr
+        dateExpr and searchExpr and kindExpr and privacyExpr and authorExpr and hostExpr and taExpr and blockedExpr
 
     val (meetingsCount, meetings) =
         query {

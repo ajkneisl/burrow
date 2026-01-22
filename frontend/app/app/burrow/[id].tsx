@@ -23,7 +23,11 @@ import {
     UserPlus,
     ListChecks,
     X,
-    GraduationCap
+    GraduationCap,
+    EllipsisVertical,
+    Flag,
+    ShieldBan,
+    CircleAlert
 } from "lucide-react-native"
 import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { Button, Card, Modal } from "@components/core"
@@ -53,6 +57,9 @@ import Attendees from "@features/burrows/attendees/Attendees"
 import ThemedIcon from "@components/core/ThemedIcon"
 import Details from "@features/burrows/attendees/Details"
 import KindChip from "@components/burrow/KindChip"
+import { BlockUserModal } from "@features/profile/components/BlockUserModal"
+import { ReportUserModal } from "@features/profile/components/ReportUserModal"
+import { ReportBurrowModal } from "@features/burrows/components/ReportBurrowModal"
 
 /**
  * Burrow details screen
@@ -74,6 +81,12 @@ export default function BurrowDetailScreen() {
     const [inviteModalOpen, setInviteModalOpen] = useState(false)
     const [manageInvitesModalOpen, setManageInvitesModalOpen] = useState(false)
     const [refreshing, setRefreshing] = useState(false)
+
+    // report/block modals
+    const [showMenu, setShowMenu] = useState(false)
+    const [showBlockModal, setShowBlockModal] = useState(false)
+    const [showReportUserModal, setShowReportUserModal] = useState(false)
+    const [showReportBurrowModal, setShowReportBurrowModal] = useState(false)
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ["burrow", id],
@@ -272,8 +285,27 @@ export default function BurrowDetailScreen() {
                     <ThemedIcon icon={ChevronLeft} size={28} />
                 </Pressable>
 
-                {/* share */}
-                <Share burrowID={burrow.id} title={burrow.title} />
+                {/* right actions */}
+                <View className="flex-row items-center gap-2">
+                    {/* share */}
+                    <Share burrowID={burrow.id} title={burrow.title} />
+
+                    {/* three-dot menu (only show if not owner) */}
+                    {!isOwner && (
+                        <Pressable
+                            onPress={() => setShowMenu(true)}
+                            className="p-2 rounded-lg active:bg-card"
+                            hitSlop={{
+                                top: 10,
+                                bottom: 10,
+                                left: 10,
+                                right: 10
+                            }}
+                        >
+                            <EllipsisVertical size={24} color={colors.text} />
+                        </Pressable>
+                    )}
+                </View>
             </View>
 
             <ScrollView
@@ -801,6 +833,114 @@ export default function BurrowDetailScreen() {
                     />
                 )}
             </Modal>
+
+            <Modal
+                visible={showMenu}
+                onClose={() => setShowMenu(false)}
+                scrollable={false}
+            >
+                <View className="pb-2">
+                    <Pressable
+                        onPress={() => {
+                            setShowMenu(false)
+                            setTimeout(() => setShowReportUserModal(true), 300)
+                        }}
+                        className="flex-row items-center gap-4 py-4 active:opacity-70"
+                    >
+                        <ThemedIcon
+                            icon={CircleAlert}
+                            size={22}
+                            overrideColor="warn"
+                        />
+
+                        <Text className="text-text text-base">Report Host</Text>
+                    </Pressable>
+
+                    <View className="h-px bg-card-border" />
+
+                    <Pressable
+                        onPress={() => {
+                            setShowMenu(false)
+                            setTimeout(
+                                () => setShowReportBurrowModal(true),
+                                300
+                            )
+                        }}
+                        className="flex-row items-center gap-4 py-4 active:opacity-70"
+                    >
+                        <ThemedIcon
+                            icon={Flag}
+                            size={22}
+                            overrideColor="warn"
+                        />
+                        <Text className="text-text text-base">
+                            Report Burrow
+                        </Text>
+                    </Pressable>
+
+                    <View className="h-px bg-card-border" />
+
+                    <Pressable
+                        onPress={() => {
+                            setShowMenu(false)
+                            setTimeout(() => setShowBlockModal(true), 300)
+                        }}
+                        className="flex-row items-center gap-4 py-4 active:opacity-70"
+                    >
+                        <ThemedIcon
+                            icon={ShieldBan}
+                            size={22}
+                            overrideColor="error"
+                        />
+                        <Text className="text-text text-base">
+                            Block Author
+                        </Text>
+                    </Pressable>
+
+                    <View className="h-px bg-card-border mt-2" />
+
+                    <Pressable
+                        onPress={() => setShowMenu(false)}
+                        className="py-4 active:opacity-70"
+                    >
+                        <Text className="text-text text-base text-center font-semibold">
+                            Cancel
+                        </Text>
+                    </Pressable>
+                </View>
+            </Modal>
+
+            {/* Block Author Modal */}
+            <BlockUserModal
+                visible={showBlockModal}
+                onClose={() => setShowBlockModal(false)}
+                userID={burrow.ownerID}
+                displayName={
+                    data.burrowAuthorProfile?.name ||
+                    data.burrowAuthor ||
+                    "User"
+                }
+            />
+
+            {/* Report Author Modal */}
+            <ReportUserModal
+                visible={showReportUserModal}
+                onClose={() => setShowReportUserModal(false)}
+                userID={burrow.ownerID}
+                displayName={
+                    data.burrowAuthorProfile?.name ||
+                    data.burrowAuthor ||
+                    "User"
+                }
+            />
+
+            {/* Report Burrow Modal */}
+            <ReportBurrowModal
+                visible={showReportBurrowModal}
+                onClose={() => setShowReportBurrowModal(false)}
+                burrowID={burrow.id}
+                burrowTitle={burrow.title}
+            />
         </SafeAreaView>
     )
 }

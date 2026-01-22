@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { View, Text, ScrollView, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack } from "expo-router"
@@ -12,7 +13,8 @@ import {
     Shield,
     LogOut,
     ChevronRight,
-    AlertCircle
+    AlertCircle,
+    Trash2
 } from "lucide-react-native"
 import { useGoogleAuth } from "@features/auth/hooks/useGoogleAuth"
 import useUser from "@features/auth/hooks/useUser"
@@ -22,6 +24,7 @@ import { themeAtom } from "@api/theme/theme.atom"
 import { saveTheme } from "@api/theme/theme.api"
 import type { Theme, ThemeColors } from "@api/theme/theme.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
+import { DeleteAccountModal } from "@features/settings/components/DeleteAccountModal"
 import * as Application from "expo-application";
 
 /**
@@ -33,6 +36,7 @@ export default function SettingsScreen() {
     const router = useRouter()
     const user = useUser()
     const colors = useThemeColors()
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false)
 
     const { signOut } = useGoogleAuth()
 
@@ -195,6 +199,16 @@ export default function SettingsScreen() {
                         }}
                         colors={colors}
                     />
+
+                    <View className="h-px bg-card-border my-3" />
+
+                    <SettingItem
+                        icon={<Trash2 size={20} color={colors.error} />}
+                        label="Delete Account"
+                        subtitle="Permanently delete your account"
+                        onPress={() => setDeleteModalVisible(true)}
+                        colors={colors}
+                    />
                 </Card>
 
                 {/* Sign Out */}
@@ -207,6 +221,12 @@ export default function SettingsScreen() {
                     <Text className="text-error font-semibold">Sign Out</Text>
                 </Button>
             </ScrollView>
+
+            <DeleteAccountModal
+                visible={deleteModalVisible}
+                onClose={() => setDeleteModalVisible(false)}
+                onDeleted={signOut}
+            />
         </SafeAreaView>
     )
 }

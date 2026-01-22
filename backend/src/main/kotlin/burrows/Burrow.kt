@@ -1,6 +1,7 @@
 package app.burrow.burrows
 
 import app.burrow.NotFound
+import app.burrow.account.block.getAllBlockedRelationships
 import app.burrow.account.models.Users
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
@@ -337,6 +338,14 @@ suspend fun getBurrowResponse(burrowID: String, requestingUserID: String?): Burr
         } ?: return null
 
     val (burrow, authorUsername, authorProfile) = meetingData
+
+    // check if the requesting user has a block relationship with the burrow owner
+    if (requestingUserID != null) {
+        val blockedUsers = getAllBlockedRelationships(requestingUserID)
+        if (burrow.ownerID in blockedUsers) {
+            throw NotFound()
+        }
+    }
 
     // if the meeting is private do some checks
     if (burrow.visibility == BurrowVisibility.PRIVATE) {

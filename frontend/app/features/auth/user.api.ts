@@ -4,7 +4,7 @@ import type {
     Relation
 } from "@features/auth/user.types.ts"
 import type { UserResponse, Profile } from "@features/profile/profile.model.ts"
-import { del, get, post, put } from "@api/api.ts"
+import { del, get, post, put } from "@api/api"
 
 /**
  * Update a username.

@@ -1,7 +1,7 @@
 package app.burrow.report
 
-import app.burrow.account.models.userID
 import app.burrow.Error
+import app.burrow.account.models.userID
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -16,8 +16,8 @@ val REPORT_ROUTES: Route.() -> Unit = {
 
         if (!report.validate()) throw Error(400, "There's an issue with your report.")
 
-        val reportId = createReport(call.userID, report)
+        val reportID = createReport(call.userID, report)
 
-        call.respond(reportId.toString())
+        call.respond(reportID.toString())
     }
 }

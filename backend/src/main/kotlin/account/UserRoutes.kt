@@ -2,6 +2,9 @@ package app.burrow.account
 
 import app.burrow.InvalidAuthorization
 import app.burrow.account.alt.login
+import app.burrow.account.block.blockUser
+import app.burrow.account.block.getBlockedUsers
+import app.burrow.account.block.unBlockUser
 import app.burrow.account.models.User
 import app.burrow.account.models.deleteUser
 import app.burrow.account.models.exchangeCodeForIdToken
@@ -14,6 +17,7 @@ import app.burrow.account.models.updateUsername
 import app.burrow.account.models.userID
 import app.burrow.account.models.validateUsername
 import app.burrow.account.profile.Profile
+import app.burrow.account.profile.Profiles.userID
 import app.burrow.account.profile.RELATION_ROUTES
 import app.burrow.account.profile.updateProfile
 import app.burrow.burrows.searchBurrows
@@ -40,6 +44,34 @@ val USER_ROUTES: Route.() -> Unit = {
         // ROUTE /user/photo
         // manage user photos
         route("/photo", USER_PHOTO_ROUTES)
+
+        // ROUTE /user/block
+        // manage blocked users
+        route("/block") {
+            // GET /user/block
+            // get the blocked users
+            get { call.respond(getBlockedUsers(call.userID)) }
+
+            // PUT /user/block
+            // add a blocked user
+            put {
+                val userID = getUserByID(call.queryParameter("userID")).id
+
+                blockUser(call.userID, userID)
+
+                call.respond(HttpStatusCode.OK)
+            }
+
+            // DELETE /user/block
+            // remove a blocked user
+            delete {
+                val userID = getUserByID(call.queryParameter("userID")).id
+
+                unBlockUser(call.userID, userID)
+
+                call.respond(HttpStatusCode.OK)
+            }
+        }
 
         // GET /user
         // get the user's information
@@ -167,14 +199,14 @@ val USER_ROUTES: Route.() -> Unit = {
                 call.respond(HttpStatusCode.OK, profile)
             }
         }
-    }
 
-    // DELETE /user
-    // delete your account
-    delete {
-        deleteUser(call.userID)
+        // DELETE /user
+        // delete your account
+        delete {
+            deleteUser(call.userID)
 
-        call.respond(HttpStatusCode.OK)
+            call.respond(HttpStatusCode.OK)
+        }
     }
 
     /** Android OAuth code exchange request */

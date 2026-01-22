@@ -66,20 +66,22 @@ export function Modal({
             onRequestClose={onClose}
             {...props}
         >
-            <View
+            <Pressable
                 className={clsx(
                     "flex-1 bg-black/50",
                     centered ? "justify-center items-center px-6" : "justify-end"
                 )}
+                onPress={onClose}
             >
+                <Pressable onPress={(e) => e.stopPropagation()}>
                 <ModalContainer
                     className={clsx(
-                        "bg-background",
-                        centered ? "rounded-3xl w-full" : "rounded-t-3xl",
+                        "bg-background w-full",
+                        centered ? "rounded-3xl" : "rounded-t-3xl",
                         size === "full"
                             ? "h-full rounded-none"
                             : "max-h-[90%]",
-                        sizeStyles[size]
+                        centered && sizeStyles[size]
                     )}
                 >
                     {/* Header */}
@@ -97,7 +99,10 @@ export function Modal({
 
                     {/* Body */}
                     {scrollable ? (
-                        <ScrollView className="flex-1 px-6 py-4">
+                        <ScrollView
+                            className={clsx("px-6 py-4", !centered && "flex-1")}
+                            showsVerticalScrollIndicator={false}
+                        >
                             {children}
                         </ScrollView>
                     ) : size === "full" ? (
@@ -106,7 +111,8 @@ export function Modal({
                         <View className="px-6 py-4">{children}</View>
                     )}
                 </ModalContainer>
-            </View>
+                </Pressable>
+            </Pressable>
         </RNModal>
     )
 }
