@@ -23,12 +23,14 @@ import {
     ChevronLeft,
     EllipsisVertical,
     ShieldBan,
+    ShieldOff,
     Flag
 } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { UserProfileView } from "@features/profile/components/UserProfileView"
 import { BlockUserModal } from "@features/profile/components/BlockUserModal"
 import { ReportUserModal } from "@features/profile/components/ReportUserModal"
+import { unblockUser } from "@features/profile/block.api"
 
 /**
  * User profile screen
@@ -91,6 +93,30 @@ export default function UserProfileScreen() {
             Toast.show({
                 type: "error",
                 text1: "Failed to unfollow",
+                text2: error.message || "Please try again"
+            })
+        }
+    })
+
+    // unblock mutation
+    const unblockMutation = useMutation({
+        mutationFn: unblockUser,
+
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: ["user", username]
+            })
+            await queryClient.invalidateQueries({ queryKey: ["blockedUsers"] })
+            Toast.show({
+                type: "success",
+                text1: "User unblocked"
+            })
+        },
+
+        onError: (error: any) => {
+            Toast.show({
+                type: "error",
+                text1: "Failed to unblock",
                 text2: error.message || "Please try again"
             })
         }
@@ -167,7 +193,7 @@ export default function UserProfileScreen() {
         )
     }
 
-    const { user, profile, following } = data
+    const { user, profile, following, isBlocked } = data
     const isFollowing = following.youFollow
     const displayName = profile.name || user.username
 
@@ -188,16 +214,33 @@ export default function UserProfileScreen() {
                 scrollable={false}
             >
                 <View className="pb-2">
-                    <Pressable
-                        onPress={() => {
-                            setShowMenu(false)
-                            setTimeout(() => setShowBlockModal(true), 300)
-                        }}
-                        className="flex-row items-center gap-4 py-4 active:opacity-70"
-                    >
-                        <ShieldBan size={22} color={colors.error} />
-                        <Text className="text-text text-base">Block User</Text>
-                    </Pressable>
+                    {isBlocked ? (
+                        <Pressable
+                            onPress={() => {
+                                setShowMenu(false)
+                                unblockMutation.mutate(user.id)
+                            }}
+                            className="flex-row items-center gap-4 py-4 active:opacity-70"
+                        >
+                            <ShieldOff size={22} color={colors.success} />
+                            <Text className="text-text text-base">
+                                Unblock User
+                            </Text>
+                        </Pressable>
+                    ) : (
+                        <Pressable
+                            onPress={() => {
+                                setShowMenu(false)
+                                setTimeout(() => setShowBlockModal(true), 300)
+                            }}
+                            className="flex-row items-center gap-4 py-4 active:opacity-70"
+                        >
+                            <ShieldBan size={22} color={colors.error} />
+                            <Text className="text-text text-base">
+                                Block User
+                            </Text>
+                        </Pressable>
+                    )}
 
                     <View className="h-px bg-card-border" />
 
@@ -242,6 +285,31 @@ export default function UserProfileScreen() {
             />
 
             <ScrollView className="flex-1 px-6 py-4">
+                {/* Blocked Banner */}
+                {isBlocked && (
+                    <View
+                        className="rounded-2xl p-4 mb-4 flex-row items-center gap-3"
+                        style={{
+                            backgroundColor: `${colors.error}15`,
+                            borderWidth: 1,
+                            borderColor: `${colors.error}30`
+                        }}
+                    >
+                        <ShieldBan size={20} color={colors.error} />
+                        <View className="flex-1">
+                            <Text
+                                className="font-semibold"
+                                style={{ color: colors.error }}
+                            >
+                                You have blocked this user
+                            </Text>
+                            <Text className="text-text text-opacity-70 text-sm">
+                                They cannot see your profile or contact you.
+                            </Text>
+                        </View>
+                    </View>
+                )}
+
                 <UserProfileView
                     user={user}
                     profile={profile}
@@ -250,34 +318,49 @@ export default function UserProfileScreen() {
                     joinedBurrows={data.recentJoinedBurrows}
                     isTa={data.isTa}
                     actionButton={
-                        <Button
-                            variant={isFollowing ? "outline" : "primary"}
-                            size="sm"
-                            onPress={() => {
-                                if (isFollowing) {
-                                    unfollowMutation.mutate(user.id)
-                                } else {
-                                    followMutation.mutate(user.id)
+                        isBlocked ? (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onPress={() => unblockMutation.mutate(user.id)}
+                                leftIcon={
+                                    <ShieldOff size={16} color={colors.success} />
                                 }
-                            }}
-                            leftIcon={
-                                isFollowing ? (
-                                    <UserMinus
-                                        size={16}
-                                        color={colors.primary}
-                                    />
-                                ) : (
-                                    <UserPlus size={16} color="#FFFFFF" />
-                                )
-                            }
-                            loading={
-                                followMutation.isPending ||
-                                unfollowMutation.isPending
-                            }
-                            className="mt-4"
-                        >
-                            {isFollowing ? "Unfollow" : "Follow"}
-                        </Button>
+                                loading={unblockMutation.isPending}
+                                className="mt-4"
+                            >
+                                Unblock
+                            </Button>
+                        ) : (
+                            <Button
+                                variant={isFollowing ? "outline" : "primary"}
+                                size="sm"
+                                onPress={() => {
+                                    if (isFollowing) {
+                                        unfollowMutation.mutate(user.id)
+                                    } else {
+                                        followMutation.mutate(user.id)
+                                    }
+                                }}
+                                leftIcon={
+                                    isFollowing ? (
+                                        <UserMinus
+                                            size={16}
+                                            color={colors.primary}
+                                        />
+                                    ) : (
+                                        <UserPlus size={16} color="#FFFFFF" />
+                                    )
+                                }
+                                loading={
+                                    followMutation.isPending ||
+                                    unfollowMutation.isPending
+                                }
+                                className="mt-4"
+                            >
+                                {isFollowing ? "Unfollow" : "Follow"}
+                            </Button>
+                        )
                     }
                 />
             </ScrollView>

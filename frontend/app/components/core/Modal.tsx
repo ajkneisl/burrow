@@ -10,8 +10,8 @@ import type { ModalProps as RNModalProps } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { X } from "lucide-react-native"
 import clsx from "clsx"
-import {Button} from "@components/core/Button";
-import ThemedIcon from "@components/core/ThemedIcon";
+import { Button } from "@components/core/Button"
+import ThemedIcon from "@components/core/ThemedIcon"
 
 /**
  * {@link Modal}
@@ -56,7 +56,43 @@ export function Modal({
         full: "w-full h-full"
     }
 
-    const ModalContainer = size === "full" ? SafeAreaView : View
+    const containerClassName = clsx(
+        "bg-background w-full",
+        centered ? "rounded-3xl" : "rounded-t-3xl",
+        size === "full" ? "h-full rounded-none" : "",
+        centered && sizeStyles[size]
+    )
+
+    const modalContent = (
+        <>
+            {/* Header */}
+            {title && (
+                <View className="flex-row items-center justify-between px-6 py-4 border-b border-card-border">
+                    <Text className="text-xl font-bold text-text flex-1">
+                        {title}
+                    </Text>
+
+                    <Button variant="ghost" onPress={onClose}>
+                        <ThemedIcon icon={X} size={24} />
+                    </Button>
+                </View>
+            )}
+
+            {/* Body */}
+            {scrollable ? (
+                <ScrollView
+                    className={clsx("px-6 py-4", !centered && "flex-1")}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {children}
+                </ScrollView>
+            ) : size === "full" ? (
+                children
+            ) : (
+                <View className="px-6 py-4">{children}</View>
+            )}
+        </>
+    )
 
     return (
         <RNModal
@@ -69,48 +105,28 @@ export function Modal({
             <Pressable
                 className={clsx(
                     "flex-1 bg-black/50",
-                    centered ? "justify-center items-center px-6" : "justify-end"
+                    centered
+                        ? "justify-center items-center px-6"
+                        : "justify-end"
                 )}
                 onPress={onClose}
             >
                 <Pressable onPress={(e) => e.stopPropagation()}>
-                <ModalContainer
-                    className={clsx(
-                        "bg-background w-full",
-                        centered ? "rounded-3xl" : "rounded-t-3xl",
-                        size === "full"
-                            ? "h-full rounded-none"
-                            : "max-h-[90%]",
-                        centered && sizeStyles[size]
-                    )}
-                >
-                    {/* Header */}
-                    {(title) && (
-                        <View className="flex-row items-center justify-between px-6 py-4 border-b border-card-border">
-                            <Text className="text-xl font-bold text-text flex-1">
-                                {title}
-                            </Text>
-
-                            <Button variant="ghost" onPress={onClose}>
-                                <ThemedIcon icon={X} size={24}/>
-                            </Button>
-                        </View>
-                    )}
-
-                    {/* Body */}
-                    {scrollable ? (
-                        <ScrollView
-                            className={clsx("px-6 py-4", !centered && "flex-1")}
-                            showsVerticalScrollIndicator={false}
+                    {size === "full" ? (
+                        <SafeAreaView
+                            edges={["top", "bottom"]}
+                            className={containerClassName}
                         >
-                            {children}
-                        </ScrollView>
-                    ) : size === "full" ? (
-                        children
+                            {modalContent}
+                        </SafeAreaView>
                     ) : (
-                        <View className="px-6 py-4">{children}</View>
+                        <SafeAreaView
+                            edges={["bottom"]}
+                            className={containerClassName}
+                        >
+                            {modalContent}
+                        </SafeAreaView>
                     )}
-                </ModalContainer>
                 </Pressable>
             </Pressable>
         </RNModal>

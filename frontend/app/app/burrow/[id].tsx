@@ -294,7 +294,7 @@ export default function BurrowDetailScreen() {
                     {!isOwner && (
                         <Pressable
                             onPress={() => setShowMenu(true)}
-                            className="p-2 rounded-lg active:bg-card"
+                            className="pr-2 -mr-2 rounded-lg active:bg-card"
                             hitSlop={{
                                 top: 10,
                                 bottom: 10,

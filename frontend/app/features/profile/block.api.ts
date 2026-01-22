@@ -1,9 +1,19 @@
 import { del, get, put } from "@api/api"
 
 /**
- * Get the list of blocked user IDs.
+ * Info about a blocked user.
  */
-export async function getBlockedUsers(): Promise<string[]> {
+export type BlockedUserInfo = {
+    userID: string
+    username: string
+    name: string
+    blockedAt: number
+}
+
+/**
+ * Get the list of blocked users with details.
+ */
+export async function getBlockedUsers(): Promise<BlockedUserInfo[]> {
     return get("/user/block")
 }
 

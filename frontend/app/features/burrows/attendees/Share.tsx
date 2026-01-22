@@ -80,15 +80,13 @@ export default function Share({ burrowID, title }: ShareProps) {
     return (
         <>
             {/* buttons */}
-            <View className="flex-row items-center gap-2">
-                <Pressable onPress={() => setQrModalOpen(true)} className="p-2">
-                    <ThemedIcon icon={QrCode} size={24} />
-                </Pressable>
+            <Pressable onPress={() => setQrModalOpen(true)} className="p-2">
+                <ThemedIcon icon={QrCode} size={24} />
+            </Pressable>
 
-                <Pressable onPress={handleShare} className="p-2 -mr-2">
-                    <ThemedIcon icon={Share2} size={24} />
-                </Pressable>
-            </View>
+            <Pressable onPress={handleShare} className="p-2">
+                <ThemedIcon icon={Share2} size={24} />
+            </Pressable>
 
             {/* qr code modal */}
             <Modal

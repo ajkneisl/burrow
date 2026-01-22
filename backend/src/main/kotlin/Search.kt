@@ -1,5 +1,6 @@
 package app.burrow
 
+import app.burrow.account.block.getAllBlockedRelationships
 import app.burrow.account.models.Users
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
@@ -20,6 +21,7 @@ import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.QueryBuilder
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.core.lowerCase
+import org.jetbrains.exposed.v1.core.notInList
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.r2dbc.select
 
@@ -57,13 +59,18 @@ sealed class SearchResult {
 private const val PAGE_SIZE = 20
 
 /**
- * Search through users and burrows using a query string.
+ * Search through users and Burrows using a query string.
  *
  * @param searchQuery The search query string.
  * @param page The page of results to return. Defaults to 1.
- * @return A [PaginatedResponse] of [SearchResult] containing matching users and burrows.
+ * @param requestingUserID The ID of the user making the search request (for blocking filtering).
+ * @return A [PaginatedResponse] of [SearchResult] containing matching users and Burrows.
  */
-suspend fun search(searchQuery: String, page: Int = 1): PaginatedResponse<SearchResult> {
+suspend fun search(
+    searchQuery: String,
+    page: Int = 1,
+    requestingUserID: String? = null,
+): PaginatedResponse<SearchResult> {
     if (searchQuery.isBlank()) {
         return PaginatedResponse(
             page = page,
@@ -77,10 +84,22 @@ suspend fun search(searchQuery: String, page: Int = 1): PaginatedResponse<Search
 
     val userOffset = ((page - 1) * PAGE_SIZE).toLong()
 
+    // get blocked users to exclude from results
+    val blockedUserIds =
+        if (requestingUserID != null) getAllBlockedRelationships(requestingUserID) else emptySet()
+
     return query {
-        // count total uesrs
+        // blocked users filter expression
+        val blockedExpr: Op<Boolean> =
+            if (blockedUserIds.isNotEmpty()) {
+                Users.id notInList blockedUserIds.toList()
+            } else {
+                Op.TRUE
+            }
+
+        // count total users (excluding blocked)
         val userSearchExpr =
-            (Profiles.name.lowerCase() like pattern) or (Users.username.lowerCase() like pattern)
+            ((Profiles.name.lowerCase() like pattern) or (Users.username.lowerCase() like pattern)) and blockedExpr
 
         val totalUsers =
             Users.innerJoin(Profiles, { Users.id }, { Profiles.userID })
@@ -88,7 +107,7 @@ suspend fun search(searchQuery: String, page: Int = 1): PaginatedResponse<Search
                 .where { userSearchExpr }
                 .count()
 
-        // count total burrows
+        // count total burrows (excluding those hosted by blocked users)
         val tagsSearchExpr = object : Op<Boolean>() {
             override fun toQueryBuilder(queryBuilder: QueryBuilder) {
                 queryBuilder.append(
@@ -97,8 +116,16 @@ suspend fun search(searchQuery: String, page: Int = 1): PaginatedResponse<Search
             }
         }
 
+        val burrowBlockedExpr: Op<Boolean> =
+            if (blockedUserIds.isNotEmpty()) {
+                Burrows.ownerID notInList blockedUserIds.toList()
+            } else {
+                Op.TRUE
+            }
+
         val burrowSearchExpr =
             (Burrows.visibility eq BurrowVisibility.PUBLIC) and
+                burrowBlockedExpr and
                 ((Burrows.title.lowerCase() like pattern) or
                     (Burrows.description.lowerCase() like pattern) or
                     (Burrows.location.lowerCase() like pattern) or
@@ -150,6 +177,7 @@ suspend fun search(searchQuery: String, page: Int = 1): PaginatedResponse<Search
                     limit = remainingSlots
                     offset = burrowOffset
                     query = searchQuery
+                    this.requestingUserID = requestingUserID
                 }
                 .contents
                 .map { (burrow, author, authorProfile) ->

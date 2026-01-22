@@ -3,7 +3,7 @@ package app.burrow.account
 import app.burrow.InvalidAuthorization
 import app.burrow.account.alt.login
 import app.burrow.account.block.blockUser
-import app.burrow.account.block.getBlockedUsers
+import app.burrow.account.block.getBlockedUsersWithDetails
 import app.burrow.account.block.unBlockUser
 import app.burrow.account.models.User
 import app.burrow.account.models.deleteUser
@@ -49,8 +49,8 @@ val USER_ROUTES: Route.() -> Unit = {
         // manage blocked users
         route("/block") {
             // GET /user/block
-            // get the blocked users
-            get { call.respond(getBlockedUsers(call.userID)) }
+            // get the blocked users with details
+            get { call.respond(getBlockedUsersWithDetails(call.userID)) }
 
             // PUT /user/block
             // add a blocked user

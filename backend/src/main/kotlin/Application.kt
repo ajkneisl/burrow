@@ -387,7 +387,7 @@ suspend fun Application.module() {
                     val query = call.queryParameter("query")
                     val page = call.optionalIntQueryParameter("page") ?: 1
 
-                    call.respond(search(query, page))
+                    call.respond(search(query, page, call.userID))
                 }
 
                 // ROUTE /debug

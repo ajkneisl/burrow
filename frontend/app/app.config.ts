@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
     name: "Burrow",
     slug: "burrow",
-    version: "0.4.1",
+    version: "0.4.2",
     orientation: "portrait",
     icon: "./assets/images/burrow.png",
     scheme: "app.umn.burrow",

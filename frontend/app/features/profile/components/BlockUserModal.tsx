@@ -32,6 +32,7 @@ export function BlockUserModal({
             onClose()
         },
         onError: (error: any) => {
+            console.log(error)
             Toast.show({
                 type: "error",
                 text1: "Failed to block user",

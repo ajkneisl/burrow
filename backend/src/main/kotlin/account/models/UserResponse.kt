@@ -1,6 +1,7 @@
 package app.burrow.account.models
 
 import app.burrow.Error
+import app.burrow.account.block.isBlockedBy
 import app.burrow.account.profile.FollowResponse
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
@@ -25,6 +26,7 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
  * @param recentHostedBurrows The Burrows the user is hosting that are coming up.
  * @param email The user's email. This is only responded with if the user is requesting themself.
  * @param isTa If the user is an approved TA.
+ * @param isBlocked If the requesting user has blocked this user.
  */
 @Serializable
 data class UserResponse(
@@ -35,6 +37,7 @@ data class UserResponse(
     val recentHostedBurrows: List<BurrowResponse>,
     val email: String? = null,
     val isTa: Boolean? = null,
+    val isBlocked: Boolean? = null,
 )
 
 /**
@@ -101,8 +104,11 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
             }
             .contents
 
-    // Check if the user is a TA
+    // check if the user is a TA
     val isTa = getUserTAStatus(userID) != null
+
+    // check if the requesting user has blocked this user
+    val isBlocked = if (requestingUserID != userID) isBlockedBy(requestingUserID, userID) else null
 
     UserResponse(
         user = User.fromRow(userRow),
@@ -112,5 +118,6 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
         recentHostedBurrows = hostedMeetings,
         email = if (requestingUserID == userID) userRow[Users.email] else null,
         isTa = isTa,
+        isBlocked = isBlocked,
     )
 }

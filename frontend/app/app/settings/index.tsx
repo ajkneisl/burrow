@@ -11,6 +11,7 @@ import {
     Info,
     FileText,
     Shield,
+    ShieldBan,
     LogOut,
     ChevronRight,
     AlertCircle,
@@ -149,6 +150,21 @@ export default function SettingsScreen() {
                 </Card>
 
                 <View className="h-3" />
+
+                {/* Privacy & Security Section */}
+                <Text className="text-sm font-semibold text-text text-opacity-50 mb-3 uppercase">
+                    Privacy & Security
+                </Text>
+
+                <Card variant="bordered" className="mb-6">
+                    <SettingItem
+                        icon={<ShieldBan size={20} color={colors.error} />}
+                        label="Blocked Users"
+                        subtitle="Manage users you've blocked"
+                        onPress={() => router.push("/settings/blocked-users")}
+                        colors={colors}
+                    />
+                </Card>
 
                 {/* About Section */}
                 <Text className="text-sm font-semibold text-text text-opacity-50 mb-3 uppercase">
