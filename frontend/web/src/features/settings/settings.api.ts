@@ -82,3 +82,20 @@ export async function saveGeneralSettings(settings: {
 }): Promise<void> {
     return await post("/settings/general", settings)
 }
+
+/**
+ * Info about a blocked user.
+ */
+export type BlockedUserInfo = {
+    userID: string
+    username: string
+    name: string
+    blockedAt: number
+}
+
+/**
+ * Get all blocked users.
+ */
+export async function getBlockedAccounts(): Promise<BlockedUserInfo[]> {
+    return await get<BlockedUserInfo[]>("/user/block")
+}

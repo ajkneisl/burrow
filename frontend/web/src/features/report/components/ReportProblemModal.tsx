@@ -1,13 +1,11 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react"
 import { Button, Input, Modal, SelectInput, TextArea } from "@umnburrow/core"
 import { useAtom } from "jotai"
-import { problemModalOpen } from "@features/problem/problem.atom.ts"
-import {
-    type ReportCategory,
-    submitReport
-} from "@features/problem/problem.api.ts"
+import { problemModalOpen } from "@features/report/report.atom.ts"
+import { submitReport } from "@features/report/report.api.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
 import toast from "react-hot-toast"
+import type { ReportCategory } from "@features/report/report.types.ts"
 
 /**
  * A modal to report a problem.
@@ -26,7 +24,6 @@ export default function ReportProblemModal() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    // Capture a stable snapshot of context so it doesn't change mid-submit
     const context = useMemo(
         () => ({
             path:
@@ -62,11 +59,11 @@ export default function ReportProblemModal() {
         setError(null)
 
         try {
-            const id = await submitReport(auth, {
+            const id = await submitReport({
+                reportType: "GENERAL",
                 summary,
                 details,
                 category,
-                burrowInfo: `${import.meta.env.VITE_VERSION} (${import.meta.env.VITE_BASE_URL || "Unknown"})`,
                 path: context.path,
                 userAgent: context.userAgent
             })

@@ -1,7 +1,7 @@
-
-import { Button, Card } from "@umnburrow/core"
+import { Button } from "@umnburrow/core"
 import { useAtom } from "jotai"
 import {
+    settingsChanged,
     settingsSaveLoading,
     settingsSection
 } from "@features/settings/settings.atom.ts"
@@ -9,9 +9,10 @@ import AccountSection from "@features/settings/components/AccountSection.tsx"
 import ThemeSection from "@features/settings/components/ThemeSection.tsx"
 import NotificationsSection from "@features/settings/components/NotificationsSection.tsx"
 import SettingsNavigationButton from "@features/settings/components/SettingsNavigationButton.tsx"
-// @ts-ignore
-import { Bell, Palette, User } from "lucide-react"
+import { Bell, Palette, User, UserRoundX } from "lucide-react"
 import { useMemo } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import BlockedAccountsSection from "@features/settings/components/BlockedAccountsSection.tsx"
 
 /**
  * The settings page.
@@ -25,9 +26,12 @@ import { useMemo } from "react"
 export default function SettingsView() {
     const [section] = useAtom(settingsSection)
     const [loading, setLoading] = useAtom(settingsSaveLoading)
+    const [hasChanged, setHasChanged] = useAtom(settingsChanged)
 
     // which type of settings to see
     const pane = useMemo(() => {
+        setHasChanged(false)
+
         switch (section) {
             case "Account":
                 return <AccountSection />
@@ -35,6 +39,8 @@ export default function SettingsView() {
                 return <NotificationsSection />
             case "Theme":
                 return <ThemeSection />
+            case "Blocked Users":
+                return <BlockedAccountsSection />
             default:
                 return <></>
         }
@@ -53,9 +59,6 @@ export default function SettingsView() {
             case "Notifications":
                 formID = "notifications-form"
                 break
-            case "Theme":
-                formID = "theme-form"
-                break
         }
 
         if (formID) {
@@ -68,7 +71,7 @@ export default function SettingsView() {
     }
 
     return (
-        <div className="flex min-h-screen flex-col">
+        <div className="flex flex-col">
             <div className="flex-1 py-8">
                 <div className="mx-auto w-full px-4 md:max-w-4xl">
                     <h1 className="mb-8 text-3xl font-bold">Settings</h1>
@@ -90,34 +93,48 @@ export default function SettingsView() {
 
                                     <SettingsNavigationButton
                                         name="Theme"
-                                        icon={<Palette width="18" height="18" />}
+                                        icon={
+                                            <Palette width="18" height="18" />
+                                        }
+                                    />
+
+                                    <SettingsNavigationButton
+                                        name="Blocked Users"
+                                        icon={
+                                            <UserRoundX
+                                                width="18"
+                                                height="18"
+                                            />
+                                        }
                                     />
                                 </div>
                             </nav>
+
+                            {/* save button*/}
+                            <AnimatePresence>
+                                {hasChanged && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{ duration: 0.4 }}
+                                        className="mt-4 flex w-full items-center justify-evenly"
+                                    >
+                                        <Button
+                                            onClick={submit}
+                                            color="SUCCESS"
+                                            loading={loading}
+                                        >
+                                            Save Changes
+                                        </Button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </aside>
 
                         {/* content pane */}
                         <main className="w-full flex-1">{pane}</main>
                     </div>
-                </div>
-            </div>
-
-            {/* settings */}
-            <div className="border-card-border bg-background/95 sticky bottom-0 mx-2 border-t backdrop-blur-sm">
-                <div className="mx-auto w-full py-4 md:max-w-lg ">
-                    <Card className="flex items-center justify-evenly gap-2">
-                        <Button color="ERROR" onClick={() => {}}>
-                            Cancel Changes
-                        </Button>
-
-                        <Button
-                            onClick={submit}
-                            color="SUCCESS"
-                            loading={loading}
-                        >
-                            Save Changes
-                        </Button>
-                    </Card>
                 </div>
             </div>
         </div>

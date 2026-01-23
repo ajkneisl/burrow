@@ -22,6 +22,7 @@ import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import ShareMeeting from "@features/burrows/controls/ShareMeeting.tsx"
 import BookmarkMeeting from "@features/burrows/controls/BookmarkMeeting.tsx"
+import ReportBurrow from "@features/burrows/controls/ReportBurrow.tsx"
 
 /**
  * View an individual meeting.
@@ -51,7 +52,7 @@ export default function StandardBurrow() {
     const inPast = (data?.burrow?.endTime ?? 0) < new Date().valueOf()
     const isLoggedOut = auth === null
 
-    // Set meta tags for this meeting
+    // set meta tags for this meeting
     useMetaTags({
         title: `Burrow — ${data?.burrow?.title}`,
         description: `View ${data?.burrow?.title} on Burrow`,
@@ -259,6 +260,24 @@ export default function StandardBurrow() {
                                                 inPast={inPast}
                                                 meetingId={data.burrow.id}
                                             />
+
+                                            {!isOwner && (
+                                                <ReportBurrow
+                                                    burrowID={data.burrow.id}
+                                                    burrowTitle={
+                                                        data.burrow.title
+                                                    }
+                                                    authorID={
+                                                        data.burrow.ownerID
+                                                    }
+                                                    authorName={
+                                                        data
+                                                            ?.burrowAuthorProfile
+                                                            ?.name ??
+                                                        "Burrow Author"
+                                                    }
+                                                />
+                                            )}
                                         </div>
 
                                         {/* user count badges */}
@@ -268,9 +287,7 @@ export default function StandardBurrow() {
                                                 inPast={inPast}
                                             />
 
-                                            <BurrowCapacity
-                                                burrow={burrow}
-                                            />
+                                            <BurrowCapacity burrow={burrow} />
                                         </div>
                                     </div>
                                 </div>

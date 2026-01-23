@@ -31,3 +31,18 @@ export const EMPTY_NOTIFICATION_PREFERENCES: NotificationPreferences = {
     throttleMinutes: 0,
     deliveryChannels: EMAIL_CHANNEL | BROWSER_CHANNEL | SSE_CHANNEL // 0b0111 = 7
 }
+
+/**
+ * A blocked user.
+ *
+ * @param userID The ID of the blocked user.
+ * @param username The username of the blocked user.
+ * @param name The name of the blocked user.
+ * @param blockedAt When the user was blocked.
+ */
+export type BlockedUser = {
+    userID: string,
+    username: string,
+    name: string,
+    blockedAt: number
+}

@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react"
-import { deleteAccount, getUser, updateUsername } from "@features/auth/user.api.ts"
+import {
+    deleteAccount,
+    getUser,
+    updateUsername
+} from "@features/auth/user.api.ts"
 import { useSetAtom } from "jotai"
-import { settingsSaveLoading } from "@features/settings/settings.atom.ts"
+import {
+    settingsChanged,
+    settingsSaveLoading
+} from "@features/settings/settings.atom.ts"
 import toast from "react-hot-toast"
 import { Button, Card, Input } from "@umnburrow/core"
 import { useQuery } from "@tanstack/react-query"
@@ -22,6 +29,8 @@ export default function AccountSection() {
 
     const [name, setName] = useState<string>("")
     const [errors, setErrors] = useState<string[]>([])
+
+    const setChanged = useSetAtom(settingsChanged)
     const setLoading = useSetAtom(settingsSaveLoading)
 
     useEffect(() => {
@@ -72,10 +81,14 @@ export default function AccountSection() {
                             onClick={async () => {
                                 try {
                                     await deleteAccount()
-                                    toast.success("Account deleted successfully")
+                                    toast.success(
+                                        "Account deleted successfully"
+                                    )
                                     navigate("/")
                                 } catch (error) {
-                                    toast.error(`Failed to delete account: ${error}`)
+                                    toast.error(
+                                        `Failed to delete account: ${error}`
+                                    )
                                 } finally {
                                     toast.dismiss(t.id)
                                 }
@@ -133,7 +146,10 @@ export default function AccountSection() {
                             type="text"
                             placeholder={"Your name"}
                             value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            onChange={(e) => {
+                                setChanged(true)
+                                setName(e.target.value)
+                            }}
                         />
 
                         <Input
@@ -150,18 +166,7 @@ export default function AccountSection() {
 
                     {/* delete account section */}
                     <div className="border-error/20 mt-6 border-t pt-6">
-                        <h3 className="text-error mb-2 font-semibold">
-                            Danger Zone
-                        </h3>
-                        <p className="text-text/60 mb-4 text-sm">
-                            Once you delete your account, there is no going back.
-                            Please be certain.
-                        </p>
-
-                        <Button
-                            color="ERROR"
-                            onClick={handleDeleteAccount}
-                        >
+                        <Button color="ERROR" onClick={handleDeleteAccount}>
                             <Trash2 className="h-4 w-4" />
                             Delete Account
                         </Button>

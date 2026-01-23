@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router"
 import { Button } from "@umnburrow/core"
 import { useAtom } from "jotai"
-import { problemModalOpen } from "@features/problem/problem.atom.ts"
+import { problemModalOpen } from "@features/report/report.atom.ts"
 
 /**
  * 404 page :)

@@ -19,6 +19,7 @@ import Relations from "@features/profile/components/Relations.tsx"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 import { useAtom } from "jotai"
 import { profileEditErrors } from "@features/profile/profile.atom.ts"
+import ReportProfile from "@features/profile/components/ReportProfile.tsx"
 
 /**
  * The view of a profile.
@@ -218,25 +219,32 @@ export default function ProfileView() {
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-center gap-2">
+                    <div className="flex flex-row items-center gap-2">
                         {data.profile.userID === user?.id ? (
                             <EditProfile
                                 profile={data.profile}
                                 user={data.user}
                             />
                         ) : (
-                            <Button
-                                aria-label="Follow user"
-                                color={
-                                    data.following.youFollow
-                                        ? "SUCCESS"
-                                        : "PRIMARY"
-                                }
-                                onClick={follow}
-                                loading={isSubmitting}
-                            >
-                                {followText}
-                            </Button>
+                            <>
+                                <Button
+                                    aria-label="Follow user"
+                                    color={
+                                        data.following.youFollow
+                                            ? "SUCCESS"
+                                            : "PRIMARY"
+                                    }
+                                    onClick={follow}
+                                    loading={isSubmitting}
+                                >
+                                    {followText}
+                                </Button>
+
+                                <ReportProfile
+                                    userID={data.user.id}
+                                    username={data.user.username}
+                                />
+                            </>
                         )}
                     </div>
                 </div>

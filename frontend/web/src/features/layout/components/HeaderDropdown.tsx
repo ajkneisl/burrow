@@ -3,7 +3,7 @@ import { useSetAtom } from "jotai"
 import { authToken } from "@features/auth/auth.atom.ts"
 import { Dropdown, DropdownItem } from "@umnburrow/core"
 import HeaderButton from "@features/layout/components/HeaderButton.tsx"
-import { problemModalOpen } from "@features/problem/problem.atom.ts"
+import { problemModalOpen } from "@features/report/report.atom.ts"
 import { useNavigate } from "react-router"
 import { myInvitesModalOpen } from "@features/layout/layout.atom.ts"
 import {

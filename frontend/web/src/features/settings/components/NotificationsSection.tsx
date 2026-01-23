@@ -1,7 +1,10 @@
 import { Card, Toggle } from "@umnburrow/core"
-import { settingsSaveLoading } from "@features/settings/settings.atom.ts"
+import {
+    settingsChanged,
+    settingsSaveLoading
+} from "@features/settings/settings.atom.ts"
 import toast from "react-hot-toast"
-import { useAtom } from "jotai"
+import { useSetAtom } from "jotai"
 import { motion, AnimatePresence } from "framer-motion"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
@@ -28,7 +31,8 @@ import { usePushNotifications } from "@features/notifications/hooks/usePushNotif
  * @author AJ Kneisl
  */
 export default function NotificationsSection() {
-    const [, setLoading] = useAtom(settingsSaveLoading)
+    const setLoading = useSetAtom(settingsSaveLoading)
+    const setHasChanged = useSetAtom(settingsChanged)
     const queryClient = useQueryClient()
 
     const { isSupported, subscribe, unsubscribe } = usePushNotifications()
@@ -126,6 +130,8 @@ export default function NotificationsSection() {
             defaultNotificationDelivery: number
         }>
     ) => {
+        setHasChanged(true)
+
         queryClient.setQueryData(
             ["settings", "general"],
             (
@@ -149,6 +155,8 @@ export default function NotificationsSection() {
         (
             updater: (prev: NotificationPreferences) => NotificationPreferences
         ) => {
+            setHasChanged(true)
+
             queryClient.setQueryData(
                 ["settings", "notifications"],
                 (old: NotificationPreferences[] = []) => {
@@ -166,12 +174,15 @@ export default function NotificationsSection() {
                         newPrefs[index] = updated
                         return newPrefs
                     }
+
                     return [...old, updated]
                 }
             )
         }
 
     const handlePushNotificationToggle = async (enabled: boolean) => {
+        setHasChanged(true)
+
         if (enabled) {
             if (!isSupported) {
                 toast.error(
@@ -198,6 +209,8 @@ export default function NotificationsSection() {
     }
 
     const handleEmailToggle = (enabled: boolean) => {
+        setHasChanged(true)
+
         const current = generalSettings?.defaultNotificationDelivery ?? 0
         updateGeneralSettings({
             defaultNotificationDelivery: enabled
@@ -207,6 +220,8 @@ export default function NotificationsSection() {
     }
 
     const handleNotificationsEnabledToggle = (enabled: boolean) => {
+        setHasChanged(true)
+
         updateGeneralSettings({ notificationsEnabled: enabled })
     }
 

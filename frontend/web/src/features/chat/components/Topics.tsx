@@ -25,7 +25,7 @@ export default function Topics() {
                 <div className="mb-2 flex items-center justify-between">
                     <button
                         onClick={() => nav(`/discuss`)}
-                        className="hover:underline cursor-pointer text-sm font-semibold"
+                        className="cursor-pointer text-sm font-semibold hover:underline"
                     >
                         Discuss on Burrow
                     </button>

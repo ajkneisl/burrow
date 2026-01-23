@@ -13,3 +13,10 @@ export const settingsSaveLoading = atom(false)
  * @see SettingsModal
  */
 export const settingsSection = atom("Account")
+
+/**
+ * If the settings have changed, if true show the `Save Changes` button.
+ *
+ * @see SettingsModal
+ */
+export const settingsChanged = atom(false)

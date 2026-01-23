@@ -18,6 +18,16 @@ export async function getUserByUsername(
 }
 
 /**
+ * Unblock a user.
+ *
+ * @param userID The ID of the user to unblock.
+ */
+export async function unblockUser(userID: string): Promise<void> {
+    return del("/user/block", { query: { userID } })
+}
+
+
+/**
  * Get a user by their userID.
  *
  * @param auth The authorization token.

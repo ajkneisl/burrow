@@ -52,10 +52,10 @@ export default function Home() {
                 <aside className="md:col-span-2 md:row-start-1 lg:col-span-1 lg:row-start-1">
                     <MyProfile />
 
-                    <div className="hidden md:block">
-                        {/* discuss preview */}
-                        <Topics />
-                    </div>
+                    {/*<div className="hidden md:block">*/}
+                    {/*    /!* discuss preview *!/*/}
+                    {/*    <Topics />*/}
+                    {/*</div>*/}
                 </aside>
 
                 {/* small border displayed on mobile */}

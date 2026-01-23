@@ -53,7 +53,10 @@ export default function BookmarkMeeting({
             disabled={inPast}
             className={isBookmarked ? "text-secondary" : "text-text"}
         >
-            <Bookmark className="h-5 w-5" fill={isBookmarked ? "currentColor" : "none"} />
+            <Bookmark
+                className="h-5 w-5"
+                fill={isBookmarked ? "currentColor" : "none"}
+            />
         </MeetingButton>
     )
 }
