@@ -75,9 +75,9 @@ data class SubmittedReport(
     val summary: String,
     val category: String,
     val details: String,
-    val userAgent: String?,
-    val path: String?,
-    val attachedID: String?,
+    val userAgent: String? = null,
+    val path: String? = null,
+    val attachedID: String? = null,
 ) {
     /** Validate a submitted report. */
     fun validate(): Boolean {

@@ -1,6 +1,7 @@
 package app.burrow.account.models
 
 import app.burrow.Error
+import app.burrow.InvalidAuthorization
 import app.burrow.NotFound
 import app.burrow.account.Authorization
 import app.burrow.account.profile.Profiles
@@ -11,6 +12,13 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.forms.submitForm
+import io.ktor.http.parameters
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
@@ -20,6 +28,9 @@ import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
@@ -33,35 +44,23 @@ import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.forms.submitForm
-import io.ktor.http.parameters
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import org.slf4j.LoggerFactory
 
 /** Logger for user operations. */
 private val LOGGER = LoggerFactory.getLogger("User")
 
 /** HTTP client for OAuth token exchange */
-private val httpClient = HttpClient(CIO) {
-    install(ContentNegotiation) {
-        json(Json { ignoreUnknownKeys = true })
-    }
-}
+private val httpClient =
+    HttpClient(CIO) { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
 
 /** Android OAuth client ID */
-private val ANDROID_CLIENT_ID = env("GOOGLE_CLIENT_ID_ANDROID")
-    ?: "808386876282-kcf8lq37gn0q6o5mrha6krcf5vlf2uru.apps.googleusercontent.com"
+private val ANDROID_CLIENT_ID =
+    env("GOOGLE_CLIENT_ID_ANDROID")
+        ?: "808386876282-kcf8lq37gn0q6o5mrha6krcf5vlf2uru.apps.googleusercontent.com"
 
 /**
- * Exchange an authorization code for an ID token using Google's token endpoint.
- * Used for Android OAuth flow where the client sends the auth code to the backend.
+ * Exchange an authorization code for an ID token using Google's token endpoint. Used for Android
+ * OAuth flow where the client sends the auth code to the backend.
  *
  * @param code The authorization code from Google OAuth
  * @param codeVerifier The PKCE code verifier used in the authorization request
@@ -69,25 +68,32 @@ private val ANDROID_CLIENT_ID = env("GOOGLE_CLIENT_ID_ANDROID")
  * @return The ID token string
  * @throws Exception if token exchange fails
  */
-suspend fun exchangeCodeForIdToken(code: String, codeVerifier: String, redirectUri: String): String {
-    val response = httpClient.submitForm(
-        url = "https://oauth2.googleapis.com/token",
-        formParameters = parameters {
-            append("code", code)
-            append("client_id", ANDROID_CLIENT_ID)
-            append("redirect_uri", redirectUri)
-            append("grant_type", "authorization_code")
-            append("code_verifier", codeVerifier)
-        }
-    )
+suspend fun exchangeCodeForIdToken(
+    code: String,
+    codeVerifier: String,
+    redirectUri: String,
+): String {
+    val response =
+        httpClient.submitForm(
+            url = "https://oauth2.googleapis.com/token",
+            formParameters =
+                parameters {
+                    append("code", code)
+                    append("client_id", ANDROID_CLIENT_ID)
+                    append("redirect_uri", redirectUri)
+                    append("grant_type", "authorization_code")
+                    append("code_verifier", codeVerifier)
+                },
+        )
 
     val tokenData = response.body<JsonObject>()
 
     val idToken = tokenData["id_token"]?.jsonPrimitive?.content
     if (idToken == null) {
-        val error = tokenData["error_description"]?.jsonPrimitive?.content
-            ?: tokenData["error"]?.jsonPrimitive?.content
-            ?: "Unknown error"
+        val error =
+            tokenData["error_description"]?.jsonPrimitive?.content
+                ?: tokenData["error"]?.jsonPrimitive?.content
+                ?: "Unknown error"
         LOGGER.error("Failed to exchange code for token: {}", error)
         throw Exception("Token exchange failed: $error")
     }
@@ -144,79 +150,69 @@ data class User(
  * or create a login token.
  *
  * @param token Authorized Google JWT ID token
- * @return AuthorizedUser if validation succeeds, null otherwise
+ * @return AuthorizedUser if validation succeeds
+ * @throws app.burrow.ServerError If there's an issue.
  */
 suspend fun retrieveUser(token: String): AuthorizedUser? {
-    return try {
-        val idToken: GoogleIdToken? = googleVerifier?.verify(token)
+    val idToken: GoogleIdToken = googleVerifier?.verify(token) ?: throw InvalidAuthorization()
 
-        if (idToken == null) {
-            LOGGER.warn("Invalid Google ID token received")
-            return null
-        }
+    val payload: GoogleIdToken.Payload = idToken.payload
 
-        val payload: GoogleIdToken.Payload = idToken.payload
+    // verify they have a UMN id
+    val hostedDomain = payload.hostedDomain
+    if (hostedDomain != "umn.edu")
+        throw Error(400, "You must use a University of Minnesota Google account.")
 
-        // verify they have a UMN id
-        val hostedDomain = payload.hostedDomain
-        if (hostedDomain != "umn.edu") {
-            LOGGER.warn("Invalid hosted domain: {}", hostedDomain ?: "null")
-            return null
-        }
+    val googleID = payload.subject
+    val email = payload.email
+    val name = payload["name"] as? String
 
-        val googleID = payload.subject
-        val email = payload.email
-        val name = payload["name"] as? String
+    if (googleID == null || email == null || name == null)
+        throw Error(
+            500,
+            "There was an issue with Google. Please report this through support@umn.app",
+        )
 
-        if (googleID == null || email == null || name == null) {
-            LOGGER.warn("Missing required fields in token payload")
-            return null
-        }
+    val user = query { Users.selectAll().where { Users.id eq googleID }.singleOrNull() }
 
-        val user = query { Users.selectAll().where { Users.id eq googleID }.singleOrNull() }
+    // user does not exist - create new account
+    if (user == null) {
+        val createdDate = getTimeMillis()
+        val username = email.removeSuffix("@umn.edu")
 
-        // user does not exist - create new account
-        if (user == null) {
-            val createdDate = getTimeMillis()
-            val username = email.removeSuffix("@umn.edu")
-
-            query {
-                Users.insert {
-                    it[Users.username] = username
-                    it[Users.email] = email
-                    it[Users.createdAt] = createdDate
-                    it[Users.id] = googleID
-                }
-
-                Profiles.insert {
-                    it[Profiles.userID] = googleID
-                    it[Profiles.name] = name
-                }
+        query {
+            Users.insert {
+                it[Users.username] = username
+                it[Users.email] = email
+                it[Users.createdAt] = createdDate
+                it[Users.id] = googleID
             }
 
-            LOGGER.info("Created new user account for {}", email)
-
-            AuthorizedUser(
-                User(id = googleID, username = username, email = email, createdDate = createdDate),
-                true,
-                Authorization.generateToken(googleID),
-            )
-        } else {
-            // existing user
-            AuthorizedUser(
-                User(
-                    id = googleID,
-                    username = user[Users.username],
-                    email = user[Users.email],
-                    createdDate = user[Users.createdAt],
-                ),
-                false,
-                Authorization.generateToken(googleID),
-            )
+            Profiles.insert {
+                it[Profiles.userID] = googleID
+                it[Profiles.name] = name
+            }
         }
-    } catch (e: Exception) {
-        LOGGER.error("Error validating Google ID token", e)
-        null
+
+        LOGGER.info("Created new user account for {}", email)
+
+        return AuthorizedUser(
+            User(id = googleID, username = username, email = email, createdDate = createdDate),
+            true,
+            Authorization.generateToken(googleID),
+        )
+    } else {
+        // existing user
+        return AuthorizedUser(
+            User(
+                id = googleID,
+                username = user[Users.username],
+                email = user[Users.email],
+                createdDate = user[Users.createdAt],
+            ),
+            false,
+            Authorization.generateToken(googleID),
+        )
     }
 }
 

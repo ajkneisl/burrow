@@ -50,12 +50,8 @@ export function useGoogleAuth() {
                 setNewUser(data.newUser)
 
                 router.replace("/(tabs)")
-            } catch (e) {
-                setError(
-                    e instanceof Error
-                        ? e.message
-                        : "Login failed. Please try again."
-                )
+            } catch (e: any) {
+                setError(e ?? "Login failed. Please try again.")
             } finally {
                 setLoading(false)
             }
@@ -94,7 +90,9 @@ export function useGoogleAuth() {
                     return
                 } else if (error.code === statusCodes.IN_PROGRESS) {
                     setError("Sign-in already in progress.")
-                } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+                } else if (
+                    error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE
+                ) {
                     setError("Google Play Services not available.")
                 } else {
                     setError("Google sign-in failed. Please try again.")

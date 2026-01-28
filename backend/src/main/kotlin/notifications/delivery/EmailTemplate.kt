@@ -53,7 +53,7 @@ fun generateNotificationEmail(notification: Notification): String {
         if (notification.burrowID != null) {
             """
             <div style="margin-top: 28px;">
-                <a href="${getBaseUrl()}/burrows/${notification.burrowID}"
+                <a href="${getBaseUrl()}/burrow/${notification.burrowID}"
                    style="display: inline-block; padding: 14px 32px; background-color: #7A0019; color: #FFCC00; text-decoration: none; border-radius: 8px; font-weight: 700; letter-spacing: 0.02em; box-shadow: 0 2px 4px rgba(122, 0, 25, 0.2); transition: background-color 0.2s;">
                     View Burrow
                 </a>
