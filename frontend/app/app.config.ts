@@ -130,8 +130,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         router: {
             origin: false
         },
-        apiUrl: "https://umn.app/api",
-        cdnUrl: "https://cdn.umn.app",
+        apiUrl: "http://localhost:8080/api",
+        cdnUrl: "http://localhost:9000",
         eas: {
             projectId: "3dc55916-e2a2-4081-a6cd-b76056b7386f"
         }

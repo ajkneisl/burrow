@@ -48,10 +48,10 @@ export function ProfilePicture({
     }
 
     const textSizes = {
-        sm: "text-sm",
-        md: "text-base",
-        lg: "text-xl",
-        xl: "text-4xl"
+        sm: "text-sm pt-1",
+        md: "text-base pt-1.5",
+        lg: "text-xl pt-2",
+        xl: "text-4xl pt-4"
     }
 
     return (
@@ -67,7 +67,9 @@ export function ProfilePicture({
                 />
             ) : (
                 <View className="h-full w-full items-center justify-center bg-primary">
-                    <Text className={`${textSizes[size]} font-bold text-white`}>
+                    <Text
+                        className={`${textSizes[size]} font-bold leading-none text-white`}
+                    >
                         {initials}
                     </Text>
                 </View>

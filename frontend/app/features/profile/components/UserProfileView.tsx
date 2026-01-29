@@ -1,4 +1,5 @@
 import { View, Text, Pressable, Linking, Alert } from "react-native"
+import { Image } from "expo-image"
 import {
     Calendar,
     Users,
@@ -13,6 +14,7 @@ import { useThemeColors } from "@api/theme/useThemeColors"
 import type { User } from "@features/auth/user.types"
 import type { Profile, Following } from "@features/profile/profile.model"
 import type { BurrowResponse } from "@features/burrows/burrows.types"
+import { CDN_URL } from "@api/util"
 
 /**
  * {@link UserProfileView}
@@ -88,6 +90,20 @@ export function UserProfileView({
                         </View>
                     )}
                 </View>
+
+                {profile.badges.length > 0 && (
+                    <View className="flex flex-row gap-2 mt-4">
+                        {profile.badges.map(({ id, description }) => (
+                            <Image
+                                key={id}
+                                source={`${CDN_URL}/badges/${id}`}
+                                width={48}
+                                height={48}
+                                alt={description}
+                            />
+                        ))}
+                    </View>
+                )}
 
                 {/* Follow/Following Stats */}
                 {following && (
@@ -225,7 +241,6 @@ export function UserProfileView({
             )}
         </>
     )
-
 }
 
 function InfoRow({

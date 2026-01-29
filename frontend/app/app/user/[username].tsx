@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
     View,
     Text,
@@ -27,6 +27,7 @@ import {
     Flag
 } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
+import useUser from "@features/auth/hooks/useUser"
 import { UserProfileView } from "@features/profile/components/UserProfileView"
 import { BlockUserModal } from "@features/profile/components/BlockUserModal"
 import { ReportUserModal } from "@features/profile/components/ReportUserModal"
@@ -42,6 +43,13 @@ export default function UserProfileScreen() {
     const router = useRouter()
     const queryClient = useQueryClient()
     const colors = useThemeColors()
+    const currentUser = useUser()
+
+    useEffect(() => {
+        if (currentUser && username === currentUser.username) {
+            router.replace("/(tabs)/profile")
+        }
+    }, [currentUser, username, router])
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["user", username],
