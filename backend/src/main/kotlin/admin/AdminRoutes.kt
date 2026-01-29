@@ -2,6 +2,7 @@ package app.burrow.admin
 
 import app.burrow.ADMIN_AUTH
 import app.burrow.Error
+import app.burrow.account.profile.BADGE_ROUTES
 import app.burrow.admin.account.Administrator
 import app.burrow.admin.account.Permissions
 import app.burrow.admin.account.adminLogin
@@ -94,5 +95,8 @@ val ADMIN_ROUTES: Route.() -> Unit = {
         // ROUTE /admin/logs
         // manage and view system logs
         route("/logs", LOG_ROUTES)
+
+        // ROUTE /admin/badges
+        route("/badges", BADGE_ROUTES)
     }
 }

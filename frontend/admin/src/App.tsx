@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import ReportsView from "./pages/Reports.view.tsx"
 import LogsView from "./pages/Logs.view.tsx"
 import Home from "./pages/Home.view.tsx"
+import BadgesView from "./pages/Badges.view.tsx";
 
 const queryClient = new QueryClient()
 
@@ -61,6 +62,7 @@ export default function App() {
                         <Route path="/analytics" element={<AnalyticsView />} />
                         <Route path="/reports" element={<ReportsView />} />
                         <Route path="/logs" element={<LogsView />} />
+                        <Route path="/badges" element={<BadgesView />} />
 
                         <Route
                             path="*"

@@ -289,6 +289,7 @@ suspend fun Application.module() {
         allowHeader(HttpHeaders.Origin)
         allowHeader(HttpHeaders.Accept)
         allowHeader(HttpHeaders.LastEventID)
+        allowHeader("x-badge-description")
 
         allowCredentials = true
         allowNonSimpleContentTypes = true
