@@ -9,12 +9,12 @@ import {
 } from "lucide-react-native"
 import { Card } from "@components/core"
 import { ProfilePicture } from "@components/profile/ProfilePicture"
+import { UserBadge } from "@components/profile/UserBadge"
 import { UpcomingBurrowCard } from "@features/home/components/UpcomingBurrowCard"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import type { User } from "@features/auth/user.types"
 import type { Profile, Following } from "@features/profile/profile.model"
 import type { BurrowResponse } from "@features/burrows/burrows.types"
-import { CDN_URL } from "@api/util"
 
 /**
  * {@link UserProfileView}
@@ -94,12 +94,10 @@ export function UserProfileView({
                 {profile.badges.length > 0 && (
                     <View className="flex flex-row gap-2 mt-4">
                         {profile.badges.map(({ id, description }) => (
-                            <Image
+                            <UserBadge
                                 key={id}
-                                source={`${CDN_URL}/badges/${id}`}
-                                width={48}
-                                height={48}
-                                alt={description}
+                                id={id}
+                                description={description}
                             />
                         ))}
                     </View>
