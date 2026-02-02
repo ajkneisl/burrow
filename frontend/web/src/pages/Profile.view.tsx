@@ -20,6 +20,7 @@ import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 import { useAtom } from "jotai"
 import { profileEditErrors } from "@features/profile/profile.atom.ts"
 import ReportProfile from "@features/profile/components/ReportProfile.tsx"
+import ProfileBadge from "@features/profile/components/ProfileBadge.tsx"
 
 /**
  * The view of a profile.
@@ -92,10 +93,14 @@ export default function ProfileView() {
         if (!data || !user) return true
 
         return (
-            data.profile.visibility !== "PUBLIC" && // make sure profile is not private
-            data.user.id !== user.id && // make sure it's not you
-            (data.profile.visibility === "PRIVATE" || // profile is private, cannot see
-                (data.profile.visibility === "FRIENDS" && // profile is friends only, check if friends
+            // make sure profile is not private
+            data.profile.visibility !== "PUBLIC" &&
+            // make sure it's not you
+            data.user.id !== user.id &&
+            // profile is private, cannot see
+            (data.profile.visibility === "PRIVATE" ||
+                // profile is friends only, check if friends
+                (data.profile.visibility === "FRIENDS" &&
                     !(data.following?.youFollow && data.following?.theyFollow)))
         )
     }, [data, user])
@@ -168,10 +173,23 @@ export default function ProfileView() {
                         />
 
                         <div className="pb-1">
-                            {/* username */}
-                            <h1 className="text-3xl font-extrabold tracking-tight">
-                                {data.profile.name}
-                            </h1>
+                            <div className="flex flex-row gap-2">
+                                {/* username */}
+                                <h1 className="text-3xl font-extrabold tracking-tight">
+                                    {data.profile.name}
+                                </h1>
+
+                                {data.profile.badges.length > 0 && (
+                                    <div className="flex flex-row gap-2">
+                                        {data.profile.badges.map((badge) => (
+                                            <ProfileBadge
+                                                id={badge.id}
+                                                description={badge.description}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
 
                             <div className="mt-1 flex flex-wrap items-center gap-2">
                                 {/* profile URL*/}
@@ -218,7 +236,6 @@ export default function ProfileView() {
                             )}
                         </div>
                     </div>
-
                     <div className="flex flex-row items-center gap-2">
                         {data.profile.userID === user?.id ? (
                             <EditProfile

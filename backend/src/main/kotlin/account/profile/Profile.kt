@@ -56,18 +56,12 @@ object Profiles : Table("profiles") {
 
     /** [Profile.major] */
     val major = varchar("major", 255).nullable().default(null)
+
+    /** [Profiles.badges] */
+    val badges = array<String>("badges").default(emptyList())
 }
 
-/**
- * A user's profile.
- *
- * @param userID The user's ID.
- * @param visibility The visibility of the profile.
- * @param name The chosen display name of the user.
- * @param bio The optional bio. This should be a short description of who they are.
- * @param phoneNumber An optional phone number.
- * @param instagram An optional instagram.
- */
+/** A user's profile. */
 @Serializable
 data class Profile(
     /** The user's ID. */
@@ -102,6 +96,9 @@ data class Profile(
 
     /** The user's LinkedIn. If `null`, the user has not set one. */
     val linkedIn: String?,
+
+    /** The user's badges. These are given by administrators. */
+    val badges: List<Badge>,
 ) {
     /** Profile visibility. */
     enum class Visibility {
@@ -315,6 +312,7 @@ data class Profile(
                 phoneNumber = row[Profiles.phoneNumber],
                 linkedIn = row[Profiles.linkedIn],
                 visibility = row[Profiles.visibility],
+                badges = row[Profiles.badges].map { Badge(it, "") },
             )
 
         /** Get a [Profile] from a [row] using an aliased table */
@@ -331,6 +329,7 @@ data class Profile(
                 phoneNumber = row[alias[Profiles.phoneNumber]],
                 linkedIn = row[alias[Profiles.linkedIn]],
                 visibility = row[alias[Profiles.visibility]],
+                badges = row[alias[Profiles.badges]].map { Badge(it, "") },
             )
     }
 }

@@ -9,6 +9,8 @@ import AnalyticsView from "./pages/Analytics.view.tsx"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import ReportsView from "./pages/Reports.view.tsx"
 import LogsView from "./pages/Logs.view.tsx"
+import Home from "./pages/Home.view.tsx"
+import BadgesView from "./pages/Badges.view.tsx";
 
 const queryClient = new QueryClient()
 
@@ -52,25 +54,15 @@ export default function App() {
                     <Route path="/login" element={<LoginView />} />
 
                     <Route element={<Layout />}>
-                        <Route index element={<Navigate to="/dashboard" replace />} />
                         <Route
-                            path="/dashboard"
-                            element={
-                                <div className="p-6">
-                                    <Card className="p-6">
-                                        <h1 className="text-2xl font-bold mb-4">
-                                            Welcome to Burrow Admin
-                                        </h1>
-                                        <p className="text-muted-foreground">
-                                            Use the navigation on the left to manage your Burrow instance.
-                                        </p>
-                                    </Card>
-                                </div>
-                            }
+                            index
+                            element={<Navigate to="/dashboard" replace />}
                         />
+                        <Route path="/dashboard" element={<Home />} />
                         <Route path="/analytics" element={<AnalyticsView />} />
                         <Route path="/reports" element={<ReportsView />} />
                         <Route path="/logs" element={<LogsView />} />
+                        <Route path="/badges" element={<BadgesView />} />
 
                         <Route
                             path="*"
@@ -81,7 +73,8 @@ export default function App() {
                                             Page not found
                                         </h1>
                                         <p className="text-muted-foreground">
-                                            The page you're looking for doesn't exist.
+                                            The page you're looking for doesn't
+                                            exist.
                                         </p>
                                     </Card>
                                 </div>

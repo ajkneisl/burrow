@@ -191,6 +191,7 @@ val USER_ROUTES: Route.() -> Unit = {
                         phoneNumber = phoneNumber,
                         instagram = instagram,
                         linkedIn = linkedIn,
+                        badges = listOf(),
                     )
 
                 profile.validate()

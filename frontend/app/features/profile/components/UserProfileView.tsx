@@ -1,4 +1,5 @@
 import { View, Text, Pressable, Linking, Alert } from "react-native"
+import { Image } from "expo-image"
 import {
     Calendar,
     Users,
@@ -8,6 +9,7 @@ import {
 } from "lucide-react-native"
 import { Card } from "@components/core"
 import { ProfilePicture } from "@components/profile/ProfilePicture"
+import { UserBadge } from "@components/profile/UserBadge"
 import { UpcomingBurrowCard } from "@features/home/components/UpcomingBurrowCard"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import type { User } from "@features/auth/user.types"
@@ -88,6 +90,18 @@ export function UserProfileView({
                         </View>
                     )}
                 </View>
+
+                {profile.badges.length > 0 && (
+                    <View className="flex flex-row gap-2 mt-4">
+                        {profile.badges.map(({ id, description }) => (
+                            <UserBadge
+                                key={id}
+                                id={id}
+                                description={description}
+                            />
+                        ))}
+                    </View>
+                )}
 
                 {/* Follow/Following Stats */}
                 {following && (
@@ -225,7 +239,6 @@ export function UserProfileView({
             )}
         </>
     )
-
 }
 
 function InfoRow({

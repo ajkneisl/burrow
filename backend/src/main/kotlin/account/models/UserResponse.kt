@@ -5,6 +5,7 @@ import app.burrow.account.block.isBlockedBy
 import app.burrow.account.profile.FollowResponse
 import app.burrow.account.profile.Profile
 import app.burrow.account.profile.Profiles
+import app.burrow.account.profile.getAllBadges
 import app.burrow.account.profile.getFollowing
 import app.burrow.account.ta.getUserTAStatus
 import app.burrow.burrows.models.BurrowResponse
@@ -61,6 +62,12 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
 
     var profile = Profile.fromRow(profileRow)
 
+    // resolve badge descriptions
+    val allBadges = getAllBadges()
+    profile = profile.copy(badges = profile.badges.map { badge ->
+        allBadges.find { it.id == badge.id } ?: badge
+    })
+
     // check the privacy
     // if it's private or friends (and they're not friends)
     val isPrivate = profile.visibility == Profile.Visibility.PRIVATE
@@ -83,6 +90,7 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
                 phoneNumber = null,
                 instagram = null,
                 linkedIn = null,
+                badges = listOf(),
             )
     }
 
