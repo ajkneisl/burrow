@@ -26,11 +26,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
                 "Burrow needs camera access to scan QR codes.",
             ITSAppUsesNonExemptEncryption: false
         },
-        "entitlements": {
+        entitlements: {
             "com.apple.developer.maps": true
         },
         config: {
             googleMapsApiKey: "AIzaSyBvjCvJM5WjNB_QYKhB-3-RaaWumVZ3mKw"
+        },
+        icon: {
+            dark: "./assets/images/burrow-dark.png",
+            light: "./assets/images/burrow.png"
         }
     },
     android: {

@@ -28,7 +28,7 @@ COPY frontend/admin /admin
 ENV VITE_BASE_URL="https://umn.app/api"
 ENV CI="true"
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 RUN pnpm run build
 
 FROM ubuntu:latest

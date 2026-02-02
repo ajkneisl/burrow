@@ -13,6 +13,7 @@ data class MetaTags(
     val description: String? = null,
     val image: String? = null,
     val url: String? = null,
+    val appArgument: String? = null,
 )
 
 /** Inject [metaTags] into [baseHtml] before <head>. */
@@ -34,7 +35,21 @@ fun injectMetaTags(baseHtml: String, metaTags: MetaTags): String {
             appendLine("    <meta name=\"twitter:card\" content=\"summary_large_image\" />")
         }
         metaTags.url?.let { appendLine("    <meta property=\"og:url\" content=\"$it\" />") }
+
+        val appArgument = metaTags.appArgument?.let { ", app-argument=$it" } ?: ""
+
+        appendLine(
+            "    <meta name=\"apple-itunes-app\" content=\"app-id=6757548307$appArgument\" />"
+        )
     }
 
     return baseHtml.replace("</head>", "$metaTagsHtml  </head>")
+}
+
+val WELL_KNOWN_APPLE by lazy {
+    object {}::class.java.classLoader.getResource("well-known/apple.json")!!.readText()
+}
+
+val WELL_KNOWN_ANDROID by lazy {
+    object {}::class.java.classLoader.getResource("well-known/android.json")!!.readText()
 }
