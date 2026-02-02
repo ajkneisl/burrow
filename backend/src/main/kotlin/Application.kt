@@ -452,6 +452,22 @@ suspend fun Application.module() {
         // service worker
         get("/sw.js") { call.respondFile(File("$FRONTEND_DIR/js/sw.js")) }
 
+        // GET /.well-known
+        // handle well-known
+        route("/.well-known") {
+            // GET /.well-known/apple-app-site-association
+            // handle rerouting ios
+            get("/apple-app-site-association") {
+                call.respondText(WELL_KNOWN_APPLE, ContentType.Application.Json)
+            }
+
+            // GET /.well-known/assetlinks.json
+            // handle rerouting android
+            get("/assetlinks.json") {
+                call.respondText(WELL_KNOWN_ANDROID, ContentType.Application.Json)
+            }
+        }
+
         // GET /*
         // retrieve the frontend and inject SEO information
         get("{...}") {
@@ -460,10 +476,11 @@ suspend fun Application.module() {
             // retrieve the meta depending on the URI
             val metaTags =
                 when {
-                    // when they're requesting a meeting page
-                    path.startsWith("/meeting/") || path.length == 9 -> {
+                    // when they're requesting a burrow page
+                    path.startsWith("/meeting/") || path.startsWith("/burrow/") || path.length == 9 -> {
                         val burrowID =
                             if (path.length == 9) path.removePrefix("/")
+                            else if (path.startsWith("/burrow/")) path.removePrefix("/burrow/")
                             else path.removePrefix("/meeting/")
 
                         val burrow = burrowID.runCatching { getBurrow(this) }.getOrNull()
@@ -474,6 +491,7 @@ suspend fun Application.module() {
                                 title = "Burrow — ${burrow.title}",
                                 description = "View ${burrow.title} on Burrow.",
                                 url = "https://umn.app$path",
+                                appArgument = "app.umn.burrow://burrow/$burrowID",
                             )
                     }
 
@@ -488,6 +506,7 @@ suspend fun Application.module() {
                                 title = "Burrow — ${user.username}",
                                 description = "View ${user.username}'s profile on Burrow",
                                 url = "https://umn.app$path",
+                                appArgument = "app.umn.burrow://user/${user.username}",
                             )
                     }
 
