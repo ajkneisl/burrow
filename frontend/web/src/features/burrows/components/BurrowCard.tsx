@@ -10,7 +10,14 @@ import clsx from "clsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useMemo } from "react"
 import BurrowCapacity from "@features/burrows/components/BurrowCapacity.tsx"
-import { Calendar, Check, Star, Bookmark, MapPin, GraduationCap } from "lucide-react"
+import {
+    Calendar,
+    Check,
+    Star,
+    Bookmark,
+    MapPin,
+    GraduationCap
+} from "lucide-react"
 
 /**
  * {@see GroupMeetingCard}
@@ -239,22 +246,24 @@ export function BurrowCard({
 
                         {/* location / counts */}
                         <div className="flex items-center gap-3 text-sm">
-                            <div className="bg-hero text-text/80 ring-primary/15 hidden items-center gap-1 rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset sm:flex">
-                                {/* location pin icon */}
-                                <MapPin className="text-text/60 h-4 w-4 shrink-0" />
+                            {burrow.location.trim() !== "" && (
+                                <div className="bg-hero text-text/80 ring-primary/15 hidden items-center gap-1 rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset sm:flex">
+                                    {/* location pin icon */}
+                                    <MapPin className="text-text/60 h-4 w-4 shrink-0" />
 
-                                {/* location pin */}
-                                <p className="truncate">
-                                    {burrow.location
-                                        ?.split(" ")[0]
-                                        ?.charAt(0)
-                                        .toUpperCase() +
-                                        burrow.location
+                                    {/* location pin */}
+                                    <p className="truncate">
+                                        {burrow.location
                                             ?.split(" ")[0]
-                                            ?.slice(1)
-                                            .toLowerCase()}
-                                </p>
-                            </div>
+                                            ?.charAt(0)
+                                            .toUpperCase() +
+                                            burrow.location
+                                                ?.split(" ")[0]
+                                                ?.slice(1)
+                                                .toLowerCase()}
+                                    </p>
+                                </div>
+                            )}
 
                             {/* action badge */}
                             {actionBadge}
