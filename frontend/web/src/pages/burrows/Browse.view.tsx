@@ -339,8 +339,9 @@ export default function Browse() {
                     {!isLoading && groupedByDate.length === 0 && (
                         <div className="border-primary/20 bg-card text-text rounded-2xl border p-6 shadow-sm">
                             <p className="text-sm font-medium">
-                                No meetings match your filters.
+                                No Burrows match your filters.
                             </p>
+
                             <p className="text-text/70 mt-1 text-xs">
                                 Try adjusting your search or picking a different
                                 date.
