@@ -14,6 +14,17 @@ type SearchInputProps = {
     results: ReactNode
 }
 
+/**
+ * The input to search.
+ *
+ * @param query The search query.
+ * @param setQuery Update {@link query}.
+ * @param searchRef The ref to the form.
+ * @param handleSubmit When a search is submitted
+ * @param results The results from searching.
+ *
+ * @author AJ Kneisl
+ */
 export function SearchInput({
     query,
     searchRef,
@@ -33,11 +44,11 @@ export function SearchInput({
                 className={clsx(
                     "relative flex h-9 items-center rounded-lg border bg-white/5 px-3 shadow-sm backdrop-blur-sm transition-all duration-200",
                     "border-primary hover:border-secondary/30",
-                    "focus-within:bg-white/5 focus-within:ring-primary/20 focus-within:shadow-md focus-within:ring-2",
+                    "focus-within:ring-primary/20 focus-within:bg-white/5 focus-within:shadow-md focus-within:ring-2",
                     auth === "" && "cursor-not-allowed opacity-50"
                 )}
             >
-                <Search className="text-text/50 group-focus-within:text-primary mr-2.5 h-4 w-4 flex-shrink-0 transition-colors duration-200" />
+                <Search className="group-focus-within:text-primary mr-2.5 h-4 w-4 flex-shrink-0 text-white/50 transition-colors duration-200" />
 
                 <input
                     type="text"
@@ -46,8 +57,8 @@ export function SearchInput({
                     placeholder="Search Burrows, clubs, or tags..."
                     disabled={auth === ""}
                     className={clsx(
-                        "text-text placeholder:text-text/40 h-full w-full flex-1 bg-transparent text-sm leading-none outline-none transition-colors",
-                        "disabled:text-text/50 disabled:cursor-not-allowed"
+                        "h-full w-full flex-1 bg-transparent text-sm leading-none text-white transition-colors outline-none placeholder:text-white/40",
+                        "disabled:cursor-not-allowed disabled:text-white/50"
                     )}
                 />
 
@@ -55,7 +66,7 @@ export function SearchInput({
                     <button
                         type="button"
                         onClick={() => setQuery("")}
-                        className="text-text/40 hover:text-text hover:bg-background/60 ml-2 rounded-md p-1 transition-colors"
+                        className="hover:bg-background/60 ml-2 rounded-md p-1 text-white/40 transition-colors hover:text-white"
                         aria-label="Clear search"
                     >
                         <svg
