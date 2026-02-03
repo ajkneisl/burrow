@@ -7,6 +7,8 @@ import { NotificationPreferencesComponent } from "@features/settings/components/
 
 /**
  * Notification preferences settings screen.
+ *
+ * @author AJ Kneisl
  */
 export default function NotificationSettingsScreen() {
     const router = useRouter()
@@ -38,7 +40,6 @@ export default function NotificationSettingsScreen() {
             <ScrollView className="flex-1 px-6 py-4">
                 <NotificationPreferencesComponent />
 
-                {/* Bottom Spacer */}
                 <View className="h-12" />
             </ScrollView>
         </SafeAreaView>

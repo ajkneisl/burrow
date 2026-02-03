@@ -30,7 +30,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
             "com.apple.developer.maps": true
         },
         config: {
-            googleMapsApiKey: "AIzaSyBvjCvJM5WjNB_QYKhB-3-RaaWumVZ3mKw"
+            googleMapsApiKey: process.env.GOOGLE_MAPS_IOS_API_KEY
         },
         icon: {
             dark: "./assets/images/burrow-dark.png",
@@ -41,6 +41,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         package: "app.umn.burrow",
         icon: "./assets/images/burrow.png",
         edgeToEdgeEnabled: true,
+        googleServicesFile: process.env.GOOGLE_SERVICES_FILE,
         predictiveBackGestureEnabled: false,
         permissions: [
             "ACCESS_FINE_LOCATION",
@@ -78,7 +79,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         ],
         config: {
             googleMaps: {
-                apiKey: "AIzaSyB4R5ZLFEx7Qs822dlJ9GoZud2pDw5RjTk"
+                apiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY
             }
         }
     },
@@ -134,8 +135,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         router: {
             origin: false
         },
-        apiUrl: "http://localhost:8080/api",
-        cdnUrl: "http://localhost:9000",
+        apiUrl: "https://umn.app/api",
+        cdnUrl: "https://cdn.umn.app",
         eas: {
             projectId: "3dc55916-e2a2-4081-a6cd-b76056b7386f"
         }

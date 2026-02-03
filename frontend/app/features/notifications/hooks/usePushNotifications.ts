@@ -50,10 +50,10 @@ export function usePushNotifications() {
         const fetchStatus = async () => {
             try {
                 setIsLoading(true)
+
                 const { subscribed } = await getMobileSubscriptionStatus()
                 setIsSubscribed(subscribed)
 
-                // Also check permission status
                 const { status } = await Notifications.getPermissionsAsync()
                 setPermission(
                     status === "granted"
@@ -73,7 +73,7 @@ export function usePushNotifications() {
         }
 
         if (Device.isDevice) {
-            fetchStatus()
+            void fetchStatus()
         }
     }, [])
 
@@ -120,10 +120,12 @@ export function usePushNotifications() {
             ).data
         } catch (error) {
             console.error("Error getting Expo push token:", error)
+
             Toast.show({
                 type: "error",
                 text1: "Failed to get push token"
             })
+
             return null
         }
     }, [])
@@ -173,6 +175,7 @@ export function usePushNotifications() {
                 type: "info",
                 text1: "Not subscribed to notifications"
             })
+
             return
         }
 
@@ -190,6 +193,7 @@ export function usePushNotifications() {
             })
         } catch (error) {
             console.error("Error unsubscribing from push notifications:", error)
+
             Toast.show({
                 type: "error",
                 text1: "Failed to disable notifications"
@@ -197,7 +201,7 @@ export function usePushNotifications() {
         } finally {
             setIsLoading(false)
         }
-    }, [expoPushToken])
+    }, [isSubscribed])
 
     /**
      * Handle notification received in foreground.

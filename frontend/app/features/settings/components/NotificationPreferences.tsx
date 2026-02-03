@@ -17,41 +17,51 @@ import {
     type NotificationPreferences
 } from "@features/settings/settings.types"
 import { Mail, Smartphone, AlertCircle } from "lucide-react-native"
+import ThemedIcon from "@components/core/ThemedIcon"
 import { useState, useEffect } from "react"
 import Toast from "react-native-toast-message"
 import { usePushNotifications } from "@features/notifications/hooks/usePushNotifications"
+import clsx from "clsx";
 
 /**
  * Notification preferences component.
  * Allows users to manage notification types and delivery channels.
+ *
+ * @author AJ Kneisl
  */
 export function NotificationPreferencesComponent() {
     const colors = useThemeColors()
     const { isSubscribed: isMobileEnabled } = usePushNotifications()
 
-    const { data: preferences, isLoading, isError } = useNotificationPreferences()
+    const {
+        data: preferences,
+        isLoading,
+        isError
+    } = useNotificationPreferences()
     const saveMutation = useSaveNotificationPreferences()
 
-    // Local state for immediate UI updates
     const [localPreferences, setLocalPreferences] = useState<
         NotificationPreferences[] | undefined
     >(preferences)
 
-    // Sync local state with fetched data
+    // sync frontend with fetched data
     useEffect(() => {
         if (preferences) {
             setLocalPreferences(preferences)
         }
     }, [preferences])
 
-    const handleToggleEnabled = (kind: NotificationKind, currentChannels: number) => {
+    const handleToggleEnabled = (
+        kind: NotificationKind,
+        currentChannels: number
+    ) => {
         if (!localPreferences) return
 
         const updated = localPreferences.map((pref) => {
             if (pref.kind === kind) {
-                // If currently enabled (has any channels), disable all
-                // If disabled (no channels), enable mobile (if available) or email
-                const defaultChannel = isMobileEnabled ? MOBILE_CHANNEL : EMAIL_CHANNEL
+                const defaultChannel = isMobileEnabled
+                    ? MOBILE_CHANNEL
+                    : EMAIL_CHANNEL
                 const newChannels = currentChannels === 0 ? defaultChannel : 0
 
                 return {
@@ -91,6 +101,7 @@ export function NotificationPreferencesComponent() {
         savePreferences(updated)
     }
 
+    // save preferences
     const savePreferences = (prefs: NotificationPreferences[]) => {
         saveMutation.mutate(prefs, {
             onError: () => {
@@ -99,6 +110,7 @@ export function NotificationPreferencesComponent() {
                     text1: "Failed to save preferences",
                     text2: "Your changes were not saved"
                 })
+
                 // Revert to server state
                 setLocalPreferences(preferences)
             }
@@ -120,7 +132,11 @@ export function NotificationPreferencesComponent() {
         return (
             <Card variant="bordered" className="bg-error bg-opacity-5">
                 <View className="flex-row items-start gap-3">
-                    <AlertCircle size={20} color={colors.error} />
+                    <ThemedIcon
+                        icon={AlertCircle}
+                        size={20}
+                        overrideColor="error"
+                    />
                     <View className="flex-1">
                         <Text className="text-error font-semibold mb-1">
                             Failed to load preferences
@@ -145,7 +161,6 @@ export function NotificationPreferencesComponent() {
 
     return (
         <View className="space-y-4 gap-4">
-            {/* Notification Preferences */}
             {localPreferences.map((pref) => {
                 const isEnabled = pref.deliveryChannels > 0
                 const hasMobile = isChannelEnabled(
@@ -166,10 +181,16 @@ export function NotificationPreferencesComponent() {
                         }
                     >
                         {/* Main Toggle */}
-                        <View className="flex-row items-center justify-between mb-3">
+                        <View
+                            className={clsx(
+                                "flex-row items-center justify-between",
+                                isEnabled && "mb-3"
+                            )}
+                        >
                             <Text className="text-text font-semibold flex-1">
                                 {notificationKindLabels[pref.kind]}
                             </Text>
+
                             <Switch
                                 value={isEnabled}
                                 onValueChange={() =>
@@ -186,34 +207,40 @@ export function NotificationPreferencesComponent() {
                             />
                         </View>
 
-                        {/* Delivery Channels */}
+                        {/* delivery methods */}
                         {isEnabled && (
                             <View className="space-y-2 gap-2 pt-3 border-t border-card-border">
                                 <Text className="text-text text-opacity-60 text-xs font-semibold uppercase mb-1">
                                     Delivery Methods
                                 </Text>
 
-                                {/* Mobile Channel */}
+                                {/* mobile */}
                                 <View className="flex-row items-center justify-between">
                                     <View className="flex-row items-center gap-2 flex-1">
-                                        <Smartphone
+                                        <ThemedIcon
+                                            icon={Smartphone}
                                             size={16}
-                                            color={colors.text}
-                                            style={{ opacity: isMobileEnabled ? 0.6 : 0.3 }}
+                                            opacity={
+                                                isMobileEnabled ? 0.8 : 0.6
+                                            }
                                         />
+
                                         <View>
                                             <Text
                                                 className={`text-sm ${isMobileEnabled ? "text-text text-opacity-80" : "text-text text-opacity-40"}`}
                                             >
                                                 Mobile
                                             </Text>
+
                                             {!isMobileEnabled && (
                                                 <Text className="text-xs text-text text-opacity-40">
-                                                    Enable above
+                                                    You do not have mobile
+                                                    notifications enabled!
                                                 </Text>
                                             )}
                                         </View>
                                     </View>
+
                                     <Switch
                                         value={hasMobile && isMobileEnabled}
                                         onValueChange={() =>
@@ -235,11 +262,12 @@ export function NotificationPreferencesComponent() {
                                 {/* Email Channel */}
                                 <View className="flex-row items-center justify-between">
                                     <View className="flex-row items-center gap-2 flex-1">
-                                        <Mail
+                                        <ThemedIcon
+                                            icon={Mail}
                                             size={16}
-                                            color={colors.text}
-                                            style={{ opacity: 0.6 }}
+                                            opacity={0.8}
                                         />
+
                                         <Text className="text-text text-opacity-80 text-sm">
                                             Email
                                         </Text>

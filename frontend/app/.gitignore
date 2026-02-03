@@ -46,3 +46,5 @@ app-example
 /android
 
 .vscode
+
+google-services.json

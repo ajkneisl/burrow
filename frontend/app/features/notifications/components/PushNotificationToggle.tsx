@@ -24,6 +24,7 @@ export default function MobileNotificationToggle() {
                     <Text className="text-base font-medium text-text">
                         Mobile Notifications
                     </Text>
+
                     <Text className="text-sm text-text text-opacity-60 mt-1">
                         Mobile notifications are not supported on this device.
                     </Text>
