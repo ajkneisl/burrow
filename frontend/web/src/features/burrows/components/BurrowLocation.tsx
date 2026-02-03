@@ -504,11 +504,15 @@ export default function BurrowLocation({ location }: BurrowLocationProps) {
 
         // render it if it includes mn
         // TODO: this is sketchy
-        if (lower.includes("mn") || lower.includes("minnesota"))
-            return lower
+        if (lower.includes("mn") || lower.includes("minnesota")) return lower
 
         return null
     }, [location])
+
+    // do not show a card with no location
+    if (location.trim() === "") {
+        return <></>
+    }
 
     return (
         <section className="border-primary/30 bg-card/80 rounded-2xl border shadow-sm">
