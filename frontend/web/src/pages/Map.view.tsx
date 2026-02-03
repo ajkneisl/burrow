@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Map as GMap, AdvancedMarker } from "@vis.gl/react-google-maps"
 import { useQuery } from "@tanstack/react-query"
-import { X } from "lucide-react"
+import { X, MapPin } from "lucide-react"
 import { Button } from "@umnburrow/core"
 import { useNavigate } from "react-router"
 import { capitalizeFirstLetter, formatDateTime } from "@api/util.ts"
@@ -68,11 +68,16 @@ export default function MapView() {
                             onClick={() => setSelectedBurrow(burrowLocation)}
                             title={burrowLocation.burrow.title}
                         >
-                            <img
-                                src="/image/standing_gopher.png"
-                                alt="Burrow Indicator"
-                                className="h-10 w-10 cursor-pointer transition-transform hover:scale-110"
-                            />
+                            <div className="flex cursor-pointer flex-col items-center transition-transform hover:scale-110">
+                                <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-full shadow-lg">
+                                    <MapPin size={20} color="#FFFFFF" />
+                                </div>
+                                <div className="bg-background mt-1 rounded-md px-2 py-1 shadow-sm">
+                                    <span className="text-text max-w-[120px] truncate text-xs font-semibold">
+                                        {burrowLocation.burrow.title}
+                                    </span>
+                                </div>
+                            </div>
                         </AdvancedMarker>
                     ))}
                 </GMap>

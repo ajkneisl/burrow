@@ -471,10 +471,6 @@ const umnBuildings: Building[] = [
     }
 ]
 
-// api key for maps
-// TODO: possibly get our own
-const API_KEY = "AIzaSyB2NIWI3Tv9iDPrlnowr_0ZqZWoAQydKJU"
-
 /**
  * {@link BurrowLocation}
  */
@@ -528,7 +524,7 @@ export default function BurrowLocation({ location }: BurrowLocationProps) {
                 <iframe
                     title="map"
                     className="border-primary/20 h-64 w-full rounded-b-2xl border-t"
-                    src={`https://www.google.com/maps/embed/v1/place?key=${API_KEY}&q=${encodeURIComponent(
+                    src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GMAP_API_KEY}&q=${encodeURIComponent(
                         hit
                     )}&maptype=roadmap`}
                     loading="lazy"

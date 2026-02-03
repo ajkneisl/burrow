@@ -26,7 +26,7 @@ import { APIProvider } from "@vis.gl/react-google-maps"
 import MapView from "@pages/Map.view.tsx"
 import Delete from "@pages/info/Delete.view.tsx"
 import TaView from "@pages/Ta.view.tsx"
-import Support from "@pages/info/Support.view.tsx";
+import Support from "@pages/info/Support.view.tsx"
 
 /**
  * This defines all routes in Burrow.
@@ -77,7 +77,7 @@ export default function App() {
     return (
         <Provider store={store}>
             <QueryClientProvider client={queryClient}>
-                <APIProvider apiKey="AIzaSyBbJ5soUo8NhOpS32-D-Sr-NRksOQcwydc">
+                <APIProvider apiKey={import.meta.env.VITE_GMAP_API_KEY}>
                     <div className="flex flex-row items-center justify-center">
                         <RouterProvider router={router} />
                     </div>
