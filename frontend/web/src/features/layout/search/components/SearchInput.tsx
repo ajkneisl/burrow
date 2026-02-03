@@ -26,7 +26,7 @@ export function SearchInput({
         <form
             onSubmit={handleSubmit}
             role="search"
-            className="relative w-full lg:min-w-md"
+            className="relative z-50 w-full lg:min-w-md"
             ref={searchRef}
         >
             <div
