@@ -1,4 +1,5 @@
-import { View, Text, Pressable, SafeAreaView } from "react-native"
+import { View, Text, Pressable } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
 import {
     X,
     BookOpen,
@@ -6,9 +7,12 @@ import {
     Users,
     FolderKanban
 } from "lucide-react-native"
-import { useThemeColors } from "@api/theme/useThemeColors"
+import ThemedIcon from "@components/core/ThemedIcon"
 import { BurrowKind } from "@features/burrows/burrows.types"
 
+/**
+ * {@link BurrowTypeSelector}
+ */
 type BurrowTypeSelectorProps = {
     onSelect: (type: BurrowKind) => void
     onClose: () => void
@@ -51,12 +55,18 @@ const BURROW_TYPES: {
     }
 ]
 
+/**
+ * Select the type of burrow to create.
+ *
+ * @param onSelect Called when a burrow type is selected.
+ * @param onClose Called when the selector is dismissed.
+ *
+ * @author AJ Kneisl
+ */
 export function BurrowTypeSelector({
     onSelect,
     onClose
 }: BurrowTypeSelectorProps) {
-    const colors = useThemeColors()
-
     return (
         <SafeAreaView className="flex-1 bg-background">
             {/* Header */}
@@ -65,7 +75,7 @@ export function BurrowTypeSelector({
                     Create Burrow
                 </Text>
                 <Pressable onPress={onClose}>
-                    <X size={24} color={colors.text} />
+                    <ThemedIcon icon={X} size={24} />
                 </Pressable>
             </View>
 

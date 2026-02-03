@@ -2,6 +2,7 @@ import { View, Text, ScrollView, Pressable, Switch } from "react-native"
 import { Globe, Link2, Lock } from "lucide-react-native"
 import type { CreateStepProps } from "../create.types"
 import type { BurrowVisibility } from "@features/burrows/burrows.types"
+import { useThemeColors } from "@api/theme/useThemeColors"
 
 // the visibility options
 const VISIBILITY_OPTIONS: {
@@ -39,13 +40,16 @@ const VISIBILITY_OPTIONS: {
  * @author AJ Kneisl
  */
 export function PrivacyStep({ formState, updateField }: CreateStepProps) {
+    const colors = useThemeColors()
+
     return (
         <ScrollView className="flex-1 px-6">
             {/* info */}
-            <View className="bg-primary/10 rounded-lg border border-primary/20 p-4 mb-6">
+            <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
                 <Text className="text-text text-sm font-semibold mb-2">
                     Privacy Settings
                 </Text>
+
                 <Text className="text-text text-opacity-60 text-xs">
                     Control who can see and join your Burrow. You can change
                     these settings later.
@@ -68,10 +72,15 @@ export function PrivacyStep({ formState, updateField }: CreateStepProps) {
                             onPress={() =>
                                 updateField("visibility", option.value)
                             }
-                            className={`flex-row items-center p-4 mb-3 rounded-lg border ${
+                            style={{
+                                backgroundColor: isSelected
+                                    ? `${colors.primary}2A`
+                                    : colors.background
+                            }}
+                            className={`flex-row transition-all duration-300 items-center p-4 mb-3 rounded-lg border ${
                                 isSelected
-                                    ? "bg-primary/5 border-primary"
-                                    : "bg-background border-card-border"
+                                    ? "border-primary"
+                                    : "border-card-border"
                             }`}
                         >
                             {/* Icon */}

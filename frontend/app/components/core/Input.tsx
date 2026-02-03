@@ -1,6 +1,9 @@
 import { View, Text, TextInput, type TextInputProps } from "react-native"
 import clsx from "clsx"
 
+/**
+ * {@link Input}
+ */
 interface InputProps extends TextInputProps {
     label?: string
     error?: string
@@ -10,6 +13,18 @@ interface InputProps extends TextInputProps {
     variant?: "default" | "outline" | "filled"
 }
 
+/**
+ * A themed text input with label, error, and icon support.
+ *
+ * @param label Optional label displayed above the input.
+ * @param error Optional error message displayed below the input.
+ * @param helperText Optional helper text displayed below the input.
+ * @param leftIcon Optional icon displayed on the left side.
+ * @param rightIcon Optional icon displayed on the right side.
+ * @param variant The visual style of the input.
+ *
+ * @author AJ Kneisl
+ */
 export function Input({
     label,
     error,
@@ -21,10 +36,9 @@ export function Input({
     ...props
 }: InputProps) {
     const variantStyles = {
-        default: "border-b border-gray-300 dark:border-gray-600",
-        outline:
-            "border border-gray-300 dark:border-gray-600 rounded-lg bg-background",
-        filled: "bg-card dark:bg-card rounded-lg"
+        default: "border-b border-card-border",
+        outline: "border border-card-border rounded-lg bg-background",
+        filled: "bg-card rounded-lg"
     }
 
     return (

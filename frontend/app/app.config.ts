@@ -137,6 +137,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         },
         apiUrl: "https://umn.app/api",
         cdnUrl: "https://cdn.umn.app",
+        googleMapsApiKey: {
+            ios: process.env.GOOGLE_MAPS_IOS_API_KEY,
+            android: process.env.GOOGLE_MAPS_ANDROID_API_KEY
+        },
         eas: {
             projectId: "3dc55916-e2a2-4081-a6cd-b76056b7386f"
         }

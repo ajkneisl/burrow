@@ -22,7 +22,7 @@ export function ScheduleStep({
     return (
         <ScrollView className="flex-1 px-6">
             {/* info */}
-            <View className="bg-primary/10 rounded-lg border border-primary/20 p-4 mb-6">
+            <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
                 <Text className="text-text text-sm font-semibold mb-2">
                     Schedule Your Session
                 </Text>
