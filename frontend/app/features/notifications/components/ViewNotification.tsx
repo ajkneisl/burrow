@@ -1,8 +1,12 @@
-import { View, Text, Pressable } from "react-native"
+import { View, Text } from "react-native"
 import type { Notification } from "@features/notifications/notifications.types"
 import { formatTimeAgo } from "@api/util"
 import { Button } from "@components/core"
+import { Check, X, Trash2 } from "lucide-react-native"
 
+/**
+ * {@link ViewNotification}
+ */
 type ViewNotificationProps = {
     notification: Notification
     clearOne: (id: string) => void
@@ -18,7 +22,15 @@ type ViewNotificationProps = {
 }
 
 /**
- * View an individual notification (React Native).
+ * View an individual notification.
+ *
+ * @param notification The notification.
+ * @param clearOne Clear a single notification.
+ * @param toggleReadOne Read a single notification.
+ * @param onAcceptInvite When an invite is accepted.
+ * @param onDeclineInvite When an invite is declined.
+ *
+ * @author AJ Kneisl
  */
 export default function ViewNotification({
     notification,
@@ -31,14 +43,13 @@ export default function ViewNotification({
 
     return (
         <View
-            className={`rounded-xl border p-4 bg-background ${
+            className={`rounded-xl border p-4 bg-card ${
                 !notification?.read
                     ? "border-l-4 border-l-secondary border-t border-r border-b border-card-border"
                     : "border-card-border"
             }`}
         >
             <View className="flex-row items-start justify-between gap-3">
-                {/* Header */}
                 <View className="flex-1 min-w-0">
                     <View className="flex-row items-center gap-2">
                         <Text className="text-sm font-semibold text-text flex-shrink">
@@ -65,9 +76,7 @@ export default function ViewNotification({
                 </View>
             </View>
 
-            {/* Actions */}
             <View className="flex-row items-center justify-end gap-2 mt-3">
-                {/* Invite actions */}
                 {isInvite &&
                     notification.burrowID &&
                     onAcceptInvite &&
@@ -82,6 +91,7 @@ export default function ViewNotification({
                                         notificationId: notification.id
                                     })
                                 }}
+                                leftIcon={<Check size={14} color="#FFFFFF" />}
                                 className="flex-1"
                             >
                                 Accept
@@ -96,6 +106,7 @@ export default function ViewNotification({
                                         notificationId: notification.id
                                     })
                                 }
+                                leftIcon={<X size={14} color="#FFFFFF" />}
                                 className="flex-1"
                             >
                                 Decline
@@ -103,22 +114,22 @@ export default function ViewNotification({
                         </>
                     )}
 
-                {/* Mark as read when it's not an invite */}
                 {!isInvite && !notification.read && (
                     <Button
                         variant="success"
                         size="sm"
                         onPress={() => toggleReadOne(notification.id)}
+                        leftIcon={<Check size={14} color="#FFFFFF" />}
                     >
                         Mark as Read
                     </Button>
                 )}
 
-                {/* Clear */}
                 <Button
                     variant="danger"
                     size="sm"
                     onPress={() => clearOne(notification.id)}
+                    leftIcon={<Trash2 size={14} color="#FFFFFF" />}
                 >
                     Clear
                 </Button>
