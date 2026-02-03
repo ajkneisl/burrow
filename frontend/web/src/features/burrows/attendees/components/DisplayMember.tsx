@@ -21,7 +21,7 @@ type DisplayMemberProps = {
     isSelf: boolean
     statusText: string
     statusColor: string
-    footer: string
+    footer: React.ReactNode
     functions: Record<string, () => void>
 }
 

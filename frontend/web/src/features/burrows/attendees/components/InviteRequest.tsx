@@ -1,9 +1,10 @@
 import type { InviteWithUsers } from "@features/burrows/burrows.types.tsx"
-import { formatTimeAgo } from "@api/util.ts"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { cancelInvite } from "@features/burrows/attendees/attendees.api.ts"
 import { useParams } from "react-router"
 import DisplayMember from "@features/burrows/attendees/components/DisplayMember.tsx"
+import { Hover } from "@umnburrow/core"
+import { formatTimeAgo } from "@api/util.ts"
 
 /**
  * A representation of a sent invite.
@@ -35,7 +36,13 @@ export default function InviteRequest({ invite }: { invite: InviteWithUsers }) {
             isSelf={false}
             statusText={"Invited"}
             statusColor={"text-gray-800 border-gray-300 bg-gray-100"}
-            footer={`Invited by ${invite.inviterUsername} ${formatTimeAgo(invite.invite.createdAt)}`}
+            footer={
+                <Hover
+                    content={`Invited ${formatTimeAgo(invite.invite.createdAt)}`}
+                >
+                    Invited by @{invite.inviterUsername}
+                </Hover>
+            }
             functions={{ Cancel: () => cancelMutation.mutate() }}
         />
     )

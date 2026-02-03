@@ -44,7 +44,7 @@ export default function Hover({ content, children }: HoverProps) {
             closeDelay={0}
             trigger={isTouchLike ? "focus" : undefined}
         >
-            <Button className="inline-block cursor-default outline-none">
+            <Button className="inline-block cursor-pointer outline-none">
                 {children}
             </Button>
 
