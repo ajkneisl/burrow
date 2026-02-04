@@ -1,6 +1,8 @@
 package app.burrow.burrows.models
 
 import app.burrow.account.models.getUserByID
+import app.burrow.burrows.MONTHLY
+import app.burrow.burrows.NOT_REOCCURRING
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -120,6 +122,7 @@ data class SubmittedStudyEventBurrow(
     val capacity: Int,
     val visibility: BurrowVisibility,
     val requestToJoin: Boolean,
+    val reoccurring: Int,
 ) : SubmittedBurrow() {
     /** Validate the Burrow. */
     fun validateSubmittedBurrow(): List<String> {
@@ -190,6 +193,11 @@ data class SubmittedStudyEventBurrow(
 
         if (bDay != eDay || bYear != eYear) {
             errors += "End time must be on the same calendar day as the beginning time."
+        }
+
+        // ensure proper reoccurring value
+        if (reoccurring !in NOT_REOCCURRING..MONTHLY) {
+            errors += "Invalid reoccurring setting."
         }
 
         return errors

@@ -1,7 +1,7 @@
 import { Link, Navigate, useNavigate, useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
-import { Archive, Clock, GraduationCap } from "lucide-react"
+import { Archive, Clock, GraduationCap, Repeat } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { getBurrow } from "@features/burrows/burrows.api.ts"
 import BurrowLocation from "@features/burrows/components/BurrowLocation.tsx"
@@ -23,6 +23,10 @@ import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import ShareMeeting from "@features/burrows/controls/ShareMeeting.tsx"
 import BookmarkMeeting from "@features/burrows/controls/BookmarkMeeting.tsx"
 import ReportBurrow from "@features/burrows/controls/ReportBurrow.tsx"
+import {
+    getReoccurringText,
+    NOT_REOCCURRING
+} from "@features/burrows/burrows.types.tsx"
 
 /**
  * View an individual meeting.
@@ -51,6 +55,7 @@ export default function StandardBurrow() {
     const inMeeting = data?.membership?.status === "JOINED" || isOwner
     const inPast = (data?.burrow?.endTime ?? 0) < new Date().valueOf()
     const isLoggedOut = auth === null
+    const isReoccurring = data?.burrow?.reoccurring !== NOT_REOCCURRING
 
     // set meta tags for this meeting
     useMetaTags({
@@ -238,14 +243,24 @@ export default function StandardBurrow() {
 
                                         {/* date */}
                                         <div className="text-text/60 flex items-center gap-1.5 text-sm">
-                                            <Clock className="h-4 w-4" />
+                                            {isReoccurring ? (
+                                                <Repeat className="h-4 w-4" />
+                                            ) : (
+                                                <Clock className="h-4 w-4" />
+                                            )}
 
-                                            <span>
-                                                {formatDateTime(
-                                                    burrow.beginningTime,
-                                                    burrow.endTime
+                                            <Hover
+                                                content={getReoccurringText(
+                                                    burrow.reoccurring
                                                 )}
-                                            </span>
+                                            >
+                                                <span>
+                                                    {formatDateTime(
+                                                        burrow.beginningTime,
+                                                        burrow.endTime
+                                                    )}
+                                                </span>
+                                            </Hover>
                                         </div>
                                     </div>
 

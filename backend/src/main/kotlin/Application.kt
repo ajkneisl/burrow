@@ -17,6 +17,7 @@ import app.burrow.burrows.getBurrowResponse
 import app.burrow.burrows.models.BurrowKind
 import app.burrow.burrows.models.BurrowVisibility
 import app.burrow.burrows.models.SubmittedStudyEventBurrow
+import app.burrow.burrows.reoccurringWorker
 import app.burrow.burrows.sync.BurrowSync
 import app.burrow.notifications.NOTIFICATION_ROUTES
 import app.burrow.notifications.NotificationKind
@@ -49,11 +50,15 @@ import io.ktor.server.sse.*
 import io.ktor.server.websocket.*
 import io.ktor.util.date.*
 import java.io.File
+import java.util.Timer
+import java.util.concurrent.TimeUnit
+import kotlin.concurrent.timerTask
 import kotlin.random.Random
 import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.r2dbc.select
@@ -176,6 +181,7 @@ suspend fun main(args: Array<String>) {
                                 Random.nextInt(5, 50),
                                 BurrowVisibility.PUBLIC,
                                 false,
+                                -1,
                             ),
                         )
                     }
@@ -193,6 +199,8 @@ suspend fun main(args: Array<String>) {
         .start(wait = true)
 }
 
+private val workerTimer = Timer()
+
 suspend fun Application.module() {
     notificationWorker()
 
@@ -202,6 +210,11 @@ suspend fun Application.module() {
     dbAppender.context = loggerContext
     dbAppender.start()
     rootLogger.addAppender(dbAppender)
+
+    workerTimer.schedule(
+        timerTask { runBlocking { reoccurringWorker() } },
+        TimeUnit.MINUTES.toMillis(15),
+    )
 
     // sse
     install(SSE)
@@ -478,7 +491,9 @@ suspend fun Application.module() {
             val metaTags =
                 when {
                     // when they're requesting a burrow page
-                    path.startsWith("/meeting/") || path.startsWith("/burrow/") || path.length == 9 -> {
+                    path.startsWith("/meeting/") ||
+                        path.startsWith("/burrow/") ||
+                        path.length == 9 -> {
                         val burrowID =
                             if (path.length == 9) path.removePrefix("/")
                             else if (path.startsWith("/burrow/")) path.removePrefix("/burrow/")

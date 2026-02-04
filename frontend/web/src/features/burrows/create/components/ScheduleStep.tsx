@@ -1,8 +1,12 @@
-import { Input, TimeInput } from "@umnburrow/core"
+import { Input, SelectInput, TimeInput, Toggle } from "@umnburrow/core"
 import Field from "@features/burrows/create/components/Field.tsx"
 import type { CreateStepProps } from "@features/burrows/create/create.types.ts"
 import { Time } from "@internationalized/date"
 import type { TimeValue } from "react-aria-components"
+import { useState } from "react"
+import { DAILY, MONTHLY, NOT_REOCCURRING, WEEKLY } from "@features/burrows/burrows.types.tsx"
+
+type Timeframe = "Daily" | "Weekly" | "Monthly"
 
 /**
  * Schedule step for creating an event.
@@ -16,9 +20,12 @@ export default function ScheduleStep({
     formState,
     updateField
 }: CreateStepProps) {
+    const [reoccurring, setReoccurring] = useState(formState.reoccurring !== NOT_REOCCURRING)
+    const [timeframe, setTimeframe] = useState("Weekly" as Timeframe)
+
     return (
         <div className="space-y-6">
-            <div className="border-border bg-hero/50 rounded-lg border p-4">
+            <div className="border-card-border bg-card rounded-lg border p-4">
                 <p className="text-text mb-2 text-sm font-medium">
                     Schedule Your Burrow
                 </p>
@@ -120,6 +127,59 @@ export default function ScheduleStep({
                         error={errors.endTime !== undefined}
                     />
                 </Field>
+            </div>
+
+            {/* reoccurring burrow */}
+            <Toggle
+                title="Reoccurring Burrow"
+                description={"Should this Burrow be reoccurring?"}
+                checked={reoccurring}
+                onChange={(enabled) => {
+                    setReoccurring(enabled)
+
+                    if (enabled) {
+                        switch (timeframe) {
+                            case "Daily":
+                                updateField("reoccurring", DAILY)
+                                return
+                            case "Weekly":
+                                updateField("reoccurring", WEEKLY)
+                                return
+                            case "Monthly":
+                                updateField("reoccurring", MONTHLY)
+                                return
+                        }
+                    } else {
+                        updateField("reoccurring", NOT_REOCCURRING)
+                    }
+                }}
+            />
+
+            <div
+                className={`grid transition-all duration-300 ease-in-out ${reoccurring ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+            >
+                <div className="overflow-hidden">
+                    <SelectInput
+                        text="How Often?"
+                        value={timeframe}
+                        onChange={(ev) => {
+                            setTimeframe(ev.currentTarget.value as Timeframe)
+
+                            switch (ev.currentTarget.value as Timeframe) {
+                                case "Daily":
+                                    updateField("reoccurring", DAILY)
+                                    return
+                                case "Weekly":
+                                    updateField("reoccurring", WEEKLY)
+                                    return
+                                case "Monthly":
+                                    updateField("reoccurring", MONTHLY)
+                                    return
+                            }
+                        }}
+                        items={["Daily", "Weekly", "Monthly"]}
+                    />
+                </div>
             </div>
         </div>
     )

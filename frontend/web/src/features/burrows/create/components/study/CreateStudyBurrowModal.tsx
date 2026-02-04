@@ -92,7 +92,8 @@ export default function CreateStudyBurrowModal({
                     requestToJoin: burrow.requestToJoin ?? false,
                     date: `${yyyy}-${mm}-${dd}`,
                     beginningTime: `${hhStart}:${minStart}`,
-                    endTime: `${hhEnd}:${minEnd}`
+                    endTime: `${hhEnd}:${minEnd}`,
+                    reoccurring: burrow.reoccurring
                 })
             } else {
                 setFormState(initialFormState)
@@ -190,7 +191,8 @@ export default function CreateStudyBurrowModal({
             beginningTime: addTime(dateMs, formState.beginningTime),
             endTime: addTime(dateMs, formState.endTime),
             visibility: formState.visibility,
-            requestToJoin: formState.requestToJoin
+            requestToJoin: formState.requestToJoin,
+            reoccurring: formState.reoccurring
         }
 
         try {

@@ -1,6 +1,7 @@
-import type {
-    BurrowKind,
-    BurrowVisibility
+import {
+    type BurrowKind,
+    type BurrowVisibility,
+    NOT_REOCCURRING
 } from "@features/burrows/burrows.types.tsx"
 
 /**
@@ -30,6 +31,7 @@ export interface SubmittedBurrowFormState {
     capacity: number
     visibility: BurrowVisibility
     requestToJoin: boolean
+    reoccurring: number
 }
 
 /**
@@ -46,7 +48,8 @@ export const initialFormState: SubmittedBurrowFormState = {
     tags: "",
     capacity: 0,
     visibility: "PUBLIC",
-    requestToJoin: false
+    requestToJoin: false,
+    reoccurring: NOT_REOCCURRING
 }
 
 /**
@@ -75,6 +78,7 @@ export type SubmittedStudyEventBurrow = {
     capacity: number
     visibility: BurrowVisibility
     requestToJoin: boolean
+    reoccurring: number
 }
 
 /**
