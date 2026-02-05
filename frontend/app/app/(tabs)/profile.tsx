@@ -1,8 +1,8 @@
-import { View, Text, ScrollView, Pressable } from "react-native"
+import { useState, useCallback } from "react"
+import { View, Text, RefreshControl, ScrollView, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { useState } from "react"
 import { useRouter } from "expo-router"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import useUser from "@features/auth/hooks/useUser"
 import useProfile from "@features/auth/hooks/useProfile"
 import { getUser } from "@features/auth/user.api"
@@ -10,7 +10,6 @@ import { Header } from "@features/layout/components"
 import { Button } from "@components/core"
 import { Settings, Edit } from "lucide-react-native"
 import { useGoogleAuth } from "@features/auth/hooks/useGoogleAuth"
-import { EditableProfile } from "@features/profile/components/EditableProfile"
 import { UserProfileView } from "@features/profile/components/UserProfileView"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
@@ -25,8 +24,17 @@ export default function ProfileScreen() {
     const router = useRouter()
     const { signOut } = useGoogleAuth()
     const colors = useThemeColors()
+    const queryClient = useQueryClient()
+    const [refreshing, setRefreshing] = useState(false)
 
-    const [isEditing, setIsEditing] = useState(false)
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true)
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["user"] }),
+            queryClient.invalidateQueries({ queryKey: ["profile"] })
+        ])
+        setRefreshing(false)
+    }, [queryClient])
 
     // Get the full user data to check TA status
     const { data: userData } = useQuery({
@@ -61,43 +69,38 @@ export default function ProfileScreen() {
                 }
             />
 
-            <ScrollView className="flex-1 px-6 py-4" contentContainerClassName="pb-4">
-                {isEditing ? (
-                    <EditableProfile
-                        profile={profile}
-                        onCancel={() => setIsEditing(false)}
-                        onSave={() => setIsEditing(false)}
-                    />
-                ) : (
-                    <UserProfileView
-                        user={user}
-                        profile={profile}
-                        isTa={userData?.isTa}
-                        actionButton={
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onPress={() => setIsEditing(true)}
-                                leftIcon={
-                                    <Edit size={16} color={colors.primary} />
-                                }
-                                className="mt-4"
-                            >
-                                Edit Profile
-                            </Button>
-                        }
-                    />
-                )}
+            <ScrollView
+                className="flex-1 px-6 py-4"
+                contentContainerClassName="pb-4"
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+            >
+                <UserProfileView
+                    user={user}
+                    profile={profile}
+                    isTa={userData?.isTa}
+                    actionButton={
+                        <Button
+                            variant="primary"
+                            size="sm"
+                            onPress={() =>
+                                router.push("/settings/edit-profile")
+                            }
+                            leftIcon={<Edit size={16} color={colors.primary} />}
+                            className="mt-4"
+                        >
+                            Edit Profile
+                        </Button>
+                    }
+                />
             </ScrollView>
 
-            {/* Sign Out - always at bottom */}
-            {!isEditing && (
-                <View className="px-6 pb-6">
-                    <Button variant="outline" onPress={signOut}>
-                        Sign Out
-                    </Button>
-                </View>
-            )}
+            <View className="px-6 pb-6">
+                <Button variant="danger" onPress={signOut}>
+                    Sign Out
+                </Button>
+            </View>
         </SafeAreaView>
     )
 }

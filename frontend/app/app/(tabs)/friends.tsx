@@ -1,4 +1,11 @@
-import { View, Text, FlatList, Pressable, RefreshControl } from "react-native"
+import {
+    View,
+    Text,
+    FlatList,
+    ScrollView,
+    Pressable,
+    RefreshControl
+} from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -244,7 +251,15 @@ function FriendsTab({
 
     if (friends.length === 0) {
         return (
-            <View className="items-center justify-center py-12 px-6">
+            <ScrollView
+                contentContainerClassName="items-center justify-center py-12 px-6"
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
+            >
                 <Users size={48} color={colors.text} style={{ opacity: 0.2 }} />
                 <Text className="text-text text-opacity-60 text-lg mt-4">
                     No friends yet
@@ -252,7 +267,7 @@ function FriendsTab({
                 <Text className="text-text text-opacity-40 text-sm mt-1 text-center">
                     Friends are people who follow each other
                 </Text>
-            </View>
+            </ScrollView>
         )
     }
 
@@ -312,7 +327,15 @@ function FollowingTab({
 
     if (following.length === 0) {
         return (
-            <View className="items-center justify-center py-12 px-6">
+            <ScrollView
+                contentContainerClassName="items-center justify-center py-12 px-6"
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
+            >
                 <Users size={48} color={colors.text} style={{ opacity: 0.2 }} />
                 <Text className="text-text text-opacity-60 text-lg mt-4">
                     Not following anyone yet
@@ -320,7 +343,7 @@ function FollowingTab({
                 <Text className="text-text text-opacity-40 text-sm mt-1 text-center">
                     Discover and follow other Gophers in the Discover tab
                 </Text>
-            </View>
+            </ScrollView>
         )
     }
 
@@ -380,7 +403,15 @@ function FollowersTab({
 
     if (followers.length === 0) {
         return (
-            <View className="items-center justify-center py-12 px-6">
+            <ScrollView
+                contentContainerClassName="items-center justify-center py-12 px-6"
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
+            >
                 <Users size={48} color={colors.text} style={{ opacity: 0.2 }} />
                 <Text className="text-text text-opacity-60 text-lg mt-4">
                     No followers yet
@@ -388,7 +419,7 @@ function FollowersTab({
                 <Text className="text-text text-opacity-40 text-sm mt-1 text-center">
                     Share your profile to get more followers
                 </Text>
-            </View>
+            </ScrollView>
         )
     }
 
@@ -460,7 +491,15 @@ function DiscoverTab({
 
     if (users.length === 0) {
         return (
-            <View className="items-center justify-center py-12 px-6">
+            <ScrollView
+                contentContainerClassName="items-center justify-center py-12 px-6"
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
+            >
                 <Users size={48} color={colors.text} style={{ opacity: 0.2 }} />
 
                 <Text className="text-text text-opacity-60 text-lg mt-4">
@@ -470,7 +509,7 @@ function DiscoverTab({
                 <Text className="text-text text-opacity-40 text-sm mt-1 text-center">
                     Join some Burrows to discover other Gophers
                 </Text>
-            </View>
+            </ScrollView>
         )
     }
 

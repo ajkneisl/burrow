@@ -6,6 +6,7 @@ import { Card, Button } from "@components/core"
 import {
     ArrowLeft,
     User,
+    AtSign,
     Palette,
     Bell,
     Info,
@@ -26,7 +27,8 @@ import { saveTheme } from "@api/theme/theme.api"
 import type { Theme, ThemeColors } from "@api/theme/theme.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { DeleteAccountModal } from "@features/settings/components/DeleteAccountModal"
-import * as Application from "expo-application";
+import * as Application from "expo-application"
+import useProfile from "@features/auth/hooks/useProfile"
 
 /**
  * The settings page.
@@ -36,6 +38,8 @@ import * as Application from "expo-application";
 export default function SettingsScreen() {
     const router = useRouter()
     const user = useUser()
+    const profile = useProfile()
+
     const colors = useThemeColors()
     const [deleteModalVisible, setDeleteModalVisible] = useState(false)
 
@@ -75,8 +79,18 @@ export default function SettingsScreen() {
                     <SettingItem
                         icon={<User size={20} color={colors.primary} />}
                         label="Edit Profile"
-                        subtitle={user ? `@${user.username}` : ""}
+                        subtitle={user ? `${profile?.name}` : ""}
                         onPress={() => router.push("/settings/edit-profile")}
+                        colors={colors}
+                    />
+
+                    <View className="h-px bg-card-border my-3" />
+
+                    <SettingItem
+                        icon={<AtSign size={20} color={colors.primary} />}
+                        label="Change Username"
+                        subtitle={user?.username ?? ""}
+                        onPress={() => router.push("/settings/change-username")}
                         colors={colors}
                     />
                 </Card>
@@ -175,7 +189,10 @@ export default function SettingsScreen() {
                     <SettingItem
                         icon={<Info size={20} color={colors.primary} />}
                         label="About Burrow"
-                        subtitle={"Version " + (Application.nativeApplicationVersion ?? "INDEV")}
+                        subtitle={
+                            "Version " +
+                            (Application.nativeApplicationVersion ?? "INDEV")
+                        }
                         onPress={() => {
                             router.push("/settings/about")
                         }}

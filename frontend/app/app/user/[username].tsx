@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import {
     View,
     Text,
     ScrollView,
+    RefreshControl,
     ActivityIndicator,
     Pressable
 } from "react-native"
@@ -50,6 +51,14 @@ export default function UserProfileScreen() {
             router.replace("/(tabs)/profile")
         }
     }, [currentUser, username, router])
+
+    const [refreshing, setRefreshing] = useState(false)
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true)
+        await queryClient.invalidateQueries({ queryKey: ["user", username] })
+        setRefreshing(false)
+    }, [queryClient, username])
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["user", username],
@@ -292,7 +301,12 @@ export default function UserProfileScreen() {
                 displayName={displayName}
             />
 
-            <ScrollView className="flex-1 px-6 py-4">
+            <ScrollView
+                className="flex-1 px-6 py-4"
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+            >
                 {/* Blocked Banner */}
                 {isBlocked && (
                     <View

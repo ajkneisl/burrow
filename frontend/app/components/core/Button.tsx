@@ -88,7 +88,9 @@ export function Button({
                 isDisabled && disabledStyles,
                 fullWidth && "w-full",
                 variant === "ghost" ? "bg-transparent" : "",
-                variant === "outline" ? "text-primary font-semibold" : "",
+                variant === "outline"
+                    ? "border-2 border-primary bg-transparent"
+                    : "",
                 className
             )}
         >
@@ -120,3 +122,4 @@ export function Button({
         </Pressable>
     )
 }
+//Josh was here
