@@ -1,8 +1,20 @@
 import { Text, View } from "react-native"
-import { BookOpen, Calendar, Clock, MapPin, Users } from "lucide-react-native"
+import {
+    BookOpen,
+    Calendar,
+    Clock,
+    MapPin,
+    Repeat,
+    Users
+} from "lucide-react-native"
 import { dayLabel, formatDateTime } from "@api/util"
 import ThemedIcon from "@components/core/ThemedIcon"
-import { Burrow } from "@features/burrows/burrows.types"
+import {
+    Burrow,
+    NOT_REOCCURRING,
+    getReoccurringText
+} from "@features/burrows/burrows.types"
+import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**
  * {@link Details}
@@ -59,7 +71,11 @@ export default function Details({ burrow }: DetailsProps) {
                     <DetailRow
                         icon={
                             <ThemedIcon
-                                icon={Clock}
+                                icon={
+                                    burrow.reoccurring !== NOT_REOCCURRING
+                                        ? Repeat
+                                        : Clock
+                                }
                                 size={20}
                                 overrideColor={"primary"}
                             />
@@ -69,6 +85,7 @@ export default function Details({ burrow }: DetailsProps) {
                             burrow.beginningTime,
                             burrow.endTime
                         )}
+                        subtitle={getReoccurringText(burrow.reoccurring)}
                     />
 
                     {/* location */}
@@ -113,12 +130,16 @@ export default function Details({ burrow }: DetailsProps) {
 function DetailRow({
     icon,
     label,
-    value
+    value,
+    subtitle
 }: {
     icon: React.ReactNode
     label: string
     value: string
+    subtitle?: string
 }) {
+    const colors = useThemeColors()
+
     return (
         <View className="flex-row items-center">
             <View className="w-10 h-10 rounded-full bg-card items-center justify-center mr-3">
@@ -131,6 +152,14 @@ function DetailRow({
                 <Text className="text-base text-text font-medium mt-0.5">
                     {value}
                 </Text>
+                {subtitle ? (
+                    <Text
+                        className="text-xs mt-0.5"
+                        style={{ color: `${colors.text}9A` }}
+                    >
+                        {subtitle}
+                    </Text>
+                ) : null}
             </View>
         </View>
     )

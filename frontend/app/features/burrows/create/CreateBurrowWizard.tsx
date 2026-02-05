@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react"
-import { View, Text, Pressable, SafeAreaView, FlatList } from "react-native"
+import { View, Text, Pressable, FlatList } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter } from "expo-router"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
@@ -330,7 +331,8 @@ export function CreateBurrowWizard({
                     .filter(Boolean),
                 capacity: formState.capacity,
                 visibility: formState.visibility,
-                requestToJoin: formState.requestToJoin
+                requestToJoin: formState.requestToJoin,
+                reoccurring: formState.reoccurring
             }
 
             mutation.mutate(payload)
@@ -487,7 +489,7 @@ export function CreateBurrowWizard({
             {/* cancel / next */}
             <View className="px-6 py-4 border-t border-gray-200 flex-row gap-3">
                 <Button
-                    variant="outline"
+                    variant="danger"
                     onPress={handleClose}
                     className="flex-1"
                     disabled={mutation.isPending}
@@ -497,7 +499,7 @@ export function CreateBurrowWizard({
 
                 {currentStep < totalSteps ? (
                     <Button
-                        variant="primary"
+                        variant="success"
                         onPress={handleNext}
                         className="flex-1"
                     >
@@ -505,7 +507,7 @@ export function CreateBurrowWizard({
                     </Button>
                 ) : (
                     <Button
-                        variant="primary"
+                        variant="success"
                         onPress={handleSubmit}
                         className="flex-1"
                         loading={mutation.isPending}

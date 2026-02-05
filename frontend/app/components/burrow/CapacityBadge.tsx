@@ -2,6 +2,9 @@ import { View, Text } from "react-native"
 import { User } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
+/**
+ * {@link CapacityBadge}
+ */
 type CapacityBadgeProps = {
     joined: number
     capacity: number

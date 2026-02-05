@@ -117,9 +117,28 @@ export interface Burrow {
     capacity: number
     visibility: BurrowVisibility
     requestToJoin: boolean
+    reoccurring: number
     joined: number
     waiting: number
     className?: string // Optional: for PROJECT type burrows
+}
+
+export const NOT_REOCCURRING = -1
+export const DAILY = 0
+export const WEEKLY = 1
+export const MONTHLY = 2
+
+export function getReoccurringText(timeframe: number): string {
+    switch (timeframe) {
+        case DAILY:
+            return "Reoccurs daily"
+        case WEEKLY:
+            return "Reoccurs weekly"
+        case MONTHLY:
+            return "Reoccurs monthly"
+        default:
+            return ""
+    }
 }
 
 /**
