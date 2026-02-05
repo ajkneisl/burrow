@@ -10,8 +10,8 @@ import {
     type SubmittedStudyEventBurrow,
     type SubmittedBurrowFormState
 } from "@features/burrows/create/create.types.ts"
-import PrivacyStep from "@features/burrows/create/components/event/PrivacyStep.tsx"
-import InfoStep from "@features/burrows/create/components/event/InfoStep.tsx"
+import PrivacyStep from "@features/burrows/create/components/PrivacyStep.tsx"
+import InfoStep from "@features/burrows/create/components/InfoStep.tsx"
 import { addTime } from "@api/util.ts"
 
 /**
@@ -92,7 +92,8 @@ export default function CreateEventBurrowModal({
                     requestToJoin: meeting.requestToJoin ?? false,
                     date: `${yyyy}-${mm}-${dd}`,
                     beginningTime: `${hhStart}:${minStart}`,
-                    endTime: `${hhEnd}:${minEnd}`
+                    endTime: `${hhEnd}:${minEnd}`,
+                    reoccurring: -1
                 })
             } else {
                 setFormState({ ...initialFormState, kind: "EVENT" })
@@ -193,7 +194,8 @@ export default function CreateEventBurrowModal({
             beginningTime: addTime(dateMs, formState.beginningTime),
             endTime: addTime(dateMs, formState.endTime),
             visibility: formState.visibility,
-            requestToJoin: formState.requestToJoin
+            requestToJoin: formState.requestToJoin,
+            reoccurring: formState.reoccurring
         }
 
         try {
@@ -236,9 +238,7 @@ export default function CreateEventBurrowModal({
             return
         }
 
-        applyServerErrors([
-            "Unknown error submitting event. Please try again."
-        ])
+        applyServerErrors(["Unknown error submitting event. Please try again."])
     }
 
     // submit button handler
@@ -259,7 +259,7 @@ export default function CreateEventBurrowModal({
                 <div className="flex items-center gap-3">
                     {currentStep > 1 && (
                         <Button
-                            color="SECONDARY"
+                            color="ERROR"
                             type="button"
                             onClick={handleBack}
                         >
@@ -313,6 +313,7 @@ export default function CreateEventBurrowModal({
                         errors={errors}
                         formState={formState}
                         updateField={updateField}
+                        kind="EVENT"
                     />
                 )}
 
@@ -322,6 +323,7 @@ export default function CreateEventBurrowModal({
                         errors={errors}
                         formState={formState}
                         updateField={updateField}
+                        kind="EVENT"
                     />
                 )}
 

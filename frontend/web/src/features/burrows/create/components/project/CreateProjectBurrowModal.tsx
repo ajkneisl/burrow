@@ -86,7 +86,8 @@ export default function CreateProjectBurrowModal({
                     requestToJoin: false,
                     date: `${yyyy}-${mm}-${dd}`,
                     beginningTime: "",
-                    endTime: `${hh}:${min}`
+                    endTime: `${hh}:${min}`,
+                    reoccurring: -1
                 })
             } else {
                 setFormState({
@@ -171,7 +172,6 @@ export default function CreateProjectBurrowModal({
             ? addTime(dateMs, formState.endTime)
             : dateMs + 23 * 60 * 60 * 1000 + 59 * 60 * 1000
 
-
         let memberIDs: string[] = []
         try {
             const members = JSON.parse(formState.tags)
@@ -255,7 +255,7 @@ export default function CreateProjectBurrowModal({
                 <div className="flex items-center gap-3">
                     {currentStep > 1 && (
                         <Button
-                            color="SECONDARY"
+                            color="ERROR"
                             type="button"
                             onClick={handleBack}
                         >

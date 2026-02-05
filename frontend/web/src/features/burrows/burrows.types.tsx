@@ -11,7 +11,13 @@ export type BurrowKind = "STUDY" | "EVENT" | "CLUB" | "PROJECT"
 /**
  * The type of general location.
  */
-export type LocationType = "PARKING" | "VENDING" | "STUDY" | "RESTROOM" | "FOOD" | "OTHER"
+export type LocationType =
+    | "PARKING"
+    | "VENDING"
+    | "STUDY"
+    | "RESTROOM"
+    | "FOOD"
+    | "OTHER"
 
 /**
  * Base type for all locations on the map.
@@ -105,12 +111,39 @@ export interface Burrow {
     capacity: number
     visibility: BurrowVisibility
     requestToJoin: boolean
+    reoccurring: number
     joined: number
     waiting: number
 }
 
 /**
- * The role of a member ina  meeting.
+ * The options for when the Burrow can reoccur.
+ */
+export const NOT_REOCCURRING = -1
+export const DAILY = 0
+export const WEEKLY = 1
+export const MONTHLY = 2
+
+/**
+ * Get a string depending on when the Burrow reoccurs.
+ *
+ * @param timeframe The timeframe of the Burrow.
+ */
+export function getReoccurringText(timeframe: number): string {
+    switch (timeframe) {
+        case DAILY:
+            return "This Burrow reoccurs every day."
+        case WEEKLY:
+            return "This Burrow reoccurs every week."
+        case MONTHLY:
+            return "This Burrow reoccurs every month."
+        default:
+            return ""
+    }
+}
+
+/**
+ * The role of a member in a meeting.
  */
 export type BurrowRole = "MEMBER" | "HOST" | "MODERATOR"
 

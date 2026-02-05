@@ -2,6 +2,7 @@ import type {
     BurrowKind,
     BurrowVisibility
 } from "@features/burrows/burrows.types"
+import { NOT_REOCCURRING } from "@features/burrows/burrows.types"
 
 /**
  * The props for a CreateBurrow step component.
@@ -31,6 +32,7 @@ export interface SubmittedBurrowFormState {
     capacity: number
     visibility: BurrowVisibility
     requestToJoin: boolean
+    reoccurring: number
     // Project-specific fields
     name: string
     objective: string
@@ -54,6 +56,7 @@ export const initialFormState: SubmittedBurrowFormState = {
     capacity: 0,
     visibility: "PUBLIC",
     requestToJoin: false,
+    reoccurring: NOT_REOCCURRING,
     name: "",
     objective: "",
     className: "",
@@ -87,6 +90,7 @@ export type SubmittedStudyEventBurrow = {
     capacity: number
     visibility: BurrowVisibility
     requestToJoin: boolean
+    reoccurring: number
 }
 
 /**

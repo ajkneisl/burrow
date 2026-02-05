@@ -23,7 +23,7 @@ import app.burrow.burrows.models.SubmittedProjectBurrow
 import app.burrow.burrows.models.SubmittedStudyEventBurrow
 import app.burrow.burrows.sync.block.Block
 import app.burrow.burrows.sync.block.BlockStates
-import app.burrow.notifications.rescheduleNotificationsForMeeting
+import app.burrow.notifications.rescheduleNotificationsForBurrow
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
@@ -91,6 +91,12 @@ data class Burrow(
      */
     val requestToJoin: Boolean,
 
+    /**
+     * If the Burrow is reoccurring. This corresponds to [DAILY], [WEEKLY], or [MONTHLY]. This will
+     * be -1 if not reoccurring.
+     */
+    val reoccurring: Int,
+
     /** How many people are in the meeting. */
     val joined: Long,
 
@@ -122,6 +128,7 @@ data class Burrow(
                 requestToJoin = row[Burrows.requestToJoin],
                 joined = joined,
                 waiting = waiting,
+                reoccurring = row[Burrows.reoccurring],
             )
     }
 }
@@ -149,7 +156,8 @@ suspend fun createProjectBurrow(userID: String, project: SubmittedProjectBurrow)
             visibility = BurrowVisibility.UNLISTED,
             requestToJoin = true,
             waiting = 0,
-            joined = project.teamMembers.size.toLong(), // amount of team members
+            joined = project.teamMembers.size.toLong(), // amount of team members,
+            reoccurring = -1,
         )
 
     query {
@@ -168,6 +176,7 @@ suspend fun createProjectBurrow(userID: String, project: SubmittedProjectBurrow)
             it[capacity] = projectBurrow.capacity
             it[visibility] = projectBurrow.visibility
             it[requestToJoin] = projectBurrow.requestToJoin
+            it[reoccurring] = projectBurrow.reoccurring
         }
 
         // insert membership for host
@@ -188,7 +197,7 @@ suspend fun createProjectBurrow(userID: String, project: SubmittedProjectBurrow)
     }
 
     // schedule notifications for due date
-    rescheduleNotificationsForMeeting(projectBurrow.id)
+    rescheduleNotificationsForBurrow(projectBurrow.id)
 
     // invite all members
     project.teamMembers.forEach { memberID ->
@@ -207,24 +216,25 @@ suspend fun createProjectBurrow(userID: String, project: SubmittedProjectBurrow)
  * Create a Burrow
  *
  * @param userID The ID of the owner.
- * @param meeting The submitted details.
+ * @param submittedBurrow The submitted details.
  */
-suspend fun createBurrow(userID: String, meeting: SubmittedStudyEventBurrow): Burrow {
-    val groupMeeting =
+suspend fun createBurrow(userID: String, submittedBurrow: SubmittedStudyEventBurrow): Burrow {
+    val createdBurrow =
         Burrow(
             id = UUID.randomUUID().toString().replace("-", "").take(8),
             ownerID = userID,
-            title = meeting.title,
-            description = meeting.description,
-            location = meeting.location,
-            kind = meeting.kind,
-            beginningTime = meeting.beginningTime,
-            endTime = meeting.endTime,
-            tags = meeting.tags,
+            title = submittedBurrow.title,
+            description = submittedBurrow.description,
+            location = submittedBurrow.location,
+            kind = submittedBurrow.kind,
+            beginningTime = submittedBurrow.beginningTime,
+            endTime = submittedBurrow.endTime,
+            tags = submittedBurrow.tags,
             creationDate = getTimeMillis(),
-            capacity = meeting.capacity,
-            visibility = meeting.visibility,
-            requestToJoin = meeting.requestToJoin,
+            capacity = submittedBurrow.capacity,
+            visibility = submittedBurrow.visibility,
+            requestToJoin = submittedBurrow.requestToJoin,
+            reoccurring = submittedBurrow.reoccurring,
             waiting = 0,
             joined = 0,
         )
@@ -232,42 +242,43 @@ suspend fun createBurrow(userID: String, meeting: SubmittedStudyEventBurrow): Bu
     query {
         // insert burrow
         Burrows.insert {
-            it[Burrows.id] = groupMeeting.id
-            it[ownerID] = groupMeeting.ownerID
-            it[title] = groupMeeting.title
-            it[description] = groupMeeting.description
-            it[location] = groupMeeting.location
-            it[kind] = groupMeeting.kind
-            it[beginningTime] = groupMeeting.beginningTime
-            it[endTime] = groupMeeting.endTime
-            it[tags] = groupMeeting.tags.toList()
-            it[creationDate] = groupMeeting.creationDate
-            it[capacity] = groupMeeting.capacity
-            it[visibility] = groupMeeting.visibility
-            it[requestToJoin] = groupMeeting.requestToJoin
+            it[Burrows.id] = createdBurrow.id
+            it[ownerID] = createdBurrow.ownerID
+            it[title] = createdBurrow.title
+            it[description] = createdBurrow.description
+            it[location] = createdBurrow.location
+            it[kind] = createdBurrow.kind
+            it[beginningTime] = createdBurrow.beginningTime
+            it[endTime] = createdBurrow.endTime
+            it[tags] = createdBurrow.tags.toList()
+            it[creationDate] = createdBurrow.creationDate
+            it[capacity] = createdBurrow.capacity
+            it[visibility] = createdBurrow.visibility
+            it[requestToJoin] = createdBurrow.requestToJoin
+            it[reoccurring] = createdBurrow.reoccurring
         }
 
         // insert membership for host
         Memberships.insert {
-            it[Memberships.burrowID] = groupMeeting.id
-            it[Memberships.userID] = groupMeeting.ownerID
+            it[Memberships.burrowID] = createdBurrow.id
+            it[Memberships.userID] = createdBurrow.ownerID
             it[Memberships.role] = BurrowRole.HOST
             it[Memberships.status] = BurrowMemberStatus.JOINED
-            it[Memberships.joinedAt] = groupMeeting.creationDate
+            it[Memberships.joinedAt] = createdBurrow.creationDate
         }
 
         // by default, enable CHAT
         BlockStates.insert {
-            it[BlockStates.burrowID] = groupMeeting.id
+            it[BlockStates.burrowID] = createdBurrow.id
             it[BlockStates.blockID] = "CHAT"
             it[BlockStates.data] = Block.BlockState.EMPTY
         }
     }
 
     // schedule notifications
-    rescheduleNotificationsForMeeting(groupMeeting.id)
+    rescheduleNotificationsForBurrow(createdBurrow.id)
 
-    return groupMeeting
+    return createdBurrow
 }
 
 /**
@@ -355,13 +366,15 @@ suspend fun getBurrowResponse(burrowID: String, requestingUserID: String?): Burr
     }
 
     // Check if the burrow owner is a TA for one of the classes in the tags
-    val hostedByTa = getUserTAStatus(burrow.ownerID)?.let { taStatus ->
-        val normalizedTags = burrow.tags.map { it.replace(Regex("[\\s_-]"), "").lowercase() }.toSet()
-        taStatus.classes.any { taClass ->
-            val normalizedClass = taClass.replace(Regex("[\\s_-]"), "").lowercase()
-            normalizedTags.contains(normalizedClass)
-        }
-    } ?: false
+    val hostedByTa =
+        getUserTAStatus(burrow.ownerID)?.let { taStatus ->
+            val normalizedTags =
+                burrow.tags.map { it.replace(Regex("[\\s_-]"), "").lowercase() }.toSet()
+            taStatus.classes.any { taClass ->
+                val normalizedClass = taClass.replace(Regex("[\\s_-]"), "").lowercase()
+                normalizedTags.contains(normalizedClass)
+            }
+        } ?: false
 
     // return response without user-specific data if no userID provided
     if (requestingUserID.isNullOrBlank()) {
@@ -499,7 +512,7 @@ suspend fun updateProjectBurrow(projectId: String, project: SubmittedProjectBurr
         }
     }
 
-    rescheduleNotificationsForMeeting(projectId)
+    rescheduleNotificationsForBurrow(projectId)
 }
 
 /**
@@ -521,5 +534,5 @@ suspend fun updatedBurrow(meetingId: String, meeting: SubmittedStudyEventBurrow)
         it[Burrows.requestToJoin] = meeting.requestToJoin
     }
 
-    rescheduleNotificationsForMeeting(meetingId)
+    rescheduleNotificationsForBurrow(meetingId)
 }

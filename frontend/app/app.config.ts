@@ -135,7 +135,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         router: {
             origin: false
         },
-        apiUrl: "https://umn.app/api",
+        apiUrl: "http://localhost:8080/api",
         cdnUrl: "https://cdn.umn.app",
         googleMapsApiKey: {
             ios: process.env.GOOGLE_MAPS_IOS_API_KEY,

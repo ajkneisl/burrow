@@ -10,8 +10,8 @@ import {
     type SubmittedStudyEventBurrow,
     type SubmittedBurrowFormState
 } from "@features/burrows/create/create.types.ts"
-import PrivacyStep from "@features/burrows/create/components/study/PrivacyStep.tsx"
-import InfoStep from "@features/burrows/create/components/study/InfoStep.tsx"
+import PrivacyStep from "@features/burrows/create/components/PrivacyStep.tsx"
+import InfoStep from "@features/burrows/create/components/InfoStep.tsx"
 import { addTime } from "@api/util.ts"
 
 /**
@@ -92,7 +92,8 @@ export default function CreateStudyBurrowModal({
                     requestToJoin: burrow.requestToJoin ?? false,
                     date: `${yyyy}-${mm}-${dd}`,
                     beginningTime: `${hhStart}:${minStart}`,
-                    endTime: `${hhEnd}:${minEnd}`
+                    endTime: `${hhEnd}:${minEnd}`,
+                    reoccurring: burrow.reoccurring
                 })
             } else {
                 setFormState(initialFormState)
@@ -190,7 +191,8 @@ export default function CreateStudyBurrowModal({
             beginningTime: addTime(dateMs, formState.beginningTime),
             endTime: addTime(dateMs, formState.endTime),
             visibility: formState.visibility,
-            requestToJoin: formState.requestToJoin
+            requestToJoin: formState.requestToJoin,
+            reoccurring: formState.reoccurring
         }
 
         try {
@@ -257,7 +259,7 @@ export default function CreateStudyBurrowModal({
                 <div className="flex items-center gap-3">
                     {currentStep > 1 && (
                         <Button
-                            color="SECONDARY"
+                            color="ERROR"
                             type="button"
                             onClick={handleBack}
                         >
@@ -313,6 +315,7 @@ export default function CreateStudyBurrowModal({
                         errors={errors}
                         formState={formState}
                         updateField={updateField}
+                        kind="STUDY"
                     />
                 )}
 
@@ -322,6 +325,7 @@ export default function CreateStudyBurrowModal({
                         errors={errors}
                         formState={formState}
                         updateField={updateField}
+                        kind="STUDY"
                     />
                 )}
 

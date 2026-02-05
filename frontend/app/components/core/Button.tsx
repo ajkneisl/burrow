@@ -2,6 +2,7 @@ import React from "react"
 import { Pressable, Text, ActivityIndicator, View } from "react-native"
 import type { PressableProps } from "react-native"
 import clsx from "clsx"
+import { useThemeColors } from "@api/theme/useThemeColors"
 
 type ButtonVariant =
     | "primary"
@@ -35,6 +36,8 @@ export function Button({
     className,
     ...props
 }: ButtonProps) {
+    const colors = useThemeColors()
+
     const isDisabled = disabled || loading
 
     const baseStyles =
@@ -47,10 +50,10 @@ export function Button({
     }
 
     const variantStyles = {
-        primary: "bg-primary",
-        secondary: "bg-secondary",
-        danger: "bg-error",
-        success: "bg-success",
+        primary: `${colors.primary}8A`,
+        secondary: `${colors.secondary}8A`,
+        danger: `${colors.error}8A`,
+        success: `${colors.success}8A`,
         outline: "border-2 border-primary bg-transparent",
         ghost: "bg-transparent"
     }
@@ -76,12 +79,16 @@ export function Button({
         <Pressable
             {...props}
             disabled={isDisabled}
+            style={{
+                backgroundColor: variantStyles[variant]
+            }}
             className={clsx(
                 baseStyles,
                 sizeStyles[size],
-                variantStyles[variant],
                 isDisabled && disabledStyles,
                 fullWidth && "w-full",
+                variant === "ghost" ? "bg-transparent" : "",
+                variant === "outline" ? "text-primary font-semibold" : "",
                 className
             )}
         >

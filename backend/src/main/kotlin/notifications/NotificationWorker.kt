@@ -286,11 +286,11 @@ private suspend fun attendeeIds(meetingId: String): List<String> = query {
 /**
  * When a meeting is updated, re-schedule upcoming meeting notifications.
  *
- * @param meetingId The ID of the meeting to reschedule.
+ * @param burrowID The ID of the meeting to reschedule.
  * @param nowMs The current time.
  */
-suspend fun rescheduleNotificationsForMeeting(meetingId: String, nowMs: Long = getTimeMillis()) {
-    LOGGER.debug("Scheduling notifications for $meetingId")
+suspend fun rescheduleNotificationsForBurrow(burrowID: String, nowMs: Long = getTimeMillis()) {
+    LOGGER.debug("Scheduling notifications for $burrowID")
     // TODO
 }
 

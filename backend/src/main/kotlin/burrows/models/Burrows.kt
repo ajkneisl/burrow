@@ -1,6 +1,7 @@
 package app.burrow.burrows.models
 
 import app.burrow.account.models.Users
+import app.burrow.burrows.NOT_REOCCURRING
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 
@@ -47,6 +48,9 @@ object Burrows : Table("burrows") {
 
     /** [app.burrow.burrows.Burrow.requestToJoin] */
     val requestToJoin = bool("request_to_join").default(false)
+
+    /** [app.burrow.burrows.Burrow.reoccurring] */
+    val reoccurring = integer("reoccurring").default(NOT_REOCCURRING)
 
     override val primaryKey = PrimaryKey(id)
 
