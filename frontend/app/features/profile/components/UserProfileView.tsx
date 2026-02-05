@@ -15,6 +15,7 @@ import { useThemeColors } from "@api/theme/useThemeColors"
 import type { User } from "@features/auth/user.types"
 import type { Profile, Following } from "@features/profile/profile.model"
 import type { BurrowResponse } from "@features/burrows/burrows.types"
+import TABadge from "@components/burrow/TABadge"
 
 /**
  * {@link UserProfileView}
@@ -75,20 +76,7 @@ export function UserProfileView({
                     </Text>
 
                     {/* TA badge */}
-                    {isTa && (
-                        <View
-                            className="flex-row items-center gap-1 px-2 py-0.5 rounded-full"
-                            style={{ backgroundColor: `${colors.info}33` }}
-                        >
-                            <GraduationCap size={12} color={colors.info} />
-                            <Text
-                                className="text-xs font-bold"
-                                style={{ color: colors.info }}
-                            >
-                                TA
-                            </Text>
-                        </View>
-                    )}
+                    {isTa && <TABadge />}
                 </View>
 
                 {profile.badges.length > 0 && (

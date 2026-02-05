@@ -16,6 +16,8 @@ import type { BurrowResponse } from "@features/burrows/burrows.types"
 import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { formatDateTime } from "@api/util"
 import KindChip from "@components/burrow/KindChip"
+import ThemedIcon from "@components/core/ThemedIcon"
+import TABadge from "@components/burrow/TABadge"
 
 /**
  * {@link UpcomingBurrowCard}
@@ -177,20 +179,7 @@ export function UpcomingBurrowCard({
                         <KindChip kind={burrow.kind} />
 
                         {/* TA badge */}
-                        {hostedByTa && (
-                            <View
-                                className="px-2 py-1 rounded-full flex-row items-center gap-1"
-                                style={{ backgroundColor: `${colors.info}33` }}
-                            >
-                                <GraduationCap size={12} color={colors.info} />
-                                <Text
-                                    className="text-xs font-bold"
-                                    style={{ color: colors.info }}
-                                >
-                                    TA
-                                </Text>
-                            </View>
-                        )}
+                        {hostedByTa && <TABadge />}
                     </View>
 
                     {/* Location, Capacity and Waitlist */}

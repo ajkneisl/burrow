@@ -12,6 +12,7 @@ import { Settings, Edit } from "lucide-react-native"
 import { useGoogleAuth } from "@features/auth/hooks/useGoogleAuth"
 import { UserProfileView } from "@features/profile/components/UserProfileView"
 import { useThemeColors } from "@api/theme/useThemeColors"
+import ThemedIcon from "@components/core/ThemedIcon"
 
 /**
  * Profile screen
@@ -73,7 +74,10 @@ export default function ProfileScreen() {
                 className="flex-1 px-6 py-4"
                 contentContainerClassName="pb-4"
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
                 }
             >
                 <UserProfileView
@@ -87,7 +91,13 @@ export default function ProfileScreen() {
                             onPress={() =>
                                 router.push("/settings/edit-profile")
                             }
-                            leftIcon={<Edit size={16} color={colors.primary} />}
+                            leftIcon={
+                                <ThemedIcon
+                                    icon={Edit}
+                                    regularColor="white"
+                                    size={16}
+                                />
+                            }
                             className="mt-4"
                         >
                             Edit Profile
