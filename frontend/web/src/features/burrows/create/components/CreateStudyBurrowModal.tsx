@@ -10,8 +10,8 @@ import {
     type SubmittedStudyEventBurrow,
     type SubmittedBurrowFormState
 } from "@features/burrows/create/create.types.ts"
-import PrivacyStep from "@features/burrows/create/components/study/PrivacyStep.tsx"
-import InfoStep from "@features/burrows/create/components/study/InfoStep.tsx"
+import PrivacyStep from "@features/burrows/create/components/PrivacyStep.tsx"
+import InfoStep from "@features/burrows/create/components/InfoStep.tsx"
 import { addTime } from "@api/util.ts"
 
 /**
@@ -259,7 +259,7 @@ export default function CreateStudyBurrowModal({
                 <div className="flex items-center gap-3">
                     {currentStep > 1 && (
                         <Button
-                            color="SECONDARY"
+                            color="ERROR"
                             type="button"
                             onClick={handleBack}
                         >
@@ -315,6 +315,7 @@ export default function CreateStudyBurrowModal({
                         errors={errors}
                         formState={formState}
                         updateField={updateField}
+                        kind="STUDY"
                     />
                 )}
 
@@ -324,6 +325,7 @@ export default function CreateStudyBurrowModal({
                         errors={errors}
                         formState={formState}
                         updateField={updateField}
+                        kind="STUDY"
                     />
                 )}
 
