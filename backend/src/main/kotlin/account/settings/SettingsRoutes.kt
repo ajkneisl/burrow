@@ -20,6 +20,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
+import org.jetbrains.exposed.v1.r2dbc.upsert
 
 /** Routes relating to user settings. */
 val SETTINGS_ROUTES: Route.() -> Unit = {
@@ -129,7 +130,12 @@ val SETTINGS_ROUTES: Route.() -> Unit = {
             runCatching { Theme.valueOf(call.receiveText()) }.getOrNull()
                 ?: throw InvalidArguments()
 
-        query { Settings.update({ Settings.userID eq call.userID }) { it[Settings.theme] = theme } }
+        query {
+            Settings.upsert(Settings.userID) {
+                it[Settings.userID] = call.userID
+                it[Settings.theme] = theme
+            }
+        }
 
         call.respond(HttpStatusCode.OK)
     }

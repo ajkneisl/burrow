@@ -6,6 +6,6 @@ package app.burrow.account.settings
 enum class Theme {
     LIGHT,
     DARK,
-    ESHETE,
+    EARTH,
     AUTO,
 }

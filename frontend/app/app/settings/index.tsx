@@ -48,8 +48,10 @@ export default function SettingsScreen() {
     const [theme, setTheme] = useAtom(themeAtom)
 
     const handleThemeChange = async (newTheme: Theme) => {
-        setTheme(newTheme)
+        await setTheme(newTheme)
+
         try {
+            console.log(newTheme)
             await saveTheme(newTheme)
         } catch (error) {
             console.error("Failed to save theme:", error)

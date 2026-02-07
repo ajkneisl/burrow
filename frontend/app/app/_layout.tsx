@@ -45,8 +45,10 @@ function ThemeManager({ children }: { children: React.ReactNode }) {
         async function loadTheme() {
             const loadedTheme = await getTheme()
 
+            console.log("loaded: ", loadedTheme)
+
             if (theme !== loadedTheme) {
-                setTheme(loadedTheme)
+                await setTheme(loadedTheme)
             }
         }
 
@@ -54,7 +56,7 @@ function ThemeManager({ children }: { children: React.ReactNode }) {
         if (user) {
             void loadTheme()
         }
-    }, [user, theme, setTheme])
+    }, [user, setTheme])
 
     // Compute actual color scheme based on theme setting
     const computedScheme = useMemo(() => {
