@@ -23,7 +23,8 @@ val RELATION_ROUTES: Route.() -> Unit = {
     get("/following") {
         val userID = call.queryParameters["userID"]
 
-        if (userID != null && !(call.userID isFriendsWith userID)) throw InvalidAuthorization()
+        if (userID != null && userID != call.userID && !(call.userID isFriendsWith userID))
+            throw InvalidAuthorization()
 
         call.respond(getFollowingRelations(userID ?: call.userID))
     }
@@ -33,7 +34,8 @@ val RELATION_ROUTES: Route.() -> Unit = {
     get("/followers") {
         val userID = call.queryParameters["userID"]
 
-        if (userID != null && !(call.userID isFriendsWith userID)) throw InvalidAuthorization()
+        if (userID != null && userID != call.userID && !(call.userID isFriendsWith userID))
+            throw InvalidAuthorization()
 
         call.respond(getFollowersRelations(userID ?: call.userID))
     }
