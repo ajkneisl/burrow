@@ -41,6 +41,7 @@ export type UserResponse = {
     recentHostedBurrows: BurrowResponse[]
     email?: string
     isTa?: boolean
+    isBlocked?: boolean
 }
 
 /**

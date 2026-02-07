@@ -4,6 +4,7 @@ import { Badge, Button, Card, ViewErrors } from "@umnburrow/core"
 import {
     followUser,
     getUserByUsername,
+    unblockUser,
     unFollowUser
 } from "@features/profile/profile.api.ts"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
@@ -93,14 +94,10 @@ export default function ProfileView() {
         if (!data || !user) return true
 
         return (
-            // make sure profile is not private
-            data.profile.visibility !== "PUBLIC" &&
-            // make sure it's not you
-            data.user.id !== user.id &&
-            // profile is private, cannot see
-            (data.profile.visibility === "PRIVATE" ||
-                // profile is friends only, check if friends
-                (data.profile.visibility === "FRIENDS" &&
+            data.profile.visibility !== "PUBLIC" && //          make sure profile is not private
+            data.user.id !== user.id && //                      make sure it's not you
+            (data.profile.visibility === "PRIVATE" || //        profile is private, cannot see
+                (data.profile.visibility === "FRIENDS" && //    profile is friends only, check if friends
                     !(data.following?.youFollow && data.following?.theyFollow)))
         )
     }, [data, user])
@@ -155,6 +152,39 @@ export default function ProfileView() {
                 <p className="mt-2 opacity-70">
                     There was an issue loading that profile.
                 </p>
+            </div>
+        )
+    }
+
+    async function unblock() {
+        if (!data) return
+
+        try {
+            setIsSubmitting(true)
+            await unblockUser(data.user.id)
+            await queryClient.invalidateQueries({ queryKey: ["profile", username] })
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    if (data.isBlocked) {
+        return (
+            <div className="mx-auto max-w-3xl py-16 text-center">
+                <h1 className="text-2xl font-bold">User blocked</h1>
+
+                <p className="mt-2 opacity-70">
+                    You have blocked @{data.user.username}.
+                </p>
+
+                <Button
+                    className="mt-4"
+                    color="PRIMARY"
+                    onClick={unblock}
+                    loading={isSubmitting}
+                >
+                    Unblock
+                </Button>
             </div>
         )
     }
@@ -236,6 +266,7 @@ export default function ProfileView() {
                             )}
                         </div>
                     </div>
+
                     <div className="flex flex-row items-center gap-2">
                         {data.profile.userID === user?.id ? (
                             <EditProfile

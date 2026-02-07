@@ -13,8 +13,8 @@ import app.burrow.burrows.searchBurrows
 import app.burrow.query
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.innerJoin
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 
 /**
@@ -49,31 +49,38 @@ data class UserResponse(
  *   mutual friends.
  */
 suspend fun getUserResponse(userID: String, requestingUserID: String): UserResponse = query {
-    val userRow =
-        Users.selectAll().where { Users.id eq userID }.singleOrNull()
-            ?: throw Error(404, "User not found")
-
-    val profileRow =
-        Profiles.selectAll().where { Profiles.userID eq userID }.singleOrNull()
-            ?: throw Error(404, "Profile not found")
+    val row =
+        Users.innerJoin(Profiles, { Users.id }, { Profiles.userID })
+            .selectAll()
+            .where { Users.id eq userID }
+            .singleOrNull() ?: throw Error(404, "User not found")
 
     val following = getFollowing(userID, requestingUserID)
     val isFriends = following.theyFollow && following.youFollow
 
-    var profile = Profile.fromRow(profileRow)
+    var profile = Profile.fromRow(row)
 
     // resolve badge descriptions
     val allBadges = getAllBadges()
-    profile = profile.copy(badges = profile.badges.map { badge ->
-        allBadges.find { it.id == badge.id } ?: badge
-    })
+    profile =
+        profile.copy(
+            badges = profile.badges.map { badge -> allBadges.find { it.id == badge.id } ?: badge }
+        )
 
-    // check the privacy
-    // if it's private or friends (and they're not friends)
     val isPrivate = profile.visibility == Profile.Visibility.PRIVATE
     val isNotFriends = profile.visibility == Profile.Visibility.FRIENDS && !isFriends
 
-    val cannotSee = requestingUserID != userID && (isPrivate || isNotFriends)
+    val isTa = getUserTAStatus(userID) != null
+    val requestorBlockedUser =
+        if (requestingUserID != userID) isBlockedBy(requestingUserID, userID) else null
+    val userBlockedRequestor = isBlockedBy(userID, requestingUserID)
+
+    val cannotSee =
+        requestingUserID != userID // ensure that not requesting themselves
+        &&
+            (isPrivate || isNotFriends) // if private and user is not friends
+            &&
+            userBlockedRequestor // user blocked requesting user
 
     if (cannotSee) {
         // remove all details
@@ -92,40 +99,47 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
                 linkedIn = null,
                 badges = listOf(),
             )
+
+        UserResponse(
+            user = User.fromRow(row),
+            profile = profile,
+            following = following,
+            recentJoinedBurrows = listOf(),
+            recentHostedBurrows = listOf(),
+            email = null,
+            isTa = isTa,
+            isBlocked = requestorBlockedUser,
+        )
+    } else {
+        // the burrows requested user is hosting
+        val hostedMeetings =
+            searchBurrows {
+                    limit = 3
+                    isHostedBy = userID
+
+                    this.requestingUserID = requestingUserID
+                }
+                .contents
+
+        // the burrows the requested user joined
+        val joinedMeetings =
+            searchBurrows {
+                    limit = 3
+                    isJoinedBy = userID
+                    isNotHostedBy = userID
+                    this.requestingUserID = requestingUserID
+                }
+                .contents
+
+        UserResponse(
+            user = User.fromRow(row),
+            profile = profile,
+            following = following,
+            recentJoinedBurrows = joinedMeetings,
+            recentHostedBurrows = hostedMeetings,
+            email = if (requestingUserID == userID) row[Users.email] else null,
+            isTa = isTa,
+            isBlocked = requestorBlockedUser,
+        )
     }
-
-    val hostedMeetings =
-        searchBurrows {
-                limit = 3
-                isHostedBy = userID
-
-                this.requestingUserID = requestingUserID
-            }
-            .contents
-
-    val joinedMeetings =
-        searchBurrows {
-                limit = 3
-                isJoinedBy = userID
-                isNotHostedBy = userID
-                this.requestingUserID = requestingUserID
-            }
-            .contents
-
-    // check if the user is a TA
-    val isTa = getUserTAStatus(userID) != null
-
-    // check if the requesting user has blocked this user
-    val isBlocked = if (requestingUserID != userID) isBlockedBy(requestingUserID, userID) else null
-
-    UserResponse(
-        user = User.fromRow(userRow),
-        profile = profile,
-        following = following,
-        recentJoinedBurrows = joinedMeetings,
-        recentHostedBurrows = hostedMeetings,
-        email = if (requestingUserID == userID) userRow[Users.email] else null,
-        isTa = isTa,
-        isBlocked = isBlocked,
-    )
 }
