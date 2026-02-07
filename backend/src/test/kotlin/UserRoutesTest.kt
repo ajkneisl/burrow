@@ -1,6 +1,6 @@
 package app.burrow
 
-import app.burrow.account.USER_ROUTES
+import app.burrow.features.account.USER_ROUTES
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.kotest.core.spec.style.FunSpec

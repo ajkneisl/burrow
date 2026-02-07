@@ -1,24 +1,25 @@
 package app.burrow
 
-import app.burrow.account.block.getAllBlockedRelationships
-import app.burrow.account.models.Users
-import app.burrow.account.profile.Profile
-import app.burrow.account.profile.Profiles
-import app.burrow.burrows.Burrow
-import app.burrow.burrows.models.BurrowVisibility
-import app.burrow.burrows.models.Burrows
-import app.burrow.burrows.searchBurrows
-import app.burrow.models.PaginatedResponse
+import app.burrow.api.models.PaginatedResponse
+import app.burrow.features.account.block.getAllBlockedRelationships
+import app.burrow.features.account.models.Users
+import app.burrow.features.account.profile.Profile
+import app.burrow.features.account.profile.Profiles
+import app.burrow.features.burrows.Burrow
+import app.burrow.features.burrows.models.BurrowVisibility
+import app.burrow.features.burrows.models.Burrows
+import app.burrow.features.burrows.searchBurrows
+import kotlin.collections.map
 import kotlin.math.ceil
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.QueryBuilder
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.innerJoin
-import org.jetbrains.exposed.v1.core.Op
-import org.jetbrains.exposed.v1.core.QueryBuilder
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.core.notInList
@@ -37,7 +38,11 @@ sealed class SearchResult {
      */
     @Serializable
     @SerialName("user")
-    data class User(val userID: String, val username: String, val profile: Profile) : SearchResult()
+    data class User(
+        val userID: String,
+        val username: String,
+        val profile: app.burrow.features.account.profile.Profile,
+    ) : SearchResult()
 
     /**
      * A burrow search result.
@@ -49,9 +54,9 @@ sealed class SearchResult {
     @Serializable
     @SerialName("burrow")
     data class BurrowResult(
-        val burrow: Burrow,
+        val burrow: app.burrow.features.burrows.Burrow,
         val ownerUsername: String,
-        val ownerProfile: Profile?,
+        val ownerProfile: app.burrow.features.account.profile.Profile?,
     ) : SearchResult()
 }
 
@@ -86,7 +91,11 @@ suspend fun search(
 
     // get blocked users to exclude from results
     val blockedUserIds =
-        if (requestingUserID != null) getAllBlockedRelationships(requestingUserID) else emptySet()
+        if (requestingUserID != null)
+            _root_ide_package_.app.burrow.features.account.block.getAllBlockedRelationships(
+                requestingUserID
+            )
+        else emptySet()
 
     return query {
         // blocked users filter expression
@@ -99,7 +108,8 @@ suspend fun search(
 
         // count total users (excluding blocked)
         val userSearchExpr =
-            ((Profiles.name.lowerCase() like pattern) or (Users.username.lowerCase() like pattern)) and blockedExpr
+            ((Profiles.name.lowerCase() like pattern) or
+                (Users.username.lowerCase() like pattern)) and blockedExpr
 
         val totalUsers =
             Users.innerJoin(Profiles, { Users.id }, { Profiles.userID })
@@ -108,13 +118,12 @@ suspend fun search(
                 .count()
 
         // count total burrows (excluding those hosted by blocked users)
-        val tagsSearchExpr = object : Op<Boolean>() {
-            override fun toQueryBuilder(queryBuilder: QueryBuilder) {
-                queryBuilder.append(
-                    "lower(array_to_string(burrows.tags, ' ')) LIKE '$pattern'"
-                )
+        val tagsSearchExpr =
+            object : Op<Boolean>() {
+                override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+                    queryBuilder.append("lower(array_to_string(burrows.tags, ' ')) LIKE '$pattern'")
+                }
             }
-        }
 
         val burrowBlockedExpr: Op<Boolean> =
             if (blockedUserIds.isNotEmpty()) {

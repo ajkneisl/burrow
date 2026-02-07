@@ -1,7 +1,7 @@
 package app.burrow.photo
 
-import app.burrow.Error
-import app.burrow.account.models.userID
+import app.burrow.api.Error
+import app.burrow.features.account.models.userID
 import app.burrow.env
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.header
