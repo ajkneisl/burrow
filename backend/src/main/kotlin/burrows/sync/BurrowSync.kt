@@ -75,10 +75,15 @@ object BurrowSync {
      * @param burrowID The ID of the meeting to clear the state for.
      * @param blockName The name of the block to remove.
      */
-    fun removeBlock(burrowID: String, blockName: String) =
+    suspend fun removeBlock(burrowID: String, blockName: String) {
         MEETING_BLOCK_STATE.computeIfPresent(burrowID) { _, map ->
             map.filterKeys { block -> block != blockName }
         }
+
+        // sync blocks after change
+        val enabledBlocks = getEnabledBlocks(burrowID)
+        sessionManager.broadcast(burrowID, Responses.BLOCKS, enabledBlocks, "SYNC")
+    }
 
     /**
      * Add a block state to a meeting's cache.
@@ -86,7 +91,7 @@ object BurrowSync {
      * @param burrowID The ID of the meeting to add the instance to.
      * @param blockName The name of the block to add.
      */
-    fun addBlock(burrowID: String, blockName: String) {
+    suspend fun addBlock(burrowID: String, blockName: String) {
         val key = blockName.uppercase()
         val blockClass = BLOCKS[key] ?: return
         val blockInstance = blockClass.primaryConstructor?.call(burrowID) as? Block
@@ -96,6 +101,10 @@ object BurrowSync {
             next[key] = blockInstance
             next
         }
+
+        // sync blocks after change
+        val enabledBlocks = getEnabledBlocks(burrowID)
+        sessionManager.broadcast(burrowID, Responses.BLOCKS, enabledBlocks, "SYNC")
     }
 
     /**

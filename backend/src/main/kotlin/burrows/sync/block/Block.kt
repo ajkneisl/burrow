@@ -174,14 +174,14 @@ suspend fun enableBlock(meetingId: String, blockName: String) = query {
             .singleOrNull()
 
     if (existing == null) {
-        // create instance and add to cache
-        BurrowSync.addBlock(meetingId, blockName)
-
         BlockStates.insert {
             it[BlockStates.blockID] = blockName
             it[BlockStates.burrowID] = meetingId
             it[BlockStates.data] = "{}"
         }
+
+        // create instance and add to cache
+        BurrowSync.addBlock(meetingId, blockName)
     }
 }
 
@@ -192,12 +192,12 @@ suspend fun enableBlock(meetingId: String, blockName: String) = query {
  * @param blockName The block to disable.
  */
 suspend fun disableBlock(meetingId: String, blockName: String) = query {
-    // remove instance from cache
-    BurrowSync.removeBlock(meetingId, blockName)
-
     BlockStates.deleteWhere {
         (BlockStates.burrowID eq meetingId) and (BlockStates.blockID eq blockName)
     }
+
+    // remove instance from cache
+    BurrowSync.removeBlock(meetingId, blockName)
 }
 
 /**

@@ -117,7 +117,7 @@ export function Pomodoro({ burrowId, userRole }: PomodoroProps) {
                             cx="120"
                             cy="120"
                             r={radius}
-                            stroke={colors.card}
+                            stroke={colors.cardBorder}
                             strokeWidth={strokeWidth}
                             fill="none"
                         />
@@ -139,7 +139,7 @@ export function Pomodoro({ burrowId, userRole }: PomodoroProps) {
 
                     {/* Timer Text Centered */}
                     <View className="absolute inset-0 items-center justify-center">
-                        <Text className="text-text text-6xl font-bold">
+                        <Text className="text-text text-4xl font-bold">
                             {msToClock(optimisticRemaining)}
                         </Text>
 
@@ -215,7 +215,7 @@ export function Pomodoro({ burrowId, userRole }: PomodoroProps) {
                 {!isModeratorOrHost && (
                     <View className="w-full bg-info/10 rounded-lg p-3">
                         <Text className="text-text text-opacity-80 text-xs text-center">
-                            Timer is controlled by moderators and the host
+                            Timer is controlled by Burrow moderators.
                         </Text>
                     </View>
                 )}
