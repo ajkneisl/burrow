@@ -50,10 +50,10 @@ export function Button({
     }
 
     const variantStyles = {
-        primary: `${colors.primary}8A`,
-        secondary: `${colors.secondary}8A`,
-        danger: `${colors.error}8A`,
-        success: `${colors.success}8A`,
+        primary: `${colors.primary}`,
+        secondary: `${colors.secondary}`,
+        danger: `${colors.error}`,
+        success: `${colors.success}`,
         outline: "border-2 border-primary bg-transparent",
         ghost: "bg-transparent"
     }
@@ -80,6 +80,7 @@ export function Button({
             {...props}
             disabled={isDisabled}
             style={{
+                opacity: 1,
                 backgroundColor: variantStyles[variant]
             }}
             className={clsx(

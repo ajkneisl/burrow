@@ -243,66 +243,73 @@ export default function BrowseScreen() {
 
                 {/* advanced */}
                 {showAdvancedFilters && (
-                    <View className="mx-4 mb-4 p-4 bg-card rounded-xl gap-4">
-                        {/* checkboxes */}
-                        <View className="flex-row gap-4">
-                            <LabeledSwitch
-                                label="My Hosted"
-                                value={isHost}
-                                onValueChange={setIsHost}
-                            />
+                    <View className="mx-4 mb-4 p-4 bg-card rounded-xl border border-card-border gap-5">
+                        <View className="gap-3">
+                            <Text className="text-xs font-semibold text-text uppercase tracking-wider">
+                                Show Only
+                            </Text>
 
-                            <LabeledSwitch
-                                label="Bookmarked"
-                                value={isBookmarked}
-                                onValueChange={setIsBookmarked}
-                            />
-                        </View>
-
-                        {/* Date Range */}
-                        <View className="flex-row gap-3">
-                            <View className="flex-1">
-                                <Text className="text-text/60 text-xs mb-1">
-                                    Start Date
-                                </Text>
-
-                                <CustomDateTimePicker
-                                    mode="date"
-                                    value={startDate ?? null}
-                                    onChange={setStartDate}
-                                    placeholder="Select start"
+                            <View className="flex-row gap-4">
+                                <LabeledSwitch
+                                    label="My Hosted"
+                                    value={isHost}
+                                    onValueChange={setIsHost}
                                 />
-                            </View>
 
-                            <View className="flex-1">
-                                <Text className="text-text/60 text-xs mb-1">
-                                    End Date
-                                </Text>
-
-                                <CustomDateTimePicker
-                                    mode="date"
-                                    value={endDate ?? null}
-                                    onChange={setEndDate}
-                                    placeholder="Select end"
+                                <LabeledSwitch
+                                    label="Bookmarked"
+                                    value={isBookmarked}
+                                    onValueChange={setIsBookmarked}
                                 />
                             </View>
                         </View>
 
-                        {/* clear filters */}
+                        <View className="h-px bg-card-border" />
+
+                        <View className="gap-3">
+                            <Text className="text-xs font-semibold text-text uppercase tracking-wider">
+                                Date Range
+                            </Text>
+
+                            <View className="flex-row gap-3">
+                                <View className="flex-1">
+                                    <CustomDateTimePicker
+                                        mode="date"
+                                        value={startDate ?? null}
+                                        onChange={setStartDate}
+                                        placeholder="Start date"
+                                    />
+                                </View>
+
+                                <View className="flex-1">
+                                    <CustomDateTimePicker
+                                        mode="date"
+                                        value={endDate ?? null}
+                                        onChange={setEndDate}
+                                        placeholder="End date"
+                                    />
+                                </View>
+                            </View>
+                        </View>
+
                         {hasAdvancedFilters && (
-                            <Pressable
-                                onPress={() => {
-                                    setIsHost(false)
-                                    setIsBookmarked(false)
-                                    setStartDate(undefined)
-                                    setEndDate(undefined)
-                                }}
-                                className="bg-error/10 py-2 rounded-lg"
-                            >
-                                <Text className="text-error text-sm font-medium text-center">
-                                    Clear Filters
-                                </Text>
-                            </Pressable>
+                            <>
+                                <View className="h-px bg-card-border" />
+
+                                <Pressable
+                                    onPress={() => {
+                                        setIsHost(false)
+                                        setIsBookmarked(false)
+                                        setStartDate(undefined)
+                                        setEndDate(undefined)
+                                    }}
+                                    className="bg-error/10 py-2.5 rounded-lg border border-error/20"
+                                >
+                                    <Text className="text-error text-sm font-semibold text-center">
+                                        Clear Filters
+                                    </Text>
+                                </Pressable>
+                            </>
                         )}
                     </View>
                 )}
