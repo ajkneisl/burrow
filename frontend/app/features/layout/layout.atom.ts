@@ -9,3 +9,8 @@ export const searchModalOpen = atom<boolean>(false)
  * Controls the create Burrow modal visibility
  */
 export const createModalOpen = atom<boolean>(false)
+
+/**
+ * Controls the map modal visibility
+ */
+export const mapModalOpen = atom<boolean>(false)

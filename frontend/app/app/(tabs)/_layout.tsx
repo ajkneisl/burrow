@@ -3,6 +3,7 @@ import { useColorScheme } from "react-native"
 import { Home, Search, Compass, Users, User } from "lucide-react-native"
 import { SearchModal } from "@features/layout/components"
 import { CreateBurrowModal } from "@features/burrows/create/CreateBurrowModal"
+import { BurrowMapModal } from "@features/burrows/components/BurrowMapModal"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**
@@ -87,6 +88,7 @@ export default function TabsLayout() {
             {/* global modals */}
             <SearchModal />
             <CreateBurrowModal />
+            <BurrowMapModal />
         </>
     )
 }

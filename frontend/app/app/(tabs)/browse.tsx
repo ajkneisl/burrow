@@ -20,7 +20,8 @@ import {
     Filter,
     ChevronDown,
     ChevronUp,
-    ChevronRight
+    ChevronRight,
+    Map as MapIcon
 } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import {
@@ -34,6 +35,9 @@ import Animated, {
     withTiming,
     useSharedValue
 } from "react-native-reanimated"
+import { useAtom } from "jotai"
+import { mapModalOpen } from "@features/layout/layout.atom"
+import ThemedIcon from "@components/core/ThemedIcon"
 
 /**
  * {@link BrowseScreen}
@@ -53,6 +57,7 @@ type GroupedSection = {
  */
 export default function BrowseScreen() {
     const colors = useThemeColors()
+    const [, setMapOpen] = useAtom(mapModalOpen)
 
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
     const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set())
@@ -382,6 +387,26 @@ export default function BrowseScreen() {
                     </View>
                 )}
             />
+
+            {/* Map FAB */}
+            <Pressable
+                onPress={() => setMapOpen(true)}
+                className="absolute bottom-6 right-6 bg-secondary rounded-full w-16 h-16 items-center justify-center shadow-lg active:opacity-80"
+                style={{
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 4.65,
+                    elevation: 8
+                }}
+            >
+                <ThemedIcon
+                    icon={MapIcon}
+                    size={28}
+                    strokeWidth={2.5}
+                    overrideColor="primary"
+                />
+            </Pressable>
         </SafeAreaView>
     )
 }
