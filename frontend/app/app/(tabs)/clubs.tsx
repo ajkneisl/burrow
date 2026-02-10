@@ -18,7 +18,11 @@ import { Search, Compass } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { FilterChip } from "@components/core"
 import type { PaginatedResponse } from "@api/api.types"
-import type { Club, ClubCategory, MyClubResponse } from "@features/clubs/club.types"
+import type {
+    Club,
+    ClubCategory,
+    MyClubResponse
+} from "@features/clubs/club.types"
 
 const CATEGORIES: { label: string; value: ClubCategory | null }[] = [
     { label: "All", value: null },
@@ -41,7 +45,11 @@ export default function ClubsScreen() {
     const [searchQuery, setSearchQuery] = useState("")
     const [page, setPage] = useState(1)
 
-    const { data: myClubs, isLoading: myClubsLoading, refetch: refetchMine } = useQuery<MyClubResponse[]>({
+    const {
+        data: myClubs,
+        isLoading: myClubsLoading,
+        refetch: refetchMine
+    } = useQuery<MyClubResponse[]>({
         queryKey: ["clubs", "mine"],
         queryFn: async () => await get("/clubs/mine")
     })
@@ -83,7 +91,11 @@ export default function ClubsScreen() {
             {/* Search */}
             <View className="px-4 pt-3 pb-2">
                 <View className="flex-row items-center bg-card rounded-xl border border-card-border px-3 py-2 gap-2">
-                    <Search size={18} color={colors.text} style={{ opacity: 0.4 }} />
+                    <Search
+                        size={18}
+                        color={colors.text}
+                        style={{ opacity: 0.4 }}
+                    />
                     <TextInput
                         className="flex-1 text-text text-sm"
                         placeholder="Search clubs..."
@@ -96,7 +108,7 @@ export default function ClubsScreen() {
             </View>
 
             {/* Category filters */}
-            <View className="px-4 pb-3">
+            <View className="px-4 pb-3 mt-2">
                 <View className="flex-row gap-2 flex-wrap">
                     {CATEGORIES.map((cat) => (
                         <FilterChip
@@ -117,7 +129,11 @@ export default function ClubsScreen() {
             <FlatList
                 data={clubs}
                 keyExtractor={(item) => item.id}
-                contentContainerStyle={{ padding: 16, paddingBottom: 100, gap: 12 }}
+                contentContainerStyle={{
+                    padding: 16,
+                    paddingBottom: 100,
+                    gap: 12
+                }}
                 refreshControl={
                     <RefreshControl
                         refreshing={isRefetching}
@@ -138,7 +154,11 @@ export default function ClubsScreen() {
                                         key={mc.club.id}
                                         club={mc.club}
                                         isMember
-                                        onPress={() => router.push(`/club/${mc.club.name}` as any)}
+                                        onPress={() =>
+                                            router.push(
+                                                `/club/${mc.club.name}` as any
+                                            )
+                                        }
                                     />
                                 ))}
                             </View>
@@ -214,7 +234,9 @@ function ClubCard({
             <View className="h-12 w-12 rounded-full overflow-hidden bg-primary/10 items-center justify-center">
                 {!imageError ? (
                     <Image
-                        source={{ uri: `${CDN_URL}/avatars/club/${club.id}/avatar` }}
+                        source={{
+                            uri: `${CDN_URL}/avatars/club/${club.id}/avatar`
+                        }}
                         className="h-12 w-12"
                         onError={() => setImageError(true)}
                     />
@@ -245,7 +267,8 @@ function ClubCard({
                 </View>
 
                 <Text className="text-text opacity-50 text-xs">
-                    {club.category.charAt(0) + club.category.slice(1).toLowerCase()}
+                    {club.category.charAt(0) +
+                        club.category.slice(1).toLowerCase()}
                 </Text>
 
                 {club.description ? (
