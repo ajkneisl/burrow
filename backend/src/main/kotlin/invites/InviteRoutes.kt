@@ -1,4 +1,4 @@
-package app.burrow.features.invites
+package app.burrow.invites
 
 import app.burrow.features.account.models.userID
 import app.burrow.features.burrows.membership.requireModerator

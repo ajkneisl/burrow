@@ -24,10 +24,10 @@ import app.burrow.features.clubs.models.enums.ClubCategory
 import app.burrow.features.clubs.models.enums.ClubRole
 import app.burrow.features.clubs.models.getClubResponse
 import app.burrow.features.clubs.models.verifySubmission
-import app.burrow.features.invites.InviteType
-import app.burrow.features.invites.cancelInvite
-import app.burrow.features.invites.createInvite
-import app.burrow.features.invites.getInvitesForTarget
+import app.burrow.invites.InviteType
+import app.burrow.invites.cancelInvite
+import app.burrow.invites.createInvite
+import app.burrow.invites.getInvitesForTarget
 import app.burrow.features.requests.acceptJoinRequest
 import app.burrow.features.requests.cancelJoinRequest
 import app.burrow.features.requests.denyJoinRequest

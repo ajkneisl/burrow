@@ -2,7 +2,7 @@ package app.burrow.features.requests
 
 import app.burrow.features.account.models.userID
 import app.burrow.features.burrows.membership.requireModerator
-import app.burrow.features.invites.InviteType
+import app.burrow.invites.InviteType
 import app.burrow.api.optionalEnumQueryParameter
 import app.burrow.api.optionalIntQueryParameter
 import app.burrow.api.urlParameter

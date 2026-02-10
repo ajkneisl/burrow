@@ -107,6 +107,7 @@ export type BurrowVisibility = "PUBLIC" | "UNLISTED" | "PRIVATE"
 export interface Burrow {
     id: string
     ownerID: string
+    clubID?: string
     title: string
     description: string
     location: string
@@ -184,6 +185,8 @@ export interface BurrowResponse {
     bookmarked: boolean
     highlightedTags: number[]
     hostedByTa?: boolean
+    clubName?: string
+    clubDisplayName?: string
 }
 
 /**

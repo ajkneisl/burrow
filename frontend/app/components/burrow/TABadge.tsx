@@ -1,5 +1,5 @@
 import ThemedIcon from "@components/core/ThemedIcon"
-import { GraduationCap } from "lucide-react-native"
+import { GraduationCap, MapPin} from "lucide-react-native"
 import { Text, View } from "react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
@@ -16,7 +16,12 @@ export default function TABadge() {
             className="px-3 py-1.5 rounded-full flex-row items-center gap-1.5"
             style={{ backgroundColor: `${colors.info}33` }}
         >
-            <ThemedIcon icon={GraduationCap} overrideColor="info" size={16} />
+            <ThemedIcon
+                icon={GraduationCap}
+                size={14}
+                overrideColor={"info"}
+                strokeWidth={2.5}
+            />
 
             <Text className="text-xs font-bold" style={{ color: colors.info }}>
                 TA

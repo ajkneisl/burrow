@@ -1,4 +1,4 @@
-package app.burrow.features.invites
+package app.burrow.invites
 
 import app.burrow.features.account.Users
 import org.jetbrains.exposed.v1.core.ReferenceOption

@@ -82,7 +82,7 @@ val CLUB_PHOTO_ROUTES: Route.() -> Unit = {
             verifyPhoto(contentType, bytes, maxSize = 5 * 1024 * 1024, maxDimensions = 1920)
 
             val key = "club/${club.id}/banner"
-            createPhoto("avatars", key, bytes)
+        createPhoto("avatars", key, bytes)
 
             call.respond(HttpStatusCode.OK, UploadResponse(key, "$s3PublicUrl/avatars/$key"))
         }

@@ -1,6 +1,8 @@
 import { BURROW_KIND_CONFIG, BurrowKind } from "@features/burrows/burrows.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { Text, View } from "react-native"
+import ThemedIcon from "@components/core/ThemedIcon"
+import { MapPin } from "lucide-react-native"
 
 /**
  * {@link KindChip}
@@ -28,7 +30,12 @@ export default function KindChip({ kind }: KindChipProps) {
             className="px-3 py-1.5 rounded-full flex-row items-center gap-1.5"
             style={{ backgroundColor: `${kindColor}33` }}
         >
-            <KindIcon size={14} color={kindColor} strokeWidth={2.5} />
+            <ThemedIcon
+                icon={KindIcon}
+                size={14}
+                regularColor={kindColor}
+                strokeWidth={2.5}
+            />
 
             <Text className="text-xs font-bold" style={{ color: kindColor }}>
                 {kindConfig.label}

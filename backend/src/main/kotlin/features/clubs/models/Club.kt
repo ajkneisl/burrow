@@ -3,19 +3,8 @@ package app.burrow.features.clubs.models
 import app.burrow.MappedTable
 import app.burrow.features.clubs.models.enums.ClubCategory
 import app.burrow.features.clubs.models.enums.ClubPrivacy
-import app.burrow.features.clubs.models.enums.ClubRole
 import app.burrow.features.clubs.Clubs
-import app.burrow.features.clubs.members.ClubMembers
-import app.burrow.features.invites.InviteType
-import app.burrow.features.invites.createInvite
-import app.burrow.query
-import io.ktor.util.date.getTimeMillis
-import java.util.UUID
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.r2dbc.deleteWhere
-import org.jetbrains.exposed.v1.r2dbc.insert
-import org.jetbrains.exposed.v1.r2dbc.update
 
 /** A club. */
 @Serializable

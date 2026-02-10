@@ -4,8 +4,8 @@ import app.burrow.features.clubs.members.ClubMembers
 import app.burrow.features.clubs.models.Club
 import app.burrow.features.clubs.models.SubmittedClub
 import app.burrow.features.clubs.models.enums.ClubRole
-import app.burrow.features.invites.InviteType
-import app.burrow.features.invites.createInvite
+import app.burrow.invites.InviteType
+import app.burrow.invites.createInvite
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import org.jetbrains.exposed.v1.core.eq

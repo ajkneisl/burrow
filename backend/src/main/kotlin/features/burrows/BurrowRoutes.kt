@@ -6,7 +6,7 @@ import app.burrow.features.account.models.userID
 import app.burrow.features.burrows.bookmarks.BOOKMARK_ROUTES
 import app.burrow.features.clubs.models.enums.ClubRole
 import app.burrow.features.clubs.members.getClubMembership
-import app.burrow.features.invites.inviteRoutes
+import app.burrow.invites.inviteRoutes
 import app.burrow.features.requests.joinRequestRoutes
 import app.burrow.features.burrows.membership.getUserBookmarks
 import app.burrow.features.burrows.membership.getUserSchedule

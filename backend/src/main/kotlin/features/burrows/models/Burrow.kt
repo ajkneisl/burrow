@@ -23,8 +23,8 @@ import app.burrow.features.clubs.models.Club
 import app.burrow.features.clubs.models.enums.ClubRole
 import app.burrow.features.clubs.Clubs
 import app.burrow.features.clubs.members.getClubMembership
-import app.burrow.features.invites.InviteType
-import app.burrow.features.invites.createInvite
+import app.burrow.invites.InviteType
+import app.burrow.invites.createInvite
 import app.burrow.features.notifications.rescheduleNotificationsForBurrow
 import app.burrow.features.requests.JoinRequestStatus
 import app.burrow.features.requests.getJoinRequest
