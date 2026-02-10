@@ -21,7 +21,7 @@ import kotlinx.serialization.Serializable
 private val s3AccessKey = env("S3_ACCESS_KEY") ?: "minio"
 private val s3SecretKey = env("S3_SECRET_KEY") ?: "password"
 private val s3Endpoint = env("S3_ENDPOINT") ?: "http://localhost:9000"
-private val s3PublicUrl = env("S3_PUBLIC_URL") ?: s3Endpoint
+val s3PublicUrl = env("S3_PUBLIC_URL") ?: s3Endpoint
 
 val minioClient: MinioClient =
     MinioClient.builder().endpoint(s3Endpoint).credentials(s3AccessKey, s3SecretKey).build()

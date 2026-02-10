@@ -1,14 +1,15 @@
 package app.burrow.features.notifications
 
-import app.burrow.features.account.models.Users
+import app.burrow.MappedTable
+import app.burrow.features.account.Users
 import app.burrow.features.account.settings.Settings
 import app.burrow.features.notifications.delivery.DeliveryChannels
 import app.burrow.query
+import app.burrow.toEntity
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.ReferenceOption
-import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -85,12 +86,14 @@ object NotificationPreferences : Table("notification_preferences") {
  *
  * @param userID The user's ID.
  * @param kind The type of notification.
- * @param enabled Whether this notification type is enabled (null means inherit from global setting).
+ * @param enabled Whether this notification type is enabled (null means inherit from global
+ *   setting).
  * @param leadMinutes For UPCOMING_MEETING notifications, how many minutes before to notify.
  * @param throttleMinutes For MEETING_MESSAGE notifications, minimum time between notifications.
  * @param deliveryChannels Bitmask of delivery channels (null means use default).
  */
 @Serializable
+@MappedTable(NotificationPreferences::class)
 data class NotificationPreference(
     val userID: String,
     val kind: NotificationKind,
@@ -99,24 +102,6 @@ data class NotificationPreference(
     val throttleMinutes: Short? = null,
     val deliveryChannels: Short? = null,
 ) {
-    companion object {
-        /**
-         * Create a NotificationPreference from a database row.
-         *
-         * @param row The database row.
-         * @return The NotificationPreference object.
-         */
-        fun fromRow(row: ResultRow): NotificationPreference =
-            NotificationPreference(
-                userID = row[NotificationPreferences.userID],
-                kind = row[NotificationPreferences.kind],
-                enabled = row[NotificationPreferences.enabled],
-                leadMinutes = row[NotificationPreferences.leadMinutes],
-                throttleMinutes = row[NotificationPreferences.throttleMinutes],
-                deliveryChannels = row[NotificationPreferences.deliveryChannels],
-            )
-    }
-
     /**
      * Get the list of delivery channel enums from the bitmask.
      *
@@ -150,7 +135,7 @@ suspend fun getNotificationPreferencesForUser(userID: String): List<Notification
         NotificationPreferences.selectAll()
             .where { NotificationPreferences.userID eq userID }
             .toList()
-            .map { NotificationPreference.fromRow(it) }
+            .map { row -> row.toEntity(NotificationPreferences) }
     }
 }
 
@@ -175,7 +160,7 @@ suspend fun getNotificationPreference(
             }
             .limit(1)
             .firstOrNull()
-            ?.let { NotificationPreference.fromRow(it) }
+            ?.toEntity(NotificationPreferences)
     }
 }
 
@@ -221,8 +206,8 @@ suspend fun setNotificationPreference(preference: NotificationPreference) {
 }
 
 /**
- * Get the effective notification settings for a user and notification kind, taking into account both
- * per-kind preferences and global settings.
+ * Get the effective notification settings for a user and notification kind, taking into account
+ * both per-kind preferences and global settings.
  *
  * @param userID The user's ID.
  * @param kind The notification kind.
@@ -303,4 +288,3 @@ suspend fun deleteNotificationPreference(userID: String, kind: NotificationKind)
 suspend fun deleteAllNotificationPreferences(userID: String) {
     query { NotificationPreferences.deleteWhere { NotificationPreferences.userID eq userID } }
 }
-

@@ -1,13 +1,16 @@
 package app.burrow.features.account.models
 
+import app.burrow.MappedTable
 import app.burrow.api.Error
 import app.burrow.api.InvalidAuthorization
 import app.burrow.api.NotFound
-import app.burrow.features.account.Authorization
-import app.burrow.features.account.profile.Profiles
 import app.burrow.env
+import app.burrow.features.account.Authorization
+import app.burrow.features.account.Users
+import app.burrow.features.account.profile.Profiles
 import app.burrow.photo.deletePhoto
 import app.burrow.query
+import app.burrow.toEntity
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import com.google.api.client.http.javanet.NetHttpTransport
@@ -32,7 +35,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.jetbrains.exposed.v1.core.Op
-import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.leftJoin
@@ -125,25 +127,16 @@ private val googleVerifier: GoogleIdTokenVerifier? by lazy {
  * @param id The user's Google ID
  * @param username The user's selected name.
  * @param email The user's email.
- * @param createdDate The date the account was created.
+ * @param createdAt The date the account was created.
  */
 @Serializable
+@MappedTable(Users::class)
 data class User(
     val id: String,
     val username: String,
     @Transient val email: String = "",
-    val createdDate: Long,
-) {
-    companion object {
-        /**
-         * Form a [User] from a [row].
-         *
-         * @param row A row containing a user.
-         */
-        fun fromRow(row: ResultRow): User =
-            User(row[Users.id], row[Users.username], row[Users.email], row[Users.createdAt])
-    }
-}
+    val createdAt: Long,
+)
 
 /**
  * Using a Google JWT token, verify that they have the proper domain then either create an account
@@ -197,7 +190,7 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
         LOGGER.info("Created new user account for {}", email)
 
         return AuthorizedUser(
-            User(id = googleID, username = username, email = email, createdDate = createdDate),
+            User(id = googleID, username = username, email = email, createdAt = createdDate),
             true,
             Authorization.generateToken(googleID),
         )
@@ -208,7 +201,7 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
                 id = googleID,
                 username = user[Users.username],
                 email = user[Users.email],
-                createdDate = user[Users.createdAt],
+                createdAt = user[Users.createdAt],
             ),
             false,
             Authorization.generateToken(googleID),
@@ -233,11 +226,8 @@ suspend fun updateUsername(userID: String, newUsername: String) {
  * @throws Error If the user doesn't exist.
  */
 suspend fun getUserByID(userID: String): User =
-    query {
-            // get by user ID
-            Users.selectAll().where { Users.id eq userID }.firstOrNull()
-        }
-        ?.let { User.fromRow(it) } ?: throw NotFound()
+    query { Users.selectAll().where { Users.id eq userID }.firstOrNull() }?.toEntity(Users)
+        ?: throw NotFound()
 
 /**
  * Get a user by their username.
@@ -245,11 +235,8 @@ suspend fun getUserByID(userID: String): User =
  * @param username The username of the user.
  */
 suspend fun getUserByUsername(username: String): User =
-    query {
-            // get by username
-            Users.selectAll().where { Users.username eq username }.firstOrNull()
-        }
-        ?.let { User.fromRow(it) } ?: throw NotFound()
+    query { Users.selectAll().where { Users.username eq username }.firstOrNull() }?.toEntity(Users)
+        ?: throw NotFound()
 
 /**
  * Search result for user search containing user ID, username, and profile name.

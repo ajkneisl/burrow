@@ -1,20 +1,22 @@
 package app.burrow.features.burrows.sync
 
+import app.burrow.api.socket.BasicSocketSession
+import app.burrow.api.socket.GroupSessionManager
+import app.burrow.api.socket.authenticatedWebSocket
+import app.burrow.api.socket.sendResponse
 import app.burrow.features.burrows.membership.isModerator
 import app.burrow.features.burrows.membership.userInMeeting
 import app.burrow.features.burrows.sync.block.Block
+import app.burrow.features.burrows.sync.block.BlockState
 import app.burrow.features.burrows.sync.block.BlockStates
 import app.burrow.features.burrows.sync.block.disableBlock
 import app.burrow.features.burrows.sync.block.enableBlock
 import app.burrow.features.burrows.sync.block.findRegisteredBlocks
 import app.burrow.features.burrows.sync.block.getEnabledBlocks
-import app.burrow.features.burrows.sync.chat.Chat.Outgoing
-import app.burrow.features.burrows.sync.models.Response
+import app.burrow.features.burrows.sync.Chat.Outgoing
+import app.burrow.features.burrows.sync.block.Response
 import app.burrow.query
-import app.burrow.api.socket.BasicSocketSession
-import app.burrow.api.socket.GroupSessionManager
-import app.burrow.api.socket.authenticatedWebSocket
-import app.burrow.api.socket.sendResponse
+import app.burrow.toEntity
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal
@@ -120,7 +122,7 @@ object BurrowSync {
         val blockStates = query {
             BlockStates.selectAll()
                 .where { BlockStates.burrowID eq burrowID }
-                .map { row -> Block.BlockState.fromRow(row) }
+                .map { row -> row.toEntity<BlockState>() }
                 .toList()
                 .associate { block ->
                     val blockInstance =

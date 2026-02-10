@@ -1,13 +1,14 @@
 package app.burrow.features.report
 
-import app.burrow.features.account.chat.ChatMessage
+import app.burrow.MappedTable
+import app.burrow.api.UUIDSerializer
 import app.burrow.query
+import app.burrow.toEntity
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 
@@ -20,9 +21,10 @@ enum class ReportType(val categories: Set<String>) {
 
 /** A single report. */
 @Serializable
+@MappedTable(Reports::class)
 data class Report(
     /** The unique ID of the report. */
-    @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val id: UUID,
+    @Serializable(with = UUIDSerializer::class) val id: UUID,
 
     /** The ID of the user reporting. */
     val userID: String,
@@ -50,23 +52,7 @@ data class Report(
 
     /** When the user creates the report. */
     val createdAt: Long,
-) {
-    companion object {
-        fun fromRow(row: ResultRow): Report =
-            Report(
-                id = row[Reports.id],
-                userID = row[Reports.userID],
-                reportType = ReportType.valueOf(row[Reports.reportType]),
-                summary = row[Reports.summary],
-                details = row[Reports.details],
-                category = row[Reports.category],
-                path = row[Reports.path],
-                userAgent = row[Reports.userAgent],
-                attachedID = row[Reports.attachedID],
-                createdAt = row[Reports.createdAt],
-            )
-    }
-}
+)
 
 /** A submitted report. */
 @Serializable
@@ -116,5 +102,5 @@ suspend fun createReport(userId: String, report: SubmittedReport): UUID = query 
  * @return A list of all [Report]s.
  */
 suspend fun getAllReports(): List<Report> = query {
-    Reports.selectAll().map(Report::fromRow).toList()
+    Reports.selectAll().map { row -> row.toEntity<Report>(Reports) }.toList()
 }

@@ -3,6 +3,8 @@ package app.burrow.features.burrows.models
 import app.burrow.features.account.models.getUserByID
 import app.burrow.features.burrows.MONTHLY
 import app.burrow.features.burrows.NOT_REOCCURRING
+import app.burrow.features.burrows.models.enums.BurrowKind
+import app.burrow.features.burrows.models.enums.BurrowVisibility
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -34,7 +36,7 @@ sealed class SubmittedBurrow {
 /**
  * A meeting submission for [BurrowKind.PROJECT]
  *
- * @see app.burrow.features.burrows.Burrow
+ * @see Burrow
  */
 @Serializable
 data class SubmittedProjectBurrow(
@@ -108,7 +110,7 @@ data class SubmittedProjectBurrow(
 /**
  * A meeting submission for [BurrowKind.EVENT] and [BurrowKind.STUDY].
  *
- * @see app.burrow.features.burrows.Burrow
+ * @see Burrow
  */
 @Serializable
 data class SubmittedStudyEventBurrow(
@@ -123,6 +125,7 @@ data class SubmittedStudyEventBurrow(
     val visibility: BurrowVisibility,
     val requestToJoin: Boolean,
     val reoccurring: Int,
+    val clubID: String? = null,
 ) : SubmittedBurrow() {
     /** Validate the Burrow. */
     fun validateSubmittedBurrow(): List<String> {

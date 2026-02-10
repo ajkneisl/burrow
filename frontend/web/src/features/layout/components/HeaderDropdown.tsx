@@ -14,7 +14,8 @@ import {
     LogOut,
     UserIcon,
     History,
-    Map
+    Map,
+    Group
 } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
 
@@ -102,6 +103,16 @@ export default function HeaderDropdown() {
                             nav(`/map`)
                         }}
                         rightIcon={<Map width="18" height="18" />}
+                    />
+
+                    {/* clubs */}
+                    <DropdownItem
+                        label={`Clubs`}
+                        onSelect={() => {
+                            setOpen(false)
+                            nav(`/clubs`)
+                        }}
+                        rightIcon={<Group width="18" height="18" />}
                     />
 
                     {/* feedback */}

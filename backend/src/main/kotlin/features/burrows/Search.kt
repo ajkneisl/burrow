@@ -1,7 +1,9 @@
 package app.burrow.features.burrows
 
-import app.burrow.features.account.block.getAllBlockedRelationships
-import app.burrow.features.account.models.Users
+import app.burrow.api.models.PaginatedResponse
+import app.burrow.doIf
+import app.burrow.features.account.Users
+import app.burrow.features.account.getAllBlockedRelationships
 import app.burrow.features.account.profile.Profile
 import app.burrow.features.account.profile.Profiles
 import app.burrow.features.account.ta.getTAUserIDs
@@ -9,14 +11,14 @@ import app.burrow.features.burrows.bookmarks.Bookmark
 import app.burrow.features.burrows.bookmarks.Bookmarks
 import app.burrow.features.burrows.membership.Membership
 import app.burrow.features.burrows.membership.Memberships
-import app.burrow.features.burrows.models.BurrowKind
-import app.burrow.features.burrows.models.BurrowMemberStatus
+import app.burrow.features.burrows.models.Burrow
+import app.burrow.features.burrows.models.enums.BurrowKind
+import app.burrow.features.burrows.models.enums.BurrowMemberStatus
 import app.burrow.features.burrows.models.BurrowResponse
-import app.burrow.features.burrows.models.BurrowVisibility
-import app.burrow.features.burrows.models.Burrows
-import app.burrow.doIf
-import app.burrow.api.models.PaginatedResponse
+import app.burrow.features.burrows.models.enums.BurrowVisibility
+import app.burrow.features.clubs.Clubs
 import app.burrow.query
+import app.burrow.toEntity
 import io.ktor.util.date.getTimeMillis
 import java.time.Instant
 import java.time.ZoneId
@@ -75,20 +77,20 @@ private suspend fun getUserSearchContext(userID: String): UserSearchContext = qu
     val profile =
         Profiles.selectAll()
             .where { Profiles.userID eq userID }
-            .map { Profile.fromRow(it) }
+            .map { row -> row.toEntity<Profile>(Profiles) }
             .singleOrNull()
 
     val memberships =
         Memberships.selectAll()
             .where { Memberships.userID eq userID }
             .toList()
-            .associate { row -> row[Memberships.burrowID] to Membership.fromRow(row) }
+            .associate { row -> row[Memberships.burrowID] to row.toEntity<Membership>(Memberships) }
 
     val bookmarks =
         Bookmarks.selectAll()
             .where { Bookmarks.userID eq userID }
             .toList()
-            .associate { row -> row[Bookmarks.burrowID] to Bookmark.fromRow(row) }
+            .associate { row -> row[Bookmarks.burrowID] to row.toEntity<Bookmark>(Bookmarks) }
 
     UserSearchContext(profile, memberships, bookmarks)
 }
@@ -99,18 +101,18 @@ data class SearchBurrowsBuilder(
     var kind: BurrowKind? = null,
 
     /**
-     * A query to search through [Burrow.title], [Burrow.tags], [Burrow.location] and
-     * [Burrow.description].
+     * A query to search through [app.burrow.features.burrows.models.Burrow.title], [app.burrow.features.burrows.models.Burrow.tags], [app.burrow.features.burrows.models.Burrow.location] and
+     * [app.burrow.features.burrows.models.Burrow.description].
      */
     var query: String? = null,
 
-    /** The date range that [Burrow.endTime] is within. */
+    /** The date range that [app.burrow.features.burrows.models.Burrow.endTime] is within. */
     var dateRange: LongRange? = null,
 
     /** The ID of the user requesting this search. */
     var requestingUserID: String? = null,
 
-    /** Search by [Burrow.ownerID]. */
+    /** Search by [app.burrow.features.burrows.models.Burrow.ownerID]. */
     var authorUserID: String? = null,
 
     /** Search by [requestingUserID]'s bookmarked Burrows. */
@@ -139,6 +141,9 @@ data class SearchBurrowsBuilder(
 
     /** Ignore TA and prevent the request. */
     var preventTa: Boolean = false,
+
+    /** Filter by club ID. When set, skips date and privacy filters. */
+    var clubID: String? = null,
 )
 
 /**
@@ -174,9 +179,12 @@ suspend fun searchBurrows(
         preventTa) =
         context
 
-    // ensure the meeting is on the proper day
+    val clubID = context.clubID
+
+    // ensure the meeting is on the proper day (skip when filtering by club)
     val dateExpr: Op<Boolean> =
-        if (dateRange == null) {
+        if (clubID != null) Op.TRUE
+        else if (dateRange == null) {
             // later than today
             (Burrows.endTime greaterEq getTimeMillis())
         } else {
@@ -226,8 +234,11 @@ suspend fun searchBurrows(
     // ensure the kind of burrow
     val kindExpr = if (kind != null) (Burrows.kind eq kind) else Op.TRUE
 
-    // ensure only public
-    val privacyExpr = (Burrows.visibility eq BurrowVisibility.PUBLIC)
+    // ensure only public (skip when filtering by club)
+    val privacyExpr = if (clubID != null) Op.TRUE else (Burrows.visibility eq BurrowVisibility.PUBLIC)
+
+    // filter by club
+    val clubExpr: Op<Boolean> = if (clubID != null) (Burrows.clubID eq clubID) else Op.TRUE
 
     // ensure correct author
     val authorExpr = if (authorUserID != null) (Burrows.ownerID eq authorUserID) else Op.TRUE
@@ -263,7 +274,8 @@ suspend fun searchBurrows(
             Op.TRUE
         }
 
-    // exclude burrows from users with whom the requesting user has a block relationship (either direction)
+    // exclude burrows from users with whom the requesting user has a block relationship (either
+    // direction)
     val blockedUserIds =
         if (requestingUserID != null) getAllBlockedRelationships(requestingUserID) else emptySet()
 
@@ -276,7 +288,15 @@ suspend fun searchBurrows(
 
     // combination of all search requests
     val whereExpr =
-        dateExpr and searchExpr and kindExpr and privacyExpr and authorExpr and hostExpr and taExpr and blockedExpr
+        dateExpr and
+            searchExpr and
+            kindExpr and
+            privacyExpr and
+            clubExpr and
+            authorExpr and
+            hostExpr and
+            taExpr and
+            blockedExpr
 
     val (meetingsCount, meetings) =
         query {
@@ -325,6 +345,8 @@ suspend fun searchBurrows(
                     )
                     // join profiles on
                     .leftJoin(Profiles, { Burrows.ownerID }, { Profiles.userID })
+                    // join clubs for club-owned burrows
+                    .leftJoin(Clubs, { Burrows.clubID }, { Clubs.id })
                     // if searching by bookmarked
                     .doIf(isBookmarked == true && requestingUserID != null) {
                         // join bookmarks depending on requestingUserID
@@ -349,6 +371,7 @@ suspend fun searchBurrows(
                     .select(
                         Burrows.columns +
                             Profiles.columns +
+                            Clubs.columns +
                             listOf(Users.username, Users.id, joinedCountExpr, waitingCountExpr)
                     )
                     // offset depending on builder or page count for fallback
@@ -358,6 +381,7 @@ suspend fun searchBurrows(
                     .groupBy(
                         *Burrows.columns.toTypedArray(),
                         *Profiles.columns.toTypedArray(),
+                        *Clubs.columns.toTypedArray(),
                         Users.username,
                         Users.id,
                     )
@@ -367,17 +391,17 @@ suspend fun searchBurrows(
                         val joinedCount = row[joinedCountExpr]
                         val waitingCount = row[waitingCountExpr]
 
-                        Burrow.fromRow(row, joinedCount, waitingCount)
+                        Triple(row.toEntity<Burrow>(Burrows), joinedCount, waitingCount)
                     }
 
             meetingsCount to meetings
         }
 
     // Get all unique owner IDs and fetch their TA status with classes
-    val ownerIds = meetings.keys.map { it.ownerID }.distinct()
+    val ownerIds = meetings.keys.map { it.first.ownerID }.distinct()
     val taOwnerClasses = getTAUserIDs(ownerIds).toMap()
 
-    fun isHostedByTA(ownerID: String, tags: Set<String>): Boolean {
+    fun isHostedByTA(ownerID: String, tags: Collection<String>): Boolean {
         val taClasses = taOwnerClasses[ownerID] ?: return false
         val normalizedTags = tags.map { it.replace(Regex("[\\s_-]"), "").lowercase() }.toSet()
 
@@ -390,23 +414,35 @@ suspend fun searchBurrows(
 
     val responses =
         if (requestingUserID.isNullOrBlank())
-            meetings.map { (meeting, row) ->
+            meetings.map { (burrowTriple, row) ->
+                val (burrow, joined, waiting) = burrowTriple
+                val clubName = row.getOrNull(Clubs.name)
+                val clubDisplayName = row.getOrNull(Clubs.displayName)
+
                 BurrowResponse(
-                    burrow = meeting,
+                    burrow = burrow,
                     burrowAuthor = forceAuthorName ?: row[Users.username],
                     burrowAuthorProfile =
-                        if (forceAuthorName != null) null else Profile.fromRow(row),
+                        if (forceAuthorName != null) null else row.toEntity<Profile>(Profiles),
                     membership = null,
                     bookmarked = false,
-                    hostedByTa = isHostedByTA(meeting.ownerID, meeting.tags),
+                    joined = joined,
+                    waiting = waiting,
+                    hostedByTa = isHostedByTA(burrow.ownerID, burrow.tags),
+                    clubName = clubName,
+                    clubDisplayName = clubDisplayName,
                 )
             }
         else {
             val context = getUserSearchContext(requestingUserID)
 
-            meetings.map { (meeting, row) ->
+            meetings.map { (burrowTriple, row) ->
+                val (burrow, joined, waiting) = burrowTriple
+                val clubName = row.getOrNull(Clubs.name)
+                val clubDisplayName = row.getOrNull(Clubs.displayName)
+
                 val highlightedTags = buildList {
-                    meeting.tags.forEachIndexed { index, tag ->
+                    burrow.tags.forEachIndexed { index, tag ->
                         val normalizedTag = tag.replace(Regex("[\\s_-]"), "").lowercase()
 
                         context.profile
@@ -420,14 +456,18 @@ suspend fun searchBurrows(
                 }
 
                 BurrowResponse(
-                    burrow = meeting,
+                    burrow = burrow,
                     burrowAuthor = forceAuthorName ?: row[Users.username],
                     burrowAuthorProfile =
-                        if (forceAuthorName != null) null else Profile.fromRow(row),
-                    membership = context.memberships[meeting.id],
-                    bookmarked = context.bookmarks.containsKey(meeting.id),
+                        if (forceAuthorName != null) null else row.toEntity<Profile>(Profiles),
+                    membership = context.memberships[burrow.id],
+                    bookmarked = context.bookmarks.containsKey(burrow.id),
                     highlightedTags = highlightedTags,
-                    hostedByTa = isHostedByTA(meeting.ownerID, meeting.tags),
+                    joined = joined,
+                    waiting = waiting,
+                    hostedByTa = isHostedByTA(burrow.ownerID, burrow.tags),
+                    clubName = clubName,
+                    clubDisplayName = clubDisplayName,
                 )
             }
         }

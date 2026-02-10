@@ -1,16 +1,17 @@
 package app.burrow.features.notifications
 
-import app.burrow.features.account.chat.ChatMessage
+import app.burrow.MappedTable
+import app.burrow.api.UUIDSerializer
 import app.burrow.api.models.PaginatedResponse
 import app.burrow.features.notifications.delivery.deliver
 import app.burrow.query
+import app.burrow.toEntity
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
 import kotlin.math.ceil
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -34,8 +35,9 @@ import org.jetbrains.exposed.v1.r2dbc.update
  * @param read If the user has read this notification.
  */
 @Serializable
+@MappedTable(Notifications::class)
 data class Notification(
-    @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val id: UUID,
+    @Serializable(with = UUIDSerializer::class) val id: UUID,
     val userID: String,
     val burrowID: String?,
     val kind: NotificationKind?,
@@ -44,23 +46,7 @@ data class Notification(
     val sentDate: Long?,
     val scheduledDate: Long,
     val read: Boolean,
-) {
-    companion object {
-        /** Create a [Notification] from a [row]. */
-        fun fromRow(row: ResultRow): Notification =
-            Notification(
-                row[Notifications.id],
-                row[Notifications.userID],
-                row[Notifications.burrowID],
-                row[Notifications.kind],
-                row[Notifications.title],
-                row[Notifications.content],
-                row[Notifications.sentDate],
-                row[Notifications.scheduledDate],
-                row[Notifications.read],
-            )
-    }
-}
+)
 
 /**
  * The amount of notifications to show per page.
@@ -88,7 +74,7 @@ suspend fun getNotifications(userID: String, page: Int): PaginatedResponse<Notif
             .offset((page - 1L) * NOTIFICATIONS_PER_PAGE)
             .limit(NOTIFICATIONS_PER_PAGE)
             .orderBy(Notifications.sentDate, SortOrder.DESC)
-            .map { Notification.fromRow(it) }
+            .map { row -> row.toEntity<Notification>(Notifications) }
             .toList()
 
     PaginatedResponse(

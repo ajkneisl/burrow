@@ -1,15 +1,29 @@
 package app.burrow.features.clubs
 
 import app.burrow.api.InvalidAuthorization
+import app.burrow.api.MultiError
+import app.burrow.api.optionalEnumQueryParameter
+import app.burrow.api.optionalIntQueryParameter
+import app.burrow.api.throwIfNotEmpty
+import app.burrow.api.throwIfNull
+import app.burrow.api.urlParameter
 import app.burrow.features.account.models.userID
+import app.burrow.features.burrows.searchBurrows
 import app.burrow.features.clubs.members.changeClubRole
-import app.burrow.features.clubs.members.getClub
+import app.burrow.features.clubs.members.getClubByName
 import app.burrow.features.clubs.members.getClubMembers
+import app.burrow.features.clubs.members.getClubMembership
+import app.burrow.features.clubs.members.getUserClubs
 import app.burrow.features.clubs.members.joinClub
 import app.burrow.features.clubs.members.kickClubMember
 import app.burrow.features.clubs.members.leaveClub
 import app.burrow.features.clubs.members.requireClubAdmin
 import app.burrow.features.clubs.members.requireClubModerator
+import app.burrow.features.clubs.models.SubmittedClub
+import app.burrow.features.clubs.models.enums.ClubCategory
+import app.burrow.features.clubs.models.enums.ClubRole
+import app.burrow.features.clubs.models.getClubResponse
+import app.burrow.features.clubs.models.verifySubmission
 import app.burrow.features.invites.InviteType
 import app.burrow.features.invites.cancelInvite
 import app.burrow.features.invites.createInvite
@@ -19,11 +33,6 @@ import app.burrow.features.requests.cancelJoinRequest
 import app.burrow.features.requests.denyJoinRequest
 import app.burrow.features.requests.getJoinRequests
 import app.burrow.features.requests.getPendingRequestCount
-import app.burrow.api.optionalEnumQueryParameter
-import app.burrow.api.optionalIntQueryParameter
-import app.burrow.api.throwIfNotEmpty
-import app.burrow.api.throwIfNull
-import app.burrow.api.urlParameter
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -35,7 +44,9 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import kotlinx.serialization.Serializable
 
-fun Route.clubRoutes() {
+// ROUTE /clubs
+// manage clubs
+val CLUB_ROUTES: Route.() -> Unit = {
     // GET /clubs
     // list/search clubs (paginated)
     get {
@@ -58,74 +69,109 @@ fun Route.clubRoutes() {
         call.respond(HttpStatusCode.Created, club)
     }
 
-    // ROUTE /clubs/{id}
-    route("/{id}") {
-        // GET /clubs/{id}
+    // GET /clubs/mine
+    // get clubs the current user is a member of
+    get("/mine") { call.respond(getUserClubs(call.userID)) }
+
+    // ROUTE /clubs/{name}
+    route("/{name}") {
+        // GET /clubs/{name}
         get {
-            val id = call.urlParameter("id")
-            val response = getClubResponse(id, call.userID).throwIfNull()
+            val name = call.urlParameter("name")
+            val response = getClubResponse(name, call.userID).throwIfNull()
             call.respond(response)
         }
 
-        // PATCH /clubs/{id}
+        // PATCH /clubs/{name}
         // update a club (admin only)
         patch {
-            val id = call.urlParameter("id")
-            val club = getClub(id).throwIfNull()
+            val name = call.urlParameter("name")
+            val club = getClubByName(name).throwIfNull()
 
             if (club.ownerID != call.userID) {
-                call.requireClubAdmin(id)
+                call.requireClubAdmin(club.id)
             }
 
             val submittedClub = call.receive<SubmittedClub>()
-            updateClub(id, submittedClub)
+            updateClub(club.id, submittedClub)
 
             call.respond(HttpStatusCode.OK)
         }
 
-        // DELETE /clubs/{id}
+        // DELETE /clubs/{name}
         // delete a club (owner only)
         delete {
-            val id = call.urlParameter("id")
-            val club = getClub(id).throwIfNull()
+            val name = call.urlParameter("name")
+            val club = getClubByName(name).throwIfNull()
 
             if (club.ownerID != call.userID) throw InvalidAuthorization()
 
-            deleteClub(id)
+            deleteClub(club.id)
 
             call.respond(HttpStatusCode.OK)
         }
 
-        clubMembershipRoutes()
-        clubInviteRoutes()
-        clubJoinRequestRoutes()
+        // GET /clubs/{name}/burrows
+        // list burrows owned by this club
+        get("/burrows") {
+            val club = getClubByName(call.urlParameter("name")).throwIfNull()
+
+            val result = searchBurrows {
+                clubID = club.id
+                requestingUserID = call.userID
+                limit = 100
+                offset = 0
+            }
+
+            call.respond(result.contents)
+        }
+
+        CLUB_MEMBERSHIP_ROUTES()
+        CLUB_INVITE_ROUTES()
+        CLUB_JOIN_REQUEST_ROUTES()
+        CLUB_PHOTO_ROUTES()
     }
 }
 
-/** Routes for club membership management. */
-private fun Route.clubMembershipRoutes() {
-    // GET /clubs/{id}/members
+// ROUTE /clubs/{name}
+// specifically manage memberships in a club
+val CLUB_MEMBERSHIP_ROUTES: Route.() -> Unit = {
+    // GET /clubs/{name}/members
+    // get members of a club
     get("/members") {
-        val clubID = call.urlParameter("id")
+        val club = getClubByName(call.urlParameter("name")).throwIfNull()
         val page = call.optionalIntQueryParameter("page") ?: 1
 
-        call.respond(getClubMembers(clubID, page))
+        call.respond(getClubMembers(club.id, page))
     }
 
-    // POST /clubs/{id}/join
+    // POST /clubs/{name}/join
+    // join a club
     post("/join") {
-        val clubID = call.urlParameter("id")
-        joinClub(call.userID, clubID)
+        val club = getClubByName(call.urlParameter("name")).throwIfNull()
+
+        joinClub(call.userID, club.id)
+
         call.respond(HttpStatusCode.OK)
     }
 
-    // POST /clubs/{id}/leave
+    // POST /clubs/{name}/leave
+    // leave a club
     post("/leave") {
-        val clubID = call.urlParameter("id")
-        leaveClub(call.userID, clubID)
+        val club = getClubByName(call.urlParameter("name")).throwIfNull()
+
+        leaveClub(call.userID, club.id)
+
         call.respond(HttpStatusCode.OK)
     }
 
+    /**
+     * Payload to update a club's role.
+     *
+     * @param userID The user to update.
+     * @param role The user's pre-defined role.
+     * @param roleName The custom name the user's role should have.
+     */
     @Serializable
     data class UpdateClubRolePayload(
         val userID: String,
@@ -133,52 +179,88 @@ private fun Route.clubMembershipRoutes() {
         val roleName: String = "",
     )
 
-    // PATCH /clubs/{id}/role
-    // change a member's role (admin only)
+    // PATCH /clubs/{name}/role
+    // change a member's role (admin) or own role name (self)
     patch("/role") {
-        val clubID = call.urlParameter("id")
-        call.requireClubAdmin(clubID)
-
+        val club = getClubByName(call.urlParameter("name")).throwIfNull()
         val payload = call.receive<UpdateClubRolePayload>()
-        val roleName = payload.roleName.ifBlank { payload.role.name.lowercase().replaceFirstChar { it.uppercase() } }
 
-        changeClubRole(clubID, payload.userID, payload.role, roleName)
+        val isSelf = payload.userID == call.userID
+
+        if (isSelf) {
+            // members can change their own role name, but not their role level
+            val membership = getClubMembership(call.userID, club.id)
+                ?: throw MultiError(400, listOf("You are not a member of this club."))
+
+            if (payload.role != membership.role)
+                throw MultiError(400, listOf("You cannot change your own role."))
+        } else {
+            call.requireClubAdmin(club.id)
+        }
+
+        val roleName =
+            payload.roleName.ifBlank {
+                payload.role.name.lowercase().replaceFirstChar { it.uppercase() }
+            }
+
+        if (!roleName.matches(Regex("^[A-Za-z0-9_ -]{3,16}$")))
+            throw MultiError(
+                400,
+                listOf(
+                    "Role name must be 3-16 characters and only contain letters, numbers, underscores, hyphens, and spaces."
+                ),
+            )
+
+        changeClubRole(club.id, payload.userID, payload.role, roleName)
         call.respond(HttpStatusCode.OK)
     }
 
-    @Serializable
-    data class KickPayload(val userID: String)
+    /**
+     * Payload to kick a user.
+     *
+     * @param userID The user to kick.
+     */
+    @Serializable data class KickPayload(val userID: String)
 
-    // PATCH /clubs/{id}/kick
-    // kick a member (mod+ only)
+    // PATCH /clubs/{name}/kick
+    // kick a member
     patch("/kick") {
-        val clubID = call.urlParameter("id")
-        call.requireClubModerator(clubID)
+        val club = getClubByName(call.urlParameter("name")).throwIfNull()
+        call.requireClubModerator(club.id)
 
         val payload = call.receive<KickPayload>()
-        kickClubMember(call.userID, payload.userID, clubID)
+
+        kickClubMember(call.userID, payload.userID, club.id)
+
         call.respond(HttpStatusCode.OK)
     }
 }
 
-/** Routes for club invite management. */
-private fun Route.clubInviteRoutes() {
+// ROUTE /club/{name}/invites
+// manage a specific club's invites
+private val CLUB_INVITE_ROUTES: Route.() -> Unit = {
     route("/invites") {
+        /**
+         * Payload to invite a user.
+         *
+         * @param inviteeID The ID of the user to invite.
+         * @param expiresAt When the invite expires.
+         */
         @Serializable
-        data class CreateClubInvitePayload(val inviteeId: String, val expiresAt: Long? = null)
+        data class CreateClubInvitePayload(val inviteeID: String, val expiresAt: Long? = null)
 
-        // POST /clubs/{id}/invites
-        // create an invite (mod+ only)
+        // POST /clubs/{name}/invites
+        // invite a user
         post {
-            val clubID = call.urlParameter("id")
-            call.requireClubModerator(clubID)
+            val club = getClubByName(call.urlParameter("name")).throwIfNull()
+            call.requireClubModerator(club.id)
 
             val payload = call.receive<CreateClubInvitePayload>()
 
             createInvite(
-                inviterId = call.userID,
-                inviteeId = payload.inviteeId,
-                targetId = clubID,
+                inviterID = call.userID,
+                inviteeID = payload.inviteeID,
+                targetID = club.id,
                 inviteType = InviteType.CLUB,
                 expiresAt = payload.expiresAt,
             )
@@ -186,86 +268,95 @@ private fun Route.clubInviteRoutes() {
             call.respond(HttpStatusCode.Created)
         }
 
-        // GET /clubs/{id}/invites
-        // list invites (mod+ only)
+        // GET /clubs/{name}/invites
+        // list invites
         get {
-            val clubID = call.urlParameter("id")
+            val club = getClubByName(call.urlParameter("name")).throwIfNull()
             val page = call.optionalIntQueryParameter("page") ?: 1
 
-            call.requireClubModerator(clubID)
+            call.requireClubModerator(club.id)
 
-            call.respond(getInvitesForTarget(clubID, InviteType.CLUB, page))
+            call.respond(getInvitesForTarget(club.id, InviteType.CLUB, page))
         }
 
-        // DELETE /clubs/{id}/invites/{inviteeId}
+        // DELETE /clubs/{name}/invites/{inviteeID}
         // cancel an invite
-        delete("/{inviteeId}") {
-            val clubID = call.urlParameter("id")
-            val inviteeID = call.urlParameter("inviteeId")
+        delete("/{inviteeID}") {
+            val club = getClubByName(call.urlParameter("name")).throwIfNull()
+            val inviteeID = call.urlParameter("inviteeID")
 
-            cancelInvite(call.userID, inviteeID, clubID, InviteType.CLUB)
+            cancelInvite(call.userID, inviteeID, club.id, InviteType.CLUB)
 
             call.respond(HttpStatusCode.OK)
         }
     }
 }
 
-/** Routes for club join request management. */
-private fun Route.clubJoinRequestRoutes() {
+// ROUTE /clubs/{name}/requests
+// handle club join requests
+private val CLUB_JOIN_REQUEST_ROUTES: Route.() -> Unit = {
     route("/requests") {
-        // GET /clubs/{id}/requests
-        // list pending requests (mod+ only)
+        // GET /clubs/{name}/requests
+        // list pending request
         get {
-            val clubID = call.urlParameter("id")
+            val club = getClubByName(call.urlParameter("name")).throwIfNull()
             val page = call.optionalIntQueryParameter("page") ?: 1
 
-            call.requireClubModerator(clubID)
+            call.requireClubModerator(club.id)
 
-            call.respond(getJoinRequests(clubID, InviteType.CLUB, page))
+            call.respond(getJoinRequests(club.id, InviteType.CLUB, page))
         }
 
-        @Serializable
-        data class ReviewRequestPayload(val requesterId: String)
+        /**
+         * Accept or deny a request to join.
+         *
+         * @param requesterID The user who's requesting to join.
+         */
+        @Serializable data class ReviewRequestPayload(val requesterID: String)
 
-        // POST /clubs/{id}/requests/accept
-        // accept a request (mod+ only)
+        // POST /clubs/{name}/requests/accept
+        // accept a request
         post("/accept") {
-            val clubID = call.urlParameter("id")
-            call.requireClubModerator(clubID)
+            val club = getClubByName(call.urlParameter("name")).throwIfNull()
+            call.requireClubModerator(club.id)
 
             val payload = call.receive<ReviewRequestPayload>()
-            acceptJoinRequest(payload.requesterId, clubID, InviteType.CLUB, call.userID)
+            acceptJoinRequest(payload.requesterID, club.id, InviteType.CLUB, call.userID)
 
             call.respond(HttpStatusCode.OK)
         }
 
-        // POST /clubs/{id}/requests/deny
-        // deny a request (mod+ only)
+        // POST /clubs/{name}/requests/deny
+        // deny a request
         post("/deny") {
-            val clubID = call.urlParameter("id")
-            call.requireClubModerator(clubID)
+            val club = getClubByName(call.urlParameter("name")).throwIfNull()
+            call.requireClubModerator(club.id)
 
             val payload = call.receive<ReviewRequestPayload>()
-            denyJoinRequest(payload.requesterId, clubID, InviteType.CLUB, call.userID)
+            denyJoinRequest(payload.requesterID, club.id, InviteType.CLUB, call.userID)
 
             call.respond(HttpStatusCode.OK)
         }
 
-        // DELETE /clubs/{id}/requests
+        // DELETE /clubs/{name}/requests
         // cancel own request
         delete {
-            val clubID = call.urlParameter("id")
-            cancelJoinRequest(call.userID, clubID, InviteType.CLUB)
+            val club = getClubByName(call.urlParameter("name")).throwIfNull()
+
+            cancelJoinRequest(call.userID, club.id, InviteType.CLUB)
+
             call.respond(HttpStatusCode.OK)
         }
 
-        // GET /clubs/{id}/requests/count
-        // count pending requests (mod+ only)
+        // GET /clubs/{name}/requests/count
+        // count pending requests
         get("/count") {
-            val clubID = call.urlParameter("id")
-            call.requireClubModerator(clubID)
+            val club = getClubByName(call.urlParameter("name")).throwIfNull()
 
-            val count = getPendingRequestCount(clubID, InviteType.CLUB)
+            call.requireClubModerator(club.id)
+
+            val count = getPendingRequestCount(club.id, InviteType.CLUB)
+
             call.respond(mapOf("count" to count))
         }
     }

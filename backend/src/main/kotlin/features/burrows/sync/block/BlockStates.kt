@@ -1,6 +1,6 @@
 package app.burrow.features.burrows.sync.block
 
-import app.burrow.features.burrows.models.Burrows
+import app.burrow.features.burrows.Burrows
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 
@@ -10,7 +10,7 @@ object BlockStates : Table("block_state") {
     val burrowID = reference("burrow_id", Burrows.id, onDelete = ReferenceOption.CASCADE)
 
     /** [Block.BlockState.blockID] */
-    val blockID = varchar("block", 32)
+    val blockID = varchar("block_id", 32)
 
     /** [Block.BlockState.data] */
     val data = text("data")

@@ -36,9 +36,9 @@ fun Route.inviteRoutes() {
             call.requireModerator(burrowID)
 
             createInvite(
-                inviterId = inviterID,
-                inviteeId = payload.inviteeId,
-                targetId = burrowID,
+                inviterID = inviterID,
+                inviteeID = payload.inviteeId,
+                targetID = burrowID,
                 inviteType = InviteType.BURROW,
                 expiresAt = payload.expiresAt,
             )

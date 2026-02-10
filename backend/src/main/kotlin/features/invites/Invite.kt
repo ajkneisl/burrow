@@ -1,31 +1,33 @@
 package app.burrow.features.invites
 
+import app.burrow.MappedTable
 import app.burrow.api.Error
 import app.burrow.api.NotFound
-import app.burrow.features.account.models.Users
+import app.burrow.api.models.PaginatedResponse
+import app.burrow.features.account.Users
 import app.burrow.features.account.profile.Profile
 import app.burrow.features.account.profile.Profiles
-import app.burrow.features.burrows.getBurrow
+import app.burrow.features.burrows.models.getBurrow
 import app.burrow.features.burrows.membership.Memberships
-import app.burrow.features.burrows.models.BurrowMemberStatus
-import app.burrow.features.burrows.models.BurrowRole
-import app.burrow.features.burrows.models.Burrows
-import app.burrow.features.clubs.members.ClubMembers
-import app.burrow.features.clubs.ClubRole
+import app.burrow.features.burrows.models.enums.BurrowMemberStatus
+import app.burrow.features.burrows.models.enums.BurrowRole
+import app.burrow.features.burrows.Burrows
+import app.burrow.features.clubs.models.enums.ClubRole
 import app.burrow.features.clubs.Clubs
-import app.burrow.api.models.PaginatedResponse
-import app.burrow.features.notifications.createNotification
+import app.burrow.features.clubs.members.ClubMembers
 import app.burrow.features.notifications.NotificationKind
+import app.burrow.features.notifications.createNotification
 import app.burrow.features.notifications.onUserJoinedMeeting
 import app.burrow.query
+import app.burrow.toEntity
 import io.ktor.util.date.getTimeMillis
+import kotlin.math.ceil
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.alias
-import kotlin.math.ceil
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.innerJoin
@@ -38,6 +40,7 @@ import org.jetbrains.exposed.v1.r2dbc.update
 
 /** An invitation for a user to join a burrow or club. */
 @Serializable
+@MappedTable(Invites::class)
 data class Invite(
     /** The type of invite (burrow or club). */
     val inviteType: InviteType,
@@ -62,26 +65,7 @@ data class Invite(
 
     /** When the invitation expires. */
     val expiresAt: Long?,
-) {
-    companion object {
-        /**
-         * Form an [Invite] from a [ResultRow].
-         *
-         * @param row A [ResultRow] containing an [Invite].
-         */
-        fun fromRow(row: ResultRow) =
-            Invite(
-                inviteType = row[Invites.inviteType],
-                targetID = row[Invites.targetID],
-                inviterID = row[Invites.inviterID],
-                inviteeID = row[Invites.inviteeID],
-                status = row[Invites.status],
-                createdAt = row[Invites.createdAt],
-                respondedAt = row[Invites.respondedAt],
-                expiresAt = row[Invites.expiresAt],
-            )
-    }
-}
+)
 
 /**
  * An invite with user information.
@@ -107,23 +91,23 @@ private const val DEFAULT_INVITE_EXPIRATION_MS = 7L * 24 * 60 * 60 * 1000
 /**
  * Create an invitation for a user to join a burrow or club.
  *
- * @param inviterId The ID of the user sending the invitation.
- * @param inviteeId The ID of the user being invited.
- * @param targetId The ID of the target (burrow or club).
+ * @param inviterID The ID of the user sending the invitation.
+ * @param inviteeID The ID of the user being invited.
+ * @param targetID The ID of the target (burrow or club).
  * @param inviteType The type of invite.
  * @param expiresAt Optional expiration timestamp. If null, defaults to 7 days from now.
- * @throws Error If the target doesn't exist, invitee is banned, already has membership, or
- *   already has a pending invite.
+ * @throws Error If the target doesn't exist, invitee is banned, already has membership, or already
+ *   has a pending invite.
  */
 suspend fun createInvite(
-    inviterId: String,
-    inviteeId: String,
-    targetId: String,
+    inviterID: String,
+    inviteeID: String,
+    targetID: String,
     inviteType: InviteType,
     expiresAt: Long? = null,
 ) {
     // Prevent self-invites
-    if (inviterId == inviteeId) {
+    if (inviterID == inviteeID) {
         throw Error(400, "You cannot invite yourself.")
     }
 
@@ -133,7 +117,7 @@ suspend fun createInvite(
 
     when (inviteType) {
         InviteType.BURROW -> {
-            val burrow = getBurrow(targetId) ?: throw Error(404, "Burrow does not exist.")
+            val burrow = getBurrow(targetID) ?: throw Error(404, "Burrow does not exist.")
 
             if (getTimeMillis() > burrow.endTime) {
                 throw Error(400, "This Burrow has already ended.")
@@ -146,7 +130,9 @@ suspend fun createInvite(
                 // Check for existing membership
                 val existingMembership =
                     Memberships.selectAll()
-                        .where { (Memberships.userID eq inviteeId) and (Memberships.burrowID eq targetId) }
+                        .where {
+                            (Memberships.userID eq inviteeID) and (Memberships.burrowID eq targetID)
+                        }
                         .firstOrNull()
 
                 if (existingMembership != null) {
@@ -165,9 +151,9 @@ suspend fun createInvite(
         }
 
         InviteType.CLUB -> {
-            val club = query {
-                Clubs.selectAll().where { Clubs.id eq targetId }.firstOrNull()
-            } ?: throw Error(404, "Club does not exist.")
+            val club =
+                query { Clubs.selectAll().where { Clubs.id eq targetID }.firstOrNull() }
+                    ?: throw Error(404, "Club does not exist.")
 
             notificationTitle = "Club Invite"
             notificationContent = "You've been invited to join ${club[Clubs.displayName]}"
@@ -176,7 +162,9 @@ suspend fun createInvite(
                 // Check for existing club membership
                 val existingMember =
                     ClubMembers.selectAll()
-                        .where { (ClubMembers.userID eq inviteeId) and (ClubMembers.clubID eq targetId) }
+                        .where {
+                            (ClubMembers.userID eq inviteeID) and (ClubMembers.clubID eq targetID)
+                        }
                         .firstOrNull()
 
                 if (existingMember != null) {
@@ -191,28 +179,26 @@ suspend fun createInvite(
         val existingInvite =
             Invites.selectAll()
                 .where {
-                    (Invites.targetID eq targetId) and
+                    (Invites.targetID eq targetID) and
                         (Invites.inviteType eq inviteType) and
-                        (Invites.inviteeID eq inviteeId)
+                        (Invites.inviteeID eq inviteeID)
                 }
                 .firstOrNull()
 
         if (existingInvite != null) {
             when (existingInvite[Invites.status]) {
-                InviteStatus.PENDING ->
-                    throw Error(400, "This user already has a pending invite.")
-                InviteStatus.ACCEPTED ->
-                    throw Error(400, "This user already accepted an invite.")
+                InviteStatus.PENDING -> throw Error(400, "This user already has a pending invite.")
+                InviteStatus.ACCEPTED -> throw Error(400, "This user already accepted an invite.")
                 InviteStatus.DECLINED,
                 InviteStatus.EXPIRED -> {
                     // Check if this specific inviter already invited them
-                    if (existingInvite[Invites.inviterID] == inviterId) {
+                    if (existingInvite[Invites.inviterID] == inviterID) {
                         // Update existing invite
                         Invites.update({
-                            (Invites.targetID eq targetId) and
+                            (Invites.targetID eq targetID) and
                                 (Invites.inviteType eq inviteType) and
-                                (Invites.inviterID eq inviterId) and
-                                (Invites.inviteeID eq inviteeId)
+                                (Invites.inviterID eq inviterID) and
+                                (Invites.inviteeID eq inviteeID)
                         }) {
                             it[status] = InviteStatus.PENDING
                             it[createdAt] = getTimeMillis()
@@ -225,9 +211,9 @@ suspend fun createInvite(
                         createNotification(
                             title = notificationTitle,
                             content = notificationContent,
-                            userID = inviteeId,
-                            burrowID = targetId,
-                            kind = NotificationKind.INVITE_RECEIVED
+                            userID = inviteeID,
+                            burrowID = targetID,
+                            kind = NotificationKind.INVITE_RECEIVED,
                         )
 
                         return@query
@@ -243,9 +229,9 @@ suspend fun createInvite(
 
         Invites.insert {
             it[Invites.inviteType] = inviteType
-            it[Invites.targetID] = targetId
-            it[Invites.inviterID] = inviterId
-            it[Invites.inviteeID] = inviteeId
+            it[Invites.targetID] = targetID
+            it[Invites.inviterID] = inviterID
+            it[Invites.inviteeID] = inviteeID
             it[Invites.status] = InviteStatus.PENDING
             it[Invites.createdAt] = getTimeMillis()
             it[Invites.respondedAt] = null
@@ -257,9 +243,9 @@ suspend fun createInvite(
     createNotification(
         title = notificationTitle,
         content = notificationContent,
-        userID = inviteeId,
-        burrowID = targetId,
-        kind = NotificationKind.INVITE_RECEIVED
+        userID = inviteeID,
+        burrowID = targetID,
+        kind = NotificationKind.INVITE_RECEIVED,
     )
 }
 
@@ -283,34 +269,32 @@ suspend fun getInvitesForTarget(
     val inviterProfileAlias = Profiles.alias("inviter_profile")
     val inviteeProfileAlias = Profiles.alias("invitee_profile")
 
-    val query = Invites.innerJoin(inviterAlias, { Invites.inviterID }, { inviterAlias[Users.id] })
-        .innerJoin(inviteeAlias, { Invites.inviteeID }, { inviteeAlias[Users.id] })
-        .innerJoin(
-            inviterProfileAlias,
-            { Invites.inviterID },
-            { inviterProfileAlias[Profiles.userID] },
-        )
-        .innerJoin(
-            inviteeProfileAlias,
-            { Invites.inviteeID },
-            { inviteeProfileAlias[Profiles.userID] },
-        )
-        .selectAll()
-        .where {
-            (Invites.targetID eq targetId) and
-                (Invites.inviteType eq inviteType) and
-                (Invites.status eq InviteStatus.PENDING)
-        }
+    val query =
+        Invites.innerJoin(inviterAlias, { Invites.inviterID }, { inviterAlias[Users.id] })
+            .innerJoin(inviteeAlias, { Invites.inviteeID }, { inviteeAlias[Users.id] })
+            .innerJoin(
+                inviterProfileAlias,
+                { Invites.inviterID },
+                { inviterProfileAlias[Profiles.userID] },
+            )
+            .innerJoin(
+                inviteeProfileAlias,
+                { Invites.inviteeID },
+                { inviteeProfileAlias[Profiles.userID] },
+            )
+            .selectAll()
+            .where {
+                (Invites.targetID eq targetId) and
+                    (Invites.inviteType eq inviteType) and
+                    (Invites.status eq InviteStatus.PENDING)
+            }
 
     val itemCount = query.count()
 
-    val invites = query
-        .limit(INVITES_PAGE_SIZE)
-        .offset(INVITES_PAGE_SIZE * (page - 1L))
-        .toList()
-        .map { row ->
+    val invites =
+        query.limit(INVITES_PAGE_SIZE).offset(INVITES_PAGE_SIZE * (page - 1L)).toList().map { row ->
             InviteWithUsers(
-                invite = Invite.fromRow(row),
+                invite = row.toEntity(Invites),
                 inviterUsername = row[inviterAlias[Users.username]],
                 inviterProfile = Profile.fromRow(row, inviterProfileAlias),
                 inviteeUsername = row[inviteeAlias[Users.username]],
@@ -371,7 +355,7 @@ suspend fun getReceivedInvites(
 
     results.toList().map { row ->
         InviteWithUsers(
-            invite = Invite.fromRow(row),
+            invite = row.toEntity(Invites),
             inviterUsername = row[inviterAlias[Users.username]],
             inviterProfile = Profile.fromRow(row, inviterProfileAlias),
             inviteeUsername = row[inviteeAlias[Users.username]],
@@ -392,48 +376,47 @@ suspend fun getSentInvites(
     userId: String,
     status: InviteStatus? = null,
     inviteType: InviteType? = null,
-): List<InviteWithUsers> =
-    query {
-        val inviterAlias = Users.alias("inviter")
-        val inviteeAlias = Users.alias("invitee")
-        val inviterProfileAlias = Profiles.alias("inviter_profile")
-        val inviteeProfileAlias = Profiles.alias("invitee_profile")
+): List<InviteWithUsers> = query {
+    val inviterAlias = Users.alias("inviter")
+    val inviteeAlias = Users.alias("invitee")
+    val inviterProfileAlias = Profiles.alias("inviter_profile")
+    val inviteeProfileAlias = Profiles.alias("invitee_profile")
 
-        val query =
-            Invites.innerJoin(inviterAlias, { Invites.inviterID }, { inviterAlias[Users.id] })
-                .innerJoin(inviteeAlias, { Invites.inviteeID }, { inviteeAlias[Users.id] })
-                .innerJoin(
-                    inviterProfileAlias,
-                    { Invites.inviterID },
-                    { inviterProfileAlias[Profiles.userID] },
-                )
-                .innerJoin(
-                    inviteeProfileAlias,
-                    { Invites.inviteeID },
-                    { inviteeProfileAlias[Profiles.userID] },
-                )
-                .selectAll()
-
-        var condition = Invites.inviterID eq userId
-        if (status != null) {
-            condition = condition and (Invites.status eq status)
-        }
-        if (inviteType != null) {
-            condition = condition and (Invites.inviteType eq inviteType)
-        }
-
-        val results = query.where { condition }
-
-        results.toList().map { row ->
-            InviteWithUsers(
-                invite = Invite.fromRow(row),
-                inviterUsername = row[inviterAlias[Users.username]],
-                inviterProfile = Profile.fromRow(row, inviterProfileAlias),
-                inviteeUsername = row[inviteeAlias[Users.username]],
-                inviteeProfile = Profile.fromRow(row, inviteeProfileAlias),
+    val query =
+        Invites.innerJoin(inviterAlias, { Invites.inviterID }, { inviterAlias[Users.id] })
+            .innerJoin(inviteeAlias, { Invites.inviteeID }, { inviteeAlias[Users.id] })
+            .innerJoin(
+                inviterProfileAlias,
+                { Invites.inviterID },
+                { inviterProfileAlias[Profiles.userID] },
             )
-        }
+            .innerJoin(
+                inviteeProfileAlias,
+                { Invites.inviteeID },
+                { inviteeProfileAlias[Profiles.userID] },
+            )
+            .selectAll()
+
+    var condition = Invites.inviterID eq userId
+    if (status != null) {
+        condition = condition and (Invites.status eq status)
     }
+    if (inviteType != null) {
+        condition = condition and (Invites.inviteType eq inviteType)
+    }
+
+    val results = query.where { condition }
+
+    results.toList().map { row ->
+        InviteWithUsers(
+            invite = row.toEntity(Invites),
+            inviterUsername = row[inviterAlias[Users.username]],
+            inviterProfile = Profile.fromRow(row, inviterProfileAlias),
+            inviteeUsername = row[inviteeAlias[Users.username]],
+            inviteeProfile = Profile.fromRow(row, inviteeProfileAlias),
+        )
+    }
+}
 
 /**
  * Get a specific invite.
@@ -458,7 +441,7 @@ suspend fun getInvite(
                 (Invites.inviteType eq inviteType)
         }
         .firstOrNull()
-        ?.let { Invite.fromRow(it) }
+        ?.toEntity(Invites)
 }
 
 /**
@@ -469,16 +452,17 @@ suspend fun getInvite(
  * @param inviteType The type of invite.
  * @return True if the user has a pending invite, false otherwise.
  */
-suspend fun hasPendingInvite(inviteeId: String, targetId: String, inviteType: InviteType): Boolean = query {
-    Invites.selectAll()
-        .where {
-            (Invites.inviteeID eq inviteeId) and
-                (Invites.targetID eq targetId) and
-                (Invites.inviteType eq inviteType) and
-                (Invites.status eq InviteStatus.PENDING)
-        }
-        .firstOrNull() != null
-}
+suspend fun hasPendingInvite(inviteeId: String, targetId: String, inviteType: InviteType): Boolean =
+    query {
+        Invites.selectAll()
+            .where {
+                (Invites.inviteeID eq inviteeId) and
+                    (Invites.targetID eq targetId) and
+                    (Invites.inviteType eq inviteType) and
+                    (Invites.status eq InviteStatus.PENDING)
+            }
+            .firstOrNull() != null
+    }
 
 /**
  * Accept an invitation and join the burrow or club. If a burrow is at capacity, the user will be
@@ -578,9 +562,8 @@ private suspend fun acceptBurrowInvite(inviteeId: String, targetId: String, invi
 
 private suspend fun acceptClubInvite(inviteeId: String, targetId: String, inviterId: String?) {
     // Verify club exists
-    query {
-        Clubs.selectAll().where { Clubs.id eq targetId }.firstOrNull()
-    } ?: throw NotFound("That Club could not be found.")
+    query { Clubs.selectAll().where { Clubs.id eq targetId }.firstOrNull() }
+        ?: throw NotFound("That Club could not be found.")
 
     query {
         val invite = findPendingInvite(inviteeId, targetId, InviteType.CLUB, inviterId)

@@ -1,6 +1,6 @@
 package app.burrow.features.invites
 
-import app.burrow.features.account.models.Users
+import app.burrow.features.account.Users
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 

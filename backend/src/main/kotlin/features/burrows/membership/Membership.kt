@@ -1,34 +1,36 @@
 package app.burrow.features.burrows.membership
 
+import app.burrow.MappedTable
 import app.burrow.api.Error
 import app.burrow.api.InvalidAuthorization
-import app.burrow.features.account.chat.ChatMessage
-import app.burrow.features.account.chat.ChatMessages
+import app.burrow.api.models.PaginatedResponse
+import app.burrow.features.chat.ChatMessage
+import app.burrow.features.chat.ChatMessages
 import app.burrow.features.account.models.User
-import app.burrow.features.account.models.Users
+import app.burrow.features.account.Users
 import app.burrow.features.account.models.userID
 import app.burrow.features.account.profile.Profile
 import app.burrow.features.account.profile.Profiles
-import app.burrow.features.burrows.Burrow
+import app.burrow.features.burrows.models.Burrow
 import app.burrow.features.burrows.bookmarks.Bookmarks
-import app.burrow.features.burrows.getBurrow
-import app.burrow.features.requests.JoinRequests
-import app.burrow.features.requests.createJoinRequest
-import app.burrow.features.burrows.models.BurrowKind
-import app.burrow.features.burrows.models.BurrowMemberStatus
+import app.burrow.features.burrows.models.getBurrow
+import app.burrow.features.burrows.models.enums.BurrowKind
+import app.burrow.features.burrows.models.enums.BurrowMemberStatus
 import app.burrow.features.burrows.models.BurrowResponse
-import app.burrow.features.burrows.models.BurrowRole
-import app.burrow.features.burrows.models.BurrowVisibility
-import app.burrow.features.burrows.models.Burrows
+import app.burrow.features.burrows.models.enums.BurrowRole
+import app.burrow.features.burrows.models.enums.BurrowVisibility
+import app.burrow.features.burrows.Burrows
 import app.burrow.features.burrows.sync.BurrowSync
 import app.burrow.features.burrows.sync.block.BlockStates
-import app.burrow.features.burrows.sync.chat.Chat
-import app.burrow.json
-import app.burrow.api.models.PaginatedResponse
+import app.burrow.features.burrows.sync.Chat
 import app.burrow.features.notifications.createNotification
 import app.burrow.features.notifications.onUserJoinedMeeting
 import app.burrow.features.notifications.onUserLeaveMeeting
+import app.burrow.features.requests.JoinRequests
+import app.burrow.features.requests.createJoinRequest
+import app.burrow.json
 import app.burrow.query
+import app.burrow.toEntity
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
@@ -40,7 +42,6 @@ import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -55,6 +56,7 @@ import org.jetbrains.exposed.v1.r2dbc.upsert
 
 /** A membership to a [Burrow]. */
 @Serializable
+@MappedTable(Memberships::class)
 data class Membership(
     val burrowID: String,
     val userID: String,
@@ -62,24 +64,7 @@ data class Membership(
     val status: BurrowMemberStatus,
     val joinedAt: Long,
     val leftAt: Long?,
-) {
-    companion object {
-        /**
-         * Form a [Membership] from a [ResultRow] from a database query.
-         *
-         * @param row The [ResultRow] containing a [Membership].
-         */
-        fun fromRow(row: ResultRow) =
-            Membership(
-                burrowID = row[Memberships.burrowID],
-                userID = row[Memberships.userID],
-                role = row[Memberships.role],
-                status = row[Memberships.status],
-                joinedAt = row[Memberships.joinedAt],
-                leftAt = row[Memberships.leftAt],
-            )
-    }
-}
+)
 
 /**
  * Check if the user is a moderator.
@@ -141,7 +126,7 @@ suspend fun getLatestChatMessage(burrowID: String): Pair<Boolean, ChatMessage?> 
                     (ChatMessages.parentID eq burrowID) and
                         (ChatMessages.id eq UUID.fromString(pinnedMessage))
                 }
-                .map { ChatMessage.fromRow(it) }
+                .map { row -> row.toEntity<ChatMessage>(ChatMessages) }
                 .firstOrNull()
 
         return@query true to chatMessage
@@ -153,7 +138,7 @@ suspend fun getLatestChatMessage(burrowID: String): Pair<Boolean, ChatMessage?> 
             .orderBy(ChatMessages.createdAt, SortOrder.DESC)
             .limit(1)
             .firstOrNull()
-            ?.let { ChatMessage.fromRow(it) }
+            ?.toEntity(ChatMessages)
 }
 
 /**
@@ -183,9 +168,9 @@ suspend fun getUserSchedule(user: String): List<BurrowScheduleResponse> {
                 val (isPinned, latestChatMessage) = getLatestChatMessage(burrowID)
 
                 BurrowScheduleResponse(
-                    burrow = Burrow.fromRow(row),
+                    burrow = row.toEntity(Burrows),
                     burrowAuthor = row[Users.username],
-                    membership = Membership.fromRow(row = row),
+                    membership = row.toEntity(Memberships),
                     isPinned = isPinned,
                     latestChatMessage = latestChatMessage,
                 )
@@ -213,9 +198,9 @@ suspend fun getUserSchedule(user: String): List<BurrowScheduleResponse> {
                 val (isPinned, latestChatMessage) = getLatestChatMessage(burrowID)
 
                 BurrowScheduleResponse(
-                    burrow = Burrow.fromRow(row),
+                    burrow = row.toEntity(Burrows),
                     burrowAuthor = row[Users.username],
-                    membership = Membership.fromRow(row = row),
+                    membership = row.toEntity(Memberships),
                     isPinned = isPinned,
                     latestChatMessage = latestChatMessage,
                 )
@@ -246,10 +231,12 @@ suspend fun getUserBookmarks(user: String): List<BurrowResponse> {
             .limit(3)
             .map { row ->
                 BurrowResponse(
-                    burrow = Burrow.fromRow(row),
+                    burrow = row.toEntity(Burrows),
                     burrowAuthor = row[Users.username],
-                    membership = Membership.fromRow(row = row),
+                    membership = row.toEntity(Memberships),
                     bookmarked = true,
+                    joined = 0,
+                    waiting = 0,
                 )
             }
             .toList()
@@ -268,7 +255,7 @@ suspend fun getMembership(userID: String, burrowID: String): Membership? = query
     Memberships.selectAll()
         .where { Memberships.userID eq userID and (Memberships.burrowID eq burrowID) }
         .firstOrNull()
-        ?.let { Membership.fromRow(it) }
+        ?.toEntity(Memberships)
 }
 
 /**
@@ -301,7 +288,7 @@ suspend fun getMemberships(userID: String): Map<String, Membership> = query {
     Memberships.selectAll()
         .where { Memberships.userID eq userID }
         .toList()
-        .associate { row -> row[Memberships.burrowID] to Membership.fromRow(row) }
+        .associate { row -> row[Memberships.burrowID] to row.toEntity(Memberships) }
 }
 
 /**
@@ -575,9 +562,9 @@ suspend fun getAttendees(burrowID: String, page: Int = 1): PaginatedResponse<Mem
                 .offset(ATTENDEES_PAGE_SIZE * (page - 1L))
                 .map { row ->
                     MembershipResponse(
-                        Membership.fromRow(row),
-                        User.fromRow(row),
-                        Profile.fromRow(row),
+                        row.toEntity(Memberships),
+                        row.toEntity(Users),
+                        row.toEntity(Profiles),
                     )
                 }
                 .toList()

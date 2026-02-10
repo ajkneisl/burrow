@@ -1,8 +1,5 @@
 package app.burrow
 
-import app.burrow.features.account.USER_ROUTES
-import app.burrow.features.account.models.userID
-import app.burrow.features.account.settings.SETTINGS_ROUTES
 import app.burrow.admin.ADMIN_ROUTES
 import app.burrow.admin.log.DB_LOG
 import app.burrow.admin.log.DatabaseLogAppender
@@ -16,8 +13,23 @@ import app.burrow.api.WELL_KNOWN_APPLE
 import app.burrow.api.injectMetaTags
 import app.burrow.api.optionalIntQueryParameter
 import app.burrow.api.queryParameter
+import app.burrow.features.account.USER_ROUTES
+import app.burrow.features.account.Users
+import app.burrow.features.chat.ChatSync
+import app.burrow.features.account.models.userID
+import app.burrow.features.account.settings.SETTINGS_ROUTES
 import app.burrow.features.burrows.BURROW_ROUTES
-import app.burrow.features.clubs.clubRoutes
+import app.burrow.features.burrows.models.Burrow
+import app.burrow.features.burrows.models.createBurrow
+import app.burrow.features.burrows.models.getBurrow
+import app.burrow.features.burrows.models.getBurrowResponse
+import app.burrow.features.burrows.models.enums.BurrowKind
+import app.burrow.features.burrows.models.enums.BurrowVisibility
+import app.burrow.features.burrows.Burrows
+import app.burrow.features.burrows.models.SubmittedStudyEventBurrow
+import app.burrow.features.burrows.reoccurringWorker
+import app.burrow.features.burrows.sync.BurrowSync
+import app.burrow.features.clubs.CLUB_ROUTES
 import app.burrow.features.notifications.NOTIFICATION_ROUTES
 import app.burrow.features.notifications.NotificationKind
 import app.burrow.features.notifications.createNotification
@@ -61,6 +73,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.r2dbc.select
+import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.slf4j.event.Level
@@ -132,7 +145,10 @@ suspend fun main(args: Array<String>) {
             arg.startsWith("--gen-token=") -> {
                 val userID = arg.removePrefix("--gen-token=")
 
-                burrowLogger.info("Generated Token: {}", _root_ide_package_.app.burrow.features.account.Authorization.generateToken(userID))
+                burrowLogger.info(
+                    "Generated Token: {}",
+                    app.burrow.features.account.Authorization.generateToken(userID),
+                )
             }
 
             // change frontend folder
@@ -154,7 +170,12 @@ suspend fun main(args: Array<String>) {
                 burrowLogger.info("Generating {} Burrows, hold on!", burrowCount)
 
                 query {
-                    val userIDs = _root_ide_package_.app.burrow.features.account.models.Users.select(_root_ide_package_.app.burrow.features.account.models.Users.id).toList().map { it[_root_ide_package_.app.burrow.features.account.models.Users.id] }
+                    val userIDs =
+                        Users.select(
+                                Users.id
+                            )
+                            .toList()
+                            .map { it[Users.id] }
 
                     repeat(burrowCount) {
                         val userID = userIDs.random()
@@ -329,11 +350,15 @@ suspend fun Application.module() {
         // regular account
         jwt(PRIMARY_AUTH) {
             realm = "burrow"
-            verifier(_root_ide_package_.app.burrow.features.account.Authorization.getVerifier())
+            verifier(app.burrow.features.account.Authorization.getVerifier())
 
             challenge { _, _ -> throw Error(401, "Token is invalid or expired.") }
             validate { credential ->
-                if (credential.payload.audience.contains(_root_ide_package_.app.burrow.features.account.Authorization.PUBLIC_AUDIENCE))
+                if (
+                    credential.payload.audience.contains(
+                        app.burrow.features.account.Authorization.PUBLIC_AUDIENCE
+                    )
+                )
                     JWTPrincipal(credential.payload)
                 else null
             }
@@ -344,11 +369,19 @@ suspend fun Application.module() {
         // a special account
         jwt(ADMIN_AUTH) {
             realm = "burrow/administrator"
-            verifier(_root_ide_package_.app.burrow.features.account.Authorization.getVerifier(_root_ide_package_.app.burrow.features.account.Authorization.ADMIN_AUDIENCE))
+            verifier(
+                app.burrow.features.account.Authorization.getVerifier(
+                    app.burrow.features.account.Authorization.ADMIN_AUDIENCE
+                )
+            )
 
             challenge { _, _ -> throw Error(401, "Token is invalid or expired.") }
             validate { credential ->
-                if (credential.payload.audience.contains(_root_ide_package_.app.burrow.features.account.Authorization.ADMIN_AUDIENCE))
+                if (
+                    credential.payload.audience.contains(
+                        app.burrow.features.account.Authorization.ADMIN_AUDIENCE
+                    )
+                )
                     JWTPrincipal(credential.payload)
                 else null
             }
@@ -367,11 +400,11 @@ suspend fun Application.module() {
 
             // ROUTE /burrows/{id}
             // webhook sync
-            route("/burrows/{id}", sync.BurrowSync.SYNC_ROUTES)
+            route("/burrows/{id}", BurrowSync.SYNC_ROUTES)
 
             // ROUTE /chat
             // global chat sync (DMs and topic rooms)
-            route("/chat", _root_ide_package_.app.burrow.features.account.chat.ChatSync.CHAT_SYNC_ROUTES)
+            route("/chat", ChatSync.CHAT_SYNC_ROUTES)
 
             // ROUTE /api/user
             // manage users / login
@@ -421,6 +454,10 @@ suspend fun Application.module() {
                     }
                 }
 
+                // ROUTE /api/clubs
+                // manage clubs
+                route("/clubs", CLUB_ROUTES)
+
                 // ROUTE /api/settings
                 // manage user settings
                 route("/settings", SETTINGS_ROUTES)
@@ -428,10 +465,6 @@ suspend fun Application.module() {
                 // ROUTE /api/burrows
                 // manage burrows
                 route("/burrows", BURROW_ROUTES)
-
-                // ROUTE /api/clubs
-                // manage clubs
-                route("/clubs") { clubRoutes() }
 
                 // ROUTE /api/report
                 // manage reports
@@ -502,11 +535,7 @@ suspend fun Application.module() {
                             else if (path.startsWith("/burrow/")) path.removePrefix("/burrow/")
                             else path.removePrefix("/meeting/")
 
-                        val burrow = burrowID.runCatching {
-                            getBurrow(
-                                this
-                            )
-                        }.getOrNull()
+                        val burrow = burrowID.runCatching { getBurrow(this) }.getOrNull()
 
                         if (burrow == null) defaultMeta.copy(url = "https://umn.app$path")
                         else
@@ -521,11 +550,12 @@ suspend fun Application.module() {
                     // when they're requesting a user page
                     path.startsWith("/user/") -> {
                         val username = path.removePrefix("/user/").split("/").firstOrNull()
-                        val user = username?.runCatching {
-                            _root_ide_package_.app.burrow.features.account.models.getUserByUsername(
-                                this
-                            )
-                        }?.getOrNull()
+                        val user =
+                            username
+                                ?.runCatching {
+                                    app.burrow.features.account.models.getUserByUsername(this)
+                                }
+                                ?.getOrNull()
 
                         if (user == null) defaultMeta.copy(url = "https://umn.app$path")
                         else

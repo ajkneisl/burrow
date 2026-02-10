@@ -1,9 +1,11 @@
 package app.burrow.features.burrows
 
 import app.burrow.admin.log.DB_LOG
-import app.burrow.features.burrows.models.Burrows
+import app.burrow.features.burrows.models.Burrow
+import app.burrow.features.burrows.Burrows
 import app.burrow.features.notifications.rescheduleNotificationsForBurrow
 import app.burrow.query
+import app.burrow.toEntity
 import io.ktor.util.date.getTimeMillis
 import java.time.Instant
 import java.time.ZoneId
@@ -44,7 +46,7 @@ suspend fun reoccurringWorker() {
                 (Burrows.reoccurring neq NOT_REOCCURRING) and
                     (Burrows.endTime lessEq getTimeMillis())
             }
-            .map(Burrow::fromRow)
+            .map { row -> row.toEntity<Burrow>(Burrows) }
             .toList()
     }
 

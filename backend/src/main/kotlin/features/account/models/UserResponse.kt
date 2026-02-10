@@ -1,7 +1,9 @@
 package app.burrow.features.account.models
 
 import app.burrow.api.Error
-import app.burrow.features.account.block.isBlockedBy
+import app.burrow.features.account.Users
+import app.burrow.features.account.isBlockedBy
+import app.burrow.features.account.profile.Badge
 import app.burrow.features.account.profile.FollowResponse
 import app.burrow.features.account.profile.Profile
 import app.burrow.features.account.profile.Profiles
@@ -11,6 +13,7 @@ import app.burrow.features.account.ta.getUserTAStatus
 import app.burrow.features.burrows.models.BurrowResponse
 import app.burrow.features.burrows.searchBurrows
 import app.burrow.query
+import app.burrow.toEntity
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.eq
@@ -36,6 +39,7 @@ data class UserResponse(
     val following: FollowResponse,
     val recentJoinedBurrows: List<BurrowResponse>,
     val recentHostedBurrows: List<BurrowResponse>,
+    val badges: List<Badge>? = null,
     val email: String? = null,
     val isTa: Boolean? = null,
     val isBlocked: Boolean? = null,
@@ -58,14 +62,12 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
     val following = getFollowing(userID, requestingUserID)
     val isFriends = following.theyFollow && following.youFollow
 
-    var profile = Profile.fromRow(row)
+    var profile = row.toEntity<Profile>(Profiles)
 
     // resolve badge descriptions
     val allBadges = getAllBadges()
-    profile =
-        profile.copy(
-            badges = profile.badges.map { badge -> allBadges.find { it.id == badge.id } ?: badge }
-        )
+    val userBadges =
+        profile.badges.map { badge -> allBadges.find { it.id == badge } ?: Badge(badge, "") }
 
     val isPrivate = profile.visibility == Profile.Visibility.PRIVATE
     val isNotFriends = profile.visibility == Profile.Visibility.FRIENDS && !isFriends
@@ -101,11 +103,12 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
             )
 
         UserResponse(
-            user = User.fromRow(row),
+            user = row.toEntity(Users),
             profile = profile,
             following = following,
             recentJoinedBurrows = listOf(),
             recentHostedBurrows = listOf(),
+            badges = userBadges,
             email = null,
             isTa = isTa,
             isBlocked = requestorBlockedUser,
@@ -132,11 +135,12 @@ suspend fun getUserResponse(userID: String, requestingUserID: String): UserRespo
                 .contents
 
         UserResponse(
-            user = User.fromRow(row),
+            user = row.toEntity(Users),
             profile = profile,
             following = following,
             recentJoinedBurrows = joinedMeetings,
             recentHostedBurrows = hostedMeetings,
+            badges = userBadges,
             email = if (requestingUserID == userID) row[Users.email] else null,
             isTa = isTa,
             isBlocked = requestorBlockedUser,

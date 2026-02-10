@@ -1,10 +1,12 @@
 package app.burrow.admin.account
 
-import app.burrow.api.Error
-import app.burrow.features.account.Authorization
-import app.burrow.features.account.chat.ChatMessage
+import app.burrow.MappedTable
 import app.burrow.admin.account.TOTP.secretGenerator
+import app.burrow.api.Error
+import app.burrow.api.UUIDSerializer
+import app.burrow.features.account.Authorization
 import app.burrow.query
+import app.burrow.toEntity
 import dev.samstevens.totp.code.CodeGenerator
 import dev.samstevens.totp.code.CodeVerifier
 import dev.samstevens.totp.code.DefaultCodeGenerator
@@ -21,7 +23,6 @@ import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.or
@@ -67,8 +68,9 @@ object Administrators : UUIDTable("administrators") {
 }
 
 @Serializable
+@MappedTable(Administrators::class)
 data class Administrator(
-    @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val id: UUID,
+    @Serializable(with = UUIDSerializer::class) val id: UUID,
     val username: String,
     val email: String,
     @Transient val passwordHash: String = "",
@@ -80,25 +82,7 @@ data class Administrator(
     @Transient val lockedUntil: Long? = null,
     @Transient val twoFactorSecret: String? = null,
     val passwordUpdatedAt: Long,
-) {
-    companion object {
-        fun fromRow(row: ResultRow): Administrator =
-            Administrator(
-                id = row[Administrators.id].value,
-                username = row[Administrators.username],
-                email = row[Administrators.email],
-                passwordHash = row[Administrators.passwordHash],
-                permissionBits = row[Administrators.permissionBits],
-                createdAt = row[Administrators.createdAt],
-                lastLoginAt = row[Administrators.lastLoginAt],
-                lastLoginIp = row[Administrators.lastLoginIp],
-                failedLoginAttempts = row[Administrators.failedLoginAttempts],
-                lockedUntil = row[Administrators.lockedUntil],
-                twoFactorSecret = row[Administrators.twoFactorSecret],
-                passwordUpdatedAt = row[Administrators.passwordUpdatedAt],
-            )
-    }
-}
+)
 
 object TOTP {
     val timeProvider: TimeProvider = SystemTimeProvider()
@@ -183,7 +167,7 @@ suspend fun adminLogin(
             Administrators.selectAll()
                 .where { Administrators.id eq id }
                 .single()
-                .let { Administrator.fromRow(it) }
+                .toEntity(Administrators)
     }
 }
 
@@ -236,7 +220,7 @@ suspend fun createAdministrator(
         Administrators.selectAll()
             .where { Administrators.id eq adminId }
             .single()
-            .let { Administrator.fromRow(it) }
+            .toEntity(Administrators)
     }
 }
 
@@ -275,7 +259,7 @@ suspend fun getAdministrator(id: String): Administrator? {
         Administrators.selectAll()
             .where { Administrators.id eq UUID.fromString(id) }
             .singleOrNull()
-            ?.let { Administrator.fromRow(it) }
+            ?.toEntity(Administrators)
     }
 }
 
@@ -285,5 +269,9 @@ suspend fun getAdministrator(id: String): Administrator? {
  * @return List of Administrator objects
  */
 suspend fun getAllAdministrators(): List<Administrator> {
-    return query { Administrators.selectAll().map { Administrator.fromRow(it) }.toList() }
+    return query {
+        Administrators.selectAll()
+            .map { row -> row.toEntity<Administrator>(Administrators) }
+            .toList()
+    }
 }

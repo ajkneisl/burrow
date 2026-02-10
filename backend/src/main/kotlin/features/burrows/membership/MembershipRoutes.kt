@@ -4,9 +4,9 @@ import app.burrow.api.Error
 import app.burrow.api.InvalidAuthorization
 import app.burrow.api.NotFound
 import app.burrow.features.account.models.userID
-import app.burrow.features.burrows.getBurrow
-import app.burrow.features.burrows.models.BurrowMemberStatus
-import app.burrow.features.burrows.models.BurrowRole
+import app.burrow.features.burrows.models.getBurrow
+import app.burrow.features.burrows.models.enums.BurrowMemberStatus
+import app.burrow.features.burrows.models.enums.BurrowRole
 import app.burrow.api.optionalIntQueryParameter
 import app.burrow.api.urlParameter
 import io.ktor.http.HttpStatusCode

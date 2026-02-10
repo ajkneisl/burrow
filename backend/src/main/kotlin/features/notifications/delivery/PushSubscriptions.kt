@@ -1,7 +1,7 @@
 package app.burrow.features.notifications.delivery
 
-import app.burrow.features.account.models.Users
-import app.burrow.features.account.chat.ChatMessage
+import app.burrow.api.UUIDSerializer
+import app.burrow.features.account.Users
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
@@ -56,7 +56,7 @@ object PushSubscriptions : Table("push_subscriptions") {
  */
 @Serializable
 data class PushSubscription(
-    @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val id: UUID,
+    @Serializable(with = UUIDSerializer::class) val id: UUID,
     val userID: String,
     val endpoint: String,
     val p256dh: String,
@@ -171,7 +171,7 @@ object MobilePushSubscriptions : Table("mobile_push_subscriptions") {
  */
 @Serializable
 data class MobilePushSubscription(
-    @Serializable(with = ChatMessage.Companion.UUIDSerializer::class) val id: UUID,
+    @Serializable(with = UUIDSerializer::class) val id: UUID,
     val userID: String,
     val deviceToken: String,
     val createdAt: Long,
@@ -209,9 +209,7 @@ suspend fun subscribeToMobilePush(
  * @param userID The user ID.
  */
 suspend fun unsubscribeFromMobilePush(userID: String) = query {
-    MobilePushSubscriptions.deleteWhere {
-        (MobilePushSubscriptions.userID eq userID)
-    }
+    MobilePushSubscriptions.deleteWhere { (MobilePushSubscriptions.userID eq userID) }
 }
 
 /**

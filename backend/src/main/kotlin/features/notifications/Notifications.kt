@@ -1,7 +1,7 @@
 package app.burrow.features.notifications
 
-import app.burrow.features.account.models.Users
-import app.burrow.features.burrows.models.Burrows
+import app.burrow.features.account.Users
+import app.burrow.features.burrows.Burrows
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 

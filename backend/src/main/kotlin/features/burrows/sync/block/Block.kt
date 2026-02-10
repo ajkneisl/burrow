@@ -1,13 +1,13 @@
 package app.burrow.features.burrows.sync.block
 
+import app.burrow.MappedTable
 import app.burrow.features.burrows.sync.BurrowSync
-import app.burrow.features.burrows.sync.models.Response
 import app.burrow.query
+import app.burrow.toEntity
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
@@ -15,6 +15,24 @@ import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.upsert
+
+/**
+ * The per-meeting saved state of a block.
+ *
+ * @param blockID The ID of the block.
+ * @param burrowID The ID of the meeting.
+ * @param data The saved data from the meeting
+ */
+@MappedTable(BlockStates::class)
+data class BlockState(
+    val blockID: String,
+    val burrowID: String,
+    val data: HashMap<String, String>,
+) {
+    companion object {
+        const val EMPTY = "{}"
+    }
+}
 
 /** A feature block. */
 abstract class Block(val blockID: String, val burrowID: String) {
@@ -43,35 +61,6 @@ abstract class Block(val blockID: String, val burrowID: String) {
         val data: HashMap<String, String>,
     )
 
-    /**
-     * The per-meeting saved state of a block.
-     *
-     * @param blockID The ID of the block.
-     * @param burrowID The ID of the meeting.
-     * @param data The saved data from the meeting
-     */
-    data class BlockState(
-        val blockID: String,
-        val burrowID: String,
-        val data: HashMap<String, String>,
-    ) {
-        companion object {
-            const val EMPTY = "{}"
-
-            /**
-             * Form a [BlockState] from a [row].
-             *
-             * @param row A row containing a block state.
-             */
-            fun fromRow(row: ResultRow): BlockState =
-                BlockState(
-                    row[BlockStates.blockID],
-                    row[BlockStates.burrowID],
-                    Json.decodeFromString(row[BlockStates.data]),
-                )
-        }
-    }
-
     /** Get the [BlockState] from the [burrowID]. */
     suspend fun getState(): HashMap<String, String> = query {
         BlockStates.selectAll()
@@ -80,7 +69,7 @@ abstract class Block(val blockID: String, val burrowID: String) {
                     (BlockStates.burrowID eq this@Block.burrowID)
             }
             .singleOrNull()
-            ?.let { BlockState.fromRow(it) }
+            ?.toEntity<BlockState>(BlockStates)
             ?.data ?: defaultState
     }
 

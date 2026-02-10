@@ -1,29 +1,30 @@
 package app.burrow.features.requests
 
+import app.burrow.MappedTable
 import app.burrow.api.Error
-import app.burrow.features.account.models.Users
+import app.burrow.api.models.PaginatedResponse
+import app.burrow.api.throwIfNull
+import app.burrow.features.account.Users
 import app.burrow.features.account.profile.Profile
 import app.burrow.features.account.profile.Profiles
-import app.burrow.features.burrows.getBurrow
+import app.burrow.features.burrows.models.getBurrow
 import app.burrow.features.burrows.membership.Memberships
-import app.burrow.features.burrows.models.BurrowMemberStatus
-import app.burrow.features.burrows.models.BurrowRole
-import app.burrow.features.clubs.members.ClubMembers
-import app.burrow.features.clubs.ClubRole
+import app.burrow.features.burrows.models.enums.BurrowMemberStatus
+import app.burrow.features.burrows.models.enums.BurrowRole
+import app.burrow.features.clubs.models.enums.ClubRole
 import app.burrow.features.clubs.Clubs
+import app.burrow.features.clubs.members.ClubMembers
 import app.burrow.features.invites.InviteType
-import app.burrow.api.models.PaginatedResponse
 import app.burrow.features.notifications.onUserJoinedMeeting
 import app.burrow.query
-import app.burrow.api.throwIfNull
+import app.burrow.toEntity
 import io.ktor.util.date.getTimeMillis
+import kotlin.math.ceil
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
-import kotlin.math.ceil
 import org.jetbrains.exposed.v1.core.innerJoin
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insert
@@ -32,6 +33,7 @@ import org.jetbrains.exposed.v1.r2dbc.update
 
 /** A request from a user to join a Burrow or Club. */
 @Serializable
+@MappedTable(JoinRequests::class)
 data class JoinRequest(
     /** The type of request (burrow or club). */
     val requestType: InviteType,
@@ -53,25 +55,7 @@ data class JoinRequest(
 
     /** The ID of the user who reviewed the request. */
     val reviewedBy: String?,
-) {
-    companion object {
-        /**
-         * Form a [JoinRequest] from a [ResultRow].
-         *
-         * @param row A [ResultRow] containing a [JoinRequest].
-         */
-        fun fromRow(row: ResultRow) =
-            JoinRequest(
-                requestType = row[JoinRequests.requestType],
-                targetID = row[JoinRequests.targetID],
-                requesterID = row[JoinRequests.requesterID],
-                status = row[JoinRequests.status],
-                createdAt = row[JoinRequests.createdAt],
-                reviewedAt = row[JoinRequests.reviewedAt],
-                reviewedBy = row[JoinRequests.reviewedBy],
-            )
-    }
-}
+)
 
 /**
  * A join request with user information.
@@ -93,10 +77,14 @@ data class JoinRequestWithUser(
  * @param userID The ID of the user requesting to join.
  * @param targetID The ID of the target (burrow or club).
  * @param requestType The type of request.
- * @throws Error If the target doesn't exist, user is banned, already has membership, or
- *   already has a pending request.
+ * @throws Error If the target doesn't exist, user is banned, already has membership, or already has
+ *   a pending request.
  */
-suspend fun createJoinRequest(userID: String, targetID: String, requestType: InviteType = InviteType.BURROW) {
+suspend fun createJoinRequest(
+    userID: String,
+    targetID: String,
+    requestType: InviteType = InviteType.BURROW,
+) {
     // Target-specific validation
     when (requestType) {
         InviteType.BURROW -> {
@@ -110,7 +98,9 @@ suspend fun createJoinRequest(userID: String, targetID: String, requestType: Inv
                 // Check for existing membership
                 val existingMembership =
                     Memberships.selectAll()
-                        .where { (Memberships.userID eq userID) and (Memberships.burrowID eq targetID) }
+                        .where {
+                            (Memberships.userID eq userID) and (Memberships.burrowID eq targetID)
+                        }
                         .firstOrNull()
 
                 if (existingMembership != null) {
@@ -127,14 +117,15 @@ suspend fun createJoinRequest(userID: String, targetID: String, requestType: Inv
         }
 
         InviteType.CLUB -> {
-            query {
-                Clubs.selectAll().where { Clubs.id eq targetID }.firstOrNull()
-            } ?: throw Error(404, "Club does not exist.")
+            query { Clubs.selectAll().where { Clubs.id eq targetID }.firstOrNull() }
+                ?: throw Error(404, "Club does not exist.")
 
             query {
                 val existingMember =
                     ClubMembers.selectAll()
-                        .where { (ClubMembers.userID eq userID) and (ClubMembers.clubID eq targetID) }
+                        .where {
+                            (ClubMembers.userID eq userID) and (ClubMembers.clubID eq targetID)
+                        }
                         .firstOrNull()
 
                 if (existingMember != null) {
@@ -157,11 +148,9 @@ suspend fun createJoinRequest(userID: String, targetID: String, requestType: Inv
 
         if (existingRequest != null) {
             when (existingRequest[JoinRequests.status]) {
-                JoinRequestStatus.PENDING ->
-                    throw Error(400, "You already have a pending request.")
+                JoinRequestStatus.PENDING -> throw Error(400, "You already have a pending request.")
 
-                JoinRequestStatus.APPROVED ->
-                    throw Error(400, "Your request was already approved.")
+                JoinRequestStatus.APPROVED -> throw Error(400, "Your request was already approved.")
 
                 JoinRequestStatus.REJECTED -> {
                     // reup the existing request
@@ -209,28 +198,30 @@ suspend fun getJoinRequests(
     requestType: InviteType,
     page: Int = 1,
 ): PaginatedResponse<JoinRequestWithUser> = query {
-    val query = JoinRequests.innerJoin(Users, { JoinRequests.requesterID }, { Users.id })
-        .innerJoin(Profiles, { JoinRequests.requesterID }, { Profiles.userID })
-        .selectAll()
-        .where {
-            (JoinRequests.targetID eq targetID) and
-                (JoinRequests.requestType eq requestType) and
-                (JoinRequests.status eq JoinRequestStatus.PENDING)
-        }
+    val query =
+        JoinRequests.innerJoin(Users, { JoinRequests.requesterID }, { Users.id })
+            .innerJoin(Profiles, { JoinRequests.requesterID }, { Profiles.userID })
+            .selectAll()
+            .where {
+                (JoinRequests.targetID eq targetID) and
+                    (JoinRequests.requestType eq requestType) and
+                    (JoinRequests.status eq JoinRequestStatus.PENDING)
+            }
 
     val itemCount = query.count()
 
-    val requests = query
-        .limit(JOIN_REQUESTS_PAGE_SIZE)
-        .offset(JOIN_REQUESTS_PAGE_SIZE * (page - 1L))
-        .toList()
-        .map { row ->
-            JoinRequestWithUser(
-                request = JoinRequest.fromRow(row),
-                requester = row[Users.username],
-                requesterProfile = Profile.fromRow(row),
-            )
-        }
+    val requests =
+        query
+            .limit(JOIN_REQUESTS_PAGE_SIZE)
+            .offset(JOIN_REQUESTS_PAGE_SIZE * (page - 1L))
+            .toList()
+            .map { row ->
+                JoinRequestWithUser(
+                    request = row.toEntity(JoinRequests),
+                    requester = row[Users.username],
+                    requesterProfile = row.toEntity(Profiles),
+                )
+            }
 
     PaginatedResponse(
         page,
@@ -261,7 +252,7 @@ suspend fun getJoinRequestsForUser(
         condition = condition and (JoinRequests.requestType eq requestType)
     }
 
-    JoinRequests.selectAll().where { condition }.toList().map { JoinRequest.fromRow(it) }
+    JoinRequests.selectAll().where { condition }.toList().map { row -> row.toEntity(JoinRequests) }
 }
 
 /**
@@ -284,7 +275,7 @@ suspend fun getJoinRequest(
                 (JoinRequests.requestType eq requestType)
         }
         .firstOrNull()
-        ?.let { JoinRequest.fromRow(it) }
+        ?.toEntity<JoinRequest>(JoinRequests)
 }
 
 /**
@@ -412,9 +403,8 @@ private suspend fun acceptBurrowJoinRequest(userId: String, targetId: String, re
 }
 
 private suspend fun acceptClubJoinRequest(userId: String, targetId: String, reviewerId: String) {
-    query {
-        Clubs.selectAll().where { Clubs.id eq targetId }.firstOrNull()
-    } ?: throw Error(404, "Club does not exist.")
+    query { Clubs.selectAll().where { Clubs.id eq targetId }.firstOrNull() }
+        ?: throw Error(404, "Club does not exist.")
 
     val now = getTimeMillis()
 

@@ -1,7 +1,7 @@
 package app.burrow.features.clubs.members
 
-import app.burrow.features.account.models.Users
-import app.burrow.features.clubs.ClubRole
+import app.burrow.features.account.Users
+import app.burrow.features.clubs.models.enums.ClubRole
 import app.burrow.features.clubs.Clubs
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table

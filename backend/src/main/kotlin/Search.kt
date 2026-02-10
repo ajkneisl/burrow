@@ -1,13 +1,12 @@
 package app.burrow
 
 import app.burrow.api.models.PaginatedResponse
-import app.burrow.features.account.block.getAllBlockedRelationships
-import app.burrow.features.account.models.Users
-import app.burrow.features.account.profile.Profile
+import app.burrow.features.account.getAllBlockedRelationships
+import app.burrow.features.account.Users
 import app.burrow.features.account.profile.Profiles
-import app.burrow.features.burrows.Burrow
-import app.burrow.features.burrows.models.BurrowVisibility
-import app.burrow.features.burrows.models.Burrows
+import app.burrow.features.burrows.models.Burrow
+import app.burrow.features.burrows.models.enums.BurrowVisibility
+import app.burrow.features.burrows.Burrows
 import app.burrow.features.burrows.searchBurrows
 import kotlin.collections.map
 import kotlin.math.ceil
@@ -54,7 +53,7 @@ sealed class SearchResult {
     @Serializable
     @SerialName("burrow")
     data class BurrowResult(
-        val burrow: app.burrow.features.burrows.Burrow,
+        val burrow: Burrow,
         val ownerUsername: String,
         val ownerProfile: app.burrow.features.account.profile.Profile?,
     ) : SearchResult()
@@ -92,9 +91,7 @@ suspend fun search(
     // get blocked users to exclude from results
     val blockedUserIds =
         if (requestingUserID != null)
-            _root_ide_package_.app.burrow.features.account.block.getAllBlockedRelationships(
-                requestingUserID
-            )
+            getAllBlockedRelationships(requestingUserID)
         else emptySet()
 
     return query {
@@ -158,7 +155,7 @@ suspend fun search(
                     SearchResult.User(
                         userID = row[Users.id],
                         username = row[Users.username],
-                        profile = Profile.fromRow(row),
+                        profile = row.toEntity(Profiles),
                     )
                 }
 

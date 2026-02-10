@@ -1,9 +1,10 @@
 package app.burrow.features.burrows
 
-import app.burrow.features.account.block.getAllBlockedRelationships
-import app.burrow.features.burrows.models.Burrows
 import app.burrow.env
+import app.burrow.features.account.getAllBlockedRelationships
+import app.burrow.features.burrows.models.Burrow
 import app.burrow.query
+import app.burrow.toEntity
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
@@ -12,7 +13,6 @@ import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.date.getTimeMillis
 import java.net.URLEncoder
-import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
@@ -47,7 +47,7 @@ sealed class Location {
     /**
      * A few details about a Burrow to aggregate on a map representation.
      *
-     * [lat] and [lng] are generated from [Burrow.location] in [burrow].
+     * [lat] and [lng] are generated from [app.burrow.features.burrows.models.Burrow.location] in [burrow].
      *
      * @param burrow The Burrow itself.
      * @param lat The latitude of the location.
@@ -189,7 +189,7 @@ suspend fun getMap(requestingUserID: String?): List<Location.BurrowLocation> {
         Burrows.selectAll()
             .where { Burrows.endTime greaterEq getTimeMillis() }
             .toList()
-            .map { Burrow.fromRow(it) }
+            .map {  row -> row.toEntity<Burrow>(Burrows) }
             .filter { it.ownerID !in blockedUsers }
     }
 

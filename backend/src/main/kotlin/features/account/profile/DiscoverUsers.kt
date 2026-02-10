@@ -1,6 +1,6 @@
 package app.burrow.features.account.profile
 
-import app.burrow.features.account.models.Users
+import app.burrow.features.account.Users
 import app.burrow.features.burrows.membership.Memberships
 import app.burrow.query
 import kotlinx.coroutines.flow.map

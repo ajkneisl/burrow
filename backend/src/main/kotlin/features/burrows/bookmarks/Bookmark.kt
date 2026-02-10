@@ -1,12 +1,14 @@
 package app.burrow.features.burrows.bookmarks
 
+import app.burrow.MappedTable
 import app.burrow.api.Error
 import app.burrow.burrowLogger
 import app.burrow.query
+import app.burrow.toEntity
 import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
-import org.jetbrains.exposed.v1.core.ResultRow
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
@@ -21,22 +23,7 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
  * @param createdAt When the bookmark was created.
  * @see Bookmarks
  */
-data class Bookmark(val userID: String, val burrowID: String, val createdAt: Long) {
-    companion object {
-        /**
-         * Form a [Bookmark] from a [ResultRow].
-         *
-         * @param row A row containing a Bookmark.
-         */
-        fun fromRow(row: ResultRow): Bookmark {
-            return Bookmark(
-                row[Bookmarks.userID],
-                row[Bookmarks.burrowID],
-                row[Bookmarks.createdAt],
-            )
-        }
-    }
-}
+@Serializable @MappedTable(Bookmarks::class) data class Bookmark(val userID: String, val burrowID: String, val createdAt: Long)
 
 /**
  * Create a bookmark from [userID] on [meetingID].
@@ -90,9 +77,7 @@ suspend fun deleteBookmark(userID: String, meetingID: String) {
     burrowLogger.info("{} has un-bookmarked {}", userID, meetingID)
 
     query {
-        Bookmarks.deleteWhere {
-            (Bookmarks.userID eq userID) and (Bookmarks.burrowID eq meetingID)
-        }
+        Bookmarks.deleteWhere { (Bookmarks.userID eq userID) and (Bookmarks.burrowID eq meetingID) }
     }
 }
 
@@ -106,5 +91,5 @@ suspend fun getBookmarks(userID: String): Map<String, Bookmark> = query {
     Bookmarks.selectAll()
         .where { Bookmarks.userID eq userID }
         .toList()
-        .associate { row -> row[Bookmarks.userID] to Bookmark.fromRow(row) }
+        .associate { row -> row[Bookmarks.userID] to row.toEntity<Bookmark>(Bookmarks) }
 }

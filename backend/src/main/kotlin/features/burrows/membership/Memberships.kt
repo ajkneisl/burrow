@@ -1,9 +1,9 @@
 package app.burrow.features.burrows.membership
 
-import app.burrow.features.account.models.Users
-import app.burrow.features.burrows.models.BurrowMemberStatus
-import app.burrow.features.burrows.models.BurrowRole
-import app.burrow.features.burrows.models.Burrows
+import app.burrow.features.account.Users
+import app.burrow.features.burrows.models.enums.BurrowMemberStatus
+import app.burrow.features.burrows.models.enums.BurrowRole
+import app.burrow.features.burrows.Burrows
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 

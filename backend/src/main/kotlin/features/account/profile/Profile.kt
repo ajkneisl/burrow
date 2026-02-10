@@ -1,9 +1,11 @@
 package app.burrow.features.account.profile
 
+import app.burrow.MappedTable
 import app.burrow.api.MultiError
-import app.burrow.features.account.models.Users
+import app.burrow.features.account.Users
 import app.burrow.json
 import app.burrow.query
+import app.burrow.toEntity
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
@@ -62,6 +64,7 @@ object Profiles : Table("profiles") {
 
 /** A user's profile. */
 @Serializable
+@MappedTable(Profiles::class)
 data class Profile(
     /** The user's ID. */
     val userID: String,
@@ -97,7 +100,7 @@ data class Profile(
     val linkedIn: String?,
 
     /** The user's badges. These are given by administrators. */
-    val badges: List<Badge>,
+    val badges: List<String>,
 ) {
     /** Profile visibility. */
     enum class Visibility {
@@ -297,23 +300,6 @@ data class Profile(
             return umnClassRegex.matches(canonical)
         }
 
-        /** Get a [Profile] from a [row] */
-        fun fromRow(row: ResultRow): Profile =
-            Profile(
-                userID = row[Profiles.userID],
-                name = row[Profiles.name],
-                bio = row[Profiles.bio],
-                gradYear = row[Profiles.gradYear],
-                classes = row[Profiles.classes]?.let { Json.decodeFromString(it) },
-                school = row[Profiles.school],
-                major = row[Profiles.major],
-                instagram = row[Profiles.instagram],
-                phoneNumber = row[Profiles.phoneNumber],
-                linkedIn = row[Profiles.linkedIn],
-                visibility = row[Profiles.visibility],
-                badges = row[Profiles.badges].map { Badge(it, "") },
-            )
-
         /** Get a [Profile] from a [row] using an aliased table */
         fun fromRow(row: ResultRow, alias: Alias<Profiles>): Profile =
             Profile(
@@ -328,17 +314,14 @@ data class Profile(
                 phoneNumber = row[alias[Profiles.phoneNumber]],
                 linkedIn = row[alias[Profiles.linkedIn]],
                 visibility = row[alias[Profiles.visibility]],
-                badges = row[alias[Profiles.badges]].map { Badge(it, "") },
+                badges = row[alias[Profiles.badges]],
             )
     }
 }
 
 /** Get a user's profile by their [userID]. */
 suspend fun getProfile(userID: String): Profile? = query {
-    Profiles.selectAll()
-        .where { Profiles.userID eq userID }
-        .map { Profile.fromRow(it) }
-        .singleOrNull()
+    Profiles.selectAll().where { Profiles.userID eq userID }.singleOrNull()?.toEntity(Profiles)
 }
 
 /** Update a user's [profile]. */

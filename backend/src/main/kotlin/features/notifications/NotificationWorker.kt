@@ -2,8 +2,8 @@ package app.burrow.features.notifications
 
 import app.burrow.features.account.settings.Settings
 import app.burrow.features.burrows.membership.Memberships
-import app.burrow.features.burrows.models.BurrowMemberStatus
-import app.burrow.features.burrows.models.Burrows
+import app.burrow.features.burrows.models.enums.BurrowMemberStatus
+import app.burrow.features.burrows.Burrows
 import app.burrow.features.notifications.delivery.deliver
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
@@ -40,7 +40,6 @@ import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
 import org.slf4j.LoggerFactory
-import kotlin.text.get
 
 private val LOGGER = LoggerFactory.getLogger("Notification Worker")
 

@@ -1,7 +1,6 @@
 package app.burrow.features.burrows.models
 
 import app.burrow.features.account.profile.Profile
-import app.burrow.features.burrows.Burrow
 import app.burrow.features.burrows.membership.Membership
 import kotlinx.serialization.Serializable
 
@@ -31,4 +30,8 @@ data class BurrowResponse(
     var bookmarked: Boolean,
     var highlightedTags: List<Int> = listOf(),
     var hostedByTa: Boolean? = null,
+    val joined: Long,
+    val waiting: Long,
+    val clubName: String? = null,
+    val clubDisplayName: String? = null,
 )

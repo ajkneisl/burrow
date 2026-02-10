@@ -8,6 +8,7 @@ import { formatDateTime } from "@api/util.ts"
 import { Badge, Card } from "@umnburrow/core"
 import clsx from "clsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
+import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.tsx"
 import { useMemo } from "react"
 import BurrowCapacity from "@features/burrows/components/BurrowCapacity.tsx"
 import {
@@ -157,17 +158,26 @@ export function BurrowCard({
 
                         {/* the profile picture */}
                         <div className="flex-shrink-0 self-start">
-                            <ProfilePicture
-                                name={
-                                    meetingResponse.burrowAuthorProfile?.name ??
-                                    ""
-                                }
-                                userID={
-                                    meetingResponse.burrowAuthorProfile
-                                        ?.userID ?? ""
-                                }
-                                size="sm"
-                            />
+                            {burrow.clubID && meetingResponse.clubDisplayName ? (
+                                <ClubProfilePicture
+                                    clubID={burrow.clubID}
+                                    displayName={meetingResponse.clubDisplayName}
+                                    clubName={meetingResponse.clubName ?? ""}
+                                    size="sm"
+                                />
+                            ) : (
+                                <ProfilePicture
+                                    name={
+                                        meetingResponse.burrowAuthorProfile?.name ??
+                                        ""
+                                    }
+                                    userID={
+                                        meetingResponse.burrowAuthorProfile
+                                            ?.userID ?? ""
+                                    }
+                                    size="sm"
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
@@ -195,18 +205,6 @@ export function BurrowCard({
                                     TA
                                 </span>
                             )}
-
-                            {Object.keys(tags)
-                                .slice(0, 2)
-                                .map((tag: string) => (
-                                    <Badge
-                                        size="medium"
-                                        highlighted={tags[tag]}
-                                        key={tag}
-                                    >
-                                        {tag}
-                                    </Badge>
-                                ))}
                         </div>
 
                         {isJoined && (

@@ -2,9 +2,6 @@ package app.burrow.features.account
 
 import app.burrow.api.InvalidAuthorization
 import app.burrow.features.account.alt.login
-import app.burrow.features.account.block.blockUser
-import app.burrow.features.account.block.getBlockedUsersWithDetails
-import app.burrow.features.account.block.unBlockUser
 import app.burrow.features.account.models.deleteUser
 import app.burrow.features.account.models.exchangeCodeForIdToken
 import app.burrow.features.account.models.getUserByID
@@ -16,13 +13,13 @@ import app.burrow.features.account.models.updateUsername
 import app.burrow.features.account.models.userID
 import app.burrow.features.account.models.validateUsername
 import app.burrow.features.account.profile.Profile
-import app.burrow.features.account.profile.Profiles.userID
 import app.burrow.features.account.profile.RELATION_ROUTES
 import app.burrow.features.account.profile.updateProfile
 import app.burrow.api.optionalIntQueryParameter
 import app.burrow.photo.USER_PHOTO_ROUTES
 import app.burrow.api.queryParameter
 import app.burrow.api.urlParameter
+import app.burrow.features.burrows.searchBurrows
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive

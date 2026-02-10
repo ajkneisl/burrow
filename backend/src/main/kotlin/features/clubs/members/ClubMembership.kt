@@ -2,19 +2,20 @@ package app.burrow.features.clubs.members
 
 import app.burrow.api.Error
 import app.burrow.api.InvalidAuthorization
+import app.burrow.api.models.PaginatedResponse
+import app.burrow.features.account.Users
 import app.burrow.features.account.models.User
-import app.burrow.features.account.models.Users
 import app.burrow.features.account.models.userID
 import app.burrow.features.account.profile.Profile
 import app.burrow.features.account.profile.Profiles
-import app.burrow.api.models.PaginatedResponse
-import app.burrow.features.clubs.Club
-import app.burrow.features.clubs.ClubPrivacy
-import app.burrow.features.clubs.ClubRole
 import app.burrow.features.clubs.Clubs
+import app.burrow.features.clubs.models.Club
+import app.burrow.features.clubs.models.enums.ClubPrivacy
+import app.burrow.features.clubs.models.enums.ClubRole
 import app.burrow.features.invites.InviteType
 import app.burrow.features.requests.createJoinRequest
 import app.burrow.query
+import app.burrow.toEntity
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.date.getTimeMillis
 import kotlin.math.ceil
@@ -31,11 +32,24 @@ import org.jetbrains.exposed.v1.r2dbc.update
 
 /** A club member with user and profile information. */
 @Serializable
-data class ClubMemberResponse(
-    val member: ClubMember,
-    val user: User,
-    val profile: Profile,
-)
+data class ClubMemberResponse(val member: ClubMember, val user: User, val profile: Profile)
+
+/** A club with the requesting user's membership. */
+@Serializable data class MyClubResponse(val club: Club, val membership: ClubMember)
+
+/**
+ * Get all clubs a user is a member of, sorted by role (highest first).
+ *
+ * @param userID The ID of the user.
+ */
+suspend fun getUserClubs(userID: String): List<MyClubResponse> = query {
+    ClubMembers.innerJoin(Clubs, { ClubMembers.clubID }, { Clubs.id })
+        .selectAll()
+        .where { ClubMembers.userID eq userID }
+        .toList()
+        .map { row -> MyClubResponse(row.toEntity(Clubs), row.toEntity(ClubMembers)) }
+        .sortedBy { it.membership.role.ordinal }
+}
 
 /**
  * Get a club by its ID.
@@ -43,7 +57,16 @@ data class ClubMemberResponse(
  * @param clubID The ID of the club.
  */
 suspend fun getClub(clubID: String): Club? = query {
-    Clubs.selectAll().where { Clubs.id eq clubID }.firstOrNull()?.let { Club.Companion.fromRow(it) }
+    Clubs.selectAll().where { Clubs.id eq clubID }.firstOrNull()?.toEntity()
+}
+
+/**
+ * Get a club by its name.
+ *
+ * @param name The unique name of the club.
+ */
+suspend fun getClubByName(name: String): Club? = query {
+    Clubs.selectAll().where { Clubs.name eq name }.firstOrNull()?.toEntity()
 }
 
 /**
@@ -56,7 +79,7 @@ suspend fun getClubMembership(userID: String, clubID: String): ClubMember? = que
     ClubMembers.selectAll()
         .where { (ClubMembers.userID eq userID) and (ClubMembers.clubID eq clubID) }
         .firstOrNull()
-        ?.let { ClubMember.fromRow(it) }
+        ?.toEntity()
 }
 
 private const val MEMBERS_PAGE_SIZE = 5
@@ -82,13 +105,7 @@ suspend fun getClubMembers(clubID: String, page: Int = 1): PaginatedResponse<Clu
                 .limit(MEMBERS_PAGE_SIZE)
                 .offset(MEMBERS_PAGE_SIZE * (page - 1L))
                 .toList()
-                .map { row ->
-                    ClubMemberResponse(
-                        ClubMember.fromRow(row),
-                        User.fromRow(row),
-                        Profile.fromRow(row),
-                    )
-                }
+                .map { row -> ClubMemberResponse(row.toEntity(), row.toEntity(), row.toEntity()) }
 
         PaginatedResponse(
             page,
@@ -145,8 +162,8 @@ suspend fun leaveClub(userID: String, clubID: String) {
         throw Error(400, "The owner cannot leave their own club.")
     }
 
-    val membership = getClubMembership(userID, clubID)
-        ?: throw Error(400, "You are not a member of this club.")
+    val membership =
+        getClubMembership(userID, clubID) ?: throw Error(400, "You are not a member of this club.")
 
     if (membership.role == ClubRole.ADMINISTRATOR) {
         throw Error(400, "Administrators cannot leave. Transfer ownership first.")
@@ -168,13 +185,10 @@ suspend fun leaveClub(userID: String, clubID: String) {
  * @param roleName The display name for the role.
  */
 suspend fun changeClubRole(clubID: String, userID: String, role: ClubRole, roleName: String) {
-    val membership = getClubMembership(userID, clubID)
-        ?: throw Error(400, "User is not a member of this club.")
+    getClubMembership(userID, clubID) ?: throw Error(400, "User is not a member of this club.")
 
     query {
-        ClubMembers.update({
-            (ClubMembers.userID eq userID) and (ClubMembers.clubID eq clubID)
-        }) {
+        ClubMembers.update({ (ClubMembers.userID eq userID) and (ClubMembers.clubID eq clubID) }) {
             it[ClubMembers.role] = role
             it[ClubMembers.roleName] = roleName
         }
@@ -195,11 +209,11 @@ suspend fun kickClubMember(adminID: String, userID: String, clubID: String) {
         throw Error(400, "You cannot kick the club owner.")
     }
 
-    val adminMembership = getClubMembership(adminID, clubID)
-        ?: throw Error(400, "You are not a member of this club.")
+    val adminMembership =
+        getClubMembership(adminID, clubID) ?: throw Error(400, "You are not a member of this club.")
 
-    val targetMembership = getClubMembership(userID, clubID)
-        ?: throw Error(400, "User is not a member of this club.")
+    val targetMembership =
+        getClubMembership(userID, clubID) ?: throw Error(400, "User is not a member of this club.")
 
     // Can't kick someone with equal or higher role
     if (targetMembership.role.ordinal <= adminMembership.role.ordinal) {
@@ -222,5 +236,6 @@ suspend fun ApplicationCall.requireClubModerator(clubID: String) {
 /** Require that the authorized user is an administrator of [clubID]. */
 suspend fun ApplicationCall.requireClubAdmin(clubID: String) {
     val membership = getClubMembership(userID, clubID)
-    if (membership == null || membership.role != ClubRole.ADMINISTRATOR) throw InvalidAuthorization()
+    if (membership == null || membership.role != ClubRole.ADMINISTRATOR)
+        throw InvalidAuthorization()
 }

@@ -1,12 +1,13 @@
 package app.burrow.features.account.ta
 
-import app.burrow.features.account.models.Users
+import app.burrow.MappedTable
+import app.burrow.features.account.Users
 import app.burrow.query
+import app.burrow.toEntity
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.ReferenceOption
-import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
@@ -31,28 +32,18 @@ object Ta : Table("account_ta") {
 }
 
 @Serializable
+@MappedTable(Ta::class)
 data class TAStatus(
     val userID: String,
     val classes: List<String>,
     val approvalDate: Long,
     val expireDate: Long,
     val approvedBy: String,
-) {
-    companion object {
-        fun fromRow(row: ResultRow) =
-            TAStatus(
-                userID = row[Ta.userID],
-                classes = row[Ta.classes].toList(),
-                approvalDate = row[Ta.approvalDate],
-                expireDate = row[Ta.expireDate],
-                approvedBy = row[Ta.approvedBy],
-            )
-    }
-}
+)
 
 /** Check if [userID] is a TA. */
 suspend fun getUserTAStatus(userID: String): TAStatus? = query {
-    Ta.selectAll().where { Ta.userID eq userID }.firstOrNull()?.let { TAStatus.fromRow(it) }
+    Ta.selectAll().where { Ta.userID eq userID }.firstOrNull()?.let { it.toEntity<TAStatus>(Ta) }
 }
 
 /** Get the set of user IDs that are TAs from the provided list. */

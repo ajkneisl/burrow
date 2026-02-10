@@ -3,7 +3,7 @@ package app.burrow.features.account.alt
 import app.burrow.features.account.Authorization
 import app.burrow.features.account.models.AuthorizedUser
 import app.burrow.features.account.models.User
-import app.burrow.features.account.models.Users
+import app.burrow.features.account.Users
 import app.burrow.features.account.profile.Profiles
 import app.burrow.query
 import io.ktor.util.date.getTimeMillis
@@ -48,7 +48,7 @@ suspend fun login(username: String, password: String): AuthorizedUser? = query {
                 id = username,
                 username = username,
                 email = "temporary@umn.app",
-                createdDate = accountRow[AlternativeAccounts.creationDate],
+                createdAt = accountRow[AlternativeAccounts.creationDate],
             ),
             true,
             Authorization.generateToken(username),

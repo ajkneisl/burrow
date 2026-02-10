@@ -8,7 +8,7 @@ import BurrowHeatmap from "@features/burrows/components/BurrowHeatmap.tsx"
 import { Input, useDateRangePicker, ViewErrors } from "@umnburrow/core"
 import clsx from "clsx"
 import { humanDateLabel, weekRangeLabel } from "@api/util.ts"
-import Paginator from "@components/Paginator.tsx"
+import Paginator from "../../../../core/lib/components/Paginator.tsx"
 import { Loader2, ChevronRight, SlidersHorizontal } from "lucide-react"
 
 /**

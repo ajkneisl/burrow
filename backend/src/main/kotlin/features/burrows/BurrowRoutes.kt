@@ -1,16 +1,17 @@
 package app.burrow.features.burrows
 
 import app.burrow.api.Error
-import app.burrow.api.InvalidArguments
 import app.burrow.api.InvalidAuthorization
 import app.burrow.features.account.models.userID
 import app.burrow.features.burrows.bookmarks.BOOKMARK_ROUTES
+import app.burrow.features.clubs.models.enums.ClubRole
+import app.burrow.features.clubs.members.getClubMembership
 import app.burrow.features.invites.inviteRoutes
 import app.burrow.features.requests.joinRequestRoutes
 import app.burrow.features.burrows.membership.getUserBookmarks
 import app.burrow.features.burrows.membership.getUserSchedule
 import app.burrow.features.burrows.membership.membershipRoutes
-import app.burrow.features.burrows.models.BurrowKind
+import app.burrow.features.burrows.models.enums.BurrowKind
 import app.burrow.features.burrows.models.SubmittedBurrow
 import app.burrow.features.burrows.models.SubmittedProjectBurrow
 import app.burrow.features.burrows.models.SubmittedStudyEventBurrow
@@ -22,6 +23,14 @@ import app.burrow.api.queryParameter
 import app.burrow.api.throwIfNotEmpty
 import app.burrow.api.throwIfNull
 import app.burrow.api.urlParameter
+import app.burrow.features.burrows.models.Burrow
+import app.burrow.features.burrows.models.createBurrow
+import app.burrow.features.burrows.models.createProjectBurrow
+import app.burrow.features.burrows.models.deleteMeeting
+import app.burrow.features.burrows.models.getBurrow
+import app.burrow.features.burrows.models.getBurrowResponse
+import app.burrow.features.burrows.models.updateProjectBurrow
+import app.burrow.features.burrows.models.updatedBurrow
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -34,6 +43,20 @@ import io.ktor.server.routing.route
 import io.ktor.util.date.getTimeMillis
 import java.time.LocalDateTime
 import java.time.YearMonth
+
+/**
+ * Check if a user can manage a burrow. Returns true if the user is the direct owner,
+ * or if the burrow is club-owned and the user is an admin of that club.
+ */
+suspend fun canManageBurrow(userID: String, burrow: Burrow): Boolean {
+    if (burrow.ownerID == userID) return true
+
+    // Check if the burrow is club-owned and the user is an admin of that club
+    val clubID = burrow.clubID ?: return false
+    val clubMembership = getClubMembership(userID, clubID)
+
+    return clubMembership != null && clubMembership.role == ClubRole.ADMINISTRATOR
+}
 
 /**
  * All routes relating to [app.burrow.groups.Burrow]s.
@@ -129,7 +152,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
 
             is SubmittedStudyEventBurrow -> {
                 submittedBurrow.validateSubmittedBurrow().throwIfNotEmpty()
-                call.respond(createBurrow(call.userID, submittedBurrow))
+                call.respond(createBurrow(call.userID, submittedBurrow, submittedBurrow.clubID))
             }
         }
     }
@@ -144,7 +167,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
 
             val meeting = getBurrowResponse(id, call.userID).throwIfNull()
 
-            if (meeting.burrow.ownerID != call.userID) throw InvalidAuthorization()
+            if (!canManageBurrow(call.userID, meeting.burrow)) throw InvalidAuthorization()
 
             deleteMeeting(id)
 
@@ -159,8 +182,8 @@ val BURROW_ROUTES: Route.() -> Unit = {
 
             val meeting = getBurrow(id).throwIfNull()
 
-            // the user is NOT the owner
-            if (meeting.ownerID != user) throw InvalidArguments()
+            // the user is NOT the owner / club admin
+            if (!canManageBurrow(user, meeting)) throw InvalidAuthorization()
 
             if (getTimeMillis() > meeting.endTime)
                 throw Error(400, "You cannot edit a meeting that's in the past.")

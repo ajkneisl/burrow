@@ -1,7 +1,11 @@
 package app.burrow.features.clubs
 
 import app.burrow.api.models.PaginatedResponse
+import app.burrow.features.clubs.models.enums.ClubCategory
+import app.burrow.features.clubs.models.enums.ClubPrivacy
+import app.burrow.features.clubs.models.Club
 import app.burrow.query
+import app.burrow.toEntity
 import kotlin.math.ceil
 import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.Op
@@ -41,17 +45,13 @@ suspend fun searchClubs(
 
     val itemCount = baseQuery.count()
 
-    val clubs = baseQuery
-        .orderBy(Clubs.createdAt, SortOrder.DESC)
-        .limit(CLUBS_PAGE_SIZE)
-        .offset(CLUBS_PAGE_SIZE * (page - 1L))
-        .toList()
-        .map { Club.fromRow(it) }
+    val clubs =
+        baseQuery
+            .orderBy(Clubs.createdAt, SortOrder.DESC)
+            .limit(CLUBS_PAGE_SIZE)
+            .offset(CLUBS_PAGE_SIZE * (page - 1L))
+            .toList()
+            .map { row -> row.toEntity<Club>(Clubs) }
 
-    PaginatedResponse(
-        page,
-        ceil(itemCount / CLUBS_PAGE_SIZE.toDouble()).toInt(),
-        itemCount,
-        clubs,
-    )
+    PaginatedResponse(page, ceil(itemCount / CLUBS_PAGE_SIZE.toDouble()).toInt(), itemCount, clubs)
 }
