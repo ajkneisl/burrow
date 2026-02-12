@@ -4,7 +4,7 @@ import app.burrow.features.clubs.Clubs
 import app.burrow.features.clubs.members.ClubMember
 import app.burrow.features.clubs.members.ClubMembers
 import app.burrow.features.clubs.members.getClubMembership
-import app.burrow.invites.InviteType
+import app.burrow.features.invites.InviteType
 import app.burrow.features.requests.JoinRequestStatus
 import app.burrow.features.requests.getJoinRequest
 import app.burrow.query

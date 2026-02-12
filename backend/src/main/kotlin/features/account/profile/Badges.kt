@@ -3,9 +3,9 @@ package app.burrow.features.account.profile
 import app.burrow.api.Error
 import app.burrow.api.InvalidArguments
 import app.burrow.features.account.models.getUserByID
-import app.burrow.photo.createPhoto
-import app.burrow.photo.deletePhoto
-import app.burrow.photo.verifyPhoto
+import app.burrow.api.photo.createPhoto
+import app.burrow.api.photo.deletePhoto
+import app.burrow.api.photo.verifyPhoto
 import app.burrow.query
 import app.burrow.api.urlParameter
 import io.ktor.http.HttpStatusCode

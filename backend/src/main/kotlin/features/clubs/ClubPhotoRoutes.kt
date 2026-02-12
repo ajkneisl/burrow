@@ -4,10 +4,10 @@ import app.burrow.api.urlParameter
 import app.burrow.features.account.models.userID
 import app.burrow.features.clubs.members.getClubByName
 import app.burrow.features.clubs.members.requireClubAdmin
-import app.burrow.photo.createPhoto
-import app.burrow.photo.deletePhoto
-import app.burrow.photo.s3PublicUrl
-import app.burrow.photo.verifyPhoto
+import app.burrow.api.photo.createPhoto
+import app.burrow.api.photo.deletePhoto
+import app.burrow.api.photo.s3PublicUrl
+import app.burrow.api.photo.verifyPhoto
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.header
 import io.ktor.server.request.receive

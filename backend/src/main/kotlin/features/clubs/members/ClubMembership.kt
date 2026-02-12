@@ -12,7 +12,7 @@ import app.burrow.features.clubs.Clubs
 import app.burrow.features.clubs.models.Club
 import app.burrow.features.clubs.models.enums.ClubPrivacy
 import app.burrow.features.clubs.models.enums.ClubRole
-import app.burrow.invites.InviteType
+import app.burrow.features.invites.InviteType
 import app.burrow.features.requests.createJoinRequest
 import app.burrow.query
 import app.burrow.toEntity

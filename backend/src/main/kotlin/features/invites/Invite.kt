@@ -1,4 +1,4 @@
-package app.burrow.invites
+package app.burrow.features.invites
 
 import app.burrow.MappedTable
 import app.burrow.api.Error

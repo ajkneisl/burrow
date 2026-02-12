@@ -1,4 +1,4 @@
-package app.burrow.photo
+package app.burrow.api.photo
 
 import app.burrow.api.Error
 import app.burrow.features.account.models.userID
@@ -29,38 +29,6 @@ val minioClient: MinioClient =
 private val VALID_CONTENT_TYPES = setOf("image/png", "image/jpeg", "image/gif", "image/webp")
 private const val MAX_IMAGE_SIZE = 3L * 1024 * 1024 // 3 MB
 private const val MAX_IMAGE_DIMENSIONS = 4096
-
-// ROUTE /user/photo
-// manage user profile pictures
-val USER_PHOTO_ROUTES: Route.() -> Unit = {
-    @Serializable data class UploadResponse(val key: String, val url: String)
-
-    // POST /user/photo
-    // upload a user's avatar image
-    post {
-        val bytes = call.receive<ByteArray>()
-        val contentType =
-            call.request.header("Content-Type")
-                ?: throw Error(400, "Content-Type header is required!")
-
-        verifyPhoto(contentType, bytes)
-
-        val key = "user/${call.userID}/avatar"
-        val url = "$s3PublicUrl/avatars/$key"
-
-        createPhoto("avatars", "user/${call.userID}/avatar", bytes)
-
-        call.respond(HttpStatusCode.OK, UploadResponse(key, url))
-    }
-
-    // DELETE /user/photo
-    // delete a user's avatar
-    delete {
-        deletePhoto("avatars", "user/${call.userID}/avatar")
-
-        call.respond(HttpStatusCode.OK)
-    }
-}
 
 /**
  * Verify a photo and ensure it's not some crazy shit.

@@ -16,7 +16,6 @@ import app.burrow.features.account.profile.Profile
 import app.burrow.features.account.profile.RELATION_ROUTES
 import app.burrow.features.account.profile.updateProfile
 import app.burrow.api.optionalIntQueryParameter
-import app.burrow.photo.USER_PHOTO_ROUTES
 import app.burrow.api.queryParameter
 import app.burrow.api.urlParameter
 import app.burrow.features.burrows.searchBurrows

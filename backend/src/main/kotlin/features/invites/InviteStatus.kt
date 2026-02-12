@@ -1,4 +1,4 @@
-package app.burrow.invites
+package app.burrow.features.invites
 
 /** The status of an invitation. */
 enum class InviteStatus {

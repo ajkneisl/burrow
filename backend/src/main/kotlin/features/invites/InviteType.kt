@@ -1,4 +1,4 @@
-package app.burrow.invites
+package app.burrow.features.invites
 
 /** The type of entity an invite targets. */
 enum class InviteType {

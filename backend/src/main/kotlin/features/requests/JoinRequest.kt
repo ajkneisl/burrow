@@ -14,7 +14,7 @@ import app.burrow.features.burrows.models.enums.BurrowRole
 import app.burrow.features.clubs.models.enums.ClubRole
 import app.burrow.features.clubs.Clubs
 import app.burrow.features.clubs.members.ClubMembers
-import app.burrow.invites.InviteType
+import app.burrow.features.invites.InviteType
 import app.burrow.features.notifications.onUserJoinedMeeting
 import app.burrow.query
 import app.burrow.toEntity

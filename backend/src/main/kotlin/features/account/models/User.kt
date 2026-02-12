@@ -8,7 +8,7 @@ import app.burrow.env
 import app.burrow.features.account.Authorization
 import app.burrow.features.account.Users
 import app.burrow.features.account.profile.Profiles
-import app.burrow.photo.deletePhoto
+import app.burrow.api.photo.deletePhoto
 import app.burrow.query
 import app.burrow.toEntity
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
