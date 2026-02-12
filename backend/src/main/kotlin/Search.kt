@@ -59,9 +59,6 @@ sealed class SearchResult {
     ) : SearchResult()
 }
 
-/** The number of results per page. */
-private const val PAGE_SIZE = 20
-
 /**
  * Search through users and Burrows using a query string.
  *
