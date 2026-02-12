@@ -16,7 +16,8 @@ import {
     LogOut,
     ChevronRight,
     AlertCircle,
-    Trash2
+    Trash2,
+    Users
 } from "lucide-react-native"
 import { useGoogleAuth } from "@features/auth/hooks/useGoogleAuth"
 import useUser from "@features/auth/hooks/useUser"
@@ -93,6 +94,16 @@ export default function SettingsScreen() {
                         label="Change Username"
                         subtitle={user?.username ?? ""}
                         onPress={() => router.push("/settings/change-username")}
+                        colors={colors}
+                    />
+
+                    <View className="h-px bg-card-border my-3" />
+
+                    <SettingItem
+                        icon={<Users size={20} color={colors.primary} />}
+                        label="My Clubs"
+                        subtitle="View and manage your clubs"
+                        onPress={() => router.push("/settings/my-clubs")}
                         colors={colors}
                     />
                 </Card>

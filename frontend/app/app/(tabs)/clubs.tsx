@@ -14,7 +14,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Header } from "@features/layout/components"
 import { get } from "@api/api"
 import { CDN_URL } from "@api/util"
-import { Search, Compass } from "lucide-react-native"
+import { Search, Compass, Inbox } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { FilterChip } from "@components/core"
 import type { PaginatedResponse } from "@api/api.types"
@@ -200,6 +200,21 @@ export default function ClubsScreen() {
                     </View>
                 )}
             />
+
+            {/* My Clubs FAB */}
+            <Pressable
+                onPress={() => router.push("/settings/my-clubs")}
+                className="absolute bottom-6 right-6 bg-secondary rounded-full w-16 h-16 items-center justify-center shadow-lg active:opacity-80"
+                style={{
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 4.65,
+                    elevation: 8
+                }}
+            >
+                <Inbox size={28} color={colors.primary} strokeWidth={2.5} />
+            </Pressable>
         </SafeAreaView>
     )
 }

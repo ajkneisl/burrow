@@ -1,0 +1,95 @@
+import { CLUB_CATEGORIES, ClubStepProps } from "@features/clubs/club.types"
+import { Pressable, ScrollView, Text, View } from "react-native"
+import { Input } from "@components/core"
+
+/**
+ * Info step of creating a club
+ *
+ * @author AJ Kneisl
+ */
+export default function ClubInfoStep({
+    updateField,
+    formState,
+    errors
+}: ClubStepProps) {
+    return (
+        <ScrollView
+            className="flex-1 px-6"
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+        >
+            {/* Info Card */}
+            <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
+                <Text className="text-text text-sm font-semibold mb-2">
+                    Club Details
+                </Text>
+                <Text className="text-text text-opacity-60 text-xs">
+                    Give your club a name and description. The club name is used
+                    in URLs and must be unique.
+                </Text>
+            </View>
+
+            <Input
+                label="Club Name *"
+                value={formState.name}
+                onChangeText={(value) =>
+                    updateField("name", value.toLowerCase().replace(/\s/g, "-"))
+                }
+                placeholder="my-club"
+                variant="outline"
+                error={errors.name}
+                autoCapitalize="none"
+            />
+
+            <Input
+                label="Display Name *"
+                value={formState.displayName}
+                onChangeText={(value) => updateField("displayName", value)}
+                placeholder="My Club"
+                variant="outline"
+                error={errors.displayName}
+            />
+
+            {/* Category */}
+            <View className="mb-4">
+                <Text className="text-sm font-semibold text-text mb-3">
+                    Category
+                </Text>
+                <View className="flex-row flex-wrap gap-2">
+                    {CLUB_CATEGORIES.map((cat) => (
+                        <Pressable
+                            key={cat.value}
+                            onPress={() => updateField("category", cat.value)}
+                            className={`px-4 py-2 rounded-full border ${
+                                formState.category === cat.value
+                                    ? "bg-primary border-primary"
+                                    : "bg-card border-card-border"
+                            }`}
+                        >
+                            <Text
+                                className={`text-sm font-semibold ${
+                                    formState.category === cat.value
+                                        ? "text-white"
+                                        : "text-text"
+                                }`}
+                            >
+                                {cat.label}
+                            </Text>
+                        </Pressable>
+                    ))}
+                </View>
+            </View>
+
+            <Input
+                label="Description"
+                value={formState.description}
+                onChangeText={(value) => updateField("description", value)}
+                placeholder="my-club"
+                numberOfLines={4}
+                multiline
+            />
+
+            <View className="h-32" />
+        </ScrollView>
+    )
+}

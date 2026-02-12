@@ -39,6 +39,8 @@ export interface SubmittedBurrowFormState {
     className: string
     teamMembers: string[] // array of user IDs
     dueDate: Date | null
+    // Club burrow field
+    clubID: string
 }
 
 /**
@@ -61,7 +63,8 @@ export const initialFormState: SubmittedBurrowFormState = {
     objective: "",
     className: "",
     teamMembers: [],
-    dueDate: null
+    dueDate: null,
+    clubID: ""
 }
 
 /**
@@ -91,6 +94,7 @@ export type SubmittedStudyEventBurrow = {
     visibility: BurrowVisibility
     requestToJoin: boolean
     reoccurring: number
+    clubID?: string
 }
 
 /**

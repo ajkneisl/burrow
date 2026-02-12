@@ -9,7 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { useState, useMemo, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Header } from "@features/layout/components"
-import { UpcomingBurrowCard } from "@features/home/components/UpcomingBurrowCard"
+import { UpcomingBurrowCard } from "@features/burrows/components/UpcomingBurrowCard"
 import { getBurrows, searchMeetings } from "@features/burrows/burrows.api"
 import type {
     BurrowKind,

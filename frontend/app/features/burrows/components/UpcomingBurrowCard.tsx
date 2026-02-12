@@ -12,14 +12,14 @@ import {
 import { useThemeColors } from "@api/theme/useThemeColors"
 import useUser from "@features/auth/hooks/useUser"
 import { ProfilePicture } from "@components/profile/ProfilePicture"
-import { CapacityBadge } from "@components/burrow/CapacityBadge"
+import { CapacityBadge } from "@features/burrows/components/CapacityBadge"
 import type { BurrowResponse } from "@features/burrows/burrows.types"
 import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { CDN_URL, formatDateTime } from "@api/util"
-import KindChip from "@components/burrow/KindChip"
+import KindChip from "@features/burrows/components/KindChip"
 import ThemedIcon from "@components/core/ThemedIcon"
-import TABadge from "@components/burrow/TABadge"
-import LocationChip from "@components/burrow/LocationChip"
+import TABadge from "@features/burrows/components/TABadge"
+import LocationChip from "@features/burrows/components/LocationChip"
 
 /**
  * {@link UpcomingBurrowCard}

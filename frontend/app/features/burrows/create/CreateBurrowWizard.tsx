@@ -22,6 +22,7 @@ import { ScheduleStep } from "./steps/ScheduleStep"
 import { ProjectInfoStep } from "./steps/ProjectInfoStep"
 import { MembersStep } from "./steps/MembersStep"
 import { DueDateStep } from "./steps/DueDateStep"
+import { ClubSelectorStep } from "./steps/ClubSelectorStep"
 import ThemedIcon from "@components/core/ThemedIcon"
 
 /**
@@ -69,7 +70,8 @@ export function CreateBurrowWizard({
     const [submissionErrors, setSubmissionErrors] = useState<string[]>([])
 
     const isProjectBurrow = burrowKind === "PROJECT"
-    const totalSteps = 3
+    const isClubBurrow = burrowKind === "CLUB" && mode !== "update"
+    const totalSteps = isClubBurrow ? 4 : 3
     const isEditMode = mode === "update"
 
     const mutation = useMutation({
@@ -143,8 +145,18 @@ export function CreateBurrowWizard({
     )
 
     // validate the step
+    // For club burrows, the actual step content is offset by 1 (step 1 = club select)
+    const contentStep = isClubBurrow ? currentStep - 1 : currentStep
+
     const validateCurrentStep = useCallback((): boolean => {
         const nextErrors: Record<string, string> = {}
+
+        // Club selector step (only for CLUB burrows in create mode)
+        if (isClubBurrow && currentStep === 1) {
+            if (!formState.clubID) nextErrors.clubID = "Please select a club"
+            setErrors(nextErrors)
+            return Object.keys(nextErrors).length === 0
+        }
 
         if (isProjectBurrow) {
             if (currentStep === 1) {
@@ -182,7 +194,7 @@ export function CreateBurrowWizard({
                     nextErrors.date = "Due date must be in the future"
             }
         } else {
-            if (currentStep === 1) {
+            if (contentStep === 1) {
                 const title = formState.title.trim()
 
                 // has title
@@ -235,7 +247,7 @@ export function CreateBurrowWizard({
                 if (capacity <= 2 && capacity !== 0) {
                     nextErrors.capacity = "Capacity must be greater than 2"
                 }
-            } else if (currentStep === 3) {
+            } else if (contentStep === 3) {
                 const date = formState.date
 
                 if (!date) nextErrors.date = "Required"
@@ -260,7 +272,7 @@ export function CreateBurrowWizard({
         setErrors(nextErrors)
 
         return Object.keys(nextErrors).length === 0
-    }, [currentStep, formState, isProjectBurrow])
+    }, [currentStep, contentStep, formState, isProjectBurrow, isClubBurrow])
 
     const handleNext = useCallback(() => {
         if (!validateCurrentStep()) return
@@ -332,7 +344,8 @@ export function CreateBurrowWizard({
                 capacity: formState.capacity,
                 visibility: formState.visibility,
                 requestToJoin: formState.requestToJoin,
-                reoccurring: formState.reoccurring
+                reoccurring: formState.reoccurring,
+                ...(formState.clubID ? { clubID: formState.clubID } : {})
             }
 
             mutation.mutate(payload)
@@ -367,6 +380,19 @@ export function CreateBurrowWizard({
                 default:
                     return null
             }
+        } else if (isClubBurrow) {
+            switch (currentStep) {
+                case 1:
+                    return <ClubSelectorStep {...stepProps} />
+                case 2:
+                    return <StudyEventInfoStep {...stepProps} />
+                case 3:
+                    return <PrivacyStep {...stepProps} />
+                case 4:
+                    return <ScheduleStep {...stepProps} />
+                default:
+                    return null
+            }
         } else {
             switch (currentStep) {
                 case 1:
@@ -391,6 +417,19 @@ export function CreateBurrowWizard({
                     return "Team Members"
                 case 3:
                     return "Due Date"
+                default:
+                    return ""
+            }
+        } else if (isClubBurrow) {
+            switch (currentStep) {
+                case 1:
+                    return "Select Club"
+                case 2:
+                    return "Basic Info"
+                case 3:
+                    return "Privacy"
+                case 4:
+                    return "Schedule"
                 default:
                     return ""
             }
