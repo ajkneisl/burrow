@@ -1,4 +1,4 @@
-import { Globe, Link2, Lock } from "lucide-react-native"
+import {Crown, Globe, Link2, Lock, Shield, UserRound} from "lucide-react-native"
 
 export type ClubCategory = "SPORTS" | "SOCIAL" | "CREATIVE" | "EDUCATIONAL"
 export type ClubPrivacy = "PUBLIC" | "UNLISTED" | "PRIVATE"
@@ -82,6 +82,29 @@ export const CLUB_CATEGORIES: { value: ClubCategory; label: string }[] = [
     { value: "CREATIVE", label: "Creative" },
     { value: "EDUCATIONAL", label: "Educational" }
 ]
+
+export function roleBadgeConfig(role: ClubRole) {
+    switch (role) {
+        case "ADMINISTRATOR":
+            return {
+                bg: "bg-yellow-500/15",
+                text: "text-yellow-600",
+                Icon: Crown
+            }
+        case "MODERATOR":
+            return {
+                bg: "bg-indigo-500/15",
+                text: "text-indigo-600",
+                Icon: Shield
+            }
+        default:
+            return {
+                bg: "bg-gray-500/15",
+                text: "text-gray-600",
+                Icon: UserRound
+            }
+    }
+}
 
 export const CLUB_PRIVACY_OPTIONS: {
     value: ClubPrivacy
