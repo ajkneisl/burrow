@@ -1,6 +1,7 @@
 package app.burrow.features.report
 
-import app.burrow.api.Error
+import app.burrow.api.throwIfNotEmpty
+import app.burrow.api.verify
 import app.burrow.features.account.models.userID
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -14,7 +15,7 @@ val REPORT_ROUTES: Route.() -> Unit = {
     post {
         val report = call.receive<SubmittedReport>()
 
-        if (!report.validate()) throw Error(400, "There's an issue with your report.")
+        report.verify().throwIfNotEmpty()
 
         val reportID = createReport(call.userID, report)
 

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router"
 import type { Burrow } from "@features/burrows/burrows.types.tsx"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button, Modal, ViewErrors } from "@umnburrow/core"
+import useFormState from "@api/useFormState.ts"
 import DueDateStep from "@features/burrows/create/components/project/DueDateStep.tsx"
 import {
     initialFormState,
@@ -51,15 +52,17 @@ export default function CreateProjectBurrowModal({
     const nav = useNavigate()
     const queryClient = useQueryClient()
 
-    const [formState, setFormState] =
-        useState<SubmittedBurrowFormState>(initialFormState)
-    const [errors, setErrors] = useState<Record<string, string>>({})
+    const { formState, setFormState, errors, setErrors, updateField, verify, reset } =
+        useFormState<SubmittedBurrowFormState, Record<string, string>>({
+            initial: initialFormState,
+            initialErrors: {},
+            verifyEndpoint: "/burrows/verify/project"
+        })
     const [serverErrors, setServerErrors] = useState<string[]>([])
     const [currentStep, setCurrentStep] = useState(1)
 
     useEffect(() => {
         if (open) {
-            setErrors({})
             setServerErrors([])
             setCurrentStep(1)
 
@@ -90,16 +93,17 @@ export default function CreateProjectBurrowModal({
                     reoccurring: -1
                 })
             } else {
-                setFormState({
-                    ...initialFormState,
+                reset()
+                setFormState((prev) => ({
+                    ...prev,
                     kind: "PROJECT",
                     visibility: "PUBLIC",
                     capacity: 10,
                     tags: ""
-                })
+                }))
             }
         }
-    }, [open, mode, meeting])
+    }, [open, mode, meeting, reset, setFormState])
 
     function applyServerErrors(errs: string[]) {
         setServerErrors(errs)
@@ -118,39 +122,37 @@ export default function CreateProjectBurrowModal({
         }
     }
 
-    // helper to update form state
-    const updateField = useCallback(
-        <K extends keyof SubmittedBurrowFormState>(
-            field: K,
-            value: SubmittedBurrowFormState[K]
-        ) => {
-            setFormState((prev) => ({ ...prev, [field]: value }))
-        },
-        []
-    )
-
-    // validate current step
-    const validateCurrentStep = useCallback((): boolean => {
-        const next: Record<string, string> = {}
-
+    // validate current step via server
+    const validateCurrentStep = useCallback(async (): Promise<boolean> => {
         if (currentStep === 1) {
-            if (!formState.title.trim()) next.title = "Required"
+            return await verify({
+                name: formState.title,
+                objective: formState.description,
+                className: formState.location
+            })
         } else if (currentStep === 3) {
-            if (!formState.date) next.date = "Required"
+            const dateMs = formState.date
+                ? new Date(`${formState.date}T00:00:00-05:00`).getTime()
+                : 0
+
+            const dueTime = formState.endTime
+                ? addTime(dateMs, formState.endTime)
+                : dateMs + 23 * 60 * 60 * 1000 + 59 * 60 * 1000
+
+            return await verify({ dueDate: dueTime })
         }
 
-        setErrors(next)
-        return Object.keys(next).length === 0
-    }, [currentStep, formState])
+        return true
+    }, [currentStep, formState, verify])
 
     // navigate to next step
-    const handleNext = useCallback(() => {
-        if (!validateCurrentStep()) return
+    const handleNext = useCallback(async () => {
+        if (!(await validateCurrentStep())) return
         if (currentStep < 3) {
             setCurrentStep(currentStep + 1)
             setErrors({})
         }
-    }, [currentStep, validateCurrentStep])
+    }, [currentStep, validateCurrentStep, setErrors])
 
     // navigate to previous step
     const handleBack = useCallback(() => {
@@ -158,13 +160,13 @@ export default function CreateProjectBurrowModal({
             setCurrentStep(currentStep - 1)
             setErrors({})
         }
-    }, [currentStep])
+    }, [currentStep, setErrors])
 
     // on submit
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
 
-        if (!validateCurrentStep()) return
+        if (!(await validateCurrentStep())) return
 
         const dateMs = new Date(`${formState.date}T00:00:00-05:00`).getTime()
 

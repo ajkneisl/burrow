@@ -8,6 +8,9 @@ import io.ktor.util.date.getTimeMillis
 import java.util.UUID
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import app.burrow.api.Verifiable
+import app.burrow.api.VerificationScope
+import app.burrow.api.Verifier
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -55,6 +58,7 @@ data class Report(
 )
 
 /** A submitted report. */
+@Verifiable(with = SubmittedReportVerifier::class)
 @Serializable
 data class SubmittedReport(
     val reportType: ReportType,
@@ -64,15 +68,41 @@ data class SubmittedReport(
     val userAgent: String? = null,
     val path: String? = null,
     val attachedID: String? = null,
-) {
-    /** Validate a submitted report. */
-    fun validate(): Boolean {
-        return summary.length in 1..255 &&
-            details.length in 1..5000 &&
-            category in reportType.categories &&
-            (userAgent?.length ?: 0) <= 512 &&
-            (path?.length ?: 0) <= 512 &&
-            (attachedID?.length ?: 0) <= 64
+)
+
+class SubmittedReportVerifier : Verifier<SubmittedReport>() {
+    override suspend fun VerificationScope<SubmittedReport>.rules() {
+        SubmittedReport::summary {
+            lengthIn(1..255, "Summary must be between 1 and 255 characters.")
+        }
+
+        SubmittedReport::details {
+            lengthIn(1..5000, "Details must be between 1 and 5000 characters.")
+        }
+
+        check(SubmittedReport::category) {
+            errorIf("Category is not valid for this report type.") {
+                it !in instance.reportType.categories
+            }
+        }
+
+        check(SubmittedReport::userAgent) {
+            errorIf("User agent must be 512 characters or fewer.") {
+                (it?.length ?: 0) > 512
+            }
+        }
+
+        check(SubmittedReport::path) {
+            errorIf("Path must be 512 characters or fewer.") {
+                (it?.length ?: 0) > 512
+            }
+        }
+
+        check(SubmittedReport::attachedID) {
+            errorIf("Attached ID must be 64 characters or fewer.") {
+                (it?.length ?: 0) > 64
+            }
+        }
     }
 }
 

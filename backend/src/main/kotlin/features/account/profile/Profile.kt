@@ -1,12 +1,13 @@
 package app.burrow.features.account.profile
 
 import app.burrow.MappedTable
-import app.burrow.api.MultiError
+import app.burrow.api.Verifiable
+import app.burrow.api.VerificationScope
+import app.burrow.api.Verifier
 import app.burrow.features.account.Users
 import app.burrow.json
 import app.burrow.query
 import app.burrow.toEntity
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -63,6 +64,7 @@ object Profiles : Table("profiles") {
 }
 
 /** A user's profile. */
+@Verifiable(with = Profile.Companion.ProfileVerifier::class)
 @Serializable
 @MappedTable(Profiles::class)
 data class Profile(
@@ -110,131 +112,36 @@ data class Profile(
     }
 
     /**
-     * Validate this profile.
-     *
-     * @throws MultiError If there's any issues with the profile
+     * Normalize school and major fields to their canonical names.
+     * Should be called before verification.
      */
-    fun validate() {
-        val errors = mutableListOf<String>()
-
-        // validate name
-        if (name.isBlank() || name.length > 64)
-            errors.add("Name must be between 1 and 64 characters.")
-
-        // validate name characters
-        if (!nameRegex.matches(name)) errors.add("Invalid characters in name.")
-
-        // validate classes
-        if (classes != null && classes.isNotEmpty()) {
-            val normalized = classes.map { it.trim() }
-            val invalid = normalized.filterNot(::isValidUmnClass)
-
-            if (invalid.isNotEmpty()) {
-                errors.add("Invalid UMN class codes: ${invalid.joinToString(", ")}.")
-            }
-        }
-
-        // todo: does this need to be different?
-        if (gradYear != null && gradYear !in 2020..2035) errors.add("Invalid graduation year.")
-
-        // validate school
+    fun normalize() {
         school.also {
             if (it != null) {
-                // regular school name
                 if (it.lowercase() in validSchools) {
-                    val schoolName =
-                        schoolsData
-                            .find { schoolProfile -> schoolProfile.name.equals(it, true) }
-                            ?.name
-
-                    if (schoolName != null) {
-                        school = schoolName
-                        return@also
-                    }
+                    school = schoolsData
+                        .find { sp -> sp.name.equals(it, true) }
+                        ?.name
+                    return@also
                 }
 
-                // school is shorthand (like CSE, CBAS etc)
                 if (it.lowercase() in validShorthands) {
-                    val schoolName =
-                        schoolsData
-                            .find { schoolProfile -> schoolProfile.shorthand.equals(it, true) }
-                            ?.name
-
-                    if (schoolName != null) {
-                        school = schoolName
-                        return@also
-                    }
+                    school = schoolsData
+                        .find { sp -> sp.shorthand.equals(it, true) }
+                        ?.name
+                    return@also
                 }
 
                 school = null
-                errors.add("Invalid school.")
             }
         }
 
-        // validate major
-        (major to school).also { (ma, sc) ->
-            if (ma != null) {
-                if (sc == null) {
-                    errors.add("To pick a major, you must have already chosen a school.")
-                    return@also
-                }
-
-                if (ma.lowercase() !in validMajors) {
-                    errors.add("Invalid major.")
-                    return@also
-                }
-
-                val majorInSchool =
-                    schoolsData
-                        .single { profile -> profile.name == sc }
-                        .majors
-                        .find { majorName -> majorName.equals(ma, true) }
-
-                if (majorInSchool == null) {
-                    errors.add("That major is not in that school.")
-                    return@also
-                }
-
-                major = majorInSchool
-            }
+        if (major != null && school != null) {
+            major = schoolsData
+                .singleOrNull { it.name == school }
+                ?.majors
+                ?.find { it.equals(major, true) }
         }
-
-        // validate bio
-        if (bio != null && bio.length > 512) errors.add("Bio must be under 512 characters.")
-
-        // validate instagram
-        if (instagram != null) {
-            when {
-                instagram.isBlank() || instagram.length > 32 -> {
-                    errors.add("Instagram handle must be between 1 and 32 characters.")
-                }
-                !instagram.startsWith("@") -> {
-                    errors.add("Instagram handle must start with '@'.")
-                }
-                !instaRegex.matches(instagram) -> {
-                    errors.add("Instagram handle contains invalid characters.")
-                }
-            }
-        }
-
-        // validate linkedin
-        if (linkedIn != null) {
-            when {
-                linkedIn.isBlank() || linkedIn.length > 64 -> {
-                    errors.add("LinkedIn username must be between 1 and 64 characters.")
-                }
-                !linkedInRegex.matches(linkedIn.removePrefix("/in/")) -> {
-                    errors.add("LinkedIn username contains invalid characters.")
-                }
-            }
-        }
-
-        // validate phone number
-        if (phoneNumber != null && !phoneRegex.matches(phoneNumber)) {
-            errors.add("Invalid phone number format.")
-        }
-
-        if (errors.isNotEmpty()) throw MultiError(400, errors)
     }
 
     companion object {
@@ -298,6 +205,91 @@ data class Profile(
         private fun isValidUmnClass(course: String): Boolean {
             val canonical = course.trim().uppercase().replace(Regex("\\s+"), " ")
             return umnClassRegex.matches(canonical)
+        }
+
+        class ProfileVerifier : Verifier<Profile>() {
+            override suspend fun VerificationScope<Profile>.rules() {
+                Profile::name {
+                    lengthIn(1..64, "Name must be between 1 and 64 characters.")
+                    matches(nameRegex, "Invalid characters in name.")
+                }
+
+                check(Profile::classes) {
+                    if (value != null && value.isNotEmpty()) {
+                        val normalized = value.map { it.trim() }
+                        val invalid = normalized.filterNot(::isValidUmnClass)
+                        if (invalid.isNotEmpty()) {
+                            errorIf(true, "Invalid UMN class codes: ${invalid.joinToString(", ")}.")
+                        }
+                    }
+                }
+
+                check(Profile::gradYear) {
+                    errorIf("Invalid graduation year.") { it != null && it !in 2020..2035 }
+                }
+
+                check(Profile::school) {
+                    if (value != null) {
+                        val valid = value.lowercase() in validSchools ||
+                            value.lowercase() in validShorthands
+                        errorIf(!valid, "Invalid school.")
+                    }
+                }
+
+                check(Profile::major) {
+                    if (value != null) {
+                        errorIf(
+                            instance.school == null,
+                            "To pick a major, you must have already chosen a school."
+                        )
+
+                        if (instance.school != null) {
+                            errorIf(value.lowercase() !in validMajors, "Invalid major.")
+
+                            val majorInSchool = schoolsData
+                                .singleOrNull { it.name == instance.school }
+                                ?.majors
+                                ?.any { it.equals(value, true) } ?: false
+
+                            errorIf(!majorInSchool, "That major is not in that school.")
+                        }
+                    }
+                }
+
+                check(Profile::bio) {
+                    errorIf("Bio must be under 512 characters.") { it != null && it.length > 512 }
+                }
+
+                check(Profile::instagram) {
+                    if (value != null) {
+                        errorIf(
+                            value.isBlank() || value.length > 32,
+                            "Instagram handle must be between 1 and 32 characters."
+                        )
+                        errorIf(!value.startsWith("@"), "Instagram handle must start with '@'.")
+                        errorIf(!instaRegex.matches(value), "Instagram handle contains invalid characters.")
+                    }
+                }
+
+                check(Profile::linkedIn) {
+                    if (value != null) {
+                        errorIf(
+                            value.isBlank() || value.length > 64,
+                            "LinkedIn username must be between 1 and 64 characters."
+                        )
+                        errorIf(
+                            !linkedInRegex.matches(value.removePrefix("/in/")),
+                            "LinkedIn username contains invalid characters."
+                        )
+                    }
+                }
+
+                check(Profile::phoneNumber) {
+                    errorIf("Invalid phone number format.") {
+                        it != null && !phoneRegex.matches(it)
+                    }
+                }
+            }
         }
 
         /** Get a [Profile] from a [row] using an aliased table */

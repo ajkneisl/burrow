@@ -1,8 +1,14 @@
-import { del, get, patch, post } from "@api/api.ts"
+import { del, get, patch, post, request } from "@api/api.ts"
 import type { PaginatedResponse } from "@api/api.types.ts"
-import { BASE_URL } from "@api/util.ts"
 import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
-import type { Club, ClubResponse, ClubMemberResponse, ClubRole, MyClubResponse, SubmittedClub } from "./clubs.types.ts"
+import type {
+    Club,
+    ClubResponse,
+    ClubMemberResponse,
+    ClubRole,
+    MyClubResponse,
+    SubmittedClub
+} from "./clubs.types.ts"
 
 export async function getClub(name: string): Promise<ClubResponse> {
     return await get(`/clubs/${name}`)
@@ -48,62 +54,50 @@ export async function createClub(submittedClub: SubmittedClub): Promise<Club> {
     return await post(`/clubs`, submittedClub)
 }
 
-export async function updateClub(clubName: string, submittedClub: Partial<SubmittedClub>): Promise<void> {
+export async function updateClub(
+    clubName: string,
+    submittedClub: Partial<SubmittedClub>
+): Promise<void> {
     return await patch(`/clubs/${clubName}`, submittedClub)
 }
 
-export async function inviteToClub(clubName: string, inviteeID: string): Promise<void> {
+export async function verifyClubFields(
+    fields: Partial<SubmittedClub>
+): Promise<void> {
+    return await post(`/clubs/verify`, fields)
+}
+
+export async function inviteToClub(
+    clubName: string,
+    inviteeID: string
+): Promise<void> {
     return await post(`/clubs/${clubName}/invites`, { inviteeID })
 }
 
-export async function getClubBurrows(clubName: string): Promise<BurrowResponse[]> {
+export async function getClubBurrows(
+    clubName: string
+): Promise<BurrowResponse[]> {
     return await get(`/clubs/${clubName}/burrows`)
 }
 
-export async function uploadClubPhoto(clubName: string, file: File, token: string) {
-    const response = await fetch(`${BASE_URL}/clubs/${clubName}/photo`, {
-        method: "POST",
-        headers: {
-            "Content-Type": file.type,
-            Authorization: `Bearer ${token}`,
-        },
-        body: file,
+export async function uploadClubPhoto(clubName: string, file: File) {
+    return await request("POST", `/clubs/${clubName}/photo`, {
+        data: file,
+        contentType: file.type
     })
-    if (!response.ok) {
-        const error = await response.json()
-        throw error.message || "Failed to upload photo"
-    }
-    return response.json()
 }
 
-export async function deleteClubPhoto(clubName: string, token: string) {
-    const response = await fetch(`${BASE_URL}/clubs/${clubName}/photo`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-    })
-    if (!response.ok) throw "Failed to delete photo"
+export async function deleteClubPhoto(clubName: string) {
+    await del(`/clubs/${clubName}/photo`)
 }
 
-export async function uploadClubBanner(clubName: string, file: File, token: string) {
-    const response = await fetch(`${BASE_URL}/clubs/${clubName}/banner`, {
-        method: "POST",
-        headers: {
-            "Content-Type": file.type,
-            Authorization: `Bearer ${token}`,
-        },
-        body: file,
+export async function uploadClubBanner(clubName: string, file: File) {
+    return await request("POST", `/clubs/${clubName}/banner`, {
+        data: file,
+        contentType: file.type
     })
-    if (!response.ok) {
-        const error = await response.json()
-        throw error.message || "Failed to upload banner"
-    }
-    return response.json()
 }
 
-export async function deleteClubBanner(clubName: string, token: string) {
-    const response = await fetch(`${BASE_URL}/clubs/${clubName}/banner`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-    })
-    if (!response.ok) throw "Failed to delete banner"
+export async function deleteClubBanner(clubName: string) {
+    await del(`/clubs/${clubName}/banner`)
 }

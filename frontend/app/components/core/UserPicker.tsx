@@ -11,7 +11,7 @@ import { Search, X, UserPlus } from "lucide-react-native"
 import ThemedIcon from "@components/core/ThemedIcon"
 import { get } from "@api/api"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { ProfilePicture } from "@components/profile/ProfilePicture"
+import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 
 type UserSearchResult = {
     id: string

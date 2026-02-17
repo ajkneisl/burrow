@@ -11,7 +11,7 @@ import {
 } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import useUser from "@features/auth/hooks/useUser"
-import { ProfilePicture } from "@components/profile/ProfilePicture"
+import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import { CapacityBadge } from "@features/burrows/components/CapacityBadge"
 import type { BurrowResponse } from "@features/burrows/burrows.types"
 import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"

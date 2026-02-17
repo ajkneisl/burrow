@@ -1,13 +1,15 @@
 package app.burrow
 
 import app.burrow.api.models.PaginatedResponse
-import app.burrow.features.account.getAllBlockedRelationships
 import app.burrow.features.account.Users
+import app.burrow.features.account.getAllBlockedRelationships
 import app.burrow.features.account.profile.Profiles
+import app.burrow.features.burrows.Burrows
 import app.burrow.features.burrows.models.Burrow
 import app.burrow.features.burrows.models.enums.BurrowVisibility
-import app.burrow.features.burrows.Burrows
 import app.burrow.features.burrows.searchBurrows
+import app.burrow.features.clubs.Clubs
+import app.burrow.features.clubs.models.enums.ClubPrivacy
 import kotlin.collections.map
 import kotlin.math.ceil
 import kotlinx.coroutines.flow.toList
@@ -25,9 +27,20 @@ import org.jetbrains.exposed.v1.core.notInList
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.r2dbc.select
 
-/** A search result that can be either a user or a burrow. */
+/** A search result that can be a burrow, club, or user */
 @Serializable
 sealed class SearchResult {
+    /**
+     * A club search result.
+     *
+     * @param clubID [Club.clubID]
+     * @param displayName [Club.displayName]
+     * @param name [Club.name]
+     */
+    @Serializable
+    @SerialName("club")
+    data class Club(val clubID: String, val displayName: String, val name: String) : SearchResult()
+
     /**
      * A user search result.
      *
@@ -87,9 +100,7 @@ suspend fun search(
 
     // get blocked users to exclude from results
     val blockedUserIds =
-        if (requestingUserID != null)
-            getAllBlockedRelationships(requestingUserID)
-        else emptySet()
+        if (requestingUserID != null) getAllBlockedRelationships(requestingUserID) else emptySet()
 
     return query {
         // blocked users filter expression
@@ -110,6 +121,14 @@ suspend fun search(
                 .select(Users.id)
                 .where { userSearchExpr }
                 .count()
+
+        // count total clubs (public only)
+        val clubSearchExpr =
+            (Clubs.privacy eq ClubPrivacy.PUBLIC) and
+                ((Clubs.displayName.lowerCase() like pattern) or
+                    (Clubs.name.lowerCase() like pattern))
+
+        val totalClubs = Clubs.select(Clubs.id).where { clubSearchExpr }.count()
 
         // count total burrows (excluding those hosted by blocked users)
         val tagsSearchExpr =
@@ -136,7 +155,7 @@ suspend fun search(
 
         val totalBurrows = Burrows.select(Burrows.id).where { burrowSearchExpr }.count()
 
-        val totalResults = totalUsers + totalBurrows
+        val totalResults = totalUsers + totalClubs + totalBurrows
         val totalPages = ceil(totalResults.toDouble() / PAGE_SIZE).toInt()
 
         // search users
@@ -166,11 +185,47 @@ suspend fun search(
             )
         }
 
-        // calculate remaining amount, calculate according offset
-        val remainingSlots = PAGE_SIZE - userResults.size
-        val burrowOffset =
+        // fill remaining slots with clubs, then burrows
+        var remainingSlots = PAGE_SIZE - userResults.size
+
+        val clubOffset =
             if (userOffset > totalUsers) {
                 userOffset - totalUsers
+            } else {
+                0L
+            }
+
+        val clubResults: List<SearchResult> =
+            Clubs.select(Clubs.columns)
+                .where { clubSearchExpr }
+                .orderBy(Clubs.displayName, SortOrder.ASC)
+                .offset(clubOffset)
+                .limit(remainingSlots)
+                .toList()
+                .map { row ->
+                    SearchResult.Club(
+                        clubID = row[Clubs.id],
+                        displayName = row[Clubs.displayName],
+                        name = row[Clubs.name],
+                    )
+                }
+
+        remainingSlots -= clubResults.size
+
+        if (remainingSlots <= 0) {
+            return@query PaginatedResponse(
+                page = page,
+                totalPages = totalPages,
+                totalResults = totalResults,
+                contents = userResults + clubResults,
+            )
+        }
+
+        val burrowOffset =
+            if (userOffset > totalUsers + totalClubs) {
+                userOffset - totalUsers - totalClubs
+            } else if (userOffset > totalUsers) {
+                maxOf(0L, (userOffset - totalUsers) - totalClubs)
             } else {
                 0L
             }
@@ -191,7 +246,7 @@ suspend fun search(
             page = page,
             totalPages = totalPages,
             totalResults = totalResults,
-            contents = userResults + burrowResults,
+            contents = userResults + clubResults + burrowResults,
         )
     }
 }

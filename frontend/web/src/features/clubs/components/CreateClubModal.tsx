@@ -10,6 +10,7 @@ import {
     Toggle,
     ViewErrors
 } from "@umnburrow/core"
+import useFormState from "@api/useFormState.ts"
 import { createClub } from "@features/clubs/clubs.api.ts"
 import type { ClubCategory, ClubPrivacy } from "@features/clubs/clubs.types.ts"
 import Field from "@features/burrows/create/components/Field.tsx"
@@ -45,74 +46,51 @@ export default function CreateClubModal({
     const nav = useNavigate()
     const queryClient = useQueryClient()
 
-    const [formState, setFormState] =
-        useState<CreateClubFormState>(initialFormState)
-    const [errors, setErrors] = useState<Record<string, string>>({})
-    const [serverErrors, setServerErrors] = useState<string[]>([])
+    const { formState, errors, setErrors, updateField, verify, reset } =
+        useFormState<CreateClubFormState>({
+            initial: initialFormState,
+            initialErrors: [] as string[],
+            verifyEndpoint: "/clubs/verify"
+        })
     const [currentStep, setCurrentStep] = useState(1)
 
     useEffect(() => {
         if (open) {
-            setFormState(initialFormState)
-            setErrors({})
-            setServerErrors([])
+            reset()
             setCurrentStep(1)
         }
-    }, [open])
+    }, [open, reset])
 
-    const updateField = useCallback(
-        <K extends keyof CreateClubFormState>(
-            field: K,
-            value: CreateClubFormState[K]
-        ) => {
-            setFormState((prev) => ({ ...prev, [field]: value }))
-        },
-        []
-    )
-
-    const validateCurrentStep = useCallback((): boolean => {
-        const next: Record<string, string> = {}
-
+    const validateCurrentStep = useCallback(async (): Promise<boolean> => {
         if (currentStep === 1) {
-            const name = formState.name
-
-            if (!name.trim()) {
-                next.name = "Required"
-            } else if (!/^[a-z0-9-]+$/.test(name.trim())) {
-                next.name = "Only lowercase letters, numbers, and hyphens"
-            }
-
-            const displayName = formState.displayName
-
-            if (!displayName.trim()) {
-                next.displayName = "Required"
-            } else if (displayName.trim().length > 32) {
-                next.displayName = "Must be 32 characters or fewer"
-            }
+            return await verify({
+                name: formState.name,
+                displayName: formState.displayName,
+                description: formState.description
+            })
         }
 
-        setErrors(next)
-        return Object.keys(next).length === 0
-    }, [currentStep, formState])
+        return true
+    }, [currentStep, formState.name, formState.displayName, formState.description, verify])
 
-    const handleNext = useCallback(() => {
-        if (!validateCurrentStep()) return
+    const handleNext = useCallback(async () => {
+        if (!(await validateCurrentStep())) return
         if (currentStep < 2) {
             setCurrentStep(currentStep + 1)
-            setErrors({})
+            setErrors([])
         }
-    }, [currentStep, validateCurrentStep])
+    }, [currentStep, validateCurrentStep, setErrors])
 
     const handleBack = useCallback(() => {
         if (currentStep > 1) {
             setCurrentStep(currentStep - 1)
-            setErrors({})
+            setErrors([])
         }
-    }, [currentStep])
+    }, [currentStep, setErrors])
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
-        if (!validateCurrentStep()) return
+        if (!(await validateCurrentStep())) return
 
         try {
             const club = await createClub({
@@ -125,15 +103,15 @@ export default function CreateClubModal({
                 members: []
             })
 
-            setServerErrors([])
+            setErrors([])
             void queryClient.invalidateQueries({ queryKey: ["myClubs"] })
             onClose()
             nav(`/club/${club.name}`)
         } catch (error) {
             if (Array.isArray(error)) {
-                setServerErrors(error as string[])
+                setErrors(error as string[])
             } else {
-                setServerErrors([error as string])
+                setErrors([error as string])
             }
         }
     }
@@ -194,10 +172,7 @@ export default function CreateClubModal({
             widthClass="md:min-w-xl max-w-xl"
         >
             <form id="create-club-form" onSubmit={handleSubmit}>
-                <ViewErrors
-                    errors={serverErrors}
-                    clearErrors={() => setServerErrors([])}
-                />
+                <ViewErrors errors={errors} clearErrors={() => setErrors([])} />
 
                 {currentStep === 1 && (
                     <div className="space-y-6">
@@ -212,11 +187,7 @@ export default function CreateClubModal({
                         </div>
 
                         <div className="grid gap-6 md:grid-cols-2">
-                            <Field
-                                label="Club Name"
-                                error={errors.name}
-                                className="min-w-0"
-                            >
+                            <Field label="Club Name" className="min-w-0">
                                 <Input
                                     value={formState.name}
                                     onChange={(e) =>
@@ -227,16 +198,12 @@ export default function CreateClubModal({
                                                 .replace(/\s/g, "-")
                                         )
                                     }
-                                    error={errors.name !== undefined}
+                                    error={errors.length > 0}
                                     placeholder="my-club"
                                 />
                             </Field>
 
-                            <Field
-                                label="Display Name"
-                                error={errors.displayName}
-                                className="min-w-0"
-                            >
+                            <Field label="Display Name" className="min-w-0">
                                 <Input
                                     value={formState.displayName}
                                     onChange={(e) =>
@@ -245,7 +212,6 @@ export default function CreateClubModal({
                                             e.target.value
                                         )
                                     }
-                                    error={errors.displayName !== undefined}
                                     placeholder="My Club"
                                 />
                             </Field>

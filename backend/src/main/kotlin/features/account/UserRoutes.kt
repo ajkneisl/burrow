@@ -12,6 +12,9 @@ import app.burrow.features.account.models.searchUsers
 import app.burrow.features.account.models.updateUsername
 import app.burrow.features.account.models.userID
 import app.burrow.features.account.models.validateUsername
+import app.burrow.api.throwIfNotEmpty
+import app.burrow.api.verify
+import app.burrow.api.verifyField
 import app.burrow.features.account.profile.Profile
 import app.burrow.features.account.profile.RELATION_ROUTES
 import app.burrow.features.account.profile.updateProfile
@@ -156,6 +159,18 @@ val USER_ROUTES: Route.() -> Unit = {
                 val linkedIn: String? = null,
             )
 
+            // POST /user/profile/verify
+            // verify fields of a profile
+            post("/verify") {
+                val fields = call.receive<Map<String, Any>>()
+
+                fields
+                    .flatMap { (field, value) -> verifyField<Profile>(field, value) }
+                    .throwIfNotEmpty()
+
+                call.respond(HttpStatusCode.OK)
+            }
+
             // POST /user/profile
             // update your profile
             post {
@@ -188,7 +203,8 @@ val USER_ROUTES: Route.() -> Unit = {
                         badges = listOf(),
                     )
 
-                profile.validate()
+                profile.normalize()
+                profile.verify().throwIfNotEmpty()
                 updateProfile(profile)
 
                 call.respond(HttpStatusCode.OK, profile)

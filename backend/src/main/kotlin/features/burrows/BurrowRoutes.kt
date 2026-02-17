@@ -14,12 +14,15 @@ import app.burrow.features.burrows.membership.membershipRoutes
 import app.burrow.features.burrows.models.enums.BurrowKind
 import app.burrow.features.burrows.models.SubmittedBurrow
 import app.burrow.features.burrows.models.SubmittedProjectBurrow
+import app.burrow.features.burrows.models.SubmittedProjectBurrowVerifier
 import app.burrow.features.burrows.models.SubmittedStudyEventBurrow
 import app.burrow.api.optionalBooleanQueryParameter
 import app.burrow.api.optionalEnumQueryParameter
 import app.burrow.api.optionalIntQueryParameter
 import app.burrow.api.optionalLongQueryParameter
 import app.burrow.api.queryParameter
+import app.burrow.api.verify
+import app.burrow.api.verifyField
 import app.burrow.api.throwIfNotEmpty
 import app.burrow.api.throwIfNull
 import app.burrow.api.urlParameter
@@ -141,17 +144,43 @@ val BURROW_ROUTES: Route.() -> Unit = {
         )
     }
 
+    // POST /burrows/verify
+    // verify fields of a study/event burrow
+    post("/verify") {
+        val partialBurrow = call.receive<Map<String, Any>>()
+
+        partialBurrow
+            .flatMap { (field, value) -> verifyField<SubmittedStudyEventBurrow>(field, value) }
+            .throwIfNotEmpty()
+
+        call.respond(HttpStatusCode.OK)
+    }
+
+    // POST /burrows/verify/project
+    // verify fields of a project burrow
+    post("/verify/project") {
+        val partialBurrow = call.receive<Map<String, Any>>()
+        val verifier = SubmittedProjectBurrowVerifier(isUpdating = false)
+
+        partialBurrow
+            .flatMap { (field, value) -> verifier.verifyField(field, value) }
+            .throwIfNotEmpty()
+
+        call.respond(HttpStatusCode.OK)
+    }
+
     // POST /burrows
     // create a Burrow
     post {
         when (val submittedBurrow = call.receive<SubmittedBurrow>()) {
             is SubmittedProjectBurrow -> {
-                submittedBurrow.validateSubmittedBurrow(false).throwIfNotEmpty()
+                SubmittedProjectBurrowVerifier(isUpdating = false)
+                    .verify(submittedBurrow).throwIfNotEmpty()
                 call.respond(createProjectBurrow(call.userID, submittedBurrow))
             }
 
             is SubmittedStudyEventBurrow -> {
-                submittedBurrow.validateSubmittedBurrow().throwIfNotEmpty()
+                submittedBurrow.verify().throwIfNotEmpty()
                 call.respond(createBurrow(call.userID, submittedBurrow, submittedBurrow.clubID))
             }
         }
@@ -190,12 +219,13 @@ val BURROW_ROUTES: Route.() -> Unit = {
 
             when (val submittedBurrow = call.receive<SubmittedBurrow>()) {
                 is SubmittedProjectBurrow -> {
-                    submittedBurrow.validateSubmittedBurrow(true).throwIfNotEmpty()
+                    SubmittedProjectBurrowVerifier(isUpdating = true)
+                        .verify(submittedBurrow).throwIfNotEmpty()
                     updateProjectBurrow(id, submittedBurrow)
                 }
 
                 is SubmittedStudyEventBurrow -> {
-                    submittedBurrow.validateSubmittedBurrow().throwIfNotEmpty()
+                    submittedBurrow.verify().throwIfNotEmpty()
                     updatedBurrow(id, submittedBurrow)
                 }
             }

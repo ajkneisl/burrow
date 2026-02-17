@@ -1,7 +1,6 @@
 import { useMemo, useRef, useState } from "react"
 import clsx from "clsx"
 import { CDN_URL } from "@api/util.ts"
-import useToken from "@features/auth/hooks/useToken.ts"
 import { uploadClubPhoto } from "@features/clubs/clubs.api.ts"
 import toast from "react-hot-toast"
 
@@ -25,7 +24,6 @@ export default function ClubProfilePicture({
     const [showHover, setShowHover] = useState(false)
     const [cacheBust, setCacheBust] = useState(0)
     const fileInputRef = useRef<HTMLInputElement>(null)
-    const token = useToken()
 
     const initials = useMemo(
         () =>
@@ -61,7 +59,7 @@ export default function ClubProfilePicture({
 
     const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
-        if (!file || !token) return
+        if (!file) return
 
         const validTypes = ["image/png", "image/jpeg", "image/gif", "image/webp"]
         if (!validTypes.includes(file.type)) {
@@ -76,7 +74,7 @@ export default function ClubProfilePicture({
 
         setUploading(true)
         try {
-            await uploadClubPhoto(clubName, file, token)
+            await uploadClubPhoto(clubName, file)
             setImageError(false)
             setCacheBust(Date.now())
             toast.success("Club avatar updated!")

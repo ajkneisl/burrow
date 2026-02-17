@@ -1,15 +1,24 @@
-import { useState } from "react"
-import { View, Text, ScrollView, Pressable, KeyboardAvoidingView, Platform } from "react-native"
+import { View, Text, ScrollView, Pressable, KeyboardAvoidingView, Platform, FlatList } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack } from "expo-router"
 import { ArrowLeft } from "lucide-react-native"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
-import { Input, Button } from "@components/core"
+import { Input, Button, Card } from "@components/core"
 import useProfile from "@features/auth/hooks/useProfile"
 import { saveProfile } from "@features/auth/user.api"
 import { useThemeColors } from "@api/theme/useThemeColors"
+import useFormState from "@api/useFormState"
 import type { Profile } from "@features/profile/profile.model"
+
+type ProfileFormState = {
+    name: string
+    bio: string
+    gradYear: string
+    major: string
+    instagram: string
+    linkedIn: string
+}
 
 /**
  * Edit profile settings page.
@@ -22,61 +31,46 @@ export default function EditProfileScreen() {
     const colors = useThemeColors()
     const queryClient = useQueryClient()
 
-    const [name, setName] = useState(profile?.name || "")
-    const [bio, setBio] = useState(profile?.bio || "")
-    const [gradYear, setGradYear] = useState(
-        profile?.gradYear ? profile.gradYear.toString() : ""
-    )
-    const [major, setMajor] = useState(profile?.major || "")
-    const [instagram, setInstagram] = useState(profile?.instagram || "")
-    const [linkedIn, setLinkedIn] = useState(profile?.linkedIn || "")
-    const [errors, setErrors] = useState<Record<string, string>>({})
+    const { formState, errors, setErrors, updateField, verify } =
+        useFormState<ProfileFormState>({
+            initial: {
+                name: profile?.name || "",
+                bio: profile?.bio || "",
+                gradYear: profile?.gradYear ? profile.gradYear.toString() : "",
+                major: profile?.major || "",
+                instagram: profile?.instagram || "",
+                linkedIn: profile?.linkedIn || ""
+            },
+            initialErrors: [] as string[],
+            verifyEndpoint: "/user/profile/verify"
+        })
 
     const saveMutation = useMutation({
         mutationFn: async () => {
-            const validationErrors: Record<string, string> = {}
-
-            if (!name.trim()) {
-                validationErrors.name = "Please enter your name"
-            } else if (name.trim().length < 2) {
-                validationErrors.name = "Name must be at least 2 characters"
+            const verifyFields: Record<string, unknown> = {
+                name: formState.name.trim()
             }
 
-            if (gradYear) {
-                const year = parseInt(gradYear)
-                if (isNaN(year) || year < 2020 || year > 2035) {
-                    validationErrors.gradYear =
-                        "Please enter a valid year between 2020 and 2035"
-                }
-            }
+            if (formState.bio.trim())
+                verifyFields.bio = formState.bio.trim()
+            if (formState.gradYear)
+                verifyFields.gradYear = parseInt(formState.gradYear)
+            if (formState.instagram.trim())
+                verifyFields.instagram = formState.instagram.trim()
+            if (formState.linkedIn.trim())
+                verifyFields.linkedIn = formState.linkedIn.trim()
 
-            if (instagram.trim()) {
-                const instaValue = instagram.trim()
-                if (!instaValue.startsWith("@")) {
-                    validationErrors.instagram =
-                        "Instagram handle must start with @ (e.g., @johndoe)"
-                } else if (instaValue.length < 2) {
-                    validationErrors.instagram =
-                        "Please enter a valid Instagram handle"
-                } else if (!/^@[a-zA-Z0-9._]+$/.test(instaValue)) {
-                    validationErrors.instagram =
-                        "Instagram handle can only contain letters, numbers, periods, and underscores"
-                }
-            }
-
-            if (Object.keys(validationErrors).length > 0) {
-                setErrors(validationErrors)
-                throw new Error("Validation failed")
-            }
+            const valid = await verify(verifyFields)
+            if (!valid) throw new Error("Validation failed")
 
             const updates: Partial<Profile> = {
-                name: name.trim(),
+                name: formState.name.trim(),
                 visibility: profile!.visibility,
-                bio: bio.trim() || null,
-                gradYear: gradYear ? parseInt(gradYear) : null,
-                major: major.trim() || null,
-                instagram: instagram.trim() || null,
-                linkedIn: linkedIn.trim() || null
+                bio: formState.bio.trim() || null,
+                gradYear: formState.gradYear ? parseInt(formState.gradYear) : null,
+                major: formState.major.trim() || null,
+                instagram: formState.instagram.trim() || null,
+                linkedIn: formState.linkedIn.trim() || null
             }
 
             return await saveProfile(updates)
@@ -137,26 +131,16 @@ export default function EditProfileScreen() {
                 <ScrollView className="flex-1 px-6 py-4" contentContainerStyle={{ flexGrow: 1 }}>
                     <Input
                         label="Full Name *"
-                        value={name}
-                        onChangeText={(value) => {
-                            setName(value)
-                            if (errors.name) {
-                                setErrors((prev) => {
-                                    const next = { ...prev }
-                                    delete next.name
-                                    return next
-                                })
-                            }
-                        }}
+                        value={formState.name}
+                        onChangeText={(value) => updateField("name", value)}
                         placeholder="e.g., John Doe"
                         variant="outline"
-                        error={errors.name}
                     />
 
                     <Input
                         label="Bio"
-                        value={bio}
-                        onChangeText={setBio}
+                        value={formState.bio}
+                        onChangeText={(value) => updateField("bio", value)}
                         placeholder="Tell us about yourself..."
                         variant="outline"
                         multiline
@@ -165,58 +149,63 @@ export default function EditProfileScreen() {
 
                     <Input
                         label="Graduation Year"
-                        value={gradYear}
-                        onChangeText={(value) => {
-                            setGradYear(value.replace(/\D/g, ""))
-                            if (errors.gradYear) {
-                                setErrors((prev) => {
-                                    const next = { ...prev }
-                                    delete next.gradYear
-                                    return next
-                                })
-                            }
-                        }}
+                        value={formState.gradYear}
+                        onChangeText={(value) =>
+                            updateField("gradYear", value.replace(/\D/g, ""))
+                        }
                         placeholder="e.g., 2025"
                         variant="outline"
                         keyboardType="numeric"
-                        error={errors.gradYear}
                     />
 
                     <Input
                         label="Major"
-                        value={major}
-                        onChangeText={setMajor}
+                        value={formState.major}
+                        onChangeText={(value) => updateField("major", value)}
                         placeholder="e.g., Computer Science"
                         variant="outline"
                     />
 
                     <Input
                         label="Instagram"
-                        value={instagram}
-                        onChangeText={(value) => {
-                            setInstagram(value)
-                            if (errors.instagram) {
-                                setErrors((prev) => {
-                                    const next = { ...prev }
-                                    delete next.instagram
-                                    return next
-                                })
-                            }
-                        }}
+                        value={formState.instagram}
+                        onChangeText={(value) => updateField("instagram", value)}
                         placeholder="@username"
                         variant="outline"
-                        error={errors.instagram}
                     />
 
                     <Input
                         label="LinkedIn"
-                        value={linkedIn}
-                        onChangeText={setLinkedIn}
+                        value={formState.linkedIn}
+                        onChangeText={(value) => updateField("linkedIn", value)}
                         placeholder="e.g., linkedin.com/in/johndoe"
                         variant="outline"
                     />
 
                     <View className="flex-1" />
+
+                    {/* Server errors */}
+                    {errors.length > 0 && (
+                        <Card
+                            variant="bordered"
+                            className="mb-4"
+                            style={{
+                                backgroundColor: `${colors.error}3A`
+                            }}
+                        >
+                            <FlatList
+                                data={errors}
+                                renderItem={(err) => (
+                                    <Text>
+                                        <Text className="font-semibold">
+                                            {err.index + 1}.
+                                        </Text>{" "}
+                                        {err.item}
+                                    </Text>
+                                )}
+                            />
+                        </Card>
+                    )}
 
                     <View className="flex-row gap-3 mt-6 mb-4">
                         <Button
@@ -231,7 +220,7 @@ export default function EditProfileScreen() {
                         <Button
                             variant="primary"
                             onPress={() => {
-                                setErrors({})
+                                setErrors([])
                                 saveMutation.mutate()
                             }}
                             className="flex-1"

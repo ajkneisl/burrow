@@ -7,6 +7,8 @@ import app.burrow.api.optionalIntQueryParameter
 import app.burrow.api.throwIfNotEmpty
 import app.burrow.api.throwIfNull
 import app.burrow.api.urlParameter
+import app.burrow.api.verify
+import app.burrow.api.verifyField
 import app.burrow.features.account.models.userID
 import app.burrow.features.burrows.searchBurrows
 import app.burrow.features.clubs.members.changeClubRole
@@ -23,7 +25,6 @@ import app.burrow.features.clubs.models.SubmittedClub
 import app.burrow.features.clubs.models.enums.ClubCategory
 import app.burrow.features.clubs.models.enums.ClubRole
 import app.burrow.features.clubs.models.getClubResponse
-import app.burrow.features.clubs.models.verifySubmission
 import app.burrow.features.invites.InviteType
 import app.burrow.features.invites.cancelInvite
 import app.burrow.features.invites.createInvite
@@ -63,10 +64,22 @@ val CLUB_ROUTES: Route.() -> Unit = {
         val userID = call.userID
         val submittedClub = call.receive<SubmittedClub>()
 
-        submittedClub.verifySubmission(userID).throwIfNotEmpty()
+        submittedClub.verify().throwIfNotEmpty()
 
         val club = createClub(userID, submittedClub)
         call.respond(HttpStatusCode.Created, club)
+    }
+
+    // POST /clubs/verify
+    // verify fields of a club
+    post("/verify") {
+        val partialClub = call.receive<Map<String, Any>>()
+
+        partialClub
+            .flatMap { (field, value) -> verifyField<SubmittedClub>(field, value) }
+            .throwIfNotEmpty()
+
+        call.respond(HttpStatusCode.OK)
     }
 
     // GET /clubs/mine

@@ -4,7 +4,8 @@ import {
     Text,
     Pressable,
     KeyboardAvoidingView,
-    Platform
+    Platform,
+    FlatList
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter } from "expo-router"
@@ -12,7 +13,7 @@ import { useAtom } from "jotai"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
 import { X, ChevronLeft } from "lucide-react-native"
-import { Modal } from "@components/core"
+import { Card, Modal } from "@components/core"
 import ThemedIcon from "@components/core/ThemedIcon"
 import { createClubModalOpen } from "@features/layout/layout.atom"
 import { createClub } from "@features/clubs/clubs.api"
@@ -21,6 +22,7 @@ import {
     initialFormState
 } from "@features/clubs/club.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
+import useFormState from "@api/useFormState"
 import ClubPrivacyStep from "@features/clubs/components/ClubPrivacyStep"
 import ClubInfoStep from "@features/clubs/components/ClubInfoStep"
 
@@ -36,58 +38,35 @@ export default function CreateClubModal() {
 
     const [open, setOpen] = useAtom(createClubModalOpen)
 
-    const [formState, setFormState] =
-        useState<CreateClubFormState>(initialFormState)
-    const [errors, setErrors] = useState<Record<string, string>>({})
+    const { formState, errors, setErrors, updateField, verify, reset } =
+        useFormState<CreateClubFormState>({
+            initial: initialFormState,
+            initialErrors: [] as string[],
+            verifyEndpoint: "/clubs/verify"
+        })
+
     const [currentStep, setCurrentStep] = useState(1)
 
     const totalSteps = 2
 
-    // update a field to a new value
-    const updateField = useCallback(
-        <K extends keyof CreateClubFormState>(
-            field: K,
-            value: CreateClubFormState[K]
-        ) => {
-            setFormState((prev) => ({ ...prev, [field]: value }))
-            if (errors[field]) {
-                setErrors((prev) => {
-                    const next = { ...prev }
-                    delete next[field]
-                    return next
-                })
-            }
-        },
-        [errors]
-    )
-
-    // ensure that the current step has valid inputs
-    const validateCurrentStep = useCallback((): boolean => {
-        const next: Record<string, string> = {}
-
+    // validate current step via server
+    const validateCurrentStep = useCallback(async (): Promise<boolean> => {
         if (currentStep === 1) {
-            // validate name
-            const name = formState.name.trim()
-
-            if (!name) {
-                next.name = "Required"
-            } else if (!/^[a-z0-9-]+$/.test(name)) {
-                next.name = "Only lowercase letters, numbers, and hyphens"
-            }
-
-            // validate display name
-            const displayName = formState.displayName.trim()
-
-            if (!displayName) {
-                next.displayName = "Required"
-            } else if (displayName.length > 32) {
-                next.displayName = "Must be 32 characters or fewer"
-            }
+            return await verify({
+                name: formState.name,
+                displayName: formState.displayName,
+                description: formState.description
+            })
         }
 
-        setErrors(next)
-        return Object.keys(next).length === 0
-    }, [currentStep, formState])
+        return true
+    }, [
+        currentStep,
+        formState.name,
+        formState.displayName,
+        formState.description,
+        verify
+    ])
 
     // when the club is created
     const createClubMutation = useMutation({
@@ -122,42 +101,41 @@ export default function CreateClubModal() {
         },
 
         onError: (error: any) => {
-            Toast.show({
-                type: "error",
-                text1: "Failed to create club",
-                text2: error?.message || error || "Please try again"
-            })
+            if (Array.isArray(error)) {
+                setErrors(error as string[])
+            } else {
+                setErrors([error?.message || error || "Please try again"])
+            }
         }
     })
 
     // handle next step
-    const handleNext = useCallback(() => {
-        if (!validateCurrentStep()) return
+    const handleNext = useCallback(async () => {
+        if (!(await validateCurrentStep())) return
         if (currentStep < totalSteps) {
             setCurrentStep(currentStep + 1)
-            setErrors({})
+            setErrors([])
         }
-    }, [currentStep, validateCurrentStep, totalSteps])
+    }, [currentStep, validateCurrentStep, totalSteps, setErrors])
 
     // handle go back step
     const handleBack = useCallback(() => {
         if (currentStep > 1) {
             setCurrentStep(currentStep - 1)
-            setErrors({})
+            setErrors([])
         }
-    }, [currentStep])
+    }, [currentStep, setErrors])
 
     // handle submit
-    const handleSubmit = useCallback(() => {
-        if (!validateCurrentStep()) return
+    const handleSubmit = useCallback(async () => {
+        if (!(await validateCurrentStep())) return
         createClubMutation.mutate()
     }, [validateCurrentStep, createClubMutation])
 
     // handle close
     const handleClose = () => {
         setOpen(false)
-        setFormState(initialFormState)
-        setErrors({})
+        reset()
         setCurrentStep(1)
     }
 
@@ -210,6 +188,29 @@ export default function CreateClubModal() {
                     ))}
                 </View>
 
+                {/* Server errors */}
+                {errors.length > 0 && (
+                    <Card
+                        variant="bordered"
+                        className="mx-6"
+                        style={{
+                            backgroundColor: `${colors.error}3A`
+                        }}
+                    >
+                        <FlatList
+                            data={errors}
+                            renderItem={(err) => (
+                                <Text>
+                                    <Text className="font-semibold">
+                                        {err.index + 1}.
+                                    </Text>{" "}
+                                    {err.item}
+                                </Text>
+                            )}
+                        />
+                    </Card>
+                )}
+
                 {/* Step Content */}
                 <KeyboardAvoidingView
                     behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -220,13 +221,13 @@ export default function CreateClubModal() {
                         <ClubInfoStep
                             updateField={updateField}
                             formState={formState}
-                            errors={errors}
+                            errors={{}}
                         />
                     ) : (
                         <ClubPrivacyStep
                             updateField={updateField}
                             formState={formState}
-                            errors={errors}
+                            errors={{}}
                         />
                     )}
                 </KeyboardAvoidingView>
