@@ -29,7 +29,7 @@ import ClubInfoStep from "@features/clubs/components/ClubInfoStep"
  *
  * @author AJ Kneisl
  */
-export function CreateClubModal() {
+export default function CreateClubModal() {
     const router = useRouter()
     const queryClient = useQueryClient()
     const colors = useThemeColors()
@@ -66,15 +66,23 @@ export function CreateClubModal() {
         const next: Record<string, string> = {}
 
         if (currentStep === 1) {
+            // validate name
             const name = formState.name.trim()
-            if (!name) next.name = "Required"
-            else if (!/^[a-z0-9-]+$/.test(name))
-                next.name = "Only lowercase letters, numbers, and hyphens"
 
+            if (!name) {
+                next.name = "Required"
+            } else if (!/^[a-z0-9-]+$/.test(name)) {
+                next.name = "Only lowercase letters, numbers, and hyphens"
+            }
+
+            // validate display name
             const displayName = formState.displayName.trim()
-            if (!displayName) next.displayName = "Required"
-            else if (displayName.length > 32)
+
+            if (!displayName) {
+                next.displayName = "Required"
+            } else if (displayName.length > 32) {
                 next.displayName = "Must be 32 characters or fewer"
+            }
         }
 
         setErrors(next)

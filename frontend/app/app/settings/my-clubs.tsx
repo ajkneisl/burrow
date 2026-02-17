@@ -13,7 +13,7 @@ import { ArrowLeft, Users, Plus } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { get } from "@api/api"
 import { MyClubResponse } from "@features/clubs/club.types"
-import { CreateClubModal } from "@features/clubs/components/CreateClubModal"
+import CreateClubModal from "@features/clubs/components/CreateClubModal"
 import { createClubModalOpen } from "@features/layout/layout.atom"
 import ClubCard from "@features/clubs/components/ClubCard"
 

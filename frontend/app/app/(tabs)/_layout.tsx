@@ -4,7 +4,7 @@ import { Home, Search, Compass, Users, User } from "lucide-react-native"
 import { SearchModal } from "@features/layout/components"
 import { CreateBurrowModal } from "@features/burrows/create/CreateBurrowModal"
 import { BurrowMapModal } from "@features/burrows/components/BurrowMapModal"
-import { CreateClubModal } from "@features/clubs/components/CreateClubModal"
+import CreateClubModal from "@features/clubs/components/CreateClubModal"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**
