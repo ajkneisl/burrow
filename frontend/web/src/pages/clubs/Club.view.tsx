@@ -53,7 +53,6 @@ function roleIcon(role: ClubRole) {
 
 export default function ClubView() {
     const { name } = useParams<{ name: string }>()
-    const nav = useNavigate()
     const auth = useToken()
     const user = useUser()
     const queryClient = useQueryClient()

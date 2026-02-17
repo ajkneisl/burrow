@@ -20,7 +20,8 @@ export const profileEdits = atom<Record<keyof Profile, string>>({
     linkedIn: "",
     visibility: "Public",
     major: "",
-    school: ""
+    school: "",
+    badges: ""
 })
 
 /**

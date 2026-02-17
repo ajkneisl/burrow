@@ -14,7 +14,7 @@
         "@tailwindcss/vite": "4.0.17",
         "@tanstack/react-query": "^5.89.0",
         "@types/react-helmet": "^6.1.11",
-        "@umnburrow/core": "^0.1.38",
+        "@umnburrow/core": "^0.1.40",
         "@vis.gl/react-google-maps": "^1.7.1",
         "clsx": "^2.1.1",
         "cookie-store": "^3.0.0",

@@ -9,7 +9,6 @@ import { Badge, Card } from "@umnburrow/core"
 import clsx from "clsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.tsx"
-import { useMemo } from "react"
 import BurrowCapacity from "@features/burrows/components/BurrowCapacity.tsx"
 import {
     Calendar,
@@ -51,17 +50,6 @@ export function BurrowCard({
     const isPast = burrow.endTime < Date.now()
     const isOwner = user !== null && burrow.ownerID === user.id
     const isJoined = meetingResponse?.membership?.status === "JOINED"
-
-    const tags: Record<string, boolean> = useMemo(() => {
-        const highlightedSet = new Set(meetingResponse.highlightedTags)
-        const tags: Record<string, boolean> = {}
-
-        meetingResponse.burrow.tags.forEach((tag, index) => {
-            tags[tag] = highlightedSet.has(index)
-        })
-
-        return tags
-    }, [meetingResponse.highlightedTags, meetingResponse.burrow.tags])
 
     // navigate to the burrow page :)
     const onClick = () => {

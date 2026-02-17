@@ -5,10 +5,14 @@ import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import { searchMeetings } from "@features/burrows/burrows.api.ts"
 import BurrowHeatmap from "@features/burrows/components/BurrowHeatmap.tsx"
-import { Input, useDateRangePicker, ViewErrors } from "@umnburrow/core"
+import {
+    Input,
+    useDateRangePicker,
+    ViewErrors,
+    Paginator
+} from "@umnburrow/core"
 import clsx from "clsx"
 import { humanDateLabel, weekRangeLabel } from "@api/util.ts"
-import Paginator from "../../../../core/lib/components/Paginator.tsx"
 import { Loader2, ChevronRight, SlidersHorizontal } from "lucide-react"
 
 /**

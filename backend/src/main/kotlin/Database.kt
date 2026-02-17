@@ -73,24 +73,28 @@ suspend fun initDb() {
                 table.kotlin.objectInstance
             }
 
-        SchemaUtils.createMissingTablesAndColumns(*allTables.toTypedArray())
+        allTables.forEach { table ->
+            println("Working on: ${table.tableName}")
+            SchemaUtils.createMissingTablesAndColumns(table)
+        }
     }
 
     LOGGER.debug("Connected to Database")
 }
 
 /** Annotate a data class with its corresponding Exposed [Table] for use with [toEntity]. */
-@Target(AnnotationTarget.CLASS)
-annotation class MappedTable(val table: KClass<out Table>)
+@Target(AnnotationTarget.CLASS) annotation class MappedTable(val table: KClass<out Table>)
 
-@PublishedApi
-internal val tableAnnotationCache = ConcurrentHashMap<KClass<*>, Table>()
+@PublishedApi internal val tableAnnotationCache = ConcurrentHashMap<KClass<*>, Table>()
 
 @PublishedApi
 internal fun resolveTable(kClass: KClass<*>): Table =
     tableAnnotationCache.getOrPut(kClass) {
-        val annotation = kClass.findAnnotation<MappedTable>()
-            ?: error("${kClass.simpleName} has no @MappedTable annotation and no table was provided")
+        val annotation =
+            kClass.findAnnotation<MappedTable>()
+                ?: error(
+                    "${kClass.simpleName} has no @MappedTable annotation and no table was provided"
+                )
         annotation.table.objectInstance
             ?: error("@MappedTable table for ${kClass.simpleName} must be an object")
     }
@@ -118,33 +122,37 @@ internal fun buildEntityMapping(kClass: KClass<*>, table: Table): EntityMapping 
     // Pre-compute snake_case -> camelCase for all columns once
     val columnsByName = table.columns.associateBy { it.name.snakeToCamel().lowercase() }
 
-    val params = constructor.parameters.mapNotNull { param ->
-        val column = columnsByName[param.name!!.lowercase()]
-        if (column == null) {
-            if (param.isOptional) return@mapNotNull null
-            error("No column found for parameter '${param.name}' in table '${table.tableName}'")
+    val params =
+        constructor.parameters.mapNotNull { param ->
+            val column = columnsByName[param.name!!.lowercase()]
+            if (column == null) {
+                if (param.isOptional) return@mapNotNull null
+                error("No column found for parameter '${param.name}' in table '${table.tableName}'")
+            }
+            val isJsonCollection =
+                param.type.classifier in listOf(List::class, Set::class, Map::class, HashMap::class)
+            ParamMapping(param, column, isJsonCollection)
         }
-        val isJsonCollection = param.type.classifier in listOf(List::class, Set::class, Map::class, HashMap::class)
-        ParamMapping(param, column, isJsonCollection)
-    }
 
     return EntityMapping(params, constructor)
 }
 
 inline fun <reified T : Any> ResultRow.toEntity(table: Table? = null): T {
     val resolvedTable = table ?: resolveTable(T::class)
-    val mapping = entityMappingCache.getOrPut(T::class to resolvedTable) {
-        buildEntityMapping(T::class, resolvedTable)
-    }
+    val mapping =
+        entityMappingCache.getOrPut(T::class to resolvedTable) {
+            buildEntityMapping(T::class, resolvedTable)
+        }
 
     val args = HashMap<KParameter, Any?>(mapping.params.size)
     for (pm in mapping.params) {
         val value = this[pm.column]
-        args[pm.param] = if (pm.isJsonCollection && value is String) {
-            Json.decodeFromString(serializer(pm.param.type), value)
-        } else {
-            value
-        }
+        args[pm.param] =
+            if (pm.isJsonCollection && value is String) {
+                Json.decodeFromString(serializer(pm.param.type), value)
+            } else {
+                value
+            }
     }
 
     @Suppress("UNCHECKED_CAST")

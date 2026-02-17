@@ -34,7 +34,7 @@ yarn-error.*
 *.pem
 
 # local env files
-.env*.local
+.env.development
 
 # typescript
 *.tsbuildinfo
@@ -48,3 +48,4 @@ app-example
 .vscode
 
 google-services.json
+.env.production

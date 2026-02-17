@@ -143,11 +143,13 @@ export default function RootLayout() {
                     mode="create"
                     modalTitle={"Create a Club Meeting"}
                     onSubmit={async (payload) => {
-                        return await createBurrow({
-                            ...payload,
-                            kind: "CLUB",
-                            clubID: selectedClubID ?? undefined
-                        })
+                        if ("title" in payload) {
+                            return await createBurrow({
+                                ...payload,
+                                kind: "CLUB",
+                                clubID: selectedClubID ?? undefined
+                            })
+                        }
                     }}
                 />
 

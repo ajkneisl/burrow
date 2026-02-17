@@ -26,7 +26,6 @@ export async function unblockUser(userID: string): Promise<void> {
     return del("/user/block", { query: { userID } })
 }
 
-
 /**
  * Get a user by their userID.
  *
@@ -79,6 +78,7 @@ export async function unFollowUser(userID: string) {
 export async function saveProfile(profile: Record<keyof Profile, string>) {
     let parsedProfile: Partial<Profile> = {
         ...profile,
+        badges: [],
         visibility: profile.visibility.toUpperCase() as
             | "PUBLIC"
             | "PRIVATE"
