@@ -189,8 +189,9 @@ val CLUB_MEMBERSHIP_ROUTES: Route.() -> Unit = {
 
         if (isSelf) {
             // members can change their own role name, but not their role level
-            val membership = getClubMembership(call.userID, club.id)
-                ?: throw MultiError(400, listOf("You are not a member of this club."))
+            val membership =
+                getClubMembership(call.userID, club.id)
+                    ?: throw MultiError(400, listOf("You are not a member of this club."))
 
             if (payload.role != membership.role)
                 throw MultiError(400, listOf("You cannot change your own role."))
