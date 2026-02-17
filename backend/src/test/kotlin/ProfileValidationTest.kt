@@ -1,6 +1,7 @@
 package app.burrow
 
-import app.burrow.account.profile.Profile
+import app.burrow.features.account.profile.Profile
+import app.burrow.api.Error
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.string.shouldContain

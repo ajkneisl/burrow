@@ -9,8 +9,10 @@ import { Button, Card } from "@components/core"
 import type { Burrow, BurrowKind } from "@features/burrows/burrows.types"
 import { createBurrow, updateBurrow } from "../burrows.api"
 import { useThemeColors } from "@api/theme/useThemeColors"
+import useFormState from "@api/useFormState"
 import {
     initialFormState,
+    type CreateStepProps,
     type SubmittedBurrowFormState,
     type SubmittedBurrow,
     type SubmittedStudyEventBurrow,
@@ -22,6 +24,7 @@ import { ScheduleStep } from "./steps/ScheduleStep"
 import { ProjectInfoStep } from "./steps/ProjectInfoStep"
 import { MembersStep } from "./steps/MembersStep"
 import { DueDateStep } from "./steps/DueDateStep"
+import { ClubSelectorStep } from "./steps/ClubSelectorStep"
 import ThemedIcon from "@components/core/ThemedIcon"
 
 /**
@@ -57,20 +60,32 @@ export function CreateBurrowWizard({
     const queryClient = useQueryClient()
     const colors = useThemeColors()
 
-    const [currentStep, setCurrentStep] = useState(1)
-    const [formState, setFormState] = useState<SubmittedBurrowFormState>({
-        ...initialFormState,
-        kind: burrowKind,
-        ...initialData
-    })
-    const [errors, setErrors] = useState<Record<string, string>>({})
-
-    // errors from backend
-    const [submissionErrors, setSubmissionErrors] = useState<string[]>([])
-
     const isProjectBurrow = burrowKind === "PROJECT"
-    const totalSteps = 3
+    const isClubBurrow = burrowKind === "CLUB" && mode !== "update"
+    const totalSteps = isClubBurrow ? 4 : 3
     const isEditMode = mode === "update"
+
+    const {
+        formState,
+        setFormState,
+        errors: serverErrors,
+        setErrors: setServerErrors,
+        updateField,
+        verify,
+        reset
+    } = useFormState<SubmittedBurrowFormState, string[]>({
+        initial: {
+            ...initialFormState,
+            kind: burrowKind,
+            ...initialData
+        },
+        initialErrors: [],
+        verifyEndpoint: isProjectBurrow
+            ? "/burrows/verify/project"
+            : "/burrows/verify"
+    })
+
+    const [currentStep, setCurrentStep] = useState(1)
 
     const mutation = useMutation({
         mutationFn: async (payload: SubmittedBurrow) => {
@@ -118,168 +133,118 @@ export function CreateBurrowWizard({
             })
 
             if (Array.isArray(error)) {
-                setSubmissionErrors(error)
+                setServerErrors(error)
             }
         }
     })
 
-    // update a field
-    const updateField = useCallback(
-        <K extends keyof SubmittedBurrowFormState>(
-            field: K,
-            value: SubmittedBurrowFormState[K]
-        ) => {
-            setFormState((prev) => ({ ...prev, [field]: value }))
+    // For club burrows, the actual step content is offset by 1 (step 1 = club select)
+    const contentStep = isClubBurrow ? currentStep - 1 : currentStep
 
-            if (errors[field]) {
-                setErrors((prev) => {
-                    const next = { ...prev }
-                    delete next[field]
-                    return next
-                })
+    // validate current step via server
+    const validateCurrentStep = useCallback(async (): Promise<boolean> => {
+        // Club selector step stays client-side (no verify endpoint for club selection)
+        if (isClubBurrow && currentStep === 1) {
+            if (!formState.clubID) {
+                setServerErrors(["Please select a club."])
+                return false
             }
-        },
-        [errors]
-    )
-
-    // validate the step
-    const validateCurrentStep = useCallback((): boolean => {
-        const nextErrors: Record<string, string> = {}
+            return true
+        }
 
         if (isProjectBurrow) {
             if (currentStep === 1) {
-                const name = formState.name.trim()
-
-                if (!name) nextErrors.name = "Required"
-
-                // name len 1<=x<=64
-                if (name.length === 0 || name.length > 64)
-                    nextErrors.name = "Name must be between 1 and 64 characters"
-
-                const objective = formState.objective.trim()
-
-                if (!objective) nextErrors.objective = "Required"
-
-                // objective 1<=x<=256
-                if (objective.length === 0 || objective.length > 256)
-                    nextErrors.objective =
-                        "Objective must be between 1 and 256 characters"
-
-                const className = formState.className.trim()
-
-                if (className.length !== 0 && className.length > 64)
-                    nextErrors.className =
-                        "Class name may not be over 64 characters"
+                return await verify({
+                    name: formState.name,
+                    objective: formState.objective,
+                    className: formState.className
+                })
             } else if (currentStep === 2) {
-                if (formState.teamMembers.length === 0 && !isEditMode)
-                    nextErrors.teamMembers = "At least 1 member required"
+                if (formState.teamMembers.length === 0 && !isEditMode) {
+                    setServerErrors(["At least 1 team member is required."])
+                    return false
+                }
+                return true
             } else if (currentStep === 3) {
-                const dueDate = formState.dueDate
-
-                if (!dueDate) nextErrors.dueDate = "Required"
-
-                if (dueDate && new Date() > dueDate)
-                    nextErrors.date = "Due date must be in the future"
+                if (!formState.dueDate) {
+                    setServerErrors(["Due date is required."])
+                    return false
+                }
+                return await verify({
+                    dueDate: formState.dueDate.getTime()
+                })
             }
         } else {
-            if (currentStep === 1) {
-                const title = formState.title.trim()
-
-                // has title
-                if (!title) {
-                    nextErrors.title = "Required"
+            if (contentStep === 1) {
+                return await verify({
+                    title: formState.title,
+                    description: formState.description,
+                    location: formState.location
+                })
+            } else if (contentStep === 3) {
+                if (
+                    !formState.date ||
+                    !formState.beginningTime ||
+                    !formState.endTime
+                ) {
+                    setServerErrors(["Date and times are required."])
+                    return false
                 }
 
-                // title between 1..32
-                if (title.length === 0 || title.length > 32) {
-                    nextErrors.title =
-                        "Title must be between 2 and 32 characters"
-                }
-
-                const description = formState.description.trim()
-
-                // if has description, must be under 256 characters
-                if (description.length !== 0 && description.length > 256) {
-                    nextErrors.description =
-                        "Description must be empty or at most 256 characters"
-                }
-
-                const location = formState.location.trim()
-
-                // if has location, must be under 256 characters
-                if (location.length !== 0 && location.length > 64) {
-                    nextErrors.location =
-                        "Location must be empty or at most 64 characters"
-                }
-
-                const tags = formState.tags.split(",")
-                // under 10 tags
-                if (tags.length > 10) {
-                    nextErrors.tags = "You must have under 10 tags"
-                }
-
-                // no long tags or 0 char tags
-                if (tags.filter((tag) => tag.length > 10).length > 0) {
-                    nextErrors.tags =
-                        "You may not have any empty tags or tags over 10 characters"
-                }
-
-                const capacity = formState.capacity
-
-                // capacity over 100
-                if (capacity > 100) {
-                    nextErrors.capacity = "Capacity must be less than 100"
-                }
-
-                // capacity cannot be 1 or 2
-                if (capacity <= 2 && capacity !== 0) {
-                    nextErrors.capacity = "Capacity must be greater than 2"
-                }
-            } else if (currentStep === 3) {
                 const date = formState.date
+                const beginDateTime = new Date(date)
+                beginDateTime.setHours(
+                    formState.beginningTime.getHours(),
+                    formState.beginningTime.getMinutes(),
+                    0,
+                    0
+                )
 
-                if (!date) nextErrors.date = "Required"
+                const endDateTime = new Date(date)
+                endDateTime.setHours(
+                    formState.endTime.getHours(),
+                    formState.endTime.getMinutes(),
+                    0,
+                    0
+                )
 
-                // must be in future
-                if (date && new Date() > date)
-                    nextErrors.date = "Date must be in the future"
-
-                const beginningTime = formState.beginningTime
-                if (!beginningTime) nextErrors.beginningTime = "Required"
-
-                const endTime = formState.endTime
-                if (!endTime) nextErrors.endTime = "Required"
-
-                // end is after beginning
-                if (endTime && beginningTime && endTime < beginningTime)
-                    nextErrors.endTime =
-                        "End time must be after the beginning time"
+                return await verify({
+                    beginningTime: beginDateTime.getTime(),
+                    endTime: endDateTime.getTime()
+                })
             }
         }
 
-        setErrors(nextErrors)
+        return true
+    }, [
+        currentStep,
+        contentStep,
+        formState,
+        isProjectBurrow,
+        isClubBurrow,
+        isEditMode,
+        verify,
+        setServerErrors
+    ])
 
-        return Object.keys(nextErrors).length === 0
-    }, [currentStep, formState, isProjectBurrow])
-
-    const handleNext = useCallback(() => {
-        if (!validateCurrentStep()) return
+    const handleNext = useCallback(async () => {
+        if (!(await validateCurrentStep())) return
 
         if (currentStep < totalSteps) {
             setCurrentStep(currentStep + 1)
-            setErrors({})
+            setServerErrors([])
         }
-    }, [currentStep, validateCurrentStep, totalSteps])
+    }, [currentStep, validateCurrentStep, totalSteps, setServerErrors])
 
     const handleBack = useCallback(() => {
         if (currentStep > 1) {
             setCurrentStep(currentStep - 1)
-            setErrors({})
+            setServerErrors([])
         }
-    }, [currentStep])
+    }, [currentStep, setServerErrors])
 
     const handleSubmit = useCallback(async () => {
-        if (!validateCurrentStep()) return
+        if (!(await validateCurrentStep())) return
 
         if (isProjectBurrow) {
             if (!formState.dueDate) return
@@ -332,7 +297,8 @@ export function CreateBurrowWizard({
                 capacity: formState.capacity,
                 visibility: formState.visibility,
                 requestToJoin: formState.requestToJoin,
-                reoccurring: formState.reoccurring
+                reoccurring: formState.reoccurring,
+                ...(formState.clubID ? { clubID: formState.clubID } : {})
             }
 
             mutation.mutate(payload)
@@ -342,71 +308,36 @@ export function CreateBurrowWizard({
     // close
     const handleClose = () => {
         setCurrentStep(1)
+        reset()
         setFormState({ ...initialFormState, kind: burrowKind })
-        setErrors({})
         onClose()
     }
 
-    // get the current step
-    const renderStep = () => {
-        const stepProps = {
-            errors,
-            formState,
-            updateField,
-            isEditMode
-        }
+    const steps: {
+        title: string
+        component: React.ComponentType<CreateStepProps>
+    }[] = isProjectBurrow
+        ? [
+              { title: "Project Details", component: ProjectInfoStep },
+              { title: "Team Members", component: MembersStep },
+              { title: "Due Date", component: DueDateStep }
+          ]
+        : isClubBurrow
+          ? [
+                { title: "Select Club", component: ClubSelectorStep },
+                { title: "Basic Info", component: StudyEventInfoStep },
+                { title: "Privacy", component: PrivacyStep },
+                { title: "Schedule", component: ScheduleStep }
+            ]
+          : [
+                { title: "Basic Info", component: StudyEventInfoStep },
+                { title: "Privacy", component: PrivacyStep },
+                { title: "Schedule", component: ScheduleStep }
+            ]
 
-        if (isProjectBurrow) {
-            switch (currentStep) {
-                case 1:
-                    return <ProjectInfoStep {...stepProps} />
-                case 2:
-                    return <MembersStep {...stepProps} />
-                case 3:
-                    return <DueDateStep {...stepProps} />
-                default:
-                    return null
-            }
-        } else {
-            switch (currentStep) {
-                case 1:
-                    return <StudyEventInfoStep {...stepProps} />
-                case 2:
-                    return <PrivacyStep {...stepProps} />
-                case 3:
-                    return <ScheduleStep {...stepProps} />
-                default:
-                    return null
-            }
-        }
-    }
-
-    // get title of step
-    const getStepTitle = () => {
-        if (isProjectBurrow) {
-            switch (currentStep) {
-                case 1:
-                    return "Project Details"
-                case 2:
-                    return "Team Members"
-                case 3:
-                    return "Due Date"
-                default:
-                    return ""
-            }
-        } else {
-            switch (currentStep) {
-                case 1:
-                    return "Basic Info"
-                case 2:
-                    return "Privacy"
-                case 3:
-                    return "Schedule"
-                default:
-                    return ""
-            }
-        }
-    }
+    const currentStepConfig = steps[currentStep - 1]
+    const StepComponent = currentStepConfig?.component
+    const stepTitle = currentStepConfig?.title ?? ""
 
     return (
         <SafeAreaView className="flex-1 bg-background">
@@ -422,17 +353,18 @@ export function CreateBurrowWizard({
                     <View>
                         <Text className="text-xl font-bold text-text">
                             {isEditMode ? "Edit" : "Create"}{" "}
-                            {burrowKind === "STUDY"
-                                ? "Study Group"
-                                : burrowKind === "EVENT"
-                                  ? "Event"
-                                  : burrowKind === "CLUB"
-                                    ? "Club"
-                                    : "Project"}
+                            {
+                                {
+                                    STUDY: "Study Group",
+                                    EVENT: "Event",
+                                    CLUB: "Club",
+                                    PROJECT: "Project"
+                                }[burrowKind]
+                            }
                         </Text>
 
                         <Text className="text-sm text-text text-opacity-60">
-                            Step {currentStep} of {totalSteps}: {getStepTitle()}
+                            Step {currentStep} of {totalSteps}: {stepTitle}
                         </Text>
                     </View>
                 </View>
@@ -457,10 +389,19 @@ export function CreateBurrowWizard({
             </View>
 
             {/* step */}
-            <View className="flex-1">{renderStep()}</View>
+            <View className="flex-1">
+                {StepComponent && (
+                    <StepComponent
+                        errors={{}}
+                        formState={formState}
+                        updateField={updateField}
+                        isEditMode={isEditMode}
+                    />
+                )}
+            </View>
 
-            {/* handle backend errors */}
-            {submissionErrors.length > 0 && (
+            {/* handle server errors */}
+            {serverErrors.length > 0 && (
                 <Card
                     variant="bordered"
                     className="mx-6"
@@ -469,11 +410,11 @@ export function CreateBurrowWizard({
                     }}
                 >
                     <Text className="font-bold mb-1">
-                        There was an issue submitting your Burrow.
+                        There was an issue with your input.
                     </Text>
 
                     <FlatList
-                        data={submissionErrors}
+                        data={serverErrors}
                         renderItem={(err) => (
                             <Text>
                                 <Text className="font-semibold">

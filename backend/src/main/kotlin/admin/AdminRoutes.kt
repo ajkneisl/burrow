@@ -1,8 +1,8 @@
 package app.burrow.admin
 
 import app.burrow.ADMIN_AUTH
-import app.burrow.Error
-import app.burrow.account.profile.BADGE_ROUTES
+import app.burrow.api.Error
+import app.burrow.features.account.profile.BADGE_ROUTES
 import app.burrow.admin.account.Administrator
 import app.burrow.admin.account.Permissions
 import app.burrow.admin.account.adminLogin
@@ -10,7 +10,7 @@ import app.burrow.admin.account.createAdministrator
 import app.burrow.admin.account.getAdministrator
 import app.burrow.admin.account.requirePermissions
 import app.burrow.admin.log.LOG_ROUTES
-import app.burrow.report.getAllReports
+import app.burrow.features.report.getAllReports
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal

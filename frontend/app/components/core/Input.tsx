@@ -35,7 +35,7 @@ export function Input({
     className,
     ...props
 }: InputProps) {
-    const variantStyles = {
+    const wrapperStyles = {
         default: "border-b border-card-border",
         outline: "border border-card-border rounded-lg bg-background",
         filled: "bg-card rounded-lg"
@@ -51,8 +51,9 @@ export function Input({
 
             <View
                 className={clsx(
-                    "flex-row items-center",
-                    variant === "outline" && "rounded-lg"
+                    "flex-row items-center overflow-visible",
+                    wrapperStyles[variant],
+                    error && "border-error"
                 )}
             >
                 {leftIcon && <View className="pl-4">{leftIcon}</View>}
@@ -60,9 +61,7 @@ export function Input({
                 <TextInput
                     {...props}
                     className={clsx(
-                        "flex-1 text-base text-text py-3 px-4",
-                        variantStyles[variant],
-                        error && "border-error",
+                        "flex-1 items-center text-base text-text min-h-12 py-2 px-4 font-opensans",
                         className
                     )}
                     placeholderTextColor="#9CA3AF"

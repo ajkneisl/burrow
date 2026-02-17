@@ -3,7 +3,7 @@ import { View, Text, Pressable } from "react-native"
 import { Pencil, Pin, X } from "lucide-react-native"
 import type { ChatMember, ChatMessage } from "@features/chat/chat.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { ProfilePicture } from "@components/profile/ProfilePicture"
+import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 
 type ChatProps = {
     message: ChatMessage

@@ -5,7 +5,7 @@ import {
 import { useQuery } from "@tanstack/react-query"
 import { getAttendees } from "@features/burrows/burrows.api"
 import { Pressable, Text, View } from "react-native"
-import { ProfilePicture } from "@components/profile/ProfilePicture"
+import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import { Card, Modal, Button } from "@components/core"
 import { useRouter } from "expo-router"
 import { AttendeeActionsModal } from "@features/burrows/attendees/AttendeeActionsModal"

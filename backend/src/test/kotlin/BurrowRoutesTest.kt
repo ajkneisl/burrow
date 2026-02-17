@@ -1,8 +1,8 @@
 package app.burrow
 
-import app.burrow.burrows.BURROW_ROUTES
-import app.burrow.burrows.models.BurrowKind
-import app.burrow.burrows.models.BurrowVisibility
+import app.burrow.features.burrows.BURROW_ROUTES
+import app.burrow.features.burrows.models.enums.BurrowKind
+import app.burrow.features.burrows.models.enums.BurrowVisibility
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.kotest.core.spec.style.FunSpec

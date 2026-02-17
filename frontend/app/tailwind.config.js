@@ -52,7 +52,8 @@ module.exports = {
                 medium: ["Poppins-Medium"],
                 semibold: ["Poppins-SemiBold"],
                 bold: ["Poppins-Bold"],
-                barlow: ["Barlow-Medium"]
+                barlow: ["Barlow-Medium"],
+                opensans: ["OpenSans-Regular"]
             }
         }
     },

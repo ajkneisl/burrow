@@ -68,7 +68,7 @@ export type SubmittedProjectBurrow = {
  * A study/event burrow submission.
  */
 export type SubmittedStudyEventBurrow = {
-    kind: "STUDY" | "EVENT"
+    kind: "STUDY" | "EVENT" | "CLUB"
     title: string
     description: string
     location: string
@@ -79,6 +79,7 @@ export type SubmittedStudyEventBurrow = {
     visibility: BurrowVisibility
     requestToJoin: boolean
     reoccurring: number
+    clubID?: string
 }
 
 /**

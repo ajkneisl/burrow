@@ -1,8 +1,8 @@
 package app.burrow.admin
 
-import app.burrow.account.models.Users
-import app.burrow.burrows.models.Burrows
-import app.burrow.notifications.delivery.channels.Sse
+import app.burrow.features.account.Users
+import app.burrow.features.burrows.Burrows
+import app.burrow.features.notifications.delivery.channels.Sse
 import app.burrow.query
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.lessEq

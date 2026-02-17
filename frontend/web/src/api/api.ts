@@ -14,6 +14,7 @@ type RequestOptions<T> = {
     query?: Record<string, string | number | boolean | undefined>
     data?: T
     headers?: Record<string, string>
+    contentType?: string
     auth?: boolean
 }
 
@@ -27,7 +28,7 @@ export async function request<T = unknown, R = unknown>(
     url: string,
     options: RequestOptions<T> = {}
 ): Promise<R> {
-    const { query, data, headers = {}, auth = true } = options
+    const { query, data, headers = {}, contentType, auth = true } = options
 
     // make query parameters
     let fullUrl = `${BASE_URL}${url}`
@@ -61,12 +62,8 @@ export async function request<T = unknown, R = unknown>(
     }
 
     const methodsWithBody = ["POST", "PUT", "PATCH"]
-    if (
-        data &&
-        methodsWithBody.includes(method.toUpperCase()) &&
-        typeof data === "object"
-    ) {
-        requestHeaders["Content-Type"] = "application/json"
+    if (data && methodsWithBody.includes(method.toUpperCase())) {
+        requestHeaders["Content-Type"] = contentType ?? "application/json"
     }
 
     const fetchOptions: RequestInit = {
@@ -75,8 +72,9 @@ export async function request<T = unknown, R = unknown>(
     }
 
     if (data && methodsWithBody.includes(method.toUpperCase())) {
-        fetchOptions.body =
-            typeof data === "string" ? data : JSON.stringify(data)
+        fetchOptions.body = contentType
+            ? (data as BodyInit)
+            : JSON.stringify(data)
     }
 
     const response = await fetch(fullUrl, fetchOptions)
@@ -94,12 +92,12 @@ export async function request<T = unknown, R = unknown>(
     }
 
     const contentLength = response.headers.get("content-length")
-    const contentType = response.headers.get("content-type")
+    const responseContentType = response.headers.get("content-type")
 
     if (
         response.status === 204 ||
         contentLength === "0" ||
-        !contentType?.includes("application/json")
+        !responseContentType?.includes("application/json")
     ) {
         return undefined as R
     }

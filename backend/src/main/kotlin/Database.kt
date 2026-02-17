@@ -3,8 +3,17 @@ package app.burrow
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.spi.IsolationLevel
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.primaryConstructor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.vendors.PostgreSQLDialect
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
@@ -60,12 +69,97 @@ suspend fun initDb() {
 
     query {
         val allTables =
-            Reflections("app.burrow")
-                .getSubTypesOf(Table::class.java)
-                .mapNotNull { table -> table.kotlin.objectInstance }
+            Reflections("app.burrow").getSubTypesOf(Table::class.java).mapNotNull { table ->
+                table.kotlin.objectInstance
+            }
 
-        SchemaUtils.createMissingTablesAndColumns(*allTables.toTypedArray())
+        allTables.forEach { table ->
+            println("Working on: ${table.tableName}")
+            SchemaUtils.createMissingTablesAndColumns(table)
+        }
     }
 
     LOGGER.debug("Connected to Database")
 }
+
+/** Annotate a data class with its corresponding Exposed [Table] for use with [toEntity]. */
+@Target(AnnotationTarget.CLASS) annotation class MappedTable(val table: KClass<out Table>)
+
+@PublishedApi internal val tableAnnotationCache = ConcurrentHashMap<KClass<*>, Table>()
+
+@PublishedApi
+internal fun resolveTable(kClass: KClass<*>): Table =
+    tableAnnotationCache.getOrPut(kClass) {
+        val annotation =
+            kClass.findAnnotation<MappedTable>()
+                ?: error(
+                    "${kClass.simpleName} has no @MappedTable annotation and no table was provided"
+                )
+        annotation.table.objectInstance
+            ?: error("@MappedTable table for ${kClass.simpleName} must be an object")
+    }
+
+@PublishedApi
+internal data class EntityMapping(
+    val params: List<ParamMapping>,
+    val constructor: kotlin.reflect.KFunction<Any>,
+)
+
+@PublishedApi
+internal data class ParamMapping(
+    val param: KParameter,
+    val column: Column<*>,
+    val isJsonCollection: Boolean,
+)
+
+@PublishedApi
+internal val entityMappingCache = ConcurrentHashMap<Pair<KClass<*>, Table>, EntityMapping>()
+
+@PublishedApi
+internal fun buildEntityMapping(kClass: KClass<*>, table: Table): EntityMapping {
+    val constructor = kClass.primaryConstructor!!
+
+    // Pre-compute snake_case -> camelCase for all columns once
+    val columnsByName = table.columns.associateBy { it.name.snakeToCamel().lowercase() }
+
+    val params =
+        constructor.parameters.mapNotNull { param ->
+            val column = columnsByName[param.name!!.lowercase()]
+            if (column == null) {
+                if (param.isOptional) return@mapNotNull null
+                error("No column found for parameter '${param.name}' in table '${table.tableName}'")
+            }
+            val isJsonCollection =
+                param.type.classifier in listOf(List::class, Set::class, Map::class, HashMap::class)
+            ParamMapping(param, column, isJsonCollection)
+        }
+
+    return EntityMapping(params, constructor)
+}
+
+inline fun <reified T : Any> ResultRow.toEntity(table: Table? = null): T {
+    val resolvedTable = table ?: resolveTable(T::class)
+    val mapping =
+        entityMappingCache.getOrPut(T::class to resolvedTable) {
+            buildEntityMapping(T::class, resolvedTable)
+        }
+
+    val args = HashMap<KParameter, Any?>(mapping.params.size)
+    for (pm in mapping.params) {
+        val value = this[pm.column]
+        args[pm.param] =
+            if (pm.isJsonCollection && value is String) {
+                Json.decodeFromString(serializer(pm.param.type), value)
+            } else {
+                value
+            }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    return mapping.constructor.callBy(args) as T
+}
+
+private fun String.snakeToCamel(): String =
+    split("_")
+        .mapIndexed { i, s -> if (i == 0) s else s.replaceFirstChar { it.uppercase() } }
+        .joinToString("")

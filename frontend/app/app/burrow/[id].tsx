@@ -4,7 +4,8 @@ import {
     ScrollView,
     Pressable,
     ActivityIndicator,
-    RefreshControl
+    RefreshControl,
+    Image
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter, Stack } from "expo-router"
@@ -31,7 +32,7 @@ import {
 } from "lucide-react-native"
 import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { Button, Card, Modal } from "@components/core"
-import { dayLabel } from "@api/util"
+import { CDN_URL, dayLabel } from "@api/util"
 import {
     getBurrow,
     joinBurrow,
@@ -46,17 +47,17 @@ import { CreateBurrowWizard } from "@features/burrows/create/CreateBurrowWizard"
 import type { SubmittedBurrowFormState } from "@features/burrows/create/create.types"
 import { BurrowFeaturesModal } from "@features/sync/components/BurrowFeaturesModal"
 import { Pomodoro } from "@features/sync/components/Pomodoro"
-import { InviteUserModal } from "@features/burrows/invites/InviteUserModal"
-import { ManageInvitesModal } from "@features/burrows/invites/ManageInvitesModal"
+import { InviteUserModal } from "@features/invites/InviteUserModal"
+import { ManageInvitesModal } from "@features/invites/ManageInvitesModal"
 import { blockStatus } from "@features/sync/sync.atom"
 import useSync from "@features/sync/hooks/useSync"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { ProfilePicture } from "@components/profile/ProfilePicture"
+import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import Share from "@features/burrows/attendees/Share"
 import Attendees from "@features/burrows/attendees/Attendees"
 import ThemedIcon from "@components/core/ThemedIcon"
 import Details from "@features/burrows/attendees/Details"
-import KindChip from "@components/burrow/KindChip"
+import KindChip from "@features/burrows/components/KindChip"
 import { BlockUserModal } from "@features/profile/components/BlockUserModal"
 import { ReportUserModal } from "@features/profile/components/ReportUserModal"
 import { ReportBurrowModal } from "@features/burrows/components/ReportBurrowModal"
@@ -352,24 +353,30 @@ export default function BurrowDetailScreen() {
                     {/* burrow host */}
                     <Pressable
                         onPress={() =>
-                            router.push(`/user/${data.burrowAuthor}`)
+                            data.clubName
+                                ? router.push(`/club/${data.clubName}` as any)
+                                : router.push(`/user/${data.burrowAuthor}`)
                         }
                         className="flex-row items-center mb-3 gap-2"
                     >
-                        <ProfilePicture
-                            userID={data.burrow.ownerID}
-                            name={data.burrowAuthorProfile?.name ?? "?"}
-                            size={"md"}
-                        />
+                        {data.clubName ? (
+                            <ClubProfilePicture clubID={burrow.clubID!} displayName={data.clubDisplayName ?? data.clubName} />
+                        ) : (
+                            <ProfilePicture
+                                userID={data.burrow.ownerID}
+                                name={data.burrowAuthorProfile?.name ?? "?"}
+                                size={"md"}
+                            />
+                        )}
 
                         <View className="flex-1">
                             <Text className="text-sm text-text text-opacity-60">
-                                {isProject ? "Created by" : "Hosted by"}
+                                {data.clubName ? "Club" : isProject ? "Created by" : "Hosted by"}
                             </Text>
 
                             <View className="flex-row items-center gap-2">
                                 <Text className="text-base text-text font-semibold">
-                                    {data.burrowAuthorProfile?.name ||
+                                    {data.clubDisplayName ?? data.burrowAuthorProfile?.name ??
                                         data.burrowAuthor}
                                 </Text>
 
@@ -942,5 +949,33 @@ export default function BurrowDetailScreen() {
                 burrowTitle={burrow.title}
             />
         </SafeAreaView>
+    )
+}
+
+function ClubProfilePicture({ clubID, displayName }: { clubID: string; displayName: string }) {
+    const colors = useThemeColors()
+    const [error, setError] = useState(false)
+    const uri = `${CDN_URL}/avatars/club/${clubID}/avatar`
+
+    const initials = displayName
+        .split(" ")
+        .slice(0, 2)
+        .map((n) => n[0]?.toUpperCase())
+        .join("")
+
+    return (
+        <View className="h-12 w-12 rounded-full overflow-hidden bg-primary shadow-md">
+            {!error ? (
+                <Image
+                    source={{ uri }}
+                    className="h-12 w-12"
+                    onError={() => setError(true)}
+                />
+            ) : (
+                <View className="h-full w-full items-center justify-center bg-primary">
+                    <Text className="text-base font-bold text-white">{initials}</Text>
+                </View>
+            )}
+        </View>
     )
 }

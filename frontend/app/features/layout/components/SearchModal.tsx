@@ -15,7 +15,7 @@ import { searchModalOpen } from "../layout.atom"
 import { Search, X, MapPin } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { themeColors } from "@api/theme/theme.types"
-import { ProfilePicture } from "@components/profile/ProfilePicture"
+import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import {
     search,
     isUserResult,
