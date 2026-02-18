@@ -6,13 +6,29 @@ import useToken from "@features/auth/hooks/useToken.ts"
 import { uploadClubBanner } from "@features/clubs/clubs.api.ts"
 import toast from "react-hot-toast"
 
+/**
+ * {@link ClubBanner}
+ */
 type ClubBannerProps = {
     clubID: string
     clubName: string
     editable?: boolean
 }
 
-export default function ClubBanner({ clubID, clubName, editable = false }: ClubBannerProps) {
+/**
+ * A club's banner.
+ *
+ * @param clubID The ID of the club.
+ * @param clubName The name of the club.
+ * @param editable If the user may edit the banner.
+ *
+ * @author AJ Kneisl
+ */
+export default function ClubBanner({
+    clubID,
+    clubName,
+    editable = false
+}: ClubBannerProps) {
     const [imageError, setImageError] = useState(false)
     const [uploading, setUploading] = useState(false)
     const [showHover, setShowHover] = useState(false)
@@ -21,17 +37,27 @@ export default function ClubBanner({ clubID, clubName, editable = false }: ClubB
     const token = useToken()
 
     const bannerUrl = useMemo(
-        () => `${CDN_URL}/avatars/club/${clubID}/banner${cacheBust ? `?v=${cacheBust}` : ""}`,
+        () =>
+            `${CDN_URL}/avatars/club/${clubID}/banner${cacheBust ? `?v=${cacheBust}` : ""}`,
         [clubID, cacheBust]
     )
 
-    const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileSelect = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
         const file = event.target.files?.[0]
         if (!file || !token) return
 
-        const validTypes = ["image/png", "image/jpeg", "image/gif", "image/webp"]
+        const validTypes = [
+            "image/png",
+            "image/jpeg",
+            "image/gif",
+            "image/webp"
+        ]
         if (!validTypes.includes(file.type)) {
-            toast.error("Invalid file type. Please upload PNG, JPEG, GIF, or WebP.")
+            toast.error(
+                "Invalid file type. Please upload PNG, JPEG, GIF, or WebP."
+            )
             return
         }
 
@@ -42,12 +68,14 @@ export default function ClubBanner({ clubID, clubName, editable = false }: ClubB
 
         setUploading(true)
         try {
-            await uploadClubBanner(clubName, file, token)
+            await uploadClubBanner(clubName, file)
             setImageError(false)
             setCacheBust(Date.now())
             toast.success("Club banner updated!")
         } catch (error) {
-            toast.error(typeof error === "string" ? error : "Failed to upload banner")
+            toast.error(
+                typeof error === "string" ? error : "Failed to upload banner"
+            )
         } finally {
             setUploading(false)
             if (fileInputRef.current) fileInputRef.current.value = ""
@@ -79,7 +107,9 @@ export default function ClubBanner({ clubID, clubName, editable = false }: ClubB
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity">
                     <div className="flex flex-col items-center gap-1 text-white">
                         <Camera className="h-6 w-6" />
-                        <span className="text-xs font-medium">Change Banner</span>
+                        <span className="text-xs font-medium">
+                            Change Banner
+                        </span>
                     </div>
                 </div>
             )}
