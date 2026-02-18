@@ -1,11 +1,13 @@
 import { AnimatePresence, motion } from "framer-motion"
 import SearchPreview from "@features/layout/search/components/SearchPreview.tsx"
 import UserSearchPreview from "@features/layout/search/components/UserSearchPreview.tsx"
+import ClubSearchPreview from "@features/layout/search/components/ClubSearchPreview.tsx"
 import { type FormEvent, useEffect, useRef, useState } from "react"
 import {
     search,
     isUserResult,
     isBurrowResult,
+    isClubResult,
     type SearchResult
 } from "@features/layout/search/search.api.ts"
 import { SearchInput } from "@features/layout/search/components/SearchInput.tsx"
@@ -186,6 +188,28 @@ export default function Search() {
                                                 >
                                                     <SearchPreview
                                                         burrow={result.burrow}
+                                                        onClick={() => {
+                                                            setPaginatedResults(
+                                                                null
+                                                            )
+                                                            setQuery("")
+                                                        }}
+                                                    />
+                                                </li>
+                                            )
+                                        }
+
+                                        if (isClubResult(result)) {
+                                            return (
+                                                <li
+                                                    key={`club-${result.clubID}`}
+                                                >
+                                                    <ClubSearchPreview
+                                                        clubID={result.clubID}
+                                                        displayName={
+                                                            result.displayName
+                                                        }
+                                                        name={result.name}
                                                         onClick={() => {
                                                             setPaginatedResults(
                                                                 null

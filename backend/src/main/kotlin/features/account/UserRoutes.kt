@@ -1,6 +1,12 @@
 package app.burrow.features.account
 
 import app.burrow.api.InvalidAuthorization
+import app.burrow.api.optionalIntQueryParameter
+import app.burrow.api.queryParameter
+import app.burrow.api.throwIfNotEmpty
+import app.burrow.api.urlParameter
+import app.burrow.api.verify
+import app.burrow.api.verifyField
 import app.burrow.features.account.alt.login
 import app.burrow.features.account.models.deleteUser
 import app.burrow.features.account.models.exchangeCodeForIdToken
@@ -12,15 +18,9 @@ import app.burrow.features.account.models.searchUsers
 import app.burrow.features.account.models.updateUsername
 import app.burrow.features.account.models.userID
 import app.burrow.features.account.models.validateUsername
-import app.burrow.api.throwIfNotEmpty
-import app.burrow.api.verify
-import app.burrow.api.verifyField
 import app.burrow.features.account.profile.Profile
 import app.burrow.features.account.profile.RELATION_ROUTES
 import app.burrow.features.account.profile.updateProfile
-import app.burrow.api.optionalIntQueryParameter
-import app.burrow.api.queryParameter
-import app.burrow.api.urlParameter
 import app.burrow.features.burrows.searchBurrows
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
@@ -233,11 +233,12 @@ val USER_ROUTES: Route.() -> Unit = {
     put("/login") {
         val idToken =
             if (call.queryParameters["platform"] == "android") {
-                val request = call.receive<AndroidAuthRequest>()
-                exchangeCodeForIdToken(request.code, request.codeVerifier, request.redirectUri)
-            } else {
-                call.receiveText()
-            }
+                    val request = call.receive<AndroidAuthRequest>()
+                    exchangeCodeForIdToken(request.code, request.codeVerifier, request.redirectUri)
+                } else {
+                    call.receiveText()
+                }
+                .removeSurrounding("\"")
 
         val user = retrieveUser(idToken) ?: throw InvalidAuthorization()
 
