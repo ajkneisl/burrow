@@ -12,16 +12,20 @@ import { useRouter } from "expo-router"
 import { useQuery } from "@tanstack/react-query"
 import { Modal } from "@components/core"
 import { searchModalOpen } from "../layout.atom"
-import { Search, X, MapPin } from "lucide-react-native"
+import { Search, X } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { themeColors } from "@api/theme/theme.types"
-import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import {
     search,
     isUserResult,
     isBurrowResult,
+    isClubResult,
     type SearchResult
-} from "../search/search.api"
+} from "./search.api"
+import { SearchEmptyState } from "./SearchEmptyState"
+import { SearchNoResults } from "./SearchNoResults"
+import { SearchResultItem } from "./SearchResultItem"
+
+type SearchSection = { title: string; data: SearchResult[] }
 
 export function SearchModal() {
     const [isOpen, setIsOpen] = useAtom(searchModalOpen)
@@ -43,11 +47,15 @@ export function SearchModal() {
 
     const results = useMemo(() => data?.contents ?? [], [data])
 
-    const sections = useMemo(() => {
+    const sections = useMemo((): SearchSection[] => {
         const burrows = results.filter(isBurrowResult)
         const users = results.filter(isUserResult)
+        const clubs = results.filter(isClubResult)
 
-        const sectionsArray = []
+        const sectionsArray: SearchSection[] = []
+        if (clubs.length > 0) {
+            sectionsArray.push({ title: "Clubs", data: clubs })
+        }
         if (burrows.length > 0) {
             sectionsArray.push({ title: "Burrows", data: burrows })
         }
@@ -63,6 +71,8 @@ export function SearchModal() {
             router.push(`/burrow/${item.burrow.id}`)
         } else if (isUserResult(item)) {
             router.push(`/user/${item.username}`)
+        } else if (isClubResult(item)) {
+            router.push(`/club/${item.name}`)
         }
     }
 
@@ -89,6 +99,7 @@ export function SearchModal() {
                             color={colors.text}
                             style={{ opacity: 0.5 }}
                         />
+
                         <TextInput
                             value={query}
                             onChangeText={setQuery}
@@ -104,10 +115,7 @@ export function SearchModal() {
                             }}
                         />
                         {query.length > 0 && (
-                            <Pressable
-                                onPress={() => setQuery("")}
-                                hitSlop={8}
-                            >
+                            <Pressable onPress={() => setQuery("")} hitSlop={8}>
                                 <X
                                     size={18}
                                     color={colors.text}
@@ -135,7 +143,7 @@ export function SearchModal() {
 
             {/* Content */}
             {query.length === 0 ? (
-                <EmptyState colors={colors} />
+                <SearchEmptyState />
             ) : query.length < 2 ? (
                 <View className="flex-1 items-center justify-center">
                     <Text style={{ color: `${colors.text}99`, fontSize: 15 }}>
@@ -156,18 +164,17 @@ export function SearchModal() {
                     </Text>
                 </View>
             ) : sections.length === 0 ? (
-                <NoResults query={query} colors={colors} />
+                <SearchNoResults query={query} />
             ) : (
-                <SectionList
+                <SectionList<SearchResult, SearchSection>
                     sections={sections}
                     keyExtractor={(item) =>
-                        isBurrowResult(item) ? item.burrow.id : item.userID
+                        isBurrowResult(item) ? item.burrow.id : isClubResult(item) ? item.clubID : item.userID
                     }
                     renderItem={({ item }) => (
                         <SearchResultItem
                             item={item}
                             onPress={() => handleResultPress(item)}
-                            colors={colors}
                         />
                     )}
                     renderSectionHeader={({ section }) => (
@@ -195,150 +202,4 @@ export function SearchModal() {
             )}
         </Modal>
     )
-}
-
-function EmptyState({ colors }: { colors: typeof themeColors.light }) {
-    return (
-        <View className="flex-1 items-center justify-center px-8">
-            <View
-                className="rounded-full p-5 mb-4"
-                style={{ backgroundColor: `${colors.text}10` }}
-            >
-                <Search size={32} color={colors.text} style={{ opacity: 0.3 }} />
-            </View>
-            <Text
-                className="text-center font-medium"
-                style={{ color: `${colors.text}99`, fontSize: 17 }}
-            >
-                Search for Burrows or users
-            </Text>
-            <Text
-                className="text-center mt-2"
-                style={{ color: `${colors.text}60`, fontSize: 14 }}
-            >
-                Find study groups, events, and connect with Gophers
-            </Text>
-        </View>
-    )
-}
-
-function NoResults({
-    query,
-    colors
-}: {
-    query: string
-    colors: typeof themeColors.light
-}) {
-    return (
-        <View className="flex-1 items-center justify-center px-8">
-            <View
-                className="rounded-full p-5 mb-4"
-                style={{ backgroundColor: `${colors.text}10` }}
-            >
-                <Search size={32} color={colors.text} style={{ opacity: 0.3 }} />
-            </View>
-            <Text
-                className="text-center font-medium"
-                style={{ color: `${colors.text}99`, fontSize: 17 }}
-            >
-                No results for {`"${query}"`}
-            </Text>
-            <Text
-                className="text-center mt-2"
-                style={{ color: `${colors.text}60`, fontSize: 14 }}
-            >
-                Try a different search term
-            </Text>
-        </View>
-    )
-}
-
-function SearchResultItem({
-    item,
-    onPress,
-    colors
-}: {
-    item: SearchResult
-    onPress: () => void
-    colors: typeof themeColors.light
-}) {
-    if (isBurrowResult(item)) {
-        return (
-            <Pressable
-                onPress={onPress}
-                className="flex-row items-center gap-3 p-4 rounded-2xl active:opacity-70"
-                style={{
-                    backgroundColor: colors.card,
-                    borderWidth: 1,
-                    borderColor: `${colors.text}10`
-                }}
-            >
-                <View
-                    className="rounded-full items-center justify-center"
-                    style={{
-                        width: 48,
-                        height: 48,
-                        backgroundColor: `${colors.primary}20`
-                    }}
-                >
-                    <MapPin size={22} color={colors.primary} />
-                </View>
-                <View className="flex-1">
-                    <Text
-                        className="font-semibold"
-                        style={{ color: colors.text, fontSize: 16 }}
-                        numberOfLines={1}
-                    >
-                        {item.burrow.title}
-                    </Text>
-                    <Text
-                        style={{ color: `${colors.text}80`, fontSize: 14, marginTop: 2 }}
-                        numberOfLines={1}
-                    >
-                        {item.burrow.kind} &bull; by @{item.ownerUsername}
-                    </Text>
-                </View>
-            </Pressable>
-        )
-    }
-
-    if (isUserResult(item)) {
-        const displayName = item.profile.name || item.username
-
-        return (
-            <Pressable
-                onPress={onPress}
-                className="flex-row items-center gap-3 p-4 rounded-2xl active:opacity-70"
-                style={{
-                    backgroundColor: colors.card,
-                    borderWidth: 1,
-                    borderColor: `${colors.text}10`
-                }}
-            >
-                <ProfilePicture
-                    name={displayName}
-                    userID={item.userID}
-                    size="md"
-                />
-                <View className="flex-1">
-                    <Text
-                        className="font-semibold"
-                        style={{ color: colors.text, fontSize: 16 }}
-                        numberOfLines={1}
-                    >
-                        {displayName}
-                    </Text>
-                    <Text
-                        style={{ color: `${colors.text}80`, fontSize: 14, marginTop: 2 }}
-                        numberOfLines={1}
-                    >
-                        @{item.username}
-                        {item.profile.major && ` \u2022 ${item.profile.major}`}
-                    </Text>
-                </View>
-            </Pressable>
-        )
-    }
-
-    return null
 }

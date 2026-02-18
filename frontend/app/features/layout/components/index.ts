@@ -1,3 +1,3 @@
 export { Header } from "./Header"
-export { SearchModal } from "./SearchModal"
+export { SearchModal } from "../search/SearchModal"
 export { CreateFab } from "./CreateFab"
