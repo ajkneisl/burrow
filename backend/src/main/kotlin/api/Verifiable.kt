@@ -61,7 +61,8 @@ abstract class Verifier<T : Any> {
 }
 
 /** Scope for defining verification rules on an instance of [T]. */
-open class VerificationScope<T : Any>(val instance: T) {
+open class VerificationScope<T : Any>(private val _instance: T?) {
+    val instance: T get() = _instance!!
     val errors = mutableListOf<String>()
 
     /**
@@ -150,7 +151,7 @@ open class VerificationScope<T : Any>(val instance: T) {
  */
 @Suppress("UNCHECKED_CAST")
 class FieldVerificationScope<T : Any>(private val fieldName: String, private val fieldValue: Any?) :
-    VerificationScope<T>(null as T) {
+    VerificationScope<T>(null) {
 
     override fun shouldCheck(property: KProperty1<T, *>): Boolean = property.name == fieldName
 

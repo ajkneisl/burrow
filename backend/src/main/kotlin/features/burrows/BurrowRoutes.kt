@@ -2,38 +2,38 @@ package app.burrow.features.burrows
 
 import app.burrow.api.Error
 import app.burrow.api.InvalidAuthorization
-import app.burrow.features.account.models.userID
-import app.burrow.features.burrows.bookmarks.BOOKMARK_ROUTES
-import app.burrow.features.clubs.models.enums.ClubRole
-import app.burrow.features.clubs.members.getClubMembership
-import app.burrow.features.invites.inviteRoutes
-import app.burrow.features.requests.joinRequestRoutes
-import app.burrow.features.burrows.membership.getUserBookmarks
-import app.burrow.features.burrows.membership.getUserSchedule
-import app.burrow.features.burrows.membership.membershipRoutes
-import app.burrow.features.burrows.models.enums.BurrowKind
-import app.burrow.features.burrows.models.SubmittedBurrow
-import app.burrow.features.burrows.models.SubmittedProjectBurrow
-import app.burrow.features.burrows.models.SubmittedProjectBurrowVerifier
-import app.burrow.features.burrows.models.SubmittedStudyEventBurrow
 import app.burrow.api.optionalBooleanQueryParameter
 import app.burrow.api.optionalEnumQueryParameter
 import app.burrow.api.optionalIntQueryParameter
 import app.burrow.api.optionalLongQueryParameter
 import app.burrow.api.queryParameter
-import app.burrow.api.verify
-import app.burrow.api.verifyField
 import app.burrow.api.throwIfNotEmpty
 import app.burrow.api.throwIfNull
 import app.burrow.api.urlParameter
+import app.burrow.api.verify
+import app.burrow.api.verifyField
+import app.burrow.features.account.models.userID
+import app.burrow.features.burrows.bookmarks.BOOKMARK_ROUTES
+import app.burrow.features.burrows.membership.getUserBookmarks
+import app.burrow.features.burrows.membership.getUserSchedule
+import app.burrow.features.burrows.membership.membershipRoutes
 import app.burrow.features.burrows.models.Burrow
+import app.burrow.features.burrows.models.SubmittedBurrow
+import app.burrow.features.burrows.models.SubmittedProjectBurrow
+import app.burrow.features.burrows.models.SubmittedProjectBurrowVerifier
+import app.burrow.features.burrows.models.SubmittedStudyEventBurrow
 import app.burrow.features.burrows.models.createBurrow
 import app.burrow.features.burrows.models.createProjectBurrow
 import app.burrow.features.burrows.models.deleteMeeting
+import app.burrow.features.burrows.models.enums.BurrowKind
 import app.burrow.features.burrows.models.getBurrow
 import app.burrow.features.burrows.models.getBurrowResponse
 import app.burrow.features.burrows.models.updateProjectBurrow
 import app.burrow.features.burrows.models.updatedBurrow
+import app.burrow.features.clubs.members.getClubMembership
+import app.burrow.features.clubs.models.enums.ClubRole
+import app.burrow.features.invites.inviteRoutes
+import app.burrow.features.requests.joinRequestRoutes
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -48,8 +48,8 @@ import java.time.LocalDateTime
 import java.time.YearMonth
 
 /**
- * Check if a user can manage a burrow. Returns true if the user is the direct owner,
- * or if the burrow is club-owned and the user is an admin of that club.
+ * Check if a user can manage a burrow. Returns true if the user is the direct owner, or if the
+ * burrow is club-owned and the user is an admin of that club.
  */
 suspend fun canManageBurrow(userID: String, burrow: Burrow): Boolean {
     if (burrow.ownerID == userID) return true
@@ -147,7 +147,7 @@ val BURROW_ROUTES: Route.() -> Unit = {
     // POST /burrows/verify
     // verify fields of a study/event burrow
     post("/verify") {
-        val partialBurrow = call.receive<Map<String, Any>>()
+        val partialBurrow = call.receive<Map<String, String>>()
 
         partialBurrow
             .flatMap { (field, value) -> verifyField<SubmittedStudyEventBurrow>(field, value) }
@@ -175,7 +175,8 @@ val BURROW_ROUTES: Route.() -> Unit = {
         when (val submittedBurrow = call.receive<SubmittedBurrow>()) {
             is SubmittedProjectBurrow -> {
                 SubmittedProjectBurrowVerifier(isUpdating = false)
-                    .verify(submittedBurrow).throwIfNotEmpty()
+                    .verify(submittedBurrow)
+                    .throwIfNotEmpty()
                 call.respond(createProjectBurrow(call.userID, submittedBurrow))
             }
 
@@ -220,7 +221,8 @@ val BURROW_ROUTES: Route.() -> Unit = {
             when (val submittedBurrow = call.receive<SubmittedBurrow>()) {
                 is SubmittedProjectBurrow -> {
                     SubmittedProjectBurrowVerifier(isUpdating = true)
-                        .verify(submittedBurrow).throwIfNotEmpty()
+                        .verify(submittedBurrow)
+                        .throwIfNotEmpty()
                     updateProjectBurrow(id, submittedBurrow)
                 }
 

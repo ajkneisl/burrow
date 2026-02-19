@@ -15,6 +15,8 @@ import MembersStep from "@features/burrows/create/components/project/MembersStep
 import InfoStep from "@features/burrows/create/components/project/InfoStep.tsx"
 import { addTime } from "@api/util.ts"
 
+const INITIAL_ERRORS: Record<string, string> = {}
+
 /**
  * {@link CreateProjectBurrowModal}
  */
@@ -55,7 +57,7 @@ export default function CreateProjectBurrowModal({
     const { formState, setFormState, errors, setErrors, updateField, verify, reset } =
         useFormState<SubmittedBurrowFormState, Record<string, string>>({
             initial: initialFormState,
-            initialErrors: {},
+            initialErrors: INITIAL_ERRORS,
             verifyEndpoint: "/burrows/verify/project"
         })
     const [serverErrors, setServerErrors] = useState<string[]>([])

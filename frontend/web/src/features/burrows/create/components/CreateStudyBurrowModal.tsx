@@ -15,6 +15,8 @@ import PrivacyStep from "@features/burrows/create/components/PrivacyStep.tsx"
 import InfoStep from "@features/burrows/create/components/InfoStep.tsx"
 import { addTime } from "@api/util.ts"
 
+const INITIAL_ERRORS: Record<string, string> = {}
+
 /**
  * {@link CreateStudyBurrowModal}
  */
@@ -55,7 +57,7 @@ export default function CreateStudyBurrowModal({
     const { formState, setFormState, errors, setErrors, updateField, verify, reset } =
         useFormState<SubmittedBurrowFormState, Record<string, string>>({
             initial: initialFormState,
-            initialErrors: {},
+            initialErrors: INITIAL_ERRORS,
             verifyEndpoint: "/burrows/verify"
         })
     const [serverErrors, setServerErrors] = useState<string[]>([])

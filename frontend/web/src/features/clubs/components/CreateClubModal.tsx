@@ -34,6 +34,8 @@ const initialFormState: CreateClubFormState = {
     requestToJoin: false
 }
 
+const INITIAL_ERRORS: string[] = []
+
 type CreateClubModalProps = {
     open: boolean
     onClose: () => void
@@ -49,7 +51,7 @@ export default function CreateClubModal({
     const { formState, errors, setErrors, updateField, verify, reset } =
         useFormState<CreateClubFormState>({
             initial: initialFormState,
-            initialErrors: [] as string[],
+            initialErrors: INITIAL_ERRORS,
             verifyEndpoint: "/clubs/verify"
         })
     const [currentStep, setCurrentStep] = useState(1)

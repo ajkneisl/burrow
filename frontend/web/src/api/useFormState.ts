@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { post } from "@api/api.ts"
 
 type UseFormStateOptions<T, E> = {
@@ -25,6 +25,9 @@ export default function useFormState<T, E = string[]>({
     const [formState, setFormState] = useState<T>(initial)
     const [errors, setErrors] = useState<E>(initialErrors)
 
+    const initialRef = useRef(initial)
+    const initialErrorsRef = useRef(initialErrors)
+
     const updateField = useCallback(
         <K extends keyof T>(field: K, value: T[K]) => {
             setFormState((prev) => ({ ...prev, [field]: value }))
@@ -38,7 +41,7 @@ export default function useFormState<T, E = string[]>({
 
             try {
                 await post(verifyEndpoint, fields)
-                setErrors(initialErrors)
+                setErrors(initialErrorsRef.current)
                 return true
             } catch (e) {
                 if (Array.isArray(e)) {
@@ -49,13 +52,13 @@ export default function useFormState<T, E = string[]>({
                 return false
             }
         },
-        [verifyEndpoint, initialErrors]
+        [verifyEndpoint]
     )
 
     const reset = useCallback(() => {
-        setFormState(initial)
-        setErrors(initialErrors)
-    }, [initial, initialErrors])
+        setFormState(initialRef.current)
+        setErrors(initialErrorsRef.current)
+    }, [])
 
     return {
         formState,
