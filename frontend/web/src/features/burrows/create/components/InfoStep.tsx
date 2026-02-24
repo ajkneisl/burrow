@@ -36,7 +36,7 @@ const COPY: Record<"STUDY" | "EVENT", InfoStepCopy> = {
         subtitle:
             "Provide information about your event. Include a clear title and description to attract attendees.",
         titleLabel: "Event Name",
-        titlePlaceholder: "Hackathon 2024",
+        titlePlaceholder: "Hackathon",
         capacityLabel: "Max Attendees (optional)",
         capacityPlaceholder: "50",
         tagsPlaceholder: "networking, tech, social, etc.",
