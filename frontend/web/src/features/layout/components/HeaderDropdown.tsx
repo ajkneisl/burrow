@@ -14,8 +14,7 @@ import {
     LogOut,
     UserIcon,
     History,
-    Map,
-    Group
+    Map
 } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
 
