@@ -1,12 +1,9 @@
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { Badge, Card } from "@umnburrow/core"
-import { Link, useNavigate} from "react-router"
+import { Link } from "react-router"
 import useUser from "@features/auth/hooks/useUser.ts"
 import useProfile from "@features/auth/hooks/useProfile.ts"
-import { useQuery } from "@tanstack/react-query"
-import { getRelations } from "@features/auth/user.api.ts"
 import { convertGraduationYear } from "@api/util.ts"
-import MyFriend from "@features/profile/components/MyFriend.tsx"
 
 /**
  * A view of My Profile on the homepage.
@@ -15,13 +12,7 @@ import MyFriend from "@features/profile/components/MyFriend.tsx"
  */
 export default function MyProfile() {
     const user = useUser()
-    const nav = useNavigate()
     const profile = useProfile()
-
-    const { data, isLoading } = useQuery({
-        queryKey: ["friends"],
-        queryFn: async () => await getRelations("friends")
-    })
 
     return (
         <Card className="border-text/10 from-background/60 via-background/40 to-card mt-8 flex flex-col gap-5 rounded-xl border bg-gradient-to-br p-4 shadow-md transition-colors hover:shadow-lg">
@@ -86,59 +77,6 @@ export default function MyProfile() {
                         </div>
                     </>
                 )}
-            </div>
-
-            <div className="hidden flex-col gap-5 lg:flex">
-                <div className="border-text/10 border-t" />
-
-                {/* friends */}
-                <section
-                    aria-labelledby="friends-heading"
-                    className="flex flex-col"
-                >
-                    <div className="flex flex-row items-center justify-between">
-                        <h2
-                            id="friends-heading"
-                            className="text-text/60 figtree text-[11px] tracking-wider uppercase"
-                        >
-                            Friends
-                        </h2>
-
-                        <button
-                            onClick={() => nav("/friends")}
-                            className="text-text/60 hover:text-text/80 cursor-pointer text-xs hover:underline"
-                        >
-                            View all
-                        </button>
-                    </div>
-
-                    <ul className="mt-2 space-y-2">
-                        {!isLoading &&
-                            data &&
-                            data?.map((friend) => <MyFriend friend={friend} />)}
-
-                        {/* friends skeleton */}
-                        {(isLoading || !data) &&
-                            Array.from({ length: 3 }).map((_, i) => (
-                                <li
-                                    key={i}
-                                    className="bg-background/30 flex items-center gap-2 rounded-lg px-4 py-3"
-                                >
-                                    <div className="bg-text/10 size-8 animate-pulse rounded-full" />
-                                    <div className="bg-text/10 h-3 w-32 animate-pulse rounded" />
-                                </li>
-                            ))}
-
-                        {/* no friends empty state */}
-                        {!isLoading && data && data.length === 0 && (
-                            <li className="bg-background/30 flex items-center justify-center rounded-lg px-4 py-8">
-                                <p className="text-text/40 text-sm">
-                                    No friends yet
-                                </p>
-                            </li>
-                        )}
-                    </ul>
-                </section>
             </div>
         </Card>
     )

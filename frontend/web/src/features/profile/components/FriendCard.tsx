@@ -4,9 +4,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRef, useState } from "react"
 import { unFollowUser } from "@features/profile/profile.api.ts"
 import toast from "react-hot-toast"
-import { Button, Card, Dropdown, DropdownItem } from "@umnburrow/core"
+import { Card, Dropdown, DropdownItem } from "@umnburrow/core"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
-import { MessageSquare, MoreVertical } from "lucide-react"
+import { Flag, MoreVertical, UserMinus } from "lucide-react"
 
 /**
  * Individual friend.
@@ -33,9 +33,47 @@ export default function FriendCard({ friend }: { friend: Relation }) {
 
     return (
         <Card
-            className="cursor-pointer p-4 transition-shadow hover:shadow-lg"
+            className="relative cursor-pointer p-4 transition-shadow hover:shadow-lg"
             onClick={() => nav(`/user/${friend.username}`)}
         >
+            {/* three dots menu */}
+            <div
+                className="absolute top-3 right-3"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <button
+                    ref={dropdownBtnRef}
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className="text-text/40 hover:text-text hover:bg-text/10 rounded-full p-1.5 transition-colors"
+                >
+                    <MoreVertical className="h-4 w-4" />
+                </button>
+
+                <Dropdown
+                    open={dropdownOpen}
+                    onClose={() => setDropdownOpen(false)}
+                    btnRef={dropdownBtnRef}
+                    align="end"
+                >
+                    <DropdownItem
+                        label="Report"
+                        rightIcon={<Flag className="h-4 w-4" />}
+                        onSelect={() => {
+                            setDropdownOpen(false)
+                        }}
+                    />
+
+                    <DropdownItem
+                        label="Unfollow"
+                        rightIcon={<UserMinus className="h-4 w-4" />}
+                        onSelect={() => {
+                            setDropdownOpen(false)
+                            unfollowMutation.mutate()
+                        }}
+                    />
+                </Dropdown>
+            </div>
+
             <div className="flex gap-4">
                 {/* profile picture */}
                 <div className="flex-shrink-0">
@@ -69,58 +107,6 @@ export default function FriendCard({ friend }: { friend: Relation }) {
                             )}
                         </p>
                     )}
-
-                    {/* actions buttons */}
-                    <div className="flex items-center justify-between gap-2">
-                        <Button
-                            color="PRIMARY"
-                            thin
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                toast.error("good morning")
-                            }}
-                        >
-                            <MessageSquare className="h-4 w-4" />
-
-                            <span className="hidden sm:inline">Message</span>
-                        </Button>
-
-                        {/* three dots menu */}
-                        <div onClick={(e) => e.stopPropagation()}>
-                            <Button
-                                ref={dropdownBtnRef}
-                                colors="border-text/20 text-text/60 hover:bg-background hover:text-text"
-                                thin
-                                onClick={() => setDropdownOpen(!dropdownOpen)}
-                            >
-                                <MoreVertical className="h-4 w-4" />
-                            </Button>
-
-                            <Dropdown
-                                open={dropdownOpen}
-                                onClose={() => setDropdownOpen(false)}
-                                btnRef={dropdownBtnRef}
-                                align="end"
-                            >
-                                {/* report */}
-                                <DropdownItem
-                                    label="Report"
-                                    onSelect={() => {
-                                        setDropdownOpen(false)
-                                    }}
-                                />
-
-                                {/* unfollow */}
-                                <DropdownItem
-                                    label="Unfollow"
-                                    onSelect={() => {
-                                        setDropdownOpen(false)
-                                        unfollowMutation.mutate()
-                                    }}
-                                />
-                            </Dropdown>
-                        </div>
-                    </div>
                 </div>
             </div>
         </Card>

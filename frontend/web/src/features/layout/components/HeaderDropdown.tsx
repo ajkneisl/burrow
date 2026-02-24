@@ -105,16 +105,6 @@ export default function HeaderDropdown() {
                         rightIcon={<Map width="18" height="18" />}
                     />
 
-                    {/* clubs */}
-                    <DropdownItem
-                        label={`Clubs`}
-                        onSelect={() => {
-                            setOpen(false)
-                            nav(`/clubs`)
-                        }}
-                        rightIcon={<Group width="18" height="18" />}
-                    />
-
                     {/* feedback */}
                     <DropdownItem
                         label={`Give Feedback`}
