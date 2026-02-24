@@ -10,6 +10,7 @@ import app.burrow.api.queryParameter
 import app.burrow.api.throwIfNotEmpty
 import app.burrow.api.throwIfNull
 import app.burrow.api.urlParameter
+import app.burrow.api.toKotlinValue
 import app.burrow.api.verify
 import app.burrow.api.verifyField
 import app.burrow.features.account.models.userID
@@ -35,6 +36,7 @@ import app.burrow.features.clubs.models.enums.ClubRole
 import app.burrow.features.invites.inviteRoutes
 import app.burrow.features.requests.joinRequestRoutes
 import io.ktor.http.HttpStatusCode
+import kotlinx.serialization.json.JsonObject
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -159,11 +161,11 @@ val BURROW_ROUTES: Route.() -> Unit = {
     // POST /burrows/verify/project
     // verify fields of a project burrow
     post("/verify/project") {
-        val partialBurrow = call.receive<Map<String, Any>>()
+        val partialBurrow = call.receive<JsonObject>()
         val verifier = SubmittedProjectBurrowVerifier(isUpdating = false)
 
         partialBurrow
-            .flatMap { (field, value) -> verifier.verifyField(field, value) }
+            .flatMap { (field, value) -> verifier.verifyField(field, value.toKotlinValue()) }
             .throwIfNotEmpty()
 
         call.respond(HttpStatusCode.OK)

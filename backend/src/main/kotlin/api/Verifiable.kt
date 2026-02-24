@@ -1,5 +1,10 @@
 package app.burrow.api
 
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.longOrNull
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
@@ -331,4 +336,13 @@ suspend inline fun <reified T : Any> verifyField(fieldName: String, value: Any?)
             )
 
     return verifier.verifyField(fieldName, value)
+}
+
+/**
+ * Convert a [JsonElement] to a Kotlin primitive value ([String], [Long], [Double], [Boolean], or null).
+ */
+fun JsonElement.toKotlinValue(): Any? {
+    if (this !is JsonPrimitive) return null
+    if (isString) return content
+    return booleanOrNull ?: longOrNull ?: doubleOrNull ?: content
 }

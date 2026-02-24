@@ -7,6 +7,8 @@ import app.burrow.api.optionalIntQueryParameter
 import app.burrow.api.throwIfNotEmpty
 import app.burrow.api.throwIfNull
 import app.burrow.api.urlParameter
+import app.burrow.api.toKotlinValue
+import kotlinx.serialization.json.JsonObject
 import app.burrow.api.verify
 import app.burrow.api.verifyField
 import app.burrow.features.account.models.userID
@@ -72,10 +74,10 @@ val CLUB_ROUTES: Route.() -> Unit = {
     // POST /clubs/verify
     // verify fields of a club
     post("/verify") {
-        val partialClub = call.receive<Map<String, Any>>()
+        val partialClub = call.receive<JsonObject>()
 
         partialClub
-            .flatMap { (field, value) -> verifyField<SubmittedClub>(field, value) }
+            .flatMap { (field, value) -> verifyField<SubmittedClub>(field, value.toKotlinValue()) }
             .throwIfNotEmpty()
 
         call.respond(HttpStatusCode.OK)
