@@ -1,9 +1,9 @@
 package app.burrow.admin.log
 
-import app.burrow.ADMIN_AUTH
 import app.burrow.api.optionalIntQueryParameter
 import app.burrow.api.query
 import app.burrow.api.uuidQueryParameter
+import app.burrow.features.account.Authorization.ADMIN_AUTH
 import io.ktor.server.auth.authenticate
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route

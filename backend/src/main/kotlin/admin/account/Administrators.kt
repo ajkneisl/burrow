@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.or
@@ -32,7 +33,9 @@ import org.jetbrains.exposed.v1.r2dbc.update
 import org.mindrot.jbcrypt.BCrypt
 
 /** Table of [Administrator] */
-object Administrators : UUIDTable("administrators") {
+object Administrators : Table("administrators") {
+    val id = uuid("id").uniqueIndex()
+
     /** [Administrator.username] */
     val username = varchar("username", 64).uniqueIndex()
 
@@ -117,7 +120,7 @@ suspend fun adminLogin(
             Administrators.selectAll().where { Administrators.username eq username }.singleOrNull()
         } ?: throw Error(401, "Invalid username or password.")
 
-    val id = row[Administrators.id].value
+    val id = row[Administrators.id]
     val lockedUntil = row[Administrators.lockedUntil]
 
     if (lockedUntil != null && now < lockedUntil) {

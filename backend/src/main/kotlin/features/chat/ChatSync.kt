@@ -2,7 +2,6 @@ package app.burrow.features.chat
 
 import app.burrow.api.InvalidAuthorization
 import app.burrow.api.NotFound
-import app.burrow.PRIMARY_AUTH
 import app.burrow.features.chat.direct.createDirectMessage
 import app.burrow.features.chat.direct.getConversation
 import app.burrow.features.chat.direct.getConversationHistory
@@ -23,6 +22,7 @@ import app.burrow.api.socket.authenticatedWebSocket
 import app.burrow.api.socket.sendPayload
 import app.burrow.api.socket.sendResponse
 import app.burrow.api.urlParameter
+import app.burrow.features.account.Authorization.PRIMARY_AUTH
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
