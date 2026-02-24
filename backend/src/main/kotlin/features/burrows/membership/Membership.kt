@@ -1,6 +1,6 @@
 package app.burrow.features.burrows.membership
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.api.Error
 import app.burrow.api.InvalidAuthorization
 import app.burrow.api.models.PaginatedResponse
@@ -29,8 +29,8 @@ import app.burrow.features.notifications.onUserLeaveMeeting
 import app.burrow.features.requests.JoinRequests
 import app.burrow.features.requests.createJoinRequest
 import app.burrow.json
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID

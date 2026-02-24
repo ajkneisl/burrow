@@ -1,14 +1,14 @@
 package app.burrow.features.chat.topic
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.features.chat.ChatMessage
 import app.burrow.features.chat.ChatMessages
 import app.burrow.features.chat.ChatUser
 import app.burrow.features.account.Users
 import app.burrow.features.account.profile.Profiles
 import app.burrow.features.burrows.sync.Chat
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
 import kotlinx.coroutines.flow.map

@@ -1,6 +1,6 @@
 package app.burrow.features.burrows.models
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.api.InvalidAuthorization
 import app.burrow.api.NotFound
 import app.burrow.features.account.Users
@@ -28,8 +28,8 @@ import app.burrow.features.invites.createInvite
 import app.burrow.features.notifications.rescheduleNotificationsForBurrow
 import app.burrow.features.requests.JoinRequestStatus
 import app.burrow.features.requests.getJoinRequest
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
 import kotlin.time.Duration.Companion.days

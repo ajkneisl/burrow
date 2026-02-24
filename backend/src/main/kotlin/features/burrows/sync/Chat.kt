@@ -13,8 +13,8 @@ import app.burrow.features.burrows.models.getBurrowResponse
 import app.burrow.features.burrows.sync.block.Block
 import app.burrow.features.burrows.sync.block.RegisterBlock
 import app.burrow.features.burrows.sync.block.Response
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map

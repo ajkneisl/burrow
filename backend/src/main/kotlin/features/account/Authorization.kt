@@ -1,10 +1,15 @@
 package app.burrow.features.account
 
 import app.burrow.admin.log.DB_LOG
+import app.burrow.api.Error
 import app.burrow.env
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
+import io.ktor.server.application.Application
+import io.ktor.server.auth.authentication
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.jwt.jwt
 import java.io.File
 import java.security.SecureRandom
 import java.util.Date
@@ -115,4 +120,42 @@ object Authorization {
     /** Verifier using same algorithm, audience, and issuer */
     fun getVerifier(audience: String = PUBLIC_AUDIENCE): JWTVerifier =
         JWT.require(key).withAudience(audience).withIssuer("Burrow").build()
+
+    const val PRIMARY_AUTH = "primary"
+    const val ADMIN_AUTH = "administrator"
+
+    fun Application.configureAuthentication() {
+        authentication {
+            // PRIMARY
+            // this is for all regular account stuff
+            // this is accessible by anyone with a
+            // regular account
+            jwt(PRIMARY_AUTH) {
+                realm = "burrow"
+                verifier(getVerifier())
+
+                challenge { _, _ -> throw Error(401, "Token is invalid or expired.") }
+                validate { credential ->
+                    if (credential.payload.audience.contains(PUBLIC_AUDIENCE))
+                        JWTPrincipal(credential.payload)
+                    else null
+                }
+            }
+
+            // ADMINISTRATOR
+            // for all administrator actions, requires
+            // a special account
+            jwt(ADMIN_AUTH) {
+                realm = "burrow/administrator"
+                verifier(getVerifier(ADMIN_AUDIENCE))
+
+                challenge { _, _ -> throw Error(401, "Token is invalid or expired.") }
+                validate { credential ->
+                    if (credential.payload.audience.contains(ADMIN_AUDIENCE))
+                        JWTPrincipal(credential.payload)
+                    else null
+                }
+            }
+        }
+    }
 }

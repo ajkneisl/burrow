@@ -2,7 +2,7 @@ package app.burrow.features.notifications.delivery
 
 import app.burrow.api.UUIDSerializer
 import app.burrow.features.account.Users
-import app.burrow.query
+import app.burrow.api.query
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
 import kotlinx.coroutines.flow.map

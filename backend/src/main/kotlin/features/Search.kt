@@ -1,8 +1,12 @@
-package app.burrow
+package app.burrow.features
 
+import app.burrow.PAGE_SIZE
 import app.burrow.api.models.PaginatedResponse
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import app.burrow.features.account.Users
 import app.burrow.features.account.getAllBlockedRelationships
+import app.burrow.features.account.profile.Profile
 import app.burrow.features.account.profile.Profiles
 import app.burrow.features.burrows.Burrows
 import app.burrow.features.burrows.models.Burrow
@@ -53,7 +57,7 @@ sealed class SearchResult {
     data class User(
         val userID: String,
         val username: String,
-        val profile: app.burrow.features.account.profile.Profile,
+        val profile: Profile,
     ) : SearchResult()
 
     /**
@@ -68,7 +72,7 @@ sealed class SearchResult {
     data class BurrowResult(
         val burrow: Burrow,
         val ownerUsername: String,
-        val ownerProfile: app.burrow.features.account.profile.Profile?,
+        val ownerProfile: Profile?,
     ) : SearchResult()
 }
 
@@ -114,7 +118,7 @@ suspend fun search(
         // count total users (excluding blocked)
         val userSearchExpr =
             ((Profiles.name.lowerCase() like pattern) or
-                (Users.username.lowerCase() like pattern)) and blockedExpr
+                    (Users.username.lowerCase() like pattern)) and blockedExpr
 
         val totalUsers =
             Users.innerJoin(Profiles, { Users.id }, { Profiles.userID })
@@ -125,8 +129,8 @@ suspend fun search(
         // count total clubs (public only)
         val clubSearchExpr =
             (Clubs.privacy eq ClubPrivacy.PUBLIC) and
-                ((Clubs.displayName.lowerCase() like pattern) or
-                    (Clubs.name.lowerCase() like pattern))
+                    ((Clubs.displayName.lowerCase() like pattern) or
+                            (Clubs.name.lowerCase() like pattern))
 
         val totalClubs = Clubs.select(Clubs.id).where { clubSearchExpr }.count()
 
@@ -147,11 +151,11 @@ suspend fun search(
 
         val burrowSearchExpr =
             (Burrows.visibility eq BurrowVisibility.PUBLIC) and
-                burrowBlockedExpr and
-                ((Burrows.title.lowerCase() like pattern) or
-                    (Burrows.description.lowerCase() like pattern) or
-                    (Burrows.location.lowerCase() like pattern) or
-                    tagsSearchExpr)
+                    burrowBlockedExpr and
+                    ((Burrows.title.lowerCase() like pattern) or
+                            (Burrows.description.lowerCase() like pattern) or
+                            (Burrows.location.lowerCase() like pattern) or
+                            tagsSearchExpr)
 
         val totalBurrows = Burrows.select(Burrows.id).where { burrowSearchExpr }.count()
 
@@ -232,11 +236,11 @@ suspend fun search(
 
         val burrowResults: List<SearchResult> =
             searchBurrows {
-                    limit = remainingSlots
-                    offset = burrowOffset
-                    query = searchQuery
-                    this.requestingUserID = requestingUserID
-                }
+                limit = remainingSlots
+                offset = burrowOffset
+                query = searchQuery
+                this.requestingUserID = requestingUserID
+            }
                 .contents
                 .map { (burrow, author, authorProfile) ->
                     SearchResult.BurrowResult(burrow, author ?: "Unknown", authorProfile)

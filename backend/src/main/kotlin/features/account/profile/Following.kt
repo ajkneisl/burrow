@@ -2,7 +2,7 @@ package app.burrow.features.account.profile
 
 import app.burrow.api.Error
 import app.burrow.features.account.Users
-import app.burrow.query
+import app.burrow.api.query
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
@@ -16,6 +16,7 @@ import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
+import kotlin.math.max
 
 object Following : Table("following") {
     val follower = reference("follower_id", Users.id, onDelete = ReferenceOption.CASCADE)
@@ -156,7 +157,7 @@ suspend fun getFriends(userID: String): List<Relation> = query {
     mutualIds
         .mapNotNull { id ->
             val row = byId[id] ?: return@mapNotNull null
-            val friendsAt = kotlin.math.max(followingMap[id] ?: 0L, followersMap[id] ?: 0L)
+            val friendsAt = max(followingMap[id] ?: 0L, followersMap[id] ?: 0L)
 
             Relation(
                 userID = id,

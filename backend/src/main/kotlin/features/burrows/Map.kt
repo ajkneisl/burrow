@@ -3,8 +3,8 @@ package app.burrow.features.burrows
 import app.burrow.env
 import app.burrow.features.account.getAllBlockedRelationships
 import app.burrow.features.burrows.models.Burrow
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO

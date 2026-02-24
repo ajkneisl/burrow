@@ -1,11 +1,11 @@
 package app.burrow.features.notifications
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.features.account.Users
 import app.burrow.features.account.settings.Settings
 import app.burrow.features.notifications.delivery.DeliveryChannels
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable

@@ -15,8 +15,8 @@ import app.burrow.features.burrows.sync.block.findRegisteredBlocks
 import app.burrow.features.burrows.sync.block.getEnabledBlocks
 import app.burrow.features.burrows.sync.Chat.Outgoing
 import app.burrow.features.burrows.sync.block.Response
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal

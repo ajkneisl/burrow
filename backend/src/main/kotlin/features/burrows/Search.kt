@@ -17,8 +17,8 @@ import app.burrow.features.burrows.models.enums.BurrowMemberStatus
 import app.burrow.features.burrows.models.BurrowResponse
 import app.burrow.features.burrows.models.enums.BurrowVisibility
 import app.burrow.features.clubs.Clubs
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import io.ktor.util.date.getTimeMillis
 import java.time.Instant
 import java.time.ZoneId

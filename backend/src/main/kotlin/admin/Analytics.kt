@@ -3,7 +3,7 @@ package app.burrow.admin
 import app.burrow.features.account.Users
 import app.burrow.features.burrows.Burrows
 import app.burrow.features.notifications.delivery.channels.Sse
-import app.burrow.query
+import app.burrow.api.query
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.r2dbc.selectAll

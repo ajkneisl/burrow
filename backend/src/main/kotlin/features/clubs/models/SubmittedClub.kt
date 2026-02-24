@@ -7,7 +7,7 @@ import app.burrow.features.account.Users
 import app.burrow.features.clubs.Clubs
 import app.burrow.features.clubs.models.enums.ClubCategory
 import app.burrow.features.clubs.models.enums.ClubPrivacy
-import app.burrow.query
+import app.burrow.api.query
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.eq

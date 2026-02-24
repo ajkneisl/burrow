@@ -1,11 +1,11 @@
 package app.burrow.features.notifications
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.api.UUIDSerializer
 import app.burrow.api.models.PaginatedResponse
 import app.burrow.features.notifications.delivery.deliver
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
 import kotlin.math.ceil

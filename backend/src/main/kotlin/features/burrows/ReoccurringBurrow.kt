@@ -2,10 +2,10 @@ package app.burrow.features.burrows
 
 import app.burrow.admin.log.DB_LOG
 import app.burrow.features.burrows.models.Burrow
-import app.burrow.features.burrows.Burrows
 import app.burrow.features.notifications.rescheduleNotificationsForBurrow
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
+import app.burrow.api.workers.Worker
 import io.ktor.util.date.getTimeMillis
 import java.time.Instant
 import java.time.ZoneId
@@ -37,6 +37,7 @@ const val MONTHLY = 2
 private val REOCCURRING_LOGGER = LoggerFactory.getLogger("Reoccurring")
 
 /** Reoccurring worker. Finds all expired reoccurring Burrows and reschedules them properly. */
+@Worker(interval = 15)
 suspend fun reoccurringWorker() {
     REOCCURRING_LOGGER.info(DB_LOG, "Checking for reoccurring Burrows...")
 

@@ -7,8 +7,8 @@ import app.burrow.features.clubs.members.getClubMembership
 import app.burrow.features.invites.InviteType
 import app.burrow.features.requests.JoinRequestStatus
 import app.burrow.features.requests.getJoinRequest
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.eq

@@ -1,6 +1,6 @@
 package app.burrow.features.clubs.models
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.features.clubs.models.enums.ClubCategory
 import app.burrow.features.clubs.models.enums.ClubPrivacy
 import app.burrow.features.clubs.Clubs

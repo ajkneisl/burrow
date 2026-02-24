@@ -5,7 +5,7 @@ import app.burrow.features.account.models.AuthorizedUser
 import app.burrow.features.account.models.User
 import app.burrow.features.account.Users
 import app.burrow.features.account.profile.Profiles
-import app.burrow.query
+import app.burrow.api.query
 import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable

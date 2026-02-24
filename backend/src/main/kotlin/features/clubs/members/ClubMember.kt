@@ -1,6 +1,6 @@
 package app.burrow.features.clubs.members
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.features.clubs.models.enums.ClubRole
 import kotlinx.serialization.Serializable
 

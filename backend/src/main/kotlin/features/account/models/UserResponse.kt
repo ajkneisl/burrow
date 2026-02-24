@@ -12,8 +12,8 @@ import app.burrow.features.account.profile.getFollowing
 import app.burrow.features.account.ta.getUserTAStatus
 import app.burrow.features.burrows.models.BurrowResponse
 import app.burrow.features.burrows.searchBurrows
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.eq

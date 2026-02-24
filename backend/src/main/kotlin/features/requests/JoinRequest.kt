@@ -1,6 +1,6 @@
 package app.burrow.features.requests
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.api.Error
 import app.burrow.api.models.PaginatedResponse
 import app.burrow.api.throwIfNull
@@ -16,8 +16,8 @@ import app.burrow.features.clubs.Clubs
 import app.burrow.features.clubs.members.ClubMembers
 import app.burrow.features.invites.InviteType
 import app.burrow.features.notifications.onUserJoinedMeeting
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import io.ktor.util.date.getTimeMillis
 import kotlin.math.ceil
 import kotlinx.coroutines.flow.firstOrNull

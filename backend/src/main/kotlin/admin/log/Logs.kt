@@ -1,7 +1,7 @@
 package app.burrow.admin.log
 
 import app.burrow.env
-import app.burrow.query
+import app.burrow.api.query
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.AppenderBase

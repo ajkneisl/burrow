@@ -1,9 +1,9 @@
 package app.burrow.features.account.ta
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.features.account.Users
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable

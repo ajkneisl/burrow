@@ -1,9 +1,9 @@
 package app.burrow.features.burrows.sync.block
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.features.burrows.sync.BurrowSync
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList

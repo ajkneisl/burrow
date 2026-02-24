@@ -1,5 +1,6 @@
-package app.burrow
+package app.burrow.api
 
+import app.burrow.env
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.spi.IsolationLevel
@@ -23,6 +24,7 @@ import org.jetbrains.exposed.v1.r2dbc.SchemaUtils
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.reflections.Reflections
 import org.slf4j.LoggerFactory
+import kotlin.reflect.KFunction
 
 var DB: R2dbcDatabase? = null
 
@@ -102,7 +104,7 @@ internal fun resolveTable(kClass: KClass<*>): Table =
 @PublishedApi
 internal data class EntityMapping(
     val params: List<ParamMapping>,
-    val constructor: kotlin.reflect.KFunction<Any>,
+    val constructor: KFunction<Any>,
 )
 
 @PublishedApi

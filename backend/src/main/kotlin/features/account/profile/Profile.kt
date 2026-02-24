@@ -1,13 +1,13 @@
 package app.burrow.features.account.profile
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.api.Verifiable
 import app.burrow.api.VerificationScope
 import app.burrow.api.Verifier
 import app.burrow.features.account.Users
 import app.burrow.json
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json

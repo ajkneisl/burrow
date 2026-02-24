@@ -1,10 +1,10 @@
 package app.burrow.features.burrows.bookmarks
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.api.Error
-import app.burrow.burrowLogger
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.LOGGER
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
@@ -44,7 +44,7 @@ suspend fun createBookmark(userID: String, meetingID: String) {
         throw Error(400, "This meeting is already bookmarked!")
     }
 
-    burrowLogger.info("{} has bookmarked {}", userID, meetingID)
+    LOGGER.info("{} has bookmarked {}", userID, meetingID)
 
     query {
         Bookmarks.insert {
@@ -74,7 +74,7 @@ suspend fun deleteBookmark(userID: String, meetingID: String) {
         throw Error(400, "This meeting is not bookmarked!")
     }
 
-    burrowLogger.info("{} has un-bookmarked {}", userID, meetingID)
+    LOGGER.info("{} has un-bookmarked {}", userID, meetingID)
 
     query {
         Bookmarks.deleteWhere { (Bookmarks.userID eq userID) and (Bookmarks.burrowID eq meetingID) }

@@ -6,7 +6,7 @@ import app.burrow.features.notifications.NotificationKind
 import app.burrow.features.notifications.NotificationPreference
 import app.burrow.features.notifications.getNotificationPreferencesForUser
 import app.burrow.features.notifications.setNotificationPreference
-import app.burrow.query
+import app.burrow.api.query
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.request.receiveText

@@ -10,8 +10,8 @@ import app.burrow.features.clubs.models.enums.ClubPrivacy
 import app.burrow.features.clubs.models.enums.ClubRole
 import app.burrow.features.invites.InviteType
 import app.burrow.features.invites.createInvite
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
 import kotlin.math.ceil

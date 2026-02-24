@@ -6,7 +6,7 @@ import app.burrow.features.account.models.getUserByID
 import app.burrow.api.photo.createPhoto
 import app.burrow.api.photo.deletePhoto
 import app.burrow.api.photo.verifyPhoto
-import app.burrow.query
+import app.burrow.api.query
 import app.burrow.api.urlParameter
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.header

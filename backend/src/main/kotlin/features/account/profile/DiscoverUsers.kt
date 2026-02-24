@@ -2,7 +2,7 @@ package app.burrow.features.account.profile
 
 import app.burrow.features.account.Users
 import app.burrow.features.burrows.membership.Memberships
-import app.burrow.query
+import app.burrow.api.query
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable

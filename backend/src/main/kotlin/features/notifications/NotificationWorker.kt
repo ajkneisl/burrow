@@ -1,21 +1,19 @@
 package app.burrow.features.notifications
 
+import app.burrow.api.workers.Worker
 import app.burrow.features.account.settings.Settings
 import app.burrow.features.burrows.membership.Memberships
 import app.burrow.features.burrows.models.enums.BurrowMemberStatus
 import app.burrow.features.burrows.Burrows
 import app.burrow.features.notifications.delivery.deliver
-import app.burrow.query
+import app.burrow.api.query
 import io.ktor.util.date.getTimeMillis
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 import kotlin.time.measureTime
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -25,8 +23,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -44,24 +40,17 @@ import org.slf4j.LoggerFactory
 private val LOGGER = LoggerFactory.getLogger("Notification Worker")
 
 /** Worker to send out notifications. */
-fun notificationWorker() {
-    val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-
-    scope.launch {
-        while (isActive) {
-            val time = measureTime {
-                try {
-                    pollNotifications(getTimeMillis()).collect(Notification::deliver)
-                } catch (ex: Throwable) {
-                    LOGGER.error("Failed to poll notifications", ex)
-                }
-            }
-
-            LOGGER.debug("Polled notifications in $time ms")
-
-            delay(60_000) // poll every minute
+@Worker(interval = 1, unit = TimeUnit.MINUTES)
+suspend fun notificationWorker() {
+    val time = measureTime {
+        try {
+            pollNotifications(getTimeMillis()).collect(Notification::deliver)
+        } catch (ex: Throwable) {
+            LOGGER.error("Failed to poll notifications", ex)
         }
     }
+
+    LOGGER.debug("Polled notifications in $time ms")
 }
 
 /**

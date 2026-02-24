@@ -1,9 +1,9 @@
 package app.burrow.features.report
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.api.UUIDSerializer
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
 import kotlinx.coroutines.flow.map

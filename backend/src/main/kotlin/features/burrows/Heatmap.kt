@@ -1,8 +1,7 @@
 package app.burrow.features.burrows
 
 import app.burrow.features.burrows.models.enums.BurrowVisibility
-import app.burrow.features.burrows.Burrows
-import app.burrow.query
+import app.burrow.api.query
 import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth

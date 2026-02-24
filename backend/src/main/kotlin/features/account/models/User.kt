@@ -1,6 +1,6 @@
 package app.burrow.features.account.models
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.api.Error
 import app.burrow.api.InvalidAuthorization
 import app.burrow.api.NotFound
@@ -9,8 +9,8 @@ import app.burrow.features.account.Authorization
 import app.burrow.features.account.Users
 import app.burrow.features.account.profile.Profiles
 import app.burrow.api.photo.deletePhoto
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import com.google.api.client.http.javanet.NetHttpTransport

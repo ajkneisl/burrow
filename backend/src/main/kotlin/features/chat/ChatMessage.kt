@@ -1,6 +1,6 @@
 package app.burrow.features.chat
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.api.UUIDSerializer
 import java.util.UUID
 import kotlinx.serialization.Serializable

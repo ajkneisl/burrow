@@ -1,10 +1,10 @@
 package app.burrow.features.chat.direct
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.features.chat.ChatMessage
 import app.burrow.features.chat.ChatMessages
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
 import kotlinx.coroutines.flow.map

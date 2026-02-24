@@ -1,12 +1,12 @@
 package app.burrow.admin.account
 
-import app.burrow.MappedTable
+import app.burrow.api.MappedTable
 import app.burrow.admin.account.TOTP.secretGenerator
 import app.burrow.api.Error
 import app.burrow.api.UUIDSerializer
 import app.burrow.features.account.Authorization
-import app.burrow.query
-import app.burrow.toEntity
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import dev.samstevens.totp.code.CodeGenerator
 import dev.samstevens.totp.code.CodeVerifier
 import dev.samstevens.totp.code.DefaultCodeGenerator

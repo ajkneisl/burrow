@@ -1,6 +1,5 @@
 package app.burrow.features.account
 
-import app.burrow.features.account.Users
 import app.burrow.features.account.profile.Profiles
 import app.burrow.features.account.profile.unFollowUser
 import app.burrow.features.burrows.membership.Memberships
@@ -8,7 +7,7 @@ import app.burrow.features.burrows.models.enums.BurrowMemberStatus
 import app.burrow.features.burrows.models.enums.BurrowRole
 import app.burrow.features.burrows.Burrows
 import app.burrow.features.notifications.Notifications
-import app.burrow.query
+import app.burrow.api.query
 import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
