@@ -73,7 +73,13 @@ export default function CreateClubModal({
         }
 
         return true
-    }, [currentStep, formState.name, formState.displayName, formState.description, verify])
+    }, [
+        currentStep,
+        formState.name,
+        formState.displayName,
+        formState.description,
+        verify
+    ])
 
     const handleNext = useCallback(async () => {
         if (!(await validateCurrentStep())) return
@@ -218,10 +224,7 @@ export default function CreateClubModal({
                                 />
                             </Field>
 
-                            <Field
-                                label="Category"
-                                className="min-w-0 md:col-span-2"
-                            >
+                            <div className="min-w-0 md:col-span-2">
                                 <SelectInput
                                     text="Category"
                                     items={[
@@ -240,7 +243,7 @@ export default function CreateClubModal({
                                         )
                                     }
                                 />
-                            </Field>
+                            </div>
 
                             <Field
                                 label="Description"
