@@ -34,6 +34,19 @@ export async function login(credentials: string): Promise<AuthorizedUser> {
 }
 
 /**
+ * Alternative login with username and password.
+ *
+ * @param username The username
+ * @param password The password
+ */
+export async function altLogin(
+    username: string,
+    password: string
+): Promise<AuthorizedUser> {
+    return put("/user/altlogin", { username, password }, { auth: false })
+}
+
+/**
  * Get all relations.
  *
  * @param key The type of relation to retrieve.

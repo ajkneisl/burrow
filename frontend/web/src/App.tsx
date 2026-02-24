@@ -28,6 +28,7 @@ import Delete from "@pages/info/Delete.view.tsx"
 import TaView from "@pages/info/Ta.view.tsx"
 import Support from "@pages/info/Support.view.tsx"
 import ClubView from "@pages/clubs/Club.view.tsx"
+import Login from "@pages/Login.view.tsx"
 import MyClubs from "@pages/clubs/MyClubs.view.tsx"
 
 /**
@@ -45,6 +46,7 @@ const router = createBrowserRouter([
             { path: "delete", element: <Delete /> },
             { path: "support", element: <Support /> },
             { path: "welcome", element: <LandingView /> },
+            { path: "login", element: <Login /> },
             { path: "browse", element: <Browse /> },
             { path: "friends", element: <Friends /> },
             { path: "history", element: <History /> },
