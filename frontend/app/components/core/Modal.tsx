@@ -111,11 +111,11 @@ export function Modal({
                 )}
                 onPress={onClose}
             >
-                <Pressable onPress={(e) => e.stopPropagation()}>
+                <Pressable className={size === "full" ? "flex-1" : undefined} onPress={(e) => e.stopPropagation()}>
                     {size === "full" ? (
                         <SafeAreaView
                             edges={["top", "bottom"]}
-                            className={containerClassName}
+                            className={clsx(containerClassName, "flex-1")}
                         >
                             {modalContent}
                         </SafeAreaView>
