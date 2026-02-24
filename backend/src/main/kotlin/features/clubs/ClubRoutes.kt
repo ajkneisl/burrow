@@ -14,7 +14,6 @@ import app.burrow.features.burrows.searchBurrows
 import app.burrow.features.clubs.members.changeClubRole
 import app.burrow.features.clubs.members.getClubByName
 import app.burrow.features.clubs.members.getClubMembers
-import app.burrow.features.clubs.members.getClubMembership
 import app.burrow.features.clubs.members.getUserClubs
 import app.burrow.features.clubs.members.joinClub
 import app.burrow.features.clubs.members.kickClubMember
@@ -193,24 +192,11 @@ val CLUB_MEMBERSHIP_ROUTES: Route.() -> Unit = {
     )
 
     // PATCH /clubs/{name}/role
-    // change a member's role (admin) or own role name (self)
+    // change a member's role
     patch("/role") {
         val club = getClubByName(call.urlParameter("name")).throwIfNull()
         val payload = call.receive<UpdateClubRolePayload>()
-
-        val isSelf = payload.userID == call.userID
-
-        if (isSelf) {
-            // members can change their own role name, but not their role level
-            val membership =
-                getClubMembership(call.userID, club.id)
-                    ?: throw MultiError(400, listOf("You are not a member of this club."))
-
-            if (payload.role != membership.role)
-                throw MultiError(400, listOf("You cannot change your own role."))
-        } else {
-            call.requireClubAdmin(club.id)
-        }
+        call.requireClubAdmin(club.id)
 
         val roleName =
             payload.roleName.ifBlank {
