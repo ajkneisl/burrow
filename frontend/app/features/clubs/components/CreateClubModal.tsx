@@ -133,11 +133,11 @@ export default function CreateClubModal() {
     }, [validateCurrentStep, createClubMutation])
 
     // handle close
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         setOpen(false)
         reset()
         setCurrentStep(1)
-    }
+    }, [setOpen, reset])
 
     return (
         <Modal

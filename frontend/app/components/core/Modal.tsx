@@ -7,7 +7,7 @@ import {
     ScrollView
 } from "react-native"
 import type { ModalProps as RNModalProps } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { X } from "lucide-react-native"
 import clsx from "clsx"
 import { Button } from "@components/core/Button"
@@ -49,6 +49,8 @@ export function Modal({
     centered = false,
     ...props
 }: ModalProps) {
+    const insets = useSafeAreaInsets()
+
     const sizeStyles = {
         sm: "max-w-sm",
         md: "max-w-md",
@@ -94,11 +96,13 @@ export function Modal({
         </>
     )
 
+    if (!visible) return null
+
     return (
         <RNModal
             visible={visible}
             animationType={centered ? "fade" : "slide"}
-            transparent={size !== "full"}
+            transparent
             onRequestClose={onClose}
             {...props}
         >
@@ -113,19 +117,19 @@ export function Modal({
             >
                 <Pressable className={size === "full" ? "flex-1" : undefined} onPress={(e) => e.stopPropagation()}>
                     {size === "full" ? (
-                        <SafeAreaView
-                            edges={["top", "bottom"]}
+                        <View
+                            style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
                             className={clsx(containerClassName, "flex-1")}
                         >
                             {modalContent}
-                        </SafeAreaView>
+                        </View>
                     ) : (
-                        <SafeAreaView
-                            edges={["bottom"]}
+                        <View
+                            style={{ paddingBottom: insets.bottom }}
                             className={containerClassName}
                         >
                             {modalContent}
-                        </SafeAreaView>
+                        </View>
                     )}
                 </Pressable>
             </Pressable>
