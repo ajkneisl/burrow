@@ -10,17 +10,17 @@ import {
 import { dayLabel, formatDateTime } from "@api/util"
 import ThemedIcon from "@components/core/ThemedIcon"
 import {
-    Burrow,
     NOT_REOCCURRING,
-    getReoccurringText
+    getReoccurringText,
+    BurrowResponse
 } from "@features/burrows/burrows.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**
- * {@link Details}
+ * {@link BurrowDetails}
  */
-type DetailsProps = {
-    burrow: Burrow
+type BurrowDetailsProps = {
+    burrowResponse: BurrowResponse
 }
 
 /**
@@ -30,8 +30,13 @@ type DetailsProps = {
  *
  * @author AJ Kneisl
  */
-export default function Details({ burrow }: DetailsProps) {
-    const capacityStr = `${burrow.joined || 0}${burrow.capacity ? `/${burrow.capacity}` : ""} ${burrow.kind === "PROJECT" ? "members" : "joined"}`
+export default function BurrowDetails({ burrowResponse }: BurrowDetailsProps) {
+    const { burrow } = burrowResponse
+
+    const label = burrow.kind === "PROJECT" ? "members" : "joined"
+    const capacityStr = burrow.capacity
+        ? `${burrowResponse.joined || 0}/${burrow.capacity} ${label}`
+        : `${burrowResponse.joined || 0} ${label}`
 
     return (
         <View className="gap-4">

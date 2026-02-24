@@ -59,7 +59,11 @@ export interface GeneralLocation {
  */
 export const BURROW_KIND_CONFIG: Record<
     BurrowKind,
-    { label: string; Icon: LucideIcon; colorKey: "success" | "secondary" | "info" | "error" }
+    {
+        label: string
+        Icon: LucideIcon
+        colorKey: "success" | "secondary" | "info" | "error"
+    }
 > = {
     STUDY: {
         label: "Study",
@@ -101,8 +105,6 @@ export type BurrowVisibility = "PUBLIC" | "UNLISTED" | "PRIVATE"
  * @param endTime The time the meeting ends.
  * @param tags The tags for the group.
  * @param capacity The maximum amount of people able to be in the meeting.
- * @param joined The amount of students in the meeting.
- * @param waiting The amount of students on the waitlist.
  */
 export interface Burrow {
     id: string
@@ -119,8 +121,6 @@ export interface Burrow {
     visibility: BurrowVisibility
     requestToJoin: boolean
     reoccurring: number
-    joined: number
-    waiting: number
     className?: string // Optional: for PROJECT type burrows
 }
 
@@ -187,6 +187,8 @@ export interface BurrowResponse {
     hostedByTa?: boolean
     clubName?: string
     clubDisplayName?: string
+    joined: number
+    waiting: number
 }
 
 /**

@@ -56,7 +56,7 @@ import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import Share from "@features/burrows/attendees/Share"
 import Attendees from "@features/burrows/attendees/Attendees"
 import ThemedIcon from "@components/core/ThemedIcon"
-import Details from "@features/burrows/attendees/Details"
+import BurrowDetails from "@features/burrows/attendees/BurrowDetails"
 import KindChip from "@features/burrows/components/KindChip"
 import { BlockUserModal } from "@features/profile/components/BlockUserModal"
 import { ReportUserModal } from "@features/profile/components/ReportUserModal"
@@ -360,7 +360,12 @@ export default function BurrowDetailScreen() {
                         className="flex-row items-center mb-3 gap-2"
                     >
                         {data.clubName ? (
-                            <ClubProfilePicture clubID={burrow.clubID!} displayName={data.clubDisplayName ?? data.clubName} />
+                            <ClubProfilePicture
+                                clubID={burrow.clubID!}
+                                displayName={
+                                    data.clubDisplayName ?? data.clubName
+                                }
+                            />
                         ) : (
                             <ProfilePicture
                                 userID={data.burrow.ownerID}
@@ -371,12 +376,17 @@ export default function BurrowDetailScreen() {
 
                         <View className="flex-1">
                             <Text className="text-sm text-text text-opacity-60">
-                                {data.clubName ? "Club" : isProject ? "Created by" : "Hosted by"}
+                                {data.clubName
+                                    ? "Club"
+                                    : isProject
+                                      ? "Created by"
+                                      : "Hosted by"}
                             </Text>
 
                             <View className="flex-row items-center gap-2">
                                 <Text className="text-base text-text font-semibold">
-                                    {data.clubDisplayName ?? data.burrowAuthorProfile?.name ??
+                                    {data.clubDisplayName ??
+                                        data.burrowAuthorProfile?.name ??
                                         data.burrowAuthor}
                                 </Text>
 
@@ -595,7 +605,7 @@ export default function BurrowDetailScreen() {
                             Details
                         </Text>
 
-                        <Details burrow={burrow} />
+                        {<BurrowDetails burrowResponse={data} />}
                     </Card>
 
                     {/* description */}
@@ -952,7 +962,13 @@ export default function BurrowDetailScreen() {
     )
 }
 
-function ClubProfilePicture({ clubID, displayName }: { clubID: string; displayName: string }) {
+function ClubProfilePicture({
+    clubID,
+    displayName
+}: {
+    clubID: string
+    displayName: string
+}) {
     const colors = useThemeColors()
     const [error, setError] = useState(false)
     const uri = `${CDN_URL}/avatars/club/${clubID}/avatar`
@@ -973,7 +989,9 @@ function ClubProfilePicture({ clubID, displayName }: { clubID: string; displayNa
                 />
             ) : (
                 <View className="h-full w-full items-center justify-center bg-primary">
-                    <Text className="text-base font-bold text-white">{initials}</Text>
+                    <Text className="text-base font-bold text-white">
+                        {initials}
+                    </Text>
                 </View>
             )}
         </View>

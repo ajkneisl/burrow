@@ -19,13 +19,11 @@ import app.burrow.features.chat.ChatSync
 import app.burrow.features.account.models.userID
 import app.burrow.features.account.settings.SETTINGS_ROUTES
 import app.burrow.features.burrows.BURROW_ROUTES
-import app.burrow.features.burrows.models.Burrow
 import app.burrow.features.burrows.models.createBurrow
 import app.burrow.features.burrows.models.getBurrow
 import app.burrow.features.burrows.models.getBurrowResponse
 import app.burrow.features.burrows.models.enums.BurrowKind
 import app.burrow.features.burrows.models.enums.BurrowVisibility
-import app.burrow.features.burrows.Burrows
 import app.burrow.features.burrows.models.SubmittedStudyEventBurrow
 import app.burrow.features.burrows.reoccurringWorker
 import app.burrow.features.burrows.sync.BurrowSync
@@ -73,7 +71,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.r2dbc.select
-import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.slf4j.event.Level
@@ -414,12 +411,12 @@ suspend fun Application.module() {
             // retrieve an individual meeting
             authenticate(PRIMARY_AUTH, optional = true) {
                 get("/burrows/{id}") {
-                    val userId = call.principal<JWTPrincipal>()?.subject
+                    val userID = call.principal<JWTPrincipal>()?.subject
                     val id =
                         call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
 
                     val meeting =
-                        getBurrowResponse(id, userId)
+                        getBurrowResponse(id, userID)
                             ?: return@get call.respond(HttpStatusCode.NotFound)
 
                     call.respond(meeting)
