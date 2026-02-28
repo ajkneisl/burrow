@@ -14,7 +14,11 @@ import {
     ChevronLeft,
     Users,
     CalendarClock,
-    Calendar
+    Calendar,
+    Instagram,
+    Globe,
+    Linkedin,
+    Pencil
 } from "lucide-react-native"
 import { get, post, del } from "@api/api"
 import { NOT_REOCCURRING } from "@features/burrows/burrows.types"
@@ -28,12 +32,42 @@ import ThemedIcon from "@components/core/ThemedIcon"
 import Toast from "react-native-toast-message"
 import type {
     ClubResponse,
-    ClubMemberResponse
+    ClubMemberResponse,
+    ClubLink
 } from "@features/clubs/club.types"
 import { ROLE_ORDER } from "@features/clubs/club.types"
 import ClubBannerPicture from "@features/clubs/components/ClubBannerPicture"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture"
 import ClubMember from "@features/clubs/components/ClubMember"
+import EditClubModal from "@features/clubs/components/EditClubModal"
+import { Linking } from "react-native"
+
+const LINK_CONFIG: Record<ClubLink, {
+    icon: typeof Instagram
+    label: string
+    toUrl: (value: string) => string
+}> = {
+    INSTAGRAM: {
+        icon: Instagram,
+        label: "Instagram",
+        toUrl: (handle) => `https://instagram.com/${handle.replace(/^@/, "")}`,
+    },
+    X: {
+        icon: Globe,
+        label: "X",
+        toUrl: (handle) => `https://x.com/${handle.replace(/^@/, "")}`,
+    },
+    WEBSITE: {
+        icon: Globe,
+        label: "Website",
+        toUrl: (url) => url,
+    },
+    LINKED_IN: {
+        icon: Linkedin,
+        label: "LinkedIn",
+        toUrl: (handle) => `https://linkedin.com/in/${handle}`,
+    },
+}
 
 /**
  * Club detail screen.
@@ -50,6 +84,7 @@ export default function ClubDetailScreen() {
 
     const [joinLoading, setJoinLoading] = useState(false)
     const [refreshing, setRefreshing] = useState(false)
+    const [editOpen, setEditOpen] = useState(false)
 
     const { data, isLoading, isError, refetch } = useQuery<ClubResponse>({
         queryKey: ["club", name],
@@ -74,6 +109,7 @@ export default function ClubDetailScreen() {
 
     const isOwner = user !== null && user.id === data?.club?.ownerID
     const isMember = data?.membership !== null
+    const isAdmin = data?.membership?.role === "ADMINISTRATOR" || isOwner
 
     // club members in order of their role
     const sortedMembers = useMemo(() => {
@@ -282,6 +318,21 @@ export default function ClubDetailScreen() {
                                 </Button>
                             )}
 
+                            {isAdmin && (
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onPress={() => setEditOpen(true)}
+                                >
+                                    <View className="flex-row items-center gap-1.5">
+                                        <Pencil size={14} color={colors.text} />
+                                        <Text className="text-text font-semibold text-sm">
+                                            Edit
+                                        </Text>
+                                    </View>
+                                </Button>
+                            )}
+
                             {isOwner && (
                                 <View className="bg-primary/15 rounded-full px-3 py-1">
                                     <Text className="text-primary text-xs font-semibold">
@@ -302,6 +353,29 @@ export default function ClubDetailScreen() {
                         <Text className="text-text opacity-70 text-sm leading-5">
                             {club.description || "No description provided."}
                         </Text>
+
+                        {Object.keys(club.links ?? {}).length > 0 && (
+                            <View className="flex-row flex-wrap gap-2 mt-3">
+                                {(Object.entries(club.links ?? {}) as [ClubLink, string][]).map(([type, value]) => {
+                                    const config = LINK_CONFIG[type]
+                                    if (!config) return null
+                                    const Icon = config.icon
+
+                                    return (
+                                        <Pressable
+                                            key={type}
+                                            onPress={() => Linking.openURL(config.toUrl(value))}
+                                            className="flex-row items-center gap-1.5 rounded-full border border-card-border bg-card px-3 py-1.5"
+                                        >
+                                            <Icon size={14} color={colors.text} style={{ opacity: 0.6 }} />
+                                            <Text className="text-text opacity-70 text-xs font-medium">
+                                                {config.label}
+                                            </Text>
+                                        </Pressable>
+                                    )
+                                })}
+                            </View>
+                        )}
                     </Card>
 
                     {/* Reoccurring Meetings */}
@@ -406,6 +480,14 @@ export default function ClubDetailScreen() {
                 {/* Bottom spacing */}
                 <View className="h-12" />
             </ScrollView>
+
+            {isAdmin && (
+                <EditClubModal
+                    visible={editOpen}
+                    onClose={() => setEditOpen(false)}
+                    club={club}
+                />
+            )}
         </SafeAreaView>
     )
 }

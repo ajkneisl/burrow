@@ -1,6 +1,7 @@
 import { CLUB_CATEGORIES, ClubStepProps } from "@features/clubs/club.types"
 import { Pressable, ScrollView, Text, View } from "react-native"
 import { Input } from "@components/core"
+import ClubLinksEditor from "@features/clubs/components/ClubLinksEditor"
 
 /**
  * Info step of creating a club
@@ -88,6 +89,17 @@ export default function ClubInfoStep({
                 numberOfLines={4}
                 multiline
             />
+
+            {/* Links */}
+            <View className="mb-4">
+                <Text className="text-sm font-semibold text-text mb-3">
+                    Links
+                </Text>
+                <ClubLinksEditor
+                    links={formState.links}
+                    onChange={(links) => updateField("links", links)}
+                />
+            </View>
 
             <View className="h-32" />
         </ScrollView>

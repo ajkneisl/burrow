@@ -9,10 +9,10 @@ import app.burrow.api.optionalLongQueryParameter
 import app.burrow.api.queryParameter
 import app.burrow.api.throwIfNotEmpty
 import app.burrow.api.throwIfNull
-import app.burrow.api.toKotlinValue
+import app.burrow.api.verify.toKotlinValue
 import app.burrow.api.urlParameter
-import app.burrow.api.verify
-import app.burrow.api.verifyField
+import app.burrow.api.verify.verify
+import app.burrow.api.verify.verifyField
 import app.burrow.features.account.models.userID
 import app.burrow.features.burrows.bookmarks.BOOKMARK_ROUTES
 import app.burrow.features.burrows.membership.getUserBookmarks

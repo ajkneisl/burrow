@@ -5,8 +5,8 @@ import app.burrow.api.optionalIntQueryParameter
 import app.burrow.api.queryParameter
 import app.burrow.api.throwIfNotEmpty
 import app.burrow.api.urlParameter
-import app.burrow.api.verify
-import app.burrow.api.verifyField
+import app.burrow.api.verify.verify
+import app.burrow.api.verify.verifyField
 import app.burrow.features.account.alt.login
 import app.burrow.features.account.models.deleteUser
 import app.burrow.features.account.models.exchangeCodeForIdToken

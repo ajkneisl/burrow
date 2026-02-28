@@ -1,18 +1,20 @@
 package app.burrow.features.clubs.models
 
-import app.burrow.api.Verifiable
-import app.burrow.api.VerificationScope
-import app.burrow.api.Verifier
+import app.burrow.api.query
+import app.burrow.api.verify.Verifiable
+import app.burrow.api.verify.VerificationScope
+import app.burrow.api.verify.Verifier
 import app.burrow.features.account.Users
 import app.burrow.features.clubs.Clubs
 import app.burrow.features.clubs.models.enums.ClubCategory
+import app.burrow.features.clubs.models.enums.ClubLink
 import app.burrow.features.clubs.models.enums.ClubPrivacy
-import app.burrow.api.query
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 
+/** A submitted club. */
 @Verifiable(with = SubmittedClub.Companion.SubmittedClubVerifier::class)
 @Serializable
 data class SubmittedClub(
@@ -20,6 +22,7 @@ data class SubmittedClub(
     val displayName: String,
     val description: String,
     val category: ClubCategory,
+    val links: Map<ClubLink, String>,
     val privacy: ClubPrivacy,
     val requestToJoin: Boolean,
     val members: List<String>,
@@ -78,6 +81,14 @@ data class SubmittedClub(
                             } != null
 
                         if (!exists) "User $memberID does not exist." else null
+                    }
+                }
+
+                SubmittedClub::links {
+                    validKeys<ClubLink>("Invalid link type provided.")
+
+                    eachEntry<ClubLink> { link, value ->
+                        if (!link.verifier(value)) "$value is not a valid link." else null
                     }
                 }
             }

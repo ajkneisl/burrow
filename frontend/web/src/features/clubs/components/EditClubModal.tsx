@@ -2,14 +2,16 @@ import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button, Input, Modal, SelectInput, TextArea, Toggle, ViewErrors } from "@umnburrow/core"
 import { updateClub } from "@features/clubs/clubs.api.ts"
-import type { Club, ClubCategory, ClubPrivacy } from "@features/clubs/clubs.types.ts"
+import type { Club, ClubCategory, ClubLink, ClubPrivacy } from "@features/clubs/clubs.types.ts"
 import Field from "@features/burrows/create/components/Field.tsx"
+import ClubLinksEditor from "@features/clubs/components/ClubLinksEditor.tsx"
 import { capitalizeFirstLetter } from "@api/util.ts"
 import { toast } from "react-hot-toast"
 
 type EditClubFormState = {
     displayName: string
     description: string
+    links: Partial<Record<ClubLink, string>>
     category: ClubCategory
     privacy: ClubPrivacy
     requestToJoin: boolean
@@ -27,6 +29,7 @@ export default function EditClubModal({ open, onClose, club }: EditClubModalProp
     const [formState, setFormState] = useState<EditClubFormState>({
         displayName: club.displayName,
         description: club.description,
+        links: club.links ?? {},
         category: club.category,
         privacy: club.privacy,
         requestToJoin: club.requestToJoin,
@@ -40,6 +43,7 @@ export default function EditClubModal({ open, onClose, club }: EditClubModalProp
             setFormState({
                 displayName: club.displayName,
                 description: club.description,
+                links: club.links ?? {},
                 category: club.category,
                 privacy: club.privacy,
                 requestToJoin: club.requestToJoin,
@@ -94,6 +98,7 @@ export default function EditClubModal({ open, onClose, club }: EditClubModalProp
                 name: club.name,
                 displayName: formState.displayName.trim(),
                 description: formState.description.trim(),
+                links: formState.links,
                 category: formState.category,
                 privacy: formState.privacy,
                 requestToJoin: formState.requestToJoin,
@@ -197,6 +202,13 @@ export default function EditClubModal({ open, onClose, club }: EditClubModalProp
                                 />
                             </Field>
                         </div>
+
+                        <Field label="Links">
+                            <ClubLinksEditor
+                                links={formState.links}
+                                onChange={(links) => updateField("links", links)}
+                            />
+                        </Field>
                     </div>
                 )}
 

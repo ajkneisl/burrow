@@ -8,10 +8,10 @@ import app.burrow.api.optionalIntQueryParameter
 import app.burrow.api.throwIfNotEmpty
 import app.burrow.api.throwIfNull
 import app.burrow.api.urlParameter
-import app.burrow.api.toKotlinValue
+import app.burrow.api.verify.toKotlinValue
 import kotlinx.serialization.json.JsonObject
-import app.burrow.api.verify
-import app.burrow.api.verifyField
+import app.burrow.api.verify.verify
+import app.burrow.api.verify.verifyField
 import app.burrow.features.account.isBlockedBy
 import app.burrow.features.account.models.getUserByUsername
 import app.burrow.features.account.models.userID

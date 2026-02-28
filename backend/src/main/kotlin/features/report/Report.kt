@@ -8,9 +8,9 @@ import io.ktor.util.date.getTimeMillis
 import java.util.UUID
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import app.burrow.api.Verifiable
-import app.burrow.api.VerificationScope
-import app.burrow.api.Verifier
+import app.burrow.api.verify.Verifiable
+import app.burrow.api.verify.VerificationScope
+import app.burrow.api.verify.Verifier
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.selectAll

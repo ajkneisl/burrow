@@ -1,8 +1,8 @@
 package app.burrow.features.burrows.models
 
-import app.burrow.api.Verifiable
-import app.burrow.api.VerificationScope
-import app.burrow.api.Verifier
+import app.burrow.api.verify.Verifiable
+import app.burrow.api.verify.VerificationScope
+import app.burrow.api.verify.Verifier
 import app.burrow.features.account.models.getUserByID
 import app.burrow.features.burrows.MONTHLY
 import app.burrow.features.burrows.NOT_REOCCURRING

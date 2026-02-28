@@ -27,6 +27,9 @@ object Clubs : Table("clubs") {
     /** [app.burrow.features.clubs.models.Club.category] */
     val category = enumeration<ClubCategory>("category")
 
+    /** [Clubs.links] */
+    val links = text("links").default("{}")
+
     /** [app.burrow.features.clubs.models.Club.ownerID] */
     val ownerID = reference("owner_id", Users.id, onDelete = ReferenceOption.CASCADE).index()
 

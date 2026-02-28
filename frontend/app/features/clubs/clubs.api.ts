@@ -1,4 +1,4 @@
-import { get, post } from "@api/api"
+import { get, patch, post } from "@api/api"
 import type { Club, MyClubResponse, SubmittedClub } from "./club.types"
 
 /**
@@ -13,4 +13,14 @@ export async function getMyClubs(): Promise<MyClubResponse[]> {
  */
 export async function createClub(data: SubmittedClub): Promise<Club> {
     return await post("/clubs", data)
+}
+
+/**
+ * Update a club.
+ */
+export async function updateClub(
+    clubName: string,
+    data: Partial<SubmittedClub>
+): Promise<void> {
+    return await patch(`/clubs/${clubName}`, data)
 }
