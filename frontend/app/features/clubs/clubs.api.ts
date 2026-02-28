@@ -1,5 +1,10 @@
-import { get, patch, post } from "@api/api"
-import type { Club, MyClubResponse, SubmittedClub } from "./club.types"
+import { del, get, patch, post } from "@api/api"
+import type {
+    Club,
+    ClubResponse,
+    MyClubResponse,
+    SubmittedClub
+} from "./club.types"
 
 /**
  * Get the user's clubs.
@@ -16,6 +21,15 @@ export async function createClub(data: SubmittedClub): Promise<Club> {
 }
 
 /**
+ * Get a club by its name.
+ *
+ * @param clubName The name of the club.
+ */
+export async function getClub(clubName: string): Promise<ClubResponse> {
+    return await get(`/clubs/${clubName}`)
+}
+
+/**
  * Update a club.
  */
 export async function updateClub(
@@ -23,4 +37,13 @@ export async function updateClub(
     data: Partial<SubmittedClub>
 ): Promise<void> {
     return await patch(`/clubs/${clubName}`, data)
+}
+
+/**
+ * Delete a club.
+ *
+ * @param clubName The name of the club to delete.
+ */
+export async function deleteClub(clubName: string): Promise<void> {
+    return await del(`/clubs/${clubName}`)
 }

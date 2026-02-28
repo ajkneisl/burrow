@@ -1,4 +1,13 @@
-import {Crown, Globe, Link2, Lock, Shield, UserRound} from "lucide-react-native"
+import {
+    Crown,
+    Globe,
+    Instagram,
+    Link2,
+    Linkedin,
+    Lock,
+    Shield,
+    UserRound
+} from "lucide-react-native"
 
 export type ClubCategory = "SPORTS" | "SOCIAL" | "CREATIVE" | "EDUCATIONAL"
 export type ClubPrivacy = "PUBLIC" | "UNLISTED" | "PRIVATE"
@@ -144,4 +153,34 @@ export type ClubStepProps = {
     ) => void
     formState: CreateClubFormState
     errors: Record<string, string>
+}
+
+export const LINK_CONFIG: Record<
+    ClubLink,
+    {
+        icon: typeof Instagram
+        label: string
+        toUrl: (value: string) => string
+    }
+> = {
+    INSTAGRAM: {
+        icon: Instagram,
+        label: "Instagram",
+        toUrl: (handle) => `https://instagram.com/${handle.replace(/^@/, "")}`
+    },
+    X: {
+        icon: Globe,
+        label: "X",
+        toUrl: (handle) => `https://x.com/${handle.replace(/^@/, "")}`
+    },
+    WEBSITE: {
+        icon: Globe,
+        label: "Website",
+        toUrl: (url) => url
+    },
+    LINKED_IN: {
+        icon: Linkedin,
+        label: "LinkedIn",
+        toUrl: (handle) => `https://linkedin.com/in/${handle}`
+    }
 }
