@@ -1,7 +1,11 @@
 import type { User } from "../user.types.ts"
 import { useAtom } from "jotai"
 import { authToken } from "../auth.atom.ts"
-import { useQuery, useQueryErrorResetBoundary } from "@tanstack/react-query"
+import {
+    useQuery,
+    useQueryClient,
+    useQueryErrorResetBoundary
+} from "@tanstack/react-query"
 import { getUser } from "@features/auth/user.api.ts"
 import { useNavigate } from "react-router"
 
@@ -10,6 +14,7 @@ import { useNavigate } from "react-router"
  */
 export default function useUser(): User | null {
     const { reset } = useQueryErrorResetBoundary()
+    const queryClient = useQueryClient()
 
     const nav = useNavigate()
 
@@ -26,6 +31,7 @@ export default function useUser(): User | null {
         `${error}` === "Token is invalid or expired." &&
         !isLoading
     ) {
+        queryClient.resetQueries({ queryKey: ["user"] })
         setAuth("")
         nav("/welcome")
         reset()
