@@ -15,24 +15,15 @@ import useToken from "@features/auth/hooks/useToken.ts"
  */
 type ClubMembersProps = {
     clubName: string
-    ownerID: string
-    currentUserID: string | undefined
-    isAdmin: boolean
 }
 
 /**
  * The members of the club.
  *
  * @param clubName The name of the club.
- * @param ownerID The ID of the owner.
- * @param currentUserID The ID of the current user.
- * @param isAdmin If the user is an administrator.
  */
 export default function ClubMembers({
     clubName,
-    ownerID,
-    currentUserID,
-    isAdmin
 }: ClubMembersProps) {
     const auth = useToken()
     const [membersPage, setMembersPage] = useState(1)
@@ -73,9 +64,6 @@ export default function ClubMembers({
                             <ClubMemberCard
                                 key={m.member.userID}
                                 data={m}
-                                isSelf={currentUserID === m.member.userID}
-                                isAdmin={isAdmin}
-                                isOwner={m.member.userID === ownerID}
                                 clubName={clubName}
                             />
                         ))}

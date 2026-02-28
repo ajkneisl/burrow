@@ -4,6 +4,7 @@ import { Camera } from "lucide-react"
 import { CDN_URL } from "@api/util.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
 import { uploadClubBanner } from "@features/clubs/clubs.api.ts"
+import useClubRole from "@features/clubs/hooks/useClubRole.ts"
 import toast from "react-hot-toast"
 
 /**
@@ -12,7 +13,6 @@ import toast from "react-hot-toast"
 type ClubBannerProps = {
     clubID: string
     clubName: string
-    editable?: boolean
 }
 
 /**
@@ -20,15 +20,14 @@ type ClubBannerProps = {
  *
  * @param clubID The ID of the club.
  * @param clubName The name of the club.
- * @param editable If the user may edit the banner.
  *
  * @author AJ Kneisl
  */
 export default function ClubBanner({
     clubID,
     clubName,
-    editable = false
 }: ClubBannerProps) {
+    const { isAdmin: editable } = useClubRole(clubName)
     const [imageError, setImageError] = useState(false)
     const [uploading, setUploading] = useState(false)
     const [showHover, setShowHover] = useState(false)

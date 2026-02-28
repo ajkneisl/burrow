@@ -116,6 +116,15 @@ export async function updateClub(
 }
 
 /**
+ * Delete a club.
+ *
+ * @param clubName The name of the club to delete.
+ */
+export async function deleteClub(clubName: string): Promise<void> {
+    return await del(`/clubs/${clubName}`)
+}
+
+/**
  * Verify fields of a {@link SubmittedClub}.
  *
  * @param fields The fields to verify.

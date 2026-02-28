@@ -12,6 +12,7 @@ import clsx from "clsx"
 import { ChevronDown, Crown, UserRound, Shield, X, Check } from "lucide-react"
 import toast from "react-hot-toast"
 import { Button, Input } from "@umnburrow/core"
+import useClubRole from "@features/clubs/hooks/useClubRole.ts"
 
 function roleBadgeColor(role: ClubRole): string {
     switch (role) {
@@ -40,9 +41,6 @@ function roleIcon(role: ClubRole) {
  */
 type ClubMemberCardProps = {
     data: ClubMemberResponse
-    isSelf: boolean
-    isAdmin: boolean
-    isOwner: boolean
     clubName: string
 }
 
@@ -50,24 +48,20 @@ type ClubMemberCardProps = {
  * An individual member of a club.
  *
  * @param data
- * @param isSelf
- * @param isMember
- * @param isAdmin
- * @param isOwner
  * @param clubName
  *
  * @author AJ Kneisl
  */
 export default function ClubMemberCard({
     data,
-    isSelf,
-    isAdmin,
-    isOwner,
     clubName
 }: ClubMemberCardProps) {
     const nav = useNavigate()
     const queryClient = useQueryClient()
     const { member, user, profile } = data
+    const { isAdmin, user: currentUser, data: clubData } = useClubRole(clubName)
+    const isSelf = currentUser?.id === member.userID
+    const isOwner = member.userID === clubData?.club?.ownerID
 
     const [editing, setEditing] = useState(false)
     const [selectedRole, setSelectedRole] = useState<ClubRole>(member.role)

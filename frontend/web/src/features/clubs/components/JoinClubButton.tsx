@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { Button } from "@umnburrow/core"
 import { joinClub, leaveClub, cancelClubJoinRequest } from "@features/clubs/clubs.api.ts"
 import type { ClubResponse } from "@features/clubs/clubs.types.ts"
+import useClubRole from "@features/clubs/hooks/useClubRole.ts"
 import { toast } from "react-hot-toast"
 
 /**
@@ -10,32 +11,21 @@ import { toast } from "react-hot-toast"
  */
 type JoinClubButtonProps = {
     clubName: string
-    isMember: boolean
-    isOwner: boolean
-    requestedToJoin: boolean
-    requestToJoin: boolean
-    hasUser: boolean
 }
 
 /**
  * Button to join a club.
  *
  * @param clubName The name of the club.
- * @param isMember If the user is already a member.
- * @param isOwner If the user is the owner of the club.
- * @param requestedToJoin If the user has already requested to join.
- * @param requestToJoin If the club has request to join enabled.
- * @param hasUser If the club already has the user.
  * @author AJ Kneisl
  */
 export default function JoinClubButton({
     clubName,
-    isMember,
-    isOwner,
-    requestedToJoin,
-    requestToJoin,
-    hasUser,
 }: JoinClubButtonProps) {
+    const { isOwner, isMember, user, data } = useClubRole(clubName)
+    const requestedToJoin = data?.requestedToJoin ?? false
+    const requestToJoin = data?.club?.requestToJoin ?? false
+    const hasUser = !!user
     const queryClient = useQueryClient()
     const [loading, setLoading] = useState(false)
 
