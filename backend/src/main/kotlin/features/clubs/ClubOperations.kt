@@ -2,6 +2,8 @@ package app.burrow.features.clubs
 
 import app.burrow.PAGE_SIZE
 import app.burrow.api.models.PaginatedResponse
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import app.burrow.features.clubs.members.ClubMembers
 import app.burrow.features.clubs.models.Club
 import app.burrow.features.clubs.models.SubmittedClub
@@ -10,8 +12,7 @@ import app.burrow.features.clubs.models.enums.ClubPrivacy
 import app.burrow.features.clubs.models.enums.ClubRole
 import app.burrow.features.invites.InviteType
 import app.burrow.features.invites.createInvite
-import app.burrow.api.query
-import app.burrow.api.toEntity
+import app.burrow.json
 import io.ktor.util.date.getTimeMillis
 import java.util.UUID
 import kotlin.math.ceil
@@ -47,6 +48,7 @@ suspend fun createClub(ownerID: String, submittedClub: SubmittedClub): Club {
             it[Clubs.category] = submittedClub.category
             it[Clubs.ownerID] = ownerID
             it[Clubs.privacy] = submittedClub.privacy
+            it[Clubs.links] = json.encodeToString(submittedClub.links)
             it[Clubs.requestToJoin] = submittedClub.requestToJoin
             it[Clubs.createdAt] = createdAt
         }
@@ -62,6 +64,7 @@ suspend fun createClub(ownerID: String, submittedClub: SubmittedClub): Club {
             category = submittedClub.category,
             privacy = submittedClub.privacy,
             requestToJoin = submittedClub.requestToJoin,
+            links = submittedClub.links,
             createdAt = createdAt,
         )
 
@@ -97,6 +100,7 @@ suspend fun updateClub(clubID: String, submittedClub: SubmittedClub) = query {
         it[Clubs.category] = submittedClub.category
         it[Clubs.privacy] = submittedClub.privacy
         it[Clubs.requestToJoin] = submittedClub.requestToJoin
+        it[Clubs.links] = json.encodeToString(submittedClub.links)
     }
 }
 

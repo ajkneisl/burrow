@@ -1,9 +1,10 @@
 package app.burrow.features.clubs.models
 
 import app.burrow.api.MappedTable
-import app.burrow.features.clubs.models.enums.ClubCategory
-import app.burrow.features.clubs.models.enums.ClubPrivacy
 import app.burrow.features.clubs.Clubs
+import app.burrow.features.clubs.models.enums.ClubCategory
+import app.burrow.features.clubs.models.enums.ClubLink
+import app.burrow.features.clubs.models.enums.ClubPrivacy
 import kotlinx.serialization.Serializable
 
 /** A club. */
@@ -24,6 +25,9 @@ data class Club(
 
     /** The description of the club. */
     val description: String,
+
+    /** Club customizable links. */
+    val links: Map<ClubLink, String>,
 
     /** The category of club. */
     val category: ClubCategory,

@@ -1,7 +1,7 @@
 package app.burrow.features.report
 
 import app.burrow.api.throwIfNotEmpty
-import app.burrow.api.verify
+import app.burrow.api.verify.verify
 import app.burrow.features.account.models.userID
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
