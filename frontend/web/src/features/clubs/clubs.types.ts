@@ -5,6 +5,8 @@ export type ClubCategory = "SPORTS" | "SOCIAL" | "CREATIVE" | "EDUCATIONAL"
 
 export type ClubPrivacy = "PUBLIC" | "UNLISTED" | "PRIVATE"
 
+export type ClubLink = "INSTAGRAM" | "X" | "WEBSITE" | "LINKED_IN"
+
 export type ClubRole = "ADMINISTRATOR" | "MODERATOR" | "MEMBER"
 
 export interface Club {
@@ -13,6 +15,7 @@ export interface Club {
     name: string
     displayName: string
     description: string
+    links: Partial<Record<ClubLink, string>>
     category: ClubCategory
     privacy: ClubPrivacy
     requestToJoin: boolean
@@ -49,6 +52,7 @@ export interface SubmittedClub {
     name: string
     displayName: string
     description: string
+    links: Partial<Record<ClubLink, string>>
     category: ClubCategory
     privacy: ClubPrivacy
     requestToJoin: boolean

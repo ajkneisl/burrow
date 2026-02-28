@@ -13,6 +13,7 @@ import InviteClubMemberModal from "@features/clubs/components/InviteClubMemberMo
 import { Button, Card, ViewErrors } from "@umnburrow/core"
 import { useState } from "react"
 import JoinClubButton from "@features/clubs/components/JoinClubButton.tsx"
+import ClubDetails from "@features/clubs/components/ClubDetails.tsx"
 import ClubMeetings from "@features/clubs/components/ClubMeetings.tsx"
 import ClubSkeleton from "@features/clubs/components/ClubSkeleton.tsx"
 import ClubMembers from "@features/clubs/components/ClubMembers.tsx"
@@ -152,13 +153,10 @@ export default function ClubView() {
 
                         {/* Main content */}
                         <div className="col-span-1 space-y-6 lg:col-span-2">
-                            {/* Description */}
-                            <Card title="About">
-                                <p className="text-text/80 whitespace-pre-wrap">
-                                    {club.description ||
-                                        "No description provided."}
-                                </p>
-                            </Card>
+                            <ClubDetails
+                                description={club.description}
+                                links={club.links}
+                            />
 
                             <ClubMeetings clubName={name!} />
                         </div>

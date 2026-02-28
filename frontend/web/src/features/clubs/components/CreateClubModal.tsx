@@ -12,14 +12,16 @@ import {
 } from "@umnburrow/core"
 import useFormState from "@api/useFormState.ts"
 import { createClub } from "@features/clubs/clubs.api.ts"
-import type { ClubCategory, ClubPrivacy } from "@features/clubs/clubs.types.ts"
+import type { ClubCategory, ClubLink, ClubPrivacy } from "@features/clubs/clubs.types.ts"
 import Field from "@features/burrows/create/components/Field.tsx"
+import ClubLinksEditor from "@features/clubs/components/ClubLinksEditor.tsx"
 import { capitalizeFirstLetter } from "@api/util.ts"
 
 type CreateClubFormState = {
     name: string
     displayName: string
     description: string
+    links: Partial<Record<ClubLink, string>>
     category: ClubCategory
     privacy: ClubPrivacy
     requestToJoin: boolean
@@ -29,6 +31,7 @@ const initialFormState: CreateClubFormState = {
     name: "",
     displayName: "",
     description: "",
+    links: {},
     category: "SOCIAL",
     privacy: "PUBLIC",
     requestToJoin: false
@@ -105,6 +108,7 @@ export default function CreateClubModal({
                 name: formState.name.trim(),
                 displayName: formState.displayName.trim(),
                 description: formState.description.trim(),
+                links: formState.links,
                 category: formState.category,
                 privacy: formState.privacy,
                 requestToJoin: formState.requestToJoin,
@@ -261,6 +265,13 @@ export default function CreateClubModal({
                                 />
                             </Field>
                         </div>
+
+                        <Field label="Links">
+                            <ClubLinksEditor
+                                links={formState.links}
+                                onChange={(links) => updateField("links", links)}
+                            />
+                        </Field>
                     </div>
                 )}
 
