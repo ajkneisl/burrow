@@ -1,22 +1,19 @@
 import { useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
-import { Users, Pencil, UserPlus } from "lucide-react"
-import useUser from "@features/auth/hooks/useUser.ts"
+import { Users } from "lucide-react"
 import useToken from "@features/auth/hooks/useToken.ts"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 import { getClub } from "@features/clubs/clubs.api.ts"
 import type { ClubResponse } from "@features/clubs/clubs.types.ts"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.tsx"
 import ClubBanner from "@features/clubs/components/ClubBanner.tsx"
-import EditClubModal from "@features/clubs/components/EditClubModal.tsx"
-import InviteClubMemberModal from "@features/clubs/components/InviteClubMemberModal.tsx"
-import { Button, Card, ViewErrors } from "@umnburrow/core"
-import { useState } from "react"
+import { Card, ViewErrors } from "@umnburrow/core"
 import JoinClubButton from "@features/clubs/components/JoinClubButton.tsx"
 import ClubDetails from "@features/clubs/components/ClubDetails.tsx"
 import ClubMeetings from "@features/clubs/components/ClubMeetings.tsx"
 import ClubSkeleton from "@features/clubs/components/ClubSkeleton.tsx"
 import ClubMembers from "@features/clubs/components/ClubMembers.tsx"
+import ClubModeration from "@features/clubs/components/ClubModeration.tsx"
 
 /**
  * The club screen.
@@ -26,10 +23,6 @@ import ClubMembers from "@features/clubs/components/ClubMembers.tsx"
 export default function ClubView() {
     const { name } = useParams<{ name: string }>()
     const auth = useToken()
-    const user = useUser()
-
-    const [editOpen, setEditOpen] = useState(false)
-    const [inviteOpen, setInviteOpen] = useState(false)
 
     const { data, isLoading, error, refetch } = useQuery<ClubResponse>({
         queryKey: ["club", name],
@@ -43,11 +36,6 @@ export default function ClubView() {
         url: `https://umn.app/club/${name}`,
         image: "https://umn.app/burrow.png"
     })
-
-    const isOwner = user !== null && user.id === data?.club?.ownerID
-    const isMember = data?.membership !== null
-    const isAdmin = data?.membership?.role === "ADMINISTRATOR" || isOwner
-    const isMod = isAdmin || data?.membership?.role === "MODERATOR"
 
     // Loading skeleton
     if (isLoading) {
@@ -74,7 +62,6 @@ export default function ClubView() {
                             <ClubBanner
                                 clubID={club.id}
                                 clubName={name}
-                                editable={isAdmin}
                             />
 
                             <div className="flex flex-col gap-4 p-6">
@@ -85,7 +72,6 @@ export default function ClubView() {
                                             displayName={club.displayName}
                                             clubName={name}
                                             size="lg"
-                                            editable={isAdmin}
                                         />
                                     </div>
 
@@ -117,36 +103,12 @@ export default function ClubView() {
                                 <div className="flex flex-row items-center gap-2">
                                     <JoinClubButton
                                         clubName={name}
-                                        isMember={isMember}
-                                        isOwner={isOwner}
-                                        requestedToJoin={
-                                            data.requestedToJoin ?? false
-                                        }
-                                        requestToJoin={
-                                            club.requestToJoin ?? false
-                                        }
-                                        hasUser={!!user}
                                     />
 
-                                    {isAdmin && (
-                                        <Button
-                                            color="SECONDARY"
-                                            onClick={() => setEditOpen(true)}
-                                        >
-                                            <Pencil className="h-3.5 w-3.5" />
-                                            Edit
-                                        </Button>
-                                    )}
-
-                                    {isMod && (
-                                        <Button
-                                            color="INFO"
-                                            onClick={() => setInviteOpen(true)}
-                                        >
-                                            <UserPlus className="h-3.5 w-3.5" />
-                                            Invite
-                                        </Button>
-                                    )}
+                                    <ClubModeration
+                                        club={club}
+                                        clubName={name}
+                                    />
                                 </div>
                             </div>
                         </Card>
@@ -165,31 +127,12 @@ export default function ClubView() {
                         <div className="order-[-1] col-span-1 space-y-6 md:order-2">
                             <ClubMembers
                                 clubName={name!}
-                                ownerID={data.club.ownerID}
-                                currentUserID={user?.id}
-                                isAdmin={isAdmin}
                             />
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Modals */}
-            {isAdmin && (
-                <EditClubModal
-                    open={editOpen}
-                    onClose={() => setEditOpen(false)}
-                    club={club}
-                />
-            )}
-
-            {isMod && (
-                <InviteClubMemberModal
-                    open={inviteOpen}
-                    onClose={() => setInviteOpen(false)}
-                    clubName={name}
-                />
-            )}
         </main>
     )
 }

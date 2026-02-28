@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react"
 import clsx from "clsx"
 import { CDN_URL } from "@api/util.ts"
 import { uploadClubPhoto } from "@features/clubs/clubs.api.ts"
+import useClubRole from "@features/clubs/hooks/useClubRole.ts"
 import toast from "react-hot-toast"
 
 type ClubProfilePictureProps = {
@@ -9,7 +10,6 @@ type ClubProfilePictureProps = {
     displayName: string
     clubName: string
     size: "sm" | "md" | "lg"
-    editable?: boolean
 }
 
 export default function ClubProfilePicture({
@@ -17,8 +17,8 @@ export default function ClubProfilePicture({
     displayName,
     clubName,
     size = "lg",
-    editable = false,
 }: ClubProfilePictureProps) {
+    const { isAdmin: editable } = useClubRole(clubName)
     const [imageError, setImageError] = useState(false)
     const [uploading, setUploading] = useState(false)
     const [showHover, setShowHover] = useState(false)
