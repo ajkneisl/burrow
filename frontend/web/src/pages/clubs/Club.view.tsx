@@ -1,50 +1,32 @@
 import { useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
-import { Users, Pencil, UserPlus, CalendarClock, Calendar } from "lucide-react"
+import { Users, Pencil, UserPlus } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
-import {
-    getClub,
-    getClubMembers,
-    joinClub,
-    leaveClub,
-    cancelClubJoinRequest,
-    getClubBurrows
-} from "@features/clubs/clubs.api.ts"
-import type {
-    ClubMemberResponse,
-    ClubResponse
-} from "@features/clubs/clubs.types.ts"
-import type { ClubRole } from "@features/clubs/clubs.types.ts"
-import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
-import { NOT_REOCCURRING } from "@features/burrows/burrows.types.tsx"
-import type { PaginatedResponse } from "@api/api.types.ts"
-import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
+import { getClub } from "@features/clubs/clubs.api.ts"
+import type { ClubResponse } from "@features/clubs/clubs.types.ts"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.tsx"
 import ClubBanner from "@features/clubs/components/ClubBanner.tsx"
 import EditClubModal from "@features/clubs/components/EditClubModal.tsx"
 import InviteClubMemberModal from "@features/clubs/components/InviteClubMemberModal.tsx"
 import { Button, Card, ViewErrors } from "@umnburrow/core"
-import { useMemo, useState } from "react"
-import { useQueryClient } from "@tanstack/react-query"
-import { toast } from "react-hot-toast"
-import ClubMemberCard from "@features/clubs/components/ClubMemberCard.tsx"
+import { useState } from "react"
+import JoinClubButton from "@features/clubs/components/JoinClubButton.tsx"
+import ClubMeetings from "@features/clubs/components/ClubMeetings.tsx"
+import ClubSkeleton from "@features/clubs/components/ClubSkeleton.tsx"
+import ClubMembers from "@features/clubs/components/ClubMembers.tsx"
 
-const ROLE_ORDER: Record<ClubRole, number> = {
-    ADMINISTRATOR: 0,
-    MODERATOR: 1,
-    MEMBER: 2
-}
-
+/**
+ * The club screen.
+ *
+ * @author AJ Kneisl
+ */
 export default function ClubView() {
     const { name } = useParams<{ name: string }>()
     const auth = useToken()
     const user = useUser()
-    const queryClient = useQueryClient()
 
-    const [membersPage, setMembersPage] = useState(1)
-    const [joinLoading, setJoinLoading] = useState(false)
     const [editOpen, setEditOpen] = useState(false)
     const [inviteOpen, setInviteOpen] = useState(false)
 
@@ -52,20 +34,6 @@ export default function ClubView() {
         queryKey: ["club", name],
         enabled: auth !== "" && !!name,
         queryFn: async () => await getClub(name!)
-    })
-
-    const { data: members, isLoading: membersLoading } = useQuery<
-        PaginatedResponse<ClubMemberResponse>
-    >({
-        queryKey: ["clubMembers", name, membersPage],
-        enabled: auth !== "" && !!name,
-        queryFn: async () => await getClubMembers(name!, membersPage)
-    })
-
-    const { data: burrows } = useQuery<BurrowResponse[]>({
-        queryKey: ["clubBurrows", name],
-        enabled: auth !== "" && !!name,
-        queryFn: async () => await getClubBurrows(name!)
     })
 
     useMetaTags({
@@ -80,126 +48,9 @@ export default function ClubView() {
     const isAdmin = data?.membership?.role === "ADMINISTRATOR" || isOwner
     const isMod = isAdmin || data?.membership?.role === "MODERATOR"
 
-    const sortedMembers = useMemo(() => {
-        if (!members?.contents) return []
-        return [...members.contents].sort(
-            (a, b) =>
-                (ROLE_ORDER[a.member.role] ?? 3) -
-                (ROLE_ORDER[b.member.role] ?? 3)
-        )
-    }, [members])
-
-    const reoccurringBurrows = useMemo(
-        () =>
-            (burrows ?? []).filter(
-                (b) => b.burrow.reoccurring !== NOT_REOCCURRING
-            ),
-        [burrows]
-    )
-
-    const upcomingBurrows = useMemo(
-        () =>
-            (burrows ?? []).filter(
-                (b) => b.burrow.reoccurring === NOT_REOCCURRING
-            ),
-        [burrows]
-    )
-
-    const handleJoinLeave = async () => {
-        if (!name || !user) return
-        setJoinLoading(true)
-
-        try {
-            if (isMember) {
-                await leaveClub(name)
-                void queryClient.invalidateQueries({ queryKey: ["club", name] })
-                void queryClient.invalidateQueries({
-                    queryKey: ["clubMembers", name]
-                })
-            } else if (data?.requestedToJoin) {
-                await cancelClubJoinRequest(name)
-                queryClient.setQueryData<ClubResponse>(["club", name], (old) =>
-                    old ? { ...old, requestedToJoin: false } : old
-                )
-            } else {
-                await joinClub(name)
-                if (data?.club?.requestToJoin) {
-                    queryClient.setQueryData<ClubResponse>(
-                        ["club", name],
-                        (old) => (old ? { ...old, requestedToJoin: true } : old)
-                    )
-                    toast.success("You have requested to join.")
-                } else {
-                    void queryClient.invalidateQueries({
-                        queryKey: ["club", name]
-                    })
-                    void queryClient.invalidateQueries({
-                        queryKey: ["clubMembers", name]
-                    })
-                }
-            }
-        } catch (err) {
-            toast.error(typeof err === "string" ? err : "An error occurred")
-        } finally {
-            setJoinLoading(false)
-        }
-    }
-
-    const joinButtonText = useMemo(() => {
-        if (isMember) return "Leave"
-        if (data?.requestedToJoin) return "Cancel Request"
-        return data?.club?.requestToJoin ? "Request to Join" : "Join"
-    }, [isMember, data?.requestedToJoin, data?.club?.requestToJoin])
-
-    const isDestructive =
-        joinButtonText === "Leave" || joinButtonText === "Cancel Request"
-
     // Loading skeleton
     if (isLoading) {
-        return (
-            <main className="min-h-screen">
-                <section className="relative isolate">
-                    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                            <Card className="order-first col-span-1 p-6 lg:col-span-3">
-                                <div className="animate-pulse space-y-4">
-                                    <div className="bg-text/10 h-8 w-3/4 rounded-lg" />
-                                    <div className="flex items-center gap-2">
-                                        <div className="bg-text/10 h-10 w-10 rounded-full" />
-                                        <div className="bg-text/10 h-4 w-48 rounded" />
-                                    </div>
-                                </div>
-                            </Card>
-                            <div className="col-span-1 space-y-6 lg:col-span-2">
-                                <Card className="p-6">
-                                    <div className="animate-pulse space-y-2">
-                                        <div className="bg-text/10 h-5 w-32 rounded" />
-                                        <div className="bg-text/10 h-4 w-full rounded" />
-                                        <div className="bg-text/10 h-4 w-3/4 rounded" />
-                                    </div>
-                                </Card>
-                            </div>
-                            <div className="order-[-1] col-span-1 space-y-6 md:order-2">
-                                <Card className="p-6">
-                                    <div className="animate-pulse space-y-3">
-                                        <div className="bg-text/10 h-5 w-24 rounded" />
-                                        {[1, 2, 3].map((i) => (
-                                            <div
-                                                key={i}
-                                                className="flex items-center gap-2"
-                                            >
-                                                <div className="bg-text/10 h-10 w-10 rounded-full" />
-                                                <div className="bg-text/10 h-4 w-32 rounded" />
-                                            </div>
-                                        ))}
-                                    </div>
-                                </Card>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </main>
-        )
+        return <ClubSkeleton />
     }
 
     if (error || !data || !name) {
@@ -238,7 +89,7 @@ export default function ClubView() {
                                     </div>
 
                                     <div className="min-w-0 pt-1">
-                                        <span className="text-text/50 text-xs font-medium uppercase tracking-wider">
+                                        <span className="text-text/ 50 text-xs font-medium tracking-wider uppercase">
                                             {club.category}
                                         </span>
 
@@ -263,25 +114,22 @@ export default function ClubView() {
 
                                 {/* Actions */}
                                 <div className="flex flex-row items-center gap-2">
-                                    {!isOwner && (
-                                        <Button
-                                            thin
-                                            onClick={handleJoinLeave}
-                                            disabled={!user}
-                                            loading={joinLoading}
-                                            color={
-                                                isDestructive
-                                                    ? "ERROR"
-                                                    : "SUCCESS"
-                                            }
-                                        >
-                                            {joinButtonText}
-                                        </Button>
-                                    )}
+                                    <JoinClubButton
+                                        clubName={name}
+                                        isMember={isMember}
+                                        isOwner={isOwner}
+                                        requestedToJoin={
+                                            data.requestedToJoin ?? false
+                                        }
+                                        requestToJoin={
+                                            club.requestToJoin ?? false
+                                        }
+                                        hasUser={!!user}
+                                    />
 
                                     {isAdmin && (
                                         <Button
-                                            thin
+                                            color="SECONDARY"
                                             onClick={() => setEditOpen(true)}
                                         >
                                             <Pencil className="h-3.5 w-3.5" />
@@ -291,7 +139,7 @@ export default function ClubView() {
 
                                     {isMod && (
                                         <Button
-                                            thin
+                                            color="INFO"
                                             onClick={() => setInviteOpen(true)}
                                         >
                                             <UserPlus className="h-3.5 w-3.5" />
@@ -312,136 +160,17 @@ export default function ClubView() {
                                 </p>
                             </Card>
 
-                            {/* Reoccurring Meetings */}
-                            <div>
-                                <h3 className="text-text mb-3 text-sm font-semibold">
-                                    Reoccurring Meetings
-                                </h3>
-                                {reoccurringBurrows.length === 0 ? (
-                                    <div className="flex flex-col items-center gap-2 py-4 text-center">
-                                        <CalendarClock className="text-text/30 h-8 w-8" />
-                                        <p className="text-text/50 text-sm">
-                                            No reoccurring meetings.
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-3">
-                                        {reoccurringBurrows.map((b) => (
-                                            <BurrowCard
-                                                key={b.burrow.id}
-                                                meetingResponse={b}
-                                            />
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Upcoming Meetings */}
-                            <div>
-                                <h3 className="text-text mb-3 text-sm font-semibold">
-                                    Meetings
-                                </h3>
-                                {upcomingBurrows.length === 0 ? (
-                                    <div className="flex flex-col items-center gap-2 py-4 text-center">
-                                        <Calendar className="text-text/30 h-8 w-8" />
-                                        <p className="text-text/50 text-sm">
-                                            No meetings.
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-3">
-                                        {upcomingBurrows.map((b) => (
-                                            <BurrowCard
-                                                key={b.burrow.id}
-                                                meetingResponse={b}
-                                            />
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                            <ClubMeetings clubName={name!} />
                         </div>
 
                         {/* Sidebar — Members */}
                         <div className="order-[-1] col-span-1 space-y-6 md:order-2">
-                            <Card className="min-w-xs">
-                                <h3 className="mb-3 text-sm font-semibold">
-                                    Members
-                                </h3>
-
-                                {membersLoading && (
-                                    <div className="text-text/60 text-sm">
-                                        Loading members...
-                                    </div>
-                                )}
-
-                                {!membersLoading &&
-                                    sortedMembers.length === 0 && (
-                                        <div className="text-text/50 text-sm">
-                                            No members yet.
-                                        </div>
-                                    )}
-
-                                {!membersLoading &&
-                                    sortedMembers.length > 0 && (
-                                        <>
-                                            <ul className="flex flex-col gap-3">
-                                                {sortedMembers.map((m) => (
-                                                    <ClubMemberCard
-                                                        key={m.member.userID}
-                                                        data={m}
-                                                        isSelf={
-                                                            user?.id ===
-                                                            m.member.userID
-                                                        }
-                                                        isAdmin={isAdmin}
-                                                        isOwner={
-                                                            m.member.userID ===
-                                                            data.club.ownerID
-                                                        }
-                                                        clubName={name}
-                                                    />
-                                                ))}
-                                            </ul>
-
-                                            {members &&
-                                                members.totalPages > 1 && (
-                                                    <div className="mt-4 flex items-center justify-between">
-                                                        <Button
-                                                            disabled={
-                                                                membersPage ===
-                                                                1
-                                                            }
-                                                            onClick={() =>
-                                                                setMembersPage(
-                                                                    (p) => p - 1
-                                                                )
-                                                            }
-                                                        >
-                                                            Previous
-                                                        </Button>
-                                                        <span className="text-xs">
-                                                            Page {membersPage}{" "}
-                                                            of{" "}
-                                                            {members.totalPages}
-                                                        </span>
-                                                        <Button
-                                                            disabled={
-                                                                membersPage ===
-                                                                members.totalPages
-                                                            }
-                                                            onClick={() =>
-                                                                setMembersPage(
-                                                                    (p) => p + 1
-                                                                )
-                                                            }
-                                                        >
-                                                            Next
-                                                        </Button>
-                                                    </div>
-                                                )}
-                                        </>
-                                    )}
-                            </Card>
+                            <ClubMembers
+                                clubName={name!}
+                                ownerID={data.club.ownerID}
+                                currentUserID={user?.id}
+                                isAdmin={isAdmin}
+                            />
                         </div>
                     </div>
                 </div>

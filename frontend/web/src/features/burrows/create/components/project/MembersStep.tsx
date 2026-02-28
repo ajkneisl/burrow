@@ -9,14 +9,8 @@ import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import {useAtom} from "jotai";
 import {authToken} from "@features/auth/auth.atom.ts";
 
-/**
- * {@see MembersStep}
- */
-export type UserSearchResult = {
-    id: string
-    username: string
-    name?: string
-}
+import type { UserSearchResult } from "@features/profile/components/SelectUser.tsx"
+export type { UserSearchResult }
 
 /**
  * A selected team member with display information

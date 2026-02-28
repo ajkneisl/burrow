@@ -37,7 +37,10 @@ export default function useFormState<T, E = string[]>({
             if (!verifyEndpoint) return true
 
             try {
-                await post(verifyEndpoint, fields)
+                const stringFields = Object.fromEntries(
+                    Object.entries(fields).map(([key, value]) => [key, String(value)])
+                )
+                await post(verifyEndpoint, stringFields)
                 setErrors(initialErrors)
                 return true
             } catch (e) {

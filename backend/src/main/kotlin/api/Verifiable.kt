@@ -78,6 +78,14 @@ open class VerificationScope<T : Any>(private val _instance: T?) {
     /** Resolve the value for a property. By default reads from the instance. */
     protected open fun <V> resolveValue(property: KProperty1<T, V>): V = property.get(instance)
 
+    /**
+     * Run a block, silently skipping rules that access [instance] when no instance is available
+     * (e.g. single-field verification).
+     */
+    protected open suspend fun <C> runBlock(check: C, block: suspend C.() -> Unit) {
+        check.block()
+    }
+
     /** Define verification rules for a String property. */
     suspend operator fun KProperty1<T, String>.invoke(
         block: suspend StringPropertyCheck.() -> Unit
@@ -85,7 +93,7 @@ open class VerificationScope<T : Any>(private val _instance: T?) {
         if (!shouldCheck(this)) return
         val value = resolveValue(this)
         val check = StringPropertyCheck(value, errors)
-        check.block()
+        runBlock(check, block)
     }
 
     /** Define verification rules for an Int property. */
@@ -94,7 +102,7 @@ open class VerificationScope<T : Any>(private val _instance: T?) {
         if (!shouldCheck(this)) return
         val value = resolveValue(this)
         val check = IntPropertyCheck(value, errors)
-        check.block()
+        runBlock(check, block)
     }
 
     /** Define verification rules for a Long property. */
@@ -103,7 +111,7 @@ open class VerificationScope<T : Any>(private val _instance: T?) {
         if (!shouldCheck(this)) return
         val value = resolveValue(this)
         val check = LongPropertyCheck(value, errors)
-        check.block()
+        runBlock(check, block)
     }
 
     /** Define verification rules for a List property. */
@@ -114,7 +122,7 @@ open class VerificationScope<T : Any>(private val _instance: T?) {
         if (!shouldCheck(this)) return
         val value = resolveValue(this)
         val check = ListPropertyCheck(value, errors)
-        check.block()
+        runBlock(check, block)
     }
 
     /** Define verification rules for a Set property. */
@@ -125,7 +133,7 @@ open class VerificationScope<T : Any>(private val _instance: T?) {
         if (!shouldCheck(this)) return
         val value = resolveValue(this)
         val check = SetPropertyCheck(value, errors)
-        check.block()
+        runBlock(check, block)
     }
 
     /**
@@ -136,7 +144,7 @@ open class VerificationScope<T : Any>(private val _instance: T?) {
         if (!shouldCheck(property)) return
         val value = resolveValue(property)
         val check = PropertyCheck(value, errors)
-        check.block()
+        runBlock(check, block)
     }
 
     /** Add a custom error directly. */
@@ -160,7 +168,28 @@ class FieldVerificationScope<T : Any>(private val fieldName: String, private val
 
     override fun shouldCheck(property: KProperty1<T, *>): Boolean = property.name == fieldName
 
-    override fun <V> resolveValue(property: KProperty1<T, V>): V = fieldValue as V
+    override fun <V> resolveValue(property: KProperty1<T, V>): V {
+        if (fieldValue is String) {
+            val coerced: Any? = when (property.returnType.classifier) {
+                Long::class -> fieldValue.toLongOrNull()
+                Int::class -> fieldValue.toIntOrNull()
+                Double::class -> fieldValue.toDoubleOrNull()
+                Boolean::class -> fieldValue.toBooleanStrictOrNull()
+                else -> fieldValue
+            }
+            return coerced as V
+        }
+        return fieldValue as V
+    }
+
+    override suspend fun <C> runBlock(check: C, block: suspend C.() -> Unit) {
+        try {
+            check.block()
+        } catch (_: NullPointerException) {
+            // Cross-field rules access `instance` which is null during single-field verification.
+            // Silently skip these rules since they can't be evaluated without a full instance.
+        }
+    }
 }
 
 /** Base check with access to the value and error list. */

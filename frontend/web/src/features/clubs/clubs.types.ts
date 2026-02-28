@@ -54,3 +54,9 @@ export interface SubmittedClub {
     requestToJoin: boolean
     members: string[]
 }
+
+export const ROLE_ORDER: Record<ClubRole, number> = {
+    ADMINISTRATOR: 0,
+    MODERATOR: 1,
+    MEMBER: 2
+}

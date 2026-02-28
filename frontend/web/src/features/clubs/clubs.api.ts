@@ -10,10 +10,21 @@ import type {
     SubmittedClub
 } from "./clubs.types.ts"
 
-export async function getClub(name: string): Promise<ClubResponse> {
-    return await get(`/clubs/${name}`)
+/**
+ * Get a club by its name.
+ *
+ * @param clubName The name of the club.
+ */
+export async function getClub(clubName: string): Promise<ClubResponse> {
+    return await get(`/clubs/${clubName}`)
 }
 
+/**
+ * Get a page of a club's members.
+ *
+ * @param clubName The name of the club.
+ * @param page The page to retrieve.
+ */
 export async function getClubMembers(
     clubName: string,
     page: number = 1
@@ -21,18 +32,42 @@ export async function getClubMembers(
     return await get(`/clubs/${clubName}/members`, { query: { page } })
 }
 
+/**
+ * Join a club by its name.
+ *
+ * @param clubName The name of the club.
+ */
 export async function joinClub(clubName: string) {
     return await post(`/clubs/${clubName}/join`)
 }
 
+/**
+ * Leave a club by its name.
+ *
+ * @param clubName The name of the club.
+ */
 export async function leaveClub(clubName: string) {
     return await post(`/clubs/${clubName}/leave`)
 }
 
+/**
+ * Kick a club member out.
+ *
+ * @param clubName The name of the club.
+ * @param userID The user ID to kick.
+ */
 export async function kickClubMember(clubName: string, userID: string) {
     return await patch(`/clubs/${clubName}/kick`, { userID })
 }
 
+/**
+ * Change a user's club role.
+ *
+ * @param clubName The name of the club.
+ * @param userID The user ID to adjust the role of.
+ * @param role The new role.
+ * @param roleName The customized name of the role.
+ */
 export async function changeClubRole(
     clubName: string,
     userID: string,
@@ -42,18 +77,37 @@ export async function changeClubRole(
     return await patch(`/clubs/${clubName}/role`, { userID, role, roleName })
 }
 
+/**
+ * Cancel a request to join a club.
+ *
+ * @param clubName The name of the club.
+ */
 export async function cancelClubJoinRequest(clubName: string) {
     return await del(`/clubs/${clubName}/requests`)
 }
 
+/**
+ * Get the clubs the user is a moderator or administrator of.
+ */
 export async function getMyClubs(): Promise<MyClubResponse[]> {
     return await get(`/clubs/mine`)
 }
 
+/**
+ * Create a club.
+ *
+ * @param submittedClub The details of the club to create.
+ */
 export async function createClub(submittedClub: SubmittedClub): Promise<Club> {
     return await post(`/clubs`, submittedClub)
 }
 
+/**
+ * Update a club.
+ *
+ * @param clubName The current name of the club.
+ * @param submittedClub The details of the club.
+ */
 export async function updateClub(
     clubName: string,
     submittedClub: Partial<SubmittedClub>
@@ -61,12 +115,23 @@ export async function updateClub(
     return await patch(`/clubs/${clubName}`, submittedClub)
 }
 
+/**
+ * Verify fields of a {@link SubmittedClub}.
+ *
+ * @param fields The fields to verify.
+ */
 export async function verifyClubFields(
     fields: Partial<SubmittedClub>
 ): Promise<void> {
     return await post(`/clubs/verify`, fields)
 }
 
+/**
+ * Invite a user to a club.
+ *
+ * @param clubName The name of the club.
+ * @param inviteeID The ID of the user to invite.
+ */
 export async function inviteToClub(
     clubName: string,
     inviteeID: string
@@ -74,12 +139,23 @@ export async function inviteToClub(
     return await post(`/clubs/${clubName}/invites`, { inviteeID })
 }
 
+/**
+ * Get a club's Burrows.
+ *
+ * @param clubName The name of the club.
+ */
 export async function getClubBurrows(
     clubName: string
 ): Promise<BurrowResponse[]> {
     return await get(`/clubs/${clubName}/burrows`)
 }
 
+/**
+ * Upload a new photo for a club.
+ *
+ * @param clubName The name of the club.
+ * @param file The photo.
+ */
 export async function uploadClubPhoto(clubName: string, file: File) {
     return await request("POST", `/clubs/${clubName}/photo`, {
         data: file,
@@ -87,10 +163,21 @@ export async function uploadClubPhoto(clubName: string, file: File) {
     })
 }
 
+/**
+ * Delete the current photo for a club.
+ *
+ * @param clubName The name of the club.
+ */
 export async function deleteClubPhoto(clubName: string) {
     await del(`/clubs/${clubName}/photo`)
 }
 
+/**
+ * Upload a new banner for a club.
+ *
+ * @param clubName The name of the club.
+ * @param file The banner.
+ */
 export async function uploadClubBanner(clubName: string, file: File) {
     return await request("POST", `/clubs/${clubName}/banner`, {
         data: file,
@@ -98,6 +185,11 @@ export async function uploadClubBanner(clubName: string, file: File) {
     })
 }
 
+/**
+ * Delete the current banner for a club.
+ *
+ * @param clubName The name of the club.
+ */
 export async function deleteClubBanner(clubName: string) {
     await del(`/clubs/${clubName}/banner`)
 }

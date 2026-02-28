@@ -9,8 +9,8 @@ import app.burrow.api.optionalLongQueryParameter
 import app.burrow.api.queryParameter
 import app.burrow.api.throwIfNotEmpty
 import app.burrow.api.throwIfNull
-import app.burrow.api.urlParameter
 import app.burrow.api.toKotlinValue
+import app.burrow.api.urlParameter
 import app.burrow.api.verify
 import app.burrow.api.verifyField
 import app.burrow.features.account.models.userID
@@ -36,7 +36,6 @@ import app.burrow.features.clubs.models.enums.ClubRole
 import app.burrow.features.invites.inviteRoutes
 import app.burrow.features.requests.joinRequestRoutes
 import io.ktor.http.HttpStatusCode
-import kotlinx.serialization.json.JsonObject
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -48,6 +47,7 @@ import io.ktor.server.routing.route
 import io.ktor.util.date.getTimeMillis
 import java.time.LocalDateTime
 import java.time.YearMonth
+import kotlinx.serialization.json.JsonObject
 
 /**
  * Check if a user can manage a burrow. Returns true if the user is the direct owner, or if the

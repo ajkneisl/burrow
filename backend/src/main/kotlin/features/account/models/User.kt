@@ -1,16 +1,18 @@
 package app.burrow.features.account.models
 
-import app.burrow.api.MappedTable
 import app.burrow.api.Error
 import app.burrow.api.InvalidAuthorization
+import app.burrow.api.MappedTable
 import app.burrow.api.NotFound
-import app.burrow.env
-import app.burrow.features.account.Authorization
-import app.burrow.features.account.Users
-import app.burrow.features.account.profile.Profiles
 import app.burrow.api.photo.deletePhoto
 import app.burrow.api.query
 import app.burrow.api.toEntity
+import app.burrow.env
+import app.burrow.features.account.Authorization
+import app.burrow.features.account.Users
+import app.burrow.features.account.getAllBlockedRelationships
+import app.burrow.features.account.profile.Following
+import app.burrow.features.account.profile.Profiles
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import com.google.api.client.http.javanet.NetHttpTransport
@@ -41,9 +43,11 @@ import org.jetbrains.exposed.v1.core.leftJoin
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.notInList
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
 import org.slf4j.LoggerFactory
@@ -249,35 +253,88 @@ suspend fun getUserByUsername(username: String): User =
 data class UserSearchResult(val id: String, val username: String, val name: String? = null)
 
 /**
- * Search for users by username or profile name. Returns up to 10 results that match the query.
+ * Search for users by username or profile name. Returns up to 10 results ranked by relevance:
+ * exact username match > prefix match > contains match, with friends boosted within each tier.
  *
- * @param query The search query to match against username and profile name.
- * @param requestingUserID If included, do not include the requesting user.
- * @return A list of up to 10 matching users.
+ * @param searchQuery The search query to match against username and profile name.
+ * @param requestingUserID The user searching.
+ * @param excludeRequestor If [requestingUserID] should be excluded
+ * @return A list of up to 10 matching users, ranked by relevance.
  */
-suspend fun searchUsers(searchQuery: String, requestingUserID: String?): List<UserSearchResult> {
+suspend fun searchUsers(
+    searchQuery: String,
+    requestingUserID: String?,
+    excludeRequestor: Boolean,
+): List<UserSearchResult> {
     if (searchQuery.isBlank()) return emptyList()
 
-    val pattern = "%${searchQuery.trim().lowercase().replace("%", "\\%").replace("_", "\\_")}%"
+    val trimmed = searchQuery.trim().lowercase()
+    val escaped = trimmed.replace("%", "\\%").replace("_", "\\_")
+    val containsPattern = "%${escaped}%"
+
+    val blockedUserIds =
+        if (requestingUserID != null) getAllBlockedRelationships(requestingUserID) else emptySet()
+
+    val friendIds: Set<String> = if (requestingUserID != null) {
+        query {
+            val following = Following.select(Following.followee)
+                .where { Following.follower eq requestingUserID }
+                .toList()
+                .map { it[Following.followee] }
+                .toSet()
+
+            val followers = Following.select(Following.follower)
+                .where { Following.followee eq requestingUserID }
+                .toList()
+                .map { it[Following.follower] }
+                .toSet()
+
+            following.intersect(followers)
+        }
+    } else emptySet()
+
+    data class RankedUser(val result: UserSearchResult, val score: Int)
 
     return query {
         Users.leftJoin(Profiles, { Users.id }, { Profiles.userID })
             .selectAll()
             .where {
-                ((Users.username.lowerCase() like pattern) or
-                    (Profiles.name.lowerCase() like pattern)) and
-                    // exclude requesting user if included
-                    (if (requestingUserID != null) Users.id neq requestingUserID else Op.TRUE)
+                ((Users.username.lowerCase() like containsPattern) or
+                    (Profiles.name.lowerCase() like containsPattern)) and
+                    (if (requestingUserID != null && excludeRequestor) Users.id neq requestingUserID else Op.TRUE) and
+                    (if (blockedUserIds.isNotEmpty()) Users.id notInList blockedUserIds.toList()  else Op.TRUE)
             }
-            .limit(10)
+            .limit(50)
             .toList()
             .map { row ->
-                UserSearchResult(
-                    id = row[Users.id],
-                    username = row[Users.username],
-                    name = row.getOrNull(Profiles.name),
+                val username = row[Users.username]
+                val name = row.getOrNull(Profiles.name)
+                val usernameLower = username.lowercase()
+                val nameLower = name?.lowercase()
+
+                // score: lower is better
+                val matchScore = when {
+                    usernameLower == trimmed -> 0                                       // exact username
+                    nameLower == trimmed -> 1                                           // exact name
+                    usernameLower.startsWith(trimmed) -> 2                              // username prefix
+                    nameLower?.startsWith(trimmed) == true -> 3                         // name prefix
+                    else -> 4                                                           // contains
+                }
+
+                val friendBoost = if (friendIds.contains(row[Users.id])) 0 else 10
+
+                RankedUser(
+                    result = UserSearchResult(
+                        id = row[Users.id],
+                        username = username,
+                        name = name,
+                    ),
+                    score = matchScore * 100 + friendBoost
                 )
             }
+            .sortedBy { it.score }
+            .take(10)
+            .map { it.result }
     }
 }
 

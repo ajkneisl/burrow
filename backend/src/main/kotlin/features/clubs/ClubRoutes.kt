@@ -2,6 +2,7 @@ package app.burrow.features.clubs
 
 import app.burrow.api.InvalidAuthorization
 import app.burrow.api.MultiError
+import app.burrow.api.NotFound
 import app.burrow.api.optionalEnumQueryParameter
 import app.burrow.api.optionalIntQueryParameter
 import app.burrow.api.throwIfNotEmpty
@@ -11,6 +12,8 @@ import app.burrow.api.toKotlinValue
 import kotlinx.serialization.json.JsonObject
 import app.burrow.api.verify
 import app.burrow.api.verifyField
+import app.burrow.features.account.isBlockedBy
+import app.burrow.features.account.models.getUserByUsername
 import app.burrow.features.account.models.userID
 import app.burrow.features.burrows.searchBurrows
 import app.burrow.features.clubs.members.changeClubRole
@@ -258,6 +261,12 @@ private val CLUB_INVITE_ROUTES: Route.() -> Unit = {
             call.requireClubModerator(club.id)
 
             val payload = call.receive<CreateClubInvitePayload>()
+
+            val retrievedUser = getUserByUsername(payload.inviteeID)
+
+            // not found if user is blocked
+            if (isBlockedBy(retrievedUser.id, call.userID))
+                throw NotFound()
 
             createInvite(
                 inviterID = call.userID,
