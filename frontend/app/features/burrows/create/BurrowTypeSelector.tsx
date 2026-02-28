@@ -28,28 +28,28 @@ const BURROW_TYPES: {
     {
         type: "STUDY",
         label: "Study Group",
-        description: "Collaborate on coursework and exams",
+        description: "Create a study group",
         icon: BookOpen,
         color: "#10B981"
     },
     {
         type: "EVENT",
         label: "Event",
-        description: "Plan social gatherings and activities",
+        description: "Plan or host an event",
         icon: PartyPopper,
         color: "#FFCC33"
     },
     {
         type: "CLUB",
         label: "Club",
-        description: "Create a student organization or club",
+        description: "Meet with your club",
         icon: Users,
         color: "#3B82F6"
     },
     {
         type: "PROJECT",
         label: "Project",
-        description: "Manage team projects and deadlines",
+        description: "Collaborate with classmates on projects",
         icon: FolderKanban,
         color: "#EF4444"
     }
