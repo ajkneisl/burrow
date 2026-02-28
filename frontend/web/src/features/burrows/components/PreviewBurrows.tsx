@@ -23,7 +23,7 @@ export default function PreviewBurrows({ amount }: PreviewGroupsProps) {
 
     const { data, isLoading, isError, refetch, error } = useQuery({
         queryKey: ["preview"],
-        queryFn: async () => getBurrows(null)
+        queryFn: async () => getBurrows(null, true)
     })
 
     return (

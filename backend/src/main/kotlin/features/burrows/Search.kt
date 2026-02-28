@@ -1,6 +1,8 @@
 package app.burrow.features.burrows
 
 import app.burrow.api.models.PaginatedResponse
+import app.burrow.api.query
+import app.burrow.api.toEntity
 import app.burrow.doIf
 import app.burrow.features.account.Users
 import app.burrow.features.account.getAllBlockedRelationships
@@ -12,13 +14,11 @@ import app.burrow.features.burrows.bookmarks.Bookmarks
 import app.burrow.features.burrows.membership.Membership
 import app.burrow.features.burrows.membership.Memberships
 import app.burrow.features.burrows.models.Burrow
+import app.burrow.features.burrows.models.BurrowResponse
 import app.burrow.features.burrows.models.enums.BurrowKind
 import app.burrow.features.burrows.models.enums.BurrowMemberStatus
-import app.burrow.features.burrows.models.BurrowResponse
 import app.burrow.features.burrows.models.enums.BurrowVisibility
 import app.burrow.features.clubs.Clubs
-import app.burrow.api.query
-import app.burrow.api.toEntity
 import io.ktor.util.date.getTimeMillis
 import java.time.Instant
 import java.time.ZoneId
@@ -101,18 +101,21 @@ data class SearchBurrowsBuilder(
     var kind: BurrowKind? = null,
 
     /**
-     * A query to search through [app.burrow.features.burrows.models.Burrow.title], [app.burrow.features.burrows.models.Burrow.tags], [app.burrow.features.burrows.models.Burrow.location] and
-     * [app.burrow.features.burrows.models.Burrow.description].
+     * A query to search through [Burrow.title], [Burrow.tags], [Burrow.location] and
+     * [Burrow.description].
      */
     var query: String? = null,
 
-    /** The date range that [app.burrow.features.burrows.models.Burrow.endTime] is within. */
+    /** The date range that [Burrow.endTime] is within. */
     var dateRange: LongRange? = null,
 
     /** The ID of the user requesting this search. */
     var requestingUserID: String? = null,
 
-    /** Search by [app.burrow.features.burrows.models.Burrow.ownerID]. */
+    /** Filter by [requestingUserID] not being in the Burrow. */
+    var notJoined: Boolean? = null,
+
+    /** Search by [Burrow.ownerID]. */
     var authorUserID: String? = null,
 
     /** Search by [requestingUserID]'s bookmarked Burrows. */
@@ -167,6 +170,7 @@ suspend fun searchBurrows(
         query,
         dateRange,
         requestingUserID,
+        notJoined,
         authorUserID,
         isBookmarked,
         isHostedBy,
@@ -235,7 +239,8 @@ suspend fun searchBurrows(
     val kindExpr = if (kind != null) (Burrows.kind eq kind) else Op.TRUE
 
     // ensure only public (skip when filtering by club)
-    val privacyExpr = if (clubID != null) Op.TRUE else (Burrows.visibility eq BurrowVisibility.PUBLIC)
+    val privacyExpr =
+        if (clubID != null) Op.TRUE else (Burrows.visibility eq BurrowVisibility.PUBLIC)
 
     // filter by club
     val clubExpr: Op<Boolean> = if (clubID != null) (Burrows.clubID eq clubID) else Op.TRUE
@@ -357,14 +362,26 @@ suspend fun searchBurrows(
                             additionalConstraint = { Bookmarks.userID eq requestingUserID!! },
                         )
                     }
-                    // if searching by joined
-                    .doIf(isJoinedBy != null) {
-                        // join memberships depending on requestingUserID
+                    // if searching by joined or requestor not joined
+                    .doIf(isJoinedBy != null || (notJoined == true && requestingUserID != null)) {
                         innerJoin(
                             otherTable = Memberships,
                             onColumn = { Burrows.id },
                             otherColumn = { Memberships.burrowID },
-                            additionalConstraint = { Memberships.userID eq isJoinedBy!! },
+                            additionalConstraint = {
+                                var constraint: Op<Boolean> = Op.TRUE
+
+                                if (isJoinedBy != null) {
+                                    constraint = constraint and (Memberships.userID eq isJoinedBy)
+                                }
+
+                                if (notJoined == true && requestingUserID != null) {
+                                    constraint =
+                                        constraint and (Memberships.userID neq requestingUserID)
+                                }
+
+                                constraint
+                            },
                         )
                     }
                     // select for search result

@@ -9,8 +9,8 @@ import app.burrow.api.optionalLongQueryParameter
 import app.burrow.api.queryParameter
 import app.burrow.api.throwIfNotEmpty
 import app.burrow.api.throwIfNull
-import app.burrow.api.verify.toKotlinValue
 import app.burrow.api.urlParameter
+import app.burrow.api.verify.toKotlinValue
 import app.burrow.api.verify.verify
 import app.burrow.api.verify.verifyField
 import app.burrow.features.account.models.userID
@@ -74,11 +74,13 @@ val BURROW_ROUTES: Route.() -> Unit = {
     get {
         val page = call.optionalIntQueryParameter("page") ?: 1
         val type = call.optionalEnumQueryParameter<BurrowKind>("type")
+        val excludeJoined = call.optionalBooleanQueryParameter("exclude_joined")
 
         call.respond(
             searchBurrows(page = page) {
                 kind = type
                 requestingUserID = call.userID
+                notJoined = excludeJoined == true
             }
         )
     }

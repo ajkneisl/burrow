@@ -35,7 +35,7 @@ export default function HomeScreen() {
         refetch: refetchBurrows
     } = useQuery({
         queryKey: ["burrows", "upcoming"],
-        queryFn: async () => await getBurrows(null)
+        queryFn: async () => await getBurrows(null, true)
     })
 
     const onRefresh = useCallback(async () => {

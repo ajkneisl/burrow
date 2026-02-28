@@ -118,7 +118,7 @@ export function SearchResultItem({ item, onPress }: SearchResultItemProps) {
                 <ClubProfilePicture
                     clubID={item.clubID}
                     displayName={item.displayName}
-                    size={48}
+                    size="md"
                 />
                 <View className="flex-1">
                     <Text

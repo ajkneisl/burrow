@@ -31,12 +31,16 @@ export async function getMap(): Promise<BurrowLocation[]> {
  * Get list of {@link BurrowResponse}.
  *
  * @param type The type of meetings to get.
+ * @param excludeJoined If the list of responses should exclude the Burrows the user has already joined.
  * @return The meeting response, including membership and meeting information.
  */
 export async function getBurrows(
-    type: BurrowKind | null
+    type: BurrowKind | null,
+    excludeJoined?: boolean
 ): Promise<PaginatedResponse<BurrowResponse>> {
-    return get(`/burrows`, { query: { type: `${type}` } })
+    return get(`/burrows`, {
+        query: { type: `${type}`, exclude_joined: excludeJoined ?? false }
+    })
 }
 
 /**

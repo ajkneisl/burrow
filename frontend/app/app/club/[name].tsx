@@ -127,7 +127,7 @@ export default function ClubDetailScreen() {
                             <ClubProfilePicture
                                 clubID={club.id}
                                 displayName={club.displayName}
-                                size={80}
+                                size="xl"
                             />
                         </View>
 

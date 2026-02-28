@@ -1,25 +1,17 @@
 import { View, Text, Pressable, Image } from "react-native"
 import { useState } from "react"
 import { useRouter } from "expo-router"
-import {
-    Clock,
-    Check,
-    MapPin,
-    Star,
-    Bookmark,
-    GraduationCap
-} from "lucide-react-native"
+import { Clock, Check, Star, Bookmark } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import useUser from "@features/auth/hooks/useUser"
 import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import { CapacityBadge } from "@features/burrows/components/CapacityBadge"
 import type { BurrowResponse } from "@features/burrows/burrows.types"
-import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { CDN_URL, formatDateTime } from "@api/util"
 import KindChip from "@features/burrows/components/KindChip"
-import ThemedIcon from "@components/core/ThemedIcon"
 import TABadge from "@features/burrows/components/TABadge"
 import LocationChip from "@features/burrows/components/LocationChip"
+import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture"
 
 /**
  * {@link UpcomingBurrowCard}
@@ -35,6 +27,7 @@ type UpcomingBurrowCardProps = {
  *
  * @param burrowResponse The Burrow response.
  * @param verbose If true, shows the description.
+ * @param actionBadge optional action (used for remaking)
  *
  * @author AJ Kneisl
  */
@@ -48,6 +41,8 @@ export function UpcomingBurrowCard({
     const user = useUser()
     const {
         burrow,
+        joined,
+        waiting,
         membership,
         bookmarked,
         burrowAuthorProfile,
@@ -145,7 +140,8 @@ export function UpcomingBurrowCard({
 
                         {/* author / club profile picture */}
                         {clubName && burrow.clubID ? (
-                            <ClubAvatarSmall
+                            <ClubProfilePicture
+                                size="sm"
                                 clubID={burrow.clubID}
                                 displayName={clubDisplayName ?? clubName}
                             />
@@ -205,12 +201,12 @@ export function UpcomingBurrowCard({
                     <View className="flex-row items-center gap-2">
                         {/* Capacity badge */}
                         <CapacityBadge
-                            joined={burrow.joined ?? 0}
+                            joined={joined}
                             capacity={burrow.capacity ?? 0}
                         />
 
                         {/* Waitlist */}
-                        {burrow.waiting > 0 && (
+                        {waiting > 0 && (
                             <View
                                 className="flex-row items-center gap-1 px-2 py-1 rounded-full border"
                                 style={{
@@ -222,7 +218,7 @@ export function UpcomingBurrowCard({
                                     className="text-xs font-semibold"
                                     style={{ color: colors.warn }}
                                 >
-                                    +{burrow.waiting}
+                                    +{waiting}
                                 </Text>
                             </View>
                         )}
@@ -230,40 +226,5 @@ export function UpcomingBurrowCard({
                 </View>
             </View>
         </Pressable>
-    )
-}
-
-function ClubAvatarSmall({
-    clubID,
-    displayName
-}: {
-    clubID: string
-    displayName: string
-}) {
-    const [error, setError] = useState(false)
-    const uri = `${CDN_URL}/avatars/club/${clubID}/avatar`
-
-    const initials = displayName
-        .split(" ")
-        .slice(0, 2)
-        .map((n) => n[0]?.toUpperCase())
-        .join("")
-
-    return (
-        <View className="h-8 w-8 rounded-full overflow-hidden bg-primary shadow-md">
-            {!error ? (
-                <Image
-                    source={{ uri }}
-                    className="h-8 w-8"
-                    onError={() => setError(true)}
-                />
-            ) : (
-                <View className="h-full w-full items-center justify-center bg-primary">
-                    <Text className="text-sm font-bold text-white">
-                        {initials}
-                    </Text>
-                </View>
-            )}
-        </View>
     )
 }

@@ -4,8 +4,7 @@ import {
     ScrollView,
     Pressable,
     ActivityIndicator,
-    RefreshControl,
-    Image
+    RefreshControl
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter, Stack } from "expo-router"
@@ -32,7 +31,7 @@ import {
 } from "lucide-react-native"
 import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { Button, Card, Modal } from "@components/core"
-import { CDN_URL, dayLabel } from "@api/util"
+import { dayLabel } from "@api/util"
 import {
     getBurrow,
     joinBurrow,
@@ -53,6 +52,7 @@ import { blockStatus } from "@features/sync/sync.atom"
 import useSync from "@features/sync/hooks/useSync"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { ProfilePicture } from "@features/profile/components/ProfilePicture"
+import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture"
 import Share from "@features/burrows/attendees/Share"
 import Attendees from "@features/burrows/attendees/Attendees"
 import ThemedIcon from "@components/core/ThemedIcon"
@@ -365,6 +365,7 @@ export default function BurrowDetailScreen() {
                                 displayName={
                                     data.clubDisplayName ?? data.clubName
                                 }
+                                size="md"
                             />
                         ) : (
                             <ProfilePicture
@@ -962,38 +963,3 @@ export default function BurrowDetailScreen() {
     )
 }
 
-function ClubProfilePicture({
-    clubID,
-    displayName
-}: {
-    clubID: string
-    displayName: string
-}) {
-    const colors = useThemeColors()
-    const [error, setError] = useState(false)
-    const uri = `${CDN_URL}/avatars/club/${clubID}/avatar`
-
-    const initials = displayName
-        .split(" ")
-        .slice(0, 2)
-        .map((n) => n[0]?.toUpperCase())
-        .join("")
-
-    return (
-        <View className="h-12 w-12 rounded-full overflow-hidden bg-primary shadow-md">
-            {!error ? (
-                <Image
-                    source={{ uri }}
-                    className="h-12 w-12"
-                    onError={() => setError(true)}
-                />
-            ) : (
-                <View className="h-full w-full items-center justify-center bg-primary">
-                    <Text className="text-base font-bold text-white">
-                        {initials}
-                    </Text>
-                </View>
-            )}
-        </View>
-    )
-}
