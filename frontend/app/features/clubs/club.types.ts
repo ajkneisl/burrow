@@ -2,6 +2,7 @@ import {Crown, Globe, Link2, Lock, Shield, UserRound} from "lucide-react-native"
 
 export type ClubCategory = "SPORTS" | "SOCIAL" | "CREATIVE" | "EDUCATIONAL"
 export type ClubPrivacy = "PUBLIC" | "UNLISTED" | "PRIVATE"
+export type ClubLink = "INSTAGRAM" | "X" | "WEBSITE" | "LINKED_IN"
 export type ClubRole = "ADMINISTRATOR" | "MODERATOR" | "MEMBER"
 
 export interface Club {
@@ -10,6 +11,7 @@ export interface Club {
     name: string
     displayName: string
     description: string
+    links: Partial<Record<ClubLink, string>>
     category: ClubCategory
     privacy: ClubPrivacy
     requestToJoin: boolean
@@ -52,6 +54,7 @@ export interface SubmittedClub {
     name: string
     displayName: string
     description: string
+    links: Partial<Record<ClubLink, string>>
     category: ClubCategory
     privacy: ClubPrivacy
     requestToJoin: boolean
@@ -62,6 +65,7 @@ export type CreateClubFormState = {
     name: string
     displayName: string
     description: string
+    links: Partial<Record<ClubLink, string>>
     category: ClubCategory
     privacy: ClubPrivacy
     requestToJoin: boolean
@@ -71,6 +75,7 @@ export const initialFormState: CreateClubFormState = {
     name: "",
     displayName: "",
     description: "",
+    links: {},
     category: "SOCIAL",
     privacy: "PUBLIC",
     requestToJoin: false

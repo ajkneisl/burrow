@@ -75,6 +75,7 @@ export default function CreateClubModal() {
                 name: formState.name.trim(),
                 displayName: formState.displayName.trim(),
                 description: formState.description.trim(),
+                links: formState.links,
                 category: formState.category,
                 privacy: formState.privacy,
                 requestToJoin: formState.requestToJoin,
