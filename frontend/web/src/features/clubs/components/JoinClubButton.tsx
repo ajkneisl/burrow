@@ -2,7 +2,7 @@ import { useMemo, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button } from "@umnburrow/core"
 import { joinClub, leaveClub, cancelClubJoinRequest } from "@features/clubs/clubs.api.ts"
-import type { ClubResponse } from "@features/clubs/clubs.types.ts"
+import type { ClubResponse } from "@features/clubs/clubs.types.tsx"
 import useClubRole from "@features/clubs/hooks/useClubRole.ts"
 import { toast } from "react-hot-toast"
 

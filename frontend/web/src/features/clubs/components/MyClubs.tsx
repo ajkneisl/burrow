@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Crown, Shield, Users } from "lucide-react"
 import { Card } from "@umnburrow/core"
 import { getMyClubs } from "@features/clubs/clubs.api.ts"
-import type { ClubRole, MyClubResponse } from "@features/clubs/clubs.types.ts"
+import type { ClubRole, MyClubResponse } from "@features/clubs/clubs.types.tsx"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.tsx"
 
 /**

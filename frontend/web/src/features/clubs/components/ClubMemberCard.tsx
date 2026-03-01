@@ -1,7 +1,7 @@
 import type {
     ClubMemberResponse,
     ClubRole
-} from "@features/clubs/clubs.types.ts"
+} from "@features/clubs/clubs.types.tsx"
 import { changeClubRole } from "@features/clubs/clubs.api.ts"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { formatTimeAgo } from "@api/util.ts"

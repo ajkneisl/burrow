@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { getMyClubs } from "@features/clubs/clubs.api.ts"
-import type { MyClubResponse } from "@features/clubs/clubs.types.ts"
+import type { MyClubResponse } from "@features/clubs/clubs.types.tsx"
 import { Modal, Card, Button } from "@umnburrow/core"
 import { Plus, Users } from "lucide-react"
 import CreateClubModal from "@features/clubs/components/CreateClubModal.tsx"

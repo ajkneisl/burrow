@@ -1,20 +1,13 @@
 import { Input } from "@umnburrow/core"
-import { Instagram, Globe, Linkedin, Plus, X } from "lucide-react"
-import type { ClubLink } from "@features/clubs/clubs.types.ts"
+import { Plus, X } from "lucide-react"
+import type { ClubLink } from "@features/clubs/clubs.types.tsx"
+import { CLUB_LINK_CONFIG } from "@features/clubs/clubs.types.tsx"
 import Field from "@features/burrows/create/components/Field.tsx"
 
-const LINK_OPTIONS: { key: ClubLink; label: string; icon: typeof Instagram; placeholder: string }[] = [
-    { key: "INSTAGRAM", label: "Instagram", icon: Instagram, placeholder: "@handle" },
-    {
-        key: "X", label: "X", icon: ({ className }: { className?: string }) => (
-            <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-            </svg>
-        ), placeholder: "@handle"
-    },
-    { key: "WEBSITE", label: "Website", icon: Globe, placeholder: "https://example.com" },
-    { key: "LINKED_IN", label: "LinkedIn", icon: Linkedin, placeholder: "profile-slug" },
-]
+const LINK_OPTIONS = (Object.keys(CLUB_LINK_CONFIG) as ClubLink[]).map((key) => ({
+    key,
+    ...CLUB_LINK_CONFIG[key],
+}))
 
 type ClubLinksEditorProps = {
     links: Partial<Record<ClubLink, string>>
@@ -42,7 +35,7 @@ export default function ClubLinksEditor({ links, onChange }: ClubLinksEditorProp
     return (
         <div className="space-y-3">
             {activeKeys.map((key) => {
-                const config = LINK_OPTIONS.find((o) => o.key === key)
+                const config = CLUB_LINK_CONFIG[key]
                 if (!config) return null
                 const Icon = config.icon
 

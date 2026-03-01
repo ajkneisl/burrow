@@ -5,7 +5,7 @@ import { getClubMembers } from "@features/clubs/clubs.api.ts"
 import {
     type ClubMemberResponse,
     ROLE_ORDER
-} from "@features/clubs/clubs.types.ts"
+} from "@features/clubs/clubs.types.tsx"
 import type { PaginatedResponse } from "@api/api.types.ts"
 import ClubMemberCard from "@features/clubs/components/ClubMemberCard.tsx"
 import useToken from "@features/auth/hooks/useToken.ts"
@@ -22,9 +22,7 @@ type ClubMembersProps = {
  *
  * @param clubName The name of the club.
  */
-export default function ClubMembers({
-    clubName,
-}: ClubMembersProps) {
+export default function ClubMembers({ clubName }: ClubMembersProps) {
     const auth = useToken()
     const [membersPage, setMembersPage] = useState(1)
 
