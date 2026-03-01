@@ -129,18 +129,26 @@ export const MONTHLY = 2
  * Get a string depending on when the Burrow reoccurs.
  *
  * @param timeframe The timeframe of the Burrow.
+ * @param slim If `This Burrow reoccurs` should not be included
  */
-export function getReoccurringText(timeframe: number): string {
+export function getReoccurringText(timeframe: number, slim?: boolean): string {
+    let word = ""
+
     switch (timeframe) {
         case DAILY:
-            return "This Burrow reoccurs every day."
+            word = "day"
+            break
         case WEEKLY:
-            return "This Burrow reoccurs every week."
+            word = "week"
+            break
         case MONTHLY:
-            return "This Burrow reoccurs every month."
+            word = "month."
+            break
         default:
             return ""
     }
+
+    return slim ? `every ${word}.` : `This Burrow reoccurs every ${word}.`
 }
 
 /**

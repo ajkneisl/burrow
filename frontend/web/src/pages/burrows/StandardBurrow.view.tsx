@@ -205,12 +205,19 @@ export default function StandardBurrow() {
                                         {data.clubName && burrow.clubID ? (
                                             <div
                                                 role="button"
-                                                onClick={() => nav(`/club/${data.clubName}`)}
+                                                onClick={() =>
+                                                    nav(
+                                                        `/club/${data.clubName}`
+                                                    )
+                                                }
                                                 className="flex cursor-pointer flex-row items-center gap-2"
                                             >
                                                 <ClubProfilePicture
                                                     clubID={burrow.clubID}
-                                                    displayName={data.clubDisplayName ?? ""}
+                                                    displayName={
+                                                        data.clubDisplayName ??
+                                                        ""
+                                                    }
                                                     clubName={data.clubName}
                                                     size="sm"
                                                 />
@@ -244,8 +251,10 @@ export default function StandardBurrow() {
                                                 <p className="text-text/60 text-sm">
                                                     Hosted by{" "}
                                                     <span className="text-text/80 font-medium">
-                                                        {data.burrowAuthorProfile
-                                                            ?.name || burrowAuthor}
+                                                        {data
+                                                            .burrowAuthorProfile
+                                                            ?.name ||
+                                                            burrowAuthor}
                                                     </span>
                                                 </p>
 

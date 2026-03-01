@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router"
 import {
     BURROW_KIND_CONFIG,
-    type BurrowResponse
+    type BurrowResponse,
+    getReoccurringText,
+    NOT_REOCCURRING
 } from "@features/burrows/burrows.types.tsx"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { formatDateTime } from "@api/util.ts"
@@ -85,6 +87,9 @@ export function BurrowCard({
                                         burrow.beginningTime,
                                         burrow.endTime
                                     )}
+
+                                    {burrow.reoccurring !== NOT_REOCCURRING &&
+                                        ` ${getReoccurringText(burrow.reoccurring, true)}`}
                                 </time>
                             </div>
 
@@ -146,18 +151,21 @@ export function BurrowCard({
 
                         {/* the profile picture */}
                         <div className="flex-shrink-0 self-start">
-                            {burrow.clubID && meetingResponse.clubDisplayName ? (
+                            {burrow.clubID &&
+                            meetingResponse.clubDisplayName ? (
                                 <ClubProfilePicture
                                     clubID={burrow.clubID}
-                                    displayName={meetingResponse.clubDisplayName}
+                                    displayName={
+                                        meetingResponse.clubDisplayName
+                                    }
                                     clubName={meetingResponse.clubName ?? ""}
                                     size="sm"
                                 />
                             ) : (
                                 <ProfilePicture
                                     name={
-                                        meetingResponse.burrowAuthorProfile?.name ??
-                                        ""
+                                        meetingResponse.burrowAuthorProfile
+                                            ?.name ?? ""
                                     }
                                     userID={
                                         meetingResponse.burrowAuthorProfile

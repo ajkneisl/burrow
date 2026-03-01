@@ -52,6 +52,7 @@ export default function ClubMeetings({ clubName }: ClubMeetingsProps) {
                 <h3 className="text-text mb-3 text-sm font-semibold">
                     Reoccurring Meetings
                 </h3>
+
                 {reoccurringBurrows.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 py-4 text-center">
                         <CalendarClock className="text-text/30 h-8 w-8" />

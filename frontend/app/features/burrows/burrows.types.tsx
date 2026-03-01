@@ -129,14 +129,34 @@ export const DAILY = 0
 export const WEEKLY = 1
 export const MONTHLY = 2
 
-export function getReoccurringText(timeframe: number): string {
+export function getReoccurringText(timeframe: number, slim?: boolean): string {
+    let text = ""
+
     switch (timeframe) {
         case DAILY:
-            return "Reoccurs daily"
+            text = "daily"
+            break
         case WEEKLY:
-            return "Reoccurs weekly"
+            text = "weekly"
+            break
         case MONTHLY:
-            return "Reoccurs monthly"
+            text = "monthly"
+            break
+        default:
+            return ""
+    }
+
+    return slim ? text : `Reoccurs ${text}`
+}
+
+export function getReoccurText(timeframe: number): string {
+    switch (timeframe) {
+        case DAILY:
+            return "daily"
+        case WEEKLY:
+            return "week"
+        case MONTHLY:
+            return "month"
         default:
             return ""
     }

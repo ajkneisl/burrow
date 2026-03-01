@@ -1,17 +1,30 @@
 import { View, Text, Pressable, Image } from "react-native"
 import { useState } from "react"
 import { useRouter } from "expo-router"
-import { Clock, Check, Star, Bookmark } from "lucide-react-native"
+import {
+    Clock,
+    Check,
+    Star,
+    Bookmark,
+    ArrowBigDown,
+    Repeat
+} from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import useUser from "@features/auth/hooks/useUser"
 import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import { CapacityBadge } from "@features/burrows/components/CapacityBadge"
-import type { BurrowResponse } from "@features/burrows/burrows.types"
+import {
+    BurrowResponse,
+    getReoccurringText,
+    getReoccurText,
+    NOT_REOCCURRING
+} from "@features/burrows/burrows.types"
 import { CDN_URL, formatDateTime } from "@api/util"
 import KindChip from "@features/burrows/components/KindChip"
 import TABadge from "@features/burrows/components/TABadge"
 import LocationChip from "@features/burrows/components/LocationChip"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture"
+import ThemedIcon from "@components/core/ThemedIcon"
 
 /**
  * {@link UpcomingBurrowCard}
@@ -101,10 +114,14 @@ export function UpcomingBurrowCard({
                             <View
                                 className={`flex-row items-center gap-2 ${verbose && `mb-1`}`}
                             >
-                                <Clock
+                                <ThemedIcon
+                                    icon={
+                                        burrow.reoccurring !== NOT_REOCCURRING
+                                            ? Clock
+                                            : Repeat
+                                    }
                                     size={14}
-                                    color={colors.text}
-                                    style={{ opacity: 0.8 }}
+                                    opacity={0.8}
                                 />
 
                                 <Text
@@ -115,6 +132,9 @@ export function UpcomingBurrowCard({
                                         burrow.beginningTime,
                                         burrow.endTime
                                     )}
+
+                                    {verbose &&
+                                        ` every ${getReoccurText(burrow.reoccurring)}`}
                                 </Text>
                             </View>
                         )}
