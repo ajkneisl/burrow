@@ -134,7 +134,7 @@ export default function CreateProjectBurrowModal({
             })
         } else if (currentStep === 3) {
             const dateMs = formState.date
-                ? new Date(`${formState.date}T00:00:00-05:00`).getTime()
+                ? new Date(`${formState.date}T00:00:00`).getTime()
                 : 0
 
             const dueTime = formState.endTime
@@ -170,7 +170,7 @@ export default function CreateProjectBurrowModal({
 
         if (!(await validateCurrentStep())) return
 
-        const dateMs = new Date(`${formState.date}T00:00:00-05:00`).getTime()
+        const dateMs = new Date(`${formState.date}T00:00:00`).getTime()
 
         const dueTime = formState.endTime
             ? addTime(dateMs, formState.endTime)

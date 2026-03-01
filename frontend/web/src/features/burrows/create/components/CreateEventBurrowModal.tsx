@@ -134,7 +134,7 @@ export default function CreateEventBurrowModal({
             })
         } else if (currentStep === 3) {
             const dateMs = formState.date
-                ? new Date(`${formState.date}T00:00:00-05:00`).getTime()
+                ? new Date(`${formState.date}T00:00:00`).getTime()
                 : 0
 
             return await verify({
@@ -175,7 +175,7 @@ export default function CreateEventBurrowModal({
         // pre validate current step (should be step 3 at this point)
         if (!(await validateCurrentStep())) return
 
-        const dateMs = new Date(`${formState.date}T00:00:00-05:00`).getTime()
+        const dateMs = new Date(`${formState.date}T00:00:00`).getTime()
 
         const payload: SubmittedStudyEventBurrow = {
             kind: "EVENT" as const,
