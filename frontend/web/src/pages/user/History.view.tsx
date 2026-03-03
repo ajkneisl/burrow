@@ -66,6 +66,8 @@ export default function History() {
     }, [allBurrows])
 
     function handleRecreate(burrow: BurrowResponse) {
+        console.log("recreating")
+        console.log("%o", burrow)
         setRecreateModal({ open: true, burrow })
     }
 
@@ -94,7 +96,7 @@ export default function History() {
                 <h1 className="text-text text-2xl font-bold">History</h1>
 
                 <p className="text-text/60 text-sm">
-                    View your Burrows and recreate past ones
+                    View your Burrows and recreate past ones.
                 </p>
             </div>
 
@@ -174,6 +176,7 @@ export default function History() {
                                                 actionBadge={
                                                     m.burrow.kind !==
                                                         "PROJECT" &&
+                                                    m.burrow.kind !== "CLUB" &&
                                                     m.burrow.endTime <
                                                         Date.now() ? (
                                                         <button
