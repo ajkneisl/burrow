@@ -34,7 +34,7 @@ export default function MyFriend({ friend, inModal }: MyFriendProps) {
     return (
         <li
             onClick={() => viewFriend()}
-            className="group bg-background/30 hover:bg-background/60 flex cursor-pointer items-center gap-2 rounded-lg px-4 py-3 transition-colors"
+            className="group bg-hero/80 hover:bg-hero/50 flex cursor-pointer items-center gap-2 rounded-lg px-4 py-3 transition-colors"
         >
             <ProfilePicture
                 name={friend.name}

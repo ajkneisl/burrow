@@ -48,7 +48,7 @@ export default function MyFriends() {
                     Array.from({ length: 3 }).map((_, i) => (
                         <li
                             key={i}
-                            className="bg-background/30 flex items-center gap-2 rounded-lg px-4 py-3"
+                            className="bg-hero/80 flex items-center gap-2 rounded-lg px-4 py-3"
                         >
                             <div className="bg-text/10 size-8 animate-pulse rounded-full" />
                             <div className="bg-text/10 h-3 w-32 animate-pulse rounded" />

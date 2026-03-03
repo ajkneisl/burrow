@@ -42,7 +42,7 @@ export default function MyClubs() {
                     Array.from({ length: 3 }).map((_, i) => (
                         <li
                             key={i}
-                            className="bg-background/30 flex items-center gap-3 rounded-lg px-3 py-2.5"
+                            className="bg-hero/80 flex items-center gap-3 rounded-lg px-3 py-2.5"
                         >
                             <div className="bg-text/10 size-8 animate-pulse rounded-full" />
                             <div className="flex-1">
@@ -57,7 +57,7 @@ export default function MyClubs() {
                         <li
                             key={item.club.id}
                             onClick={() => nav(`/club/${item.club.name}`)}
-                            className="group bg-background/30 hover:bg-background/60 flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
+                            className="group bg-hero/80 hover:bg-hero/50 flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
                         >
                             <ClubProfilePicture
                                 clubID={item.club.id}

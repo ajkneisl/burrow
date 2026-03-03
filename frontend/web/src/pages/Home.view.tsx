@@ -52,8 +52,10 @@ export default function Home() {
                 {/* profile */}
                 <aside className="flex flex-col gap-6 md:col-span-2 md:row-start-1 lg:col-span-1 lg:row-start-1">
                     <MyProfile />
+
                     <div className="hidden flex-col gap-6 lg:flex">
                         <MyFriends />
+
                         <MyClubs />
                     </div>
                 </aside>
