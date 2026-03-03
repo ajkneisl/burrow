@@ -5,17 +5,23 @@ import Toast from "react-native-toast-message"
 import { Check } from "lucide-react-native"
 import { Modal, Button, Input } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { reportUser, type UserReportCategory } from "@features/profile/report.api"
-import { blockUser } from "@features/profile/block.api"
+import { reportUser, blockUser } from "@features/profile/profile.api"
+import type {
+    BurrowReportCategory,
+    UserReportCategory
+} from "@features/profile/profile.types"
 
-const REPORT_CATEGORIES: { id: UserReportCategory; label: string }[] = [
-    { id: "Spam", label: "Spam or fake account" },
-    { id: "Harassment", label: "Harassment or bullying" },
-    { id: "Inappropriate Content", label: "Inappropriate content" },
-    { id: "Impersonation", label: "Impersonation" },
-    { id: "Other", label: "Other" }
+const REPORT_CATEGORIES: UserReportCategory[] = [
+    "Spam",
+    "Harassment",
+    "Inappropriate Content",
+    "Impersonation",
+    "Other"
 ]
 
+/**
+ * {@link ReportUserModal}
+ */
 type ReportUserModalProps = {
     visible: boolean
     onClose: () => void
@@ -23,6 +29,14 @@ type ReportUserModalProps = {
     displayName: string
 }
 
+/**
+ * A modal to report a user.
+ *
+ * @param visible If the modal is visible.
+ * @param onClose When the modal is closed.
+ * @param userID The user ID to report
+ * @param displayName The display name of the user.
+ */
 export function ReportUserModal({
     visible,
     onClose,
@@ -63,7 +77,9 @@ export function ReportUserModal({
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ["user"] })
             if (alsoBlock) {
-                await queryClient.invalidateQueries({ queryKey: ["blockedUsers"] })
+                await queryClient.invalidateQueries({
+                    queryKey: ["blockedUsers"]
+                })
             }
             Toast.show({
                 type: "success",
@@ -99,17 +115,17 @@ export function ReportUserModal({
             <View className="mb-4">
                 {REPORT_CATEGORIES.map((category) => (
                     <Pressable
-                        key={category.id}
-                        onPress={() => setSelectedCategory(category.id)}
+                        key={category}
+                        onPress={() => setSelectedCategory(category)}
                         className="flex-row items-center justify-between py-3 px-4 mb-2 rounded-lg bg-card border border-card-border active:opacity-70"
                         style={
-                            selectedCategory === category.id
+                            selectedCategory === category
                                 ? { borderColor: colors.primary }
                                 : undefined
                         }
                     >
-                        <Text className="text-text">{category.label}</Text>
-                        {selectedCategory === category.id && (
+                        <Text className="text-text">{category}</Text>
+                        {selectedCategory === category && (
                             <Check size={18} color={colors.primary} />
                         )}
                     </Pressable>
@@ -137,7 +153,9 @@ export function ReportUserModal({
                     className="w-6 h-6 rounded border-2 items-center justify-center"
                     style={{
                         borderColor: alsoBlock ? colors.primary : colors.text,
-                        backgroundColor: alsoBlock ? colors.primary : "transparent"
+                        backgroundColor: alsoBlock
+                            ? colors.primary
+                            : "transparent"
                     }}
                 >
                     {alsoBlock && <Check size={14} color="white" />}

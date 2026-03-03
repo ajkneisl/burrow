@@ -32,7 +32,7 @@ import useUser from "@features/auth/hooks/useUser"
 import { UserProfileView } from "@features/profile/components/UserProfileView"
 import { BlockUserModal } from "@features/profile/components/BlockUserModal"
 import { ReportUserModal } from "@features/profile/components/ReportUserModal"
-import { unblockUser } from "@features/profile/block.api"
+import { unblockUser } from "@features/profile/profile.api"
 
 /**
  * User profile screen

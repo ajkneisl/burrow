@@ -1,11 +1,11 @@
-import { View, Text, Pressable, Linking, Alert } from "react-native"
-import { Image } from "expo-image"
+import { View, Text } from "react-native"
 import {
     Calendar,
     Users,
     Instagram,
     Linkedin,
-    GraduationCap
+    School,
+    BookOpen
 } from "lucide-react-native"
 import { Card } from "@components/core"
 import { ProfilePicture } from "@features/profile/components/ProfilePicture"
@@ -16,6 +16,12 @@ import type { User } from "@features/auth/user.types"
 import type { Profile, Following } from "@features/profile/profile.model"
 import type { BurrowResponse } from "@features/burrows/burrows.types"
 import TABadge from "@features/burrows/components/TABadge"
+import {
+    formatInstagramUrl,
+    formatLinkedInUrl
+} from "@features/profile/profile.util"
+import ProfileSocialButton from "@features/profile/components/ProfileSocialButton"
+import ProfileInfoRow from "@features/profile/components/ProfileInfoRow"
 
 /**
  * {@link UserProfileView}
@@ -54,9 +60,8 @@ export function UserProfileView({
 
     return (
         <>
-            {/* Profile Header */}
             <View className="items-center mb-6">
-                {/* Avatar */}
+                {/* avatar  */}
                 <View className="mb-4">
                     <ProfilePicture
                         name={profile.name || user.username}
@@ -65,7 +70,7 @@ export function UserProfileView({
                     />
                 </View>
 
-                {/* Name & Username */}
+                {/* name / username */}
                 <Text className="text-2xl font-bold text-text">
                     {profile.name || user.username}
                 </Text>
@@ -79,6 +84,7 @@ export function UserProfileView({
                     {isTa && <TABadge />}
                 </View>
 
+                {/* badges */}
                 {profile.badges.length > 0 && (
                     <View className="flex flex-row gap-2 mt-4">
                         {profile.badges.map(({ id, description }) => (
@@ -91,7 +97,7 @@ export function UserProfileView({
                     </View>
                 )}
 
-                {/* Follow/Following Stats */}
+                {/* follow / following */}
                 {following && (
                     <View className="flex-row gap-6 mt-4">
                         <View className="items-center">
@@ -116,10 +122,10 @@ export function UserProfileView({
                     </View>
                 )}
 
-                {/* Action Button (Edit or Follow/Unfollow) */}
+                {/* edit / unfollow, follow */}
                 {actionButton}
 
-                {/* Mutuals */}
+                {/* mutual friend count */}
                 {following && following.mutuals > 0 && (
                     <Text className="text-text text-opacity-50 text-sm mt-2">
                         {following.mutuals} mutual friend
@@ -128,7 +134,7 @@ export function UserProfileView({
                 )}
             </View>
 
-            {/* About Section */}
+            {/* about */}
             <Card variant="bordered" className="mb-4">
                 <Text className="text-lg font-semibold text-text mb-2">
                     About
@@ -140,15 +146,30 @@ export function UserProfileView({
             </Card>
 
             {/* Info Section */}
-            {(profile.major || profile.gradYear) && (
+            {(profile.major ||
+                profile.gradYear ||
+                profile.school ||
+                (profile.classes && profile.classes.length > 0)) && (
                 <Card variant="bordered" className="mb-4">
                     <Text className="text-lg font-semibold text-text mb-3">
                         Info
                     </Text>
 
                     <View className="gap-3">
+                        {/* school */}
+                        {profile.school && (
+                            <ProfileInfoRow
+                                icon={
+                                    <School size={18} color={colors.primary} />
+                                }
+                                label="School"
+                                value={profile.school}
+                            />
+                        )}
+
+                        {/* major */}
                         {profile.major && (
-                            <InfoRow
+                            <ProfileInfoRow
                                 icon={
                                     <Users size={18} color={colors.primary} />
                                 }
@@ -157,8 +178,23 @@ export function UserProfileView({
                             />
                         )}
 
+                        {/* classes */}
+                        {profile.classes && profile.classes.length > 0 && (
+                            <ProfileInfoRow
+                                icon={
+                                    <BookOpen
+                                        size={18}
+                                        color={colors.primary}
+                                    />
+                                }
+                                label="Classes"
+                                value={profile.classes.join(", ")}
+                            />
+                        )}
+
+                        {/* graduation year */}
                         {profile.gradYear && (
-                            <InfoRow
+                            <ProfileInfoRow
                                 icon={
                                     <Calendar
                                         size={18}
@@ -173,19 +209,21 @@ export function UserProfileView({
                 </Card>
             )}
 
-            {/* Social Media Links */}
+            {/* social media */}
             {(profile.instagram || profile.linkedIn) && (
                 <View className="flex-row gap-3 mb-4">
+                    {/* instagram */}
                     {profile.instagram && (
-                        <SocialButton
+                        <ProfileSocialButton
                             icon={<Instagram size={18} color="#E4405F" />}
                             label="Instagram"
                             url={formatInstagramUrl(profile.instagram)}
                         />
                     )}
 
+                    {/* linked in */}
                     {profile.linkedIn && (
-                        <SocialButton
+                        <ProfileSocialButton
                             icon={<Linkedin size={18} color="#0A66C2" />}
                             label="LinkedIn"
                             url={formatLinkedInUrl(profile.linkedIn)}
@@ -194,7 +232,7 @@ export function UserProfileView({
                 </View>
             )}
 
-            {/* Hosted Burrows */}
+            {/* hosted burrows */}
             {hostedBurrows && hostedBurrows.length > 0 && (
                 <View className="my-4">
                     <Text className="text-lg font-semibold text-text mb-3">
@@ -210,7 +248,7 @@ export function UserProfileView({
                 </View>
             )}
 
-            {/* Joined Burrows */}
+            {/* joined burrows */}
             {joinedBurrows && joinedBurrows.length > 0 && (
                 <View className="my-4">
                     <Text className="text-lg font-semibold text-text mb-3">
@@ -227,76 +265,4 @@ export function UserProfileView({
             )}
         </>
     )
-}
-
-function InfoRow({
-    icon,
-    label,
-    value
-}: {
-    icon: React.ReactNode
-    label: string
-    value: string
-}) {
-    return (
-        <View className="flex-row items-center">
-            <View className="mr-3">{icon}</View>
-            <View className="flex-1">
-                <Text className="text-xs text-text text-opacity-60 mb-0.5">
-                    {label}
-                </Text>
-                <Text className="text-base text-text">{value}</Text>
-            </View>
-        </View>
-    )
-}
-
-function SocialButton({
-    icon,
-    label,
-    url
-}: {
-    icon: React.ReactNode
-    label: string
-    url: string
-}) {
-    const handlePress = async () => {
-        try {
-            const supported = await Linking.canOpenURL(url)
-            if (supported) {
-                await Linking.openURL(url)
-            } else {
-                Alert.alert("Error", `Cannot open ${label} link`)
-            }
-        } catch {
-            Alert.alert("Error", `Failed to open ${label} link`)
-        }
-    }
-
-    return (
-        <Pressable
-            onPress={handlePress}
-            className="flex-1 flex-row items-center justify-center gap-2 bg-card border border-card-border rounded-full py-3 px-4 active:opacity-70"
-        >
-            {icon}
-            <Text className="text-text text-sm font-medium">{label}</Text>
-        </Pressable>
-    )
-}
-
-function formatInstagramUrl(instagram: string): string {
-    const username = instagram
-        .replace(/^@/, "")
-        .replace(/.*instagram\.com\//, "")
-    return `https://instagram.com/${username}`
-}
-
-function formatLinkedInUrl(linkedIn: string): string {
-    if (linkedIn.startsWith("http")) {
-        return linkedIn
-    }
-    if (linkedIn.startsWith("linkedin.com")) {
-        return `https://${linkedIn}`
-    }
-    return `https://linkedin.com/in/${linkedIn}`
 }

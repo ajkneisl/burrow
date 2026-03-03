@@ -1,25 +1,34 @@
-import { post } from "@api/api"
+import { del, get, post, put } from "@api/api"
+import {
+    BlockedUserInfo,
+    BurrowReportCategory,
+    ReportPayload,
+    UserReportCategory
+} from "./profile.types"
 
-/** Report types matching the backend ReportType enum */
-export type ReportType = "GENERAL" | "BURROW" | "USER" | "CHAT"
+/**
+ * Get the list of blocked users with details.
+ */
+export async function getBlockedUsers(): Promise<BlockedUserInfo[]> {
+    return get("/user/block")
+}
 
-/** User report categories matching the backend */
-export type UserReportCategory =
-    | "Spam"
-    | "Harassment"
-    | "Inappropriate Content"
-    | "Impersonation"
-    | "Other"
+/**
+ * Block a user.
+ *
+ * @param userID The ID of the user to block
+ */
+export async function blockUser(userID: string): Promise<void> {
+    return put("/user/block", undefined, { query: { userID } })
+}
 
-/** Payload for submitting a user report */
-export type UserReportPayload = {
-    reportType: ReportType
-    summary: string
-    category: UserReportCategory
-    details: string
-    userAgent?: string
-    path?: string
-    attachedID?: string
+/**
+ * Unblock a user.
+ *
+ * @param userID The ID of the user to unblock
+ */
+export async function unblockUser(userID: string): Promise<void> {
+    return del("/user/block", { query: { userID } })
 }
 
 /**
@@ -34,7 +43,7 @@ export async function reportUser(
     category: UserReportCategory,
     details: string
 ): Promise<string> {
-    const payload: UserReportPayload = {
+    const payload: ReportPayload = {
         reportType: "USER",
         summary: `User report: ${category}`,
         category,
@@ -44,14 +53,6 @@ export async function reportUser(
 
     return post("/report", payload)
 }
-
-/** Burrow report categories */
-export type BurrowReportCategory =
-    | "Spam"
-    | "Inappropriate Content"
-    | "Misleading Information"
-    | "Harassment"
-    | "Other"
 
 /**
  * Report a burrow.
@@ -65,7 +66,7 @@ export async function reportBurrow(
     category: BurrowReportCategory,
     details: string
 ): Promise<string> {
-    const payload: UserReportPayload = {
+    const payload: ReportPayload = {
         reportType: "BURROW",
         summary: `Burrow report: ${category}`,
         category,
