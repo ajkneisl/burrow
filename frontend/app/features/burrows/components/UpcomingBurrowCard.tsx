@@ -1,25 +1,16 @@
-import { View, Text, Pressable, Image } from "react-native"
-import { useState } from "react"
+import { View, Text, Pressable } from "react-native"
 import { useRouter } from "expo-router"
-import {
-    Clock,
-    Check,
-    Star,
-    Bookmark,
-    ArrowBigDown,
-    Repeat
-} from "lucide-react-native"
+import { Clock, Check, Star, Bookmark, Repeat } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import useUser from "@features/auth/hooks/useUser"
 import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import { CapacityBadge } from "@features/burrows/components/CapacityBadge"
 import {
     BurrowResponse,
-    getReoccurringText,
     getReoccurText,
     NOT_REOCCURRING
 } from "@features/burrows/burrows.types"
-import { CDN_URL, formatDateTime } from "@api/util"
+import { formatDateTime } from "@api/util"
 import KindChip from "@features/burrows/components/KindChip"
 import TABadge from "@features/burrows/components/TABadge"
 import LocationChip from "@features/burrows/components/LocationChip"
@@ -77,35 +68,30 @@ export function UpcomingBurrowCard({
                 <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1 mr-3">
                         {/* title */}
-                        <View className="flex-row gap-1">
+                        <View className="flex-row items-center gap-1">
                             <Text
-                                className="text-base font-bold"
-                                style={{
-                                    color: isHost
-                                        ? colors.secondary
-                                        : isJoined
-                                          ? colors.success
-                                          : colors.text
-                                }}
+                                className="text-base font-bold text-text"
                                 numberOfLines={1}
                             >
                                 {burrow.title}
                             </Text>
 
-                            {isJoined && !isHost && (
-                                <View className="flex-row items-center gap-1">
-                                    <Check size={18} color={colors.success} />
-                                </View>
+                            {isHost && (
+                                <Text
+                                    className="text-xs text-text"
+                                    style={{ opacity: 0.6 }}
+                                >
+                                    · Hosting
+                                </Text>
                             )}
 
-                            {isHost && (
-                                <View className="flex-row items-center gap-1">
-                                    <Star
-                                        size={18}
-                                        color={colors.warn}
-                                        fill={colors.warn}
-                                    />
-                                </View>
+                            {isJoined && !isHost && (
+                                <Text
+                                    className="text-xs text-text"
+                                    style={{ opacity: 0.6 }}
+                                >
+                                    · Joined
+                                </Text>
                             )}
                         </View>
 
@@ -161,7 +147,7 @@ export function UpcomingBurrowCard({
                         {/* author / club profile picture */}
                         {clubName && burrow.clubID ? (
                             <ClubProfilePicture
-                                size="sm"
+                                size="md"
                                 clubID={burrow.clubID}
                                 displayName={clubDisplayName ?? clubName}
                             />
@@ -169,7 +155,7 @@ export function UpcomingBurrowCard({
                             <ProfilePicture
                                 name={burrowAuthorProfile.name}
                                 userID={burrowAuthorProfile.userID}
-                                size="sm"
+                                size="md"
                             />
                         ) : null}
                     </View>
@@ -204,26 +190,15 @@ export function UpcomingBurrowCard({
 
                 {/* Kind chip underneath date */}
                 <View className="flex-row items-center justify-between mt-2">
-                    <View className="flex-row gap-2">
-                        {/* Kind badge */}
-                        <KindChip kind={burrow.kind} />
-
-                        {/* TA badge */}
-                        {hostedByTa && <TABadge />}
-
-                        {/* Location chip */}
-                        {burrow.location && (
-                            <LocationChip location={burrow.location} />
-                        )}
-                    </View>
-
                     {/* capacity and waitlist */}
                     <View className="flex-row items-center gap-2">
                         {/* Capacity badge */}
-                        <CapacityBadge
-                            joined={joined}
-                            capacity={burrow.capacity ?? 0}
-                        />
+                        {burrow.capacity && burrow.capacity !== 0 && (
+                            <CapacityBadge
+                                joined={joined}
+                                capacity={burrow.capacity ?? 0}
+                            />
+                        )}
 
                         {/* Waitlist */}
                         {waiting > 0 && (
@@ -242,6 +217,19 @@ export function UpcomingBurrowCard({
                                 </Text>
                             </View>
                         )}
+                    </View>
+
+                    <View className="flex-row gap-2">
+                        {/* Location chip */}
+                        {burrow.location && (
+                            <LocationChip location={burrow.location} />
+                        )}
+
+                        {/* TA badge */}
+                        {hostedByTa && <TABadge />}
+
+                        {/* Kind badge */}
+                        <KindChip kind={burrow.kind} />
                     </View>
                 </View>
             </View>

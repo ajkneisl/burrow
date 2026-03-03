@@ -7,9 +7,9 @@ import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { formatDateTime, humanDateLabel } from "@api/util"
 
 /**
- * {@link ScheduleCard}
+ * {@link ScheduleBurrowCard}
  */
-type ScheduleCardProps = {
+type ScheduleBurrowCardProps = {
     item: ScheduleBurrowResponse
 }
 
@@ -20,7 +20,7 @@ type ScheduleCardProps = {
  *
  * @author AJ Kneisl
  */
-export function ScheduleCard({ item }: ScheduleCardProps) {
+export function ScheduleBurrowCard({ item }: ScheduleBurrowCardProps) {
     const router = useRouter()
     const { burrow } = item
     const colors = useThemeColors()
@@ -64,26 +64,6 @@ export function ScheduleCard({ item }: ScheduleCardProps) {
                 {/* chat preview, kind badge */}
                 {!isProject && (
                     <View className="flex-row items-center justify-between w-full">
-                        <View className="flex-row items-center gap-2 shrink-0">
-                            <View
-                                className="px-2 py-1 rounded-full flex-row items-center gap-1"
-                                style={{ backgroundColor: `${kindColor}33` }}
-                            >
-                                <KindIcon
-                                    size={13}
-                                    color={kindColor}
-                                    strokeWidth={2.5}
-                                />
-
-                                <Text
-                                    className="text-xs font-bold"
-                                    style={{ color: kindColor }}
-                                >
-                                    {kindConfig.label}
-                                </Text>
-                            </View>
-                        </View>
-
                         {/* chat preview */}
                         {item.latestChatMessage ? (
                             <View className="flex-row items-center gap-1.5 shrink min-w-0">
@@ -116,6 +96,27 @@ export function ScheduleCard({ item }: ScheduleCardProps) {
                                 </Text>
                             </View>
                         )}
+
+                        {/* kind */}
+                        <View className="flex-row items-center gap-2 shrink-0">
+                            <View
+                                className="px-2 py-1 rounded-full flex-row items-center gap-1"
+                                style={{ backgroundColor: `${kindColor}33` }}
+                            >
+                                <KindIcon
+                                    size={13}
+                                    color={kindColor}
+                                    strokeWidth={2.5}
+                                />
+
+                                <Text
+                                    className="text-xs font-bold"
+                                    style={{ color: kindColor }}
+                                >
+                                    {kindConfig.label}
+                                </Text>
+                            </View>
+                        </View>
                     </View>
                 )}
             </View>
