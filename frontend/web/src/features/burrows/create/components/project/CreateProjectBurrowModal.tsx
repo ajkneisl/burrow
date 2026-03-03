@@ -6,6 +6,7 @@ import { Button, Modal, ViewErrors } from "@umnburrow/core"
 import useFormState from "@api/useFormState.ts"
 import DueDateStep from "@features/burrows/create/components/project/DueDateStep.tsx"
 import {
+    defaultTimes,
     initialFormState,
     type SubmittedBurrow,
     type SubmittedProjectBurrow,
@@ -15,7 +16,7 @@ import MembersStep from "@features/burrows/create/components/project/MembersStep
 import InfoStep from "@features/burrows/create/components/project/InfoStep.tsx"
 import { addTime } from "@api/util.ts"
 
-const INITIAL_ERRORS: Record<string, string> = {}
+const INITIAL_ERRORS: string[] = []
 
 /**
  * {@link CreateProjectBurrowModal}
@@ -54,18 +55,24 @@ export default function CreateProjectBurrowModal({
     const nav = useNavigate()
     const queryClient = useQueryClient()
 
-    const { formState, setFormState, errors, setErrors, updateField, verify, reset } =
-        useFormState<SubmittedBurrowFormState, Record<string, string>>({
-            initial: initialFormState,
-            initialErrors: INITIAL_ERRORS,
-            verifyEndpoint: "/burrows/verify/project"
-        })
-    const [serverErrors, setServerErrors] = useState<string[]>([])
+    const {
+        formState,
+        setFormState,
+        errors,
+        setErrors,
+        updateField,
+        verify,
+        reset
+    } = useFormState<SubmittedBurrowFormState, string[]>({
+        initial: initialFormState,
+        initialErrors: INITIAL_ERRORS,
+        verifyEndpoint: "/burrows/verify/project"
+    })
     const [currentStep, setCurrentStep] = useState(1)
 
     useEffect(() => {
         if (open) {
-            setServerErrors([])
+            setErrors([])
             setCurrentStep(1)
 
             // if updating and a meeting is provided
@@ -98,6 +105,7 @@ export default function CreateProjectBurrowModal({
                 reset()
                 setFormState((prev) => ({
                     ...prev,
+                    ...defaultTimes(),
                     kind: "PROJECT",
                     visibility: "PUBLIC",
                     capacity: 10,
@@ -105,23 +113,10 @@ export default function CreateProjectBurrowModal({
                 }))
             }
         }
-    }, [open, mode, meeting, reset, setFormState])
+    }, [open, mode, meeting, reset, setFormState, setErrors])
 
     function applyServerErrors(errs: string[]) {
-        setServerErrors(errs)
-        const fieldMap: Record<string, string> = {}
-        errs.forEach((msg) => {
-            const m = msg.match(/^\s*([A-Za-z][\w.-]*)\s*[:=-]\s*(.+)$/)
-
-            if (m) {
-                const field = m[1]
-                fieldMap[field] = m[2]
-            }
-        })
-
-        if (Object.keys(fieldMap).length > 0) {
-            setErrors((prev) => ({ ...prev, ...fieldMap }))
-        }
+        setErrors(errs)
     }
 
     // validate current step via server
@@ -152,7 +147,7 @@ export default function CreateProjectBurrowModal({
         if (!(await validateCurrentStep())) return
         if (currentStep < 3) {
             setCurrentStep(currentStep + 1)
-            setErrors({})
+            setErrors([])
         }
     }, [currentStep, validateCurrentStep, setErrors])
 
@@ -160,7 +155,7 @@ export default function CreateProjectBurrowModal({
     const handleBack = useCallback(() => {
         if (currentStep > 1) {
             setCurrentStep(currentStep - 1)
-            setErrors({})
+            setErrors([])
         }
     }, [currentStep, setErrors])
 
@@ -201,7 +196,7 @@ export default function CreateProjectBurrowModal({
 
             // if updating, update query data and close
             if (mode === "update" && meeting) {
-                setServerErrors([])
+                setErrors([])
                 onClose()
 
                 void queryClient.invalidateQueries({
@@ -218,7 +213,7 @@ export default function CreateProjectBurrowModal({
                 !Array.isArray(response) &&
                 "id" in response
             ) {
-                setServerErrors([])
+                setErrors([])
 
                 const updated = response as Burrow
                 nav(`/${updated.id}`)
@@ -303,14 +298,13 @@ export default function CreateProjectBurrowModal({
             <form id="project-form" onSubmit={handleSubmit}>
                 {/* errors.. uh oh! */}
                 <ViewErrors
-                    errors={serverErrors}
-                    clearErrors={() => setServerErrors([])}
+                    errors={errors}
+                    clearErrors={() => setErrors([])}
                 />
 
                 {/* basic info */}
                 {currentStep === 1 && (
                     <InfoStep
-                        errors={errors}
                         formState={formState}
                         updateField={updateField}
                     />
@@ -319,7 +313,6 @@ export default function CreateProjectBurrowModal({
                 {/* team members */}
                 {currentStep === 2 && (
                     <MembersStep
-                        errors={errors}
                         formState={formState}
                         updateField={updateField}
                         mode={mode}
@@ -329,7 +322,6 @@ export default function CreateProjectBurrowModal({
                 {/* due date */}
                 {currentStep === 3 && (
                     <DueDateStep
-                        errors={errors}
                         formState={formState}
                         updateField={updateField}
                     />

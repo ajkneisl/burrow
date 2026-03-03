@@ -52,13 +52,11 @@ class SubmittedProjectBurrowVerifier(private val isUpdating: Boolean) :
         }
 
         SubmittedProjectBurrow::teamMembers {
-            if (!isUpdating && value.isEmpty()) {
-                errorIf(true, "You must have at least 1 team member.")
-            }
-
-            if (isUpdating && value.isNotEmpty()) {
-                errorIf(true, "You may not include any team members while updating!")
-            }
+            errorIf(!isUpdating && value.isEmpty(), "You must have at least 1 team member.")
+            errorIf(
+                isUpdating && value.isNotEmpty(),
+                "You may not include any team members while updating!",
+            )
 
             maxSize(10, "You may not have over 10 team members!")
 
@@ -72,9 +70,7 @@ class SubmittedProjectBurrowVerifier(private val isUpdating: Boolean) :
             }
         }
 
-        SubmittedProjectBurrow::dueDate {
-            inFuture("Due date must be in the future.")
-        }
+        SubmittedProjectBurrow::dueDate { inFuture("Due date must be in the future.") }
     }
 }
 
@@ -113,7 +109,7 @@ class SubmittedStudyEventBurrowVerifier : Verifier<SubmittedStudyEventBurrow>() 
 
         SubmittedStudyEventBurrow::tags {
             maxSize(10, "You must have under 10 tags!")
-            each { tag ->
+            each { _, tag ->
                 if (tag.length > 10 || tag.trim().isEmpty())
                     "Tags must be between 1 and 10 characters."
                 else null

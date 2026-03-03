@@ -1,10 +1,9 @@
 package app.burrow.api.verify
 
+import app.burrow.api.verify.checks.CollectionPropertyCheck
 import app.burrow.api.verify.checks.IntPropertyCheck
-import app.burrow.api.verify.checks.ListPropertyCheck
 import app.burrow.api.verify.checks.LongPropertyCheck
 import app.burrow.api.verify.checks.MapPropertyCheck
-import app.burrow.api.verify.checks.SetPropertyCheck
 import app.burrow.api.verify.checks.StringPropertyCheck
 import kotlin.reflect.KProperty1
 
@@ -59,17 +58,6 @@ open class VerificationScope<T : Any>(private val _instance: T?) {
         runBlock(check, block)
     }
 
-    /** Define verification rules for a List property. */
-    @JvmName("invokeList")
-    suspend operator fun <E> KProperty1<T, List<E>>.invoke(
-        block: suspend ListPropertyCheck<E>.() -> Unit
-    ) {
-        if (!shouldCheck(this)) return
-        val value = resolveValue(this)
-        val check = ListPropertyCheck(value, errors)
-        runBlock(check, block)
-    }
-
     /** Define verification rules for a Map property. */
     @JvmName("invokeMap")
     suspend operator fun <E, R> KProperty1<T, Map<E, R>>.invoke(
@@ -82,13 +70,13 @@ open class VerificationScope<T : Any>(private val _instance: T?) {
     }
 
     /** Define verification rules for a Set property. */
-    @JvmName("invokeSet")
-    suspend operator fun <E> KProperty1<T, Set<E>>.invoke(
-        block: suspend SetPropertyCheck<E>.() -> Unit
+    @JvmName("invokeCollection")
+    suspend operator fun <E> KProperty1<T, Collection<E>>.invoke(
+        block: suspend CollectionPropertyCheck<E>.() -> Unit
     ) {
         if (!shouldCheck(this)) return
         val value = resolveValue(this)
-        val check = SetPropertyCheck(value, errors)
+        val check = CollectionPropertyCheck(value, errors)
         runBlock(check, block)
     }
 

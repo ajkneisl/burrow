@@ -29,7 +29,7 @@ const COPY: Record<"STUDY" | "EVENT", InfoStepCopy> = {
         capacityPlaceholder: "5",
         tagsPlaceholder: "PHYS, FINAL, etc.",
         descriptionLabel: "Description",
-        descriptionPlaceholder: "What're you studying? Who are you looking for?"
+        descriptionPlaceholder: "What are you studying? Who are you looking for?"
     },
     EVENT: {
         heading: "Event Details",
@@ -52,7 +52,6 @@ const COPY: Record<"STUDY" | "EVENT", InfoStepCopy> = {
  * @author AJ Kneisl
  */
 export default function InfoStep({
-    errors,
     formState,
     updateField,
     kind
@@ -73,13 +72,11 @@ export default function InfoStep({
                 {/* title */}
                 <Field
                     label={copy.titleLabel}
-                    error={errors.title}
                     className="min-w-0 md:col-span-2"
                 >
                     <Input
                         value={formState.title}
                         onChange={(e) => updateField("title", e.target.value)}
-                        error={errors.title !== undefined}
                         placeholder={copy.titlePlaceholder}
                     />
                 </Field>
@@ -87,13 +84,11 @@ export default function InfoStep({
                 {/* location */}
                 <Field
                     label="Location"
-                    error={errors.location}
                     className="md:col-span-2"
                 >
                     <LocationSelector
                         value={formState.location}
                         onChange={(value) => updateField("location", value)}
-                        error={errors.location !== undefined}
                         placeholder="Search for a location..."
                     />
                 </Field>

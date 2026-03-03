@@ -151,10 +151,10 @@ val BURROW_ROUTES: Route.() -> Unit = {
     // POST /burrows/verify
     // verify fields of a study/event burrow
     post("/verify") {
-        val partialBurrow = call.receive<Map<String, String>>()
+        val partialBurrow = call.receive<JsonObject>()
 
         partialBurrow
-            .flatMap { (field, value) -> verifyField<SubmittedStudyEventBurrow>(field, value) }
+            .flatMap { (field, value) -> verifyField<SubmittedStudyEventBurrow>(field, value.toKotlinValue()) }
             .throwIfNotEmpty()
 
         call.respond(HttpStatusCode.OK)

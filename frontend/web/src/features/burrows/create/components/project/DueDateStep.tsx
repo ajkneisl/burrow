@@ -11,7 +11,6 @@ import type { TimeValue } from "react-aria-components"
  * @see CreateProjectBurrowModal
  */
 export default function DueDateStep({
-    errors,
     formState,
     updateField
 }: CreateStepProps) {
@@ -30,14 +29,12 @@ export default function DueDateStep({
             {/* due date */}
             <Field
                 label="Due Date"
-                error={errors.date}
                 className="min-w-0"
             >
                 <Input
                     type="date"
                     value={formState.date}
                     onChange={(e) => updateField("date", e.target.value)}
-                    error={errors.date !== undefined}
                     min={new Date().toISOString().split("T")[0]}
                 />
             </Field>
@@ -66,7 +63,6 @@ export default function DueDateStep({
                         updateField("endTime", "")
                     }
                 }}
-                error={errors.endTime !== undefined}
             />
         </div>
     )

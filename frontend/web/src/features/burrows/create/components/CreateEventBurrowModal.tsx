@@ -6,6 +6,7 @@ import { Button, Modal, ViewErrors } from "@umnburrow/core"
 import useFormState from "@api/useFormState.ts"
 import ScheduleStep from "@features/burrows/create/components/ScheduleStep.tsx"
 import {
+    defaultTimes,
     initialFormState,
     type SubmittedBurrow,
     type SubmittedStudyEventBurrow,
@@ -15,7 +16,7 @@ import PrivacyStep from "@features/burrows/create/components/PrivacyStep.tsx"
 import InfoStep from "@features/burrows/create/components/InfoStep.tsx"
 import { addTime } from "@api/util.ts"
 
-const INITIAL_ERRORS: Record<string, string> = {}
+const INITIAL_ERRORS: string[] = []
 
 /**
  * {@link CreateEventBurrowModal}
@@ -55,17 +56,16 @@ export default function CreateEventBurrowModal({
     const queryClient = useQueryClient()
 
     const { formState, setFormState, errors, setErrors, updateField, verify, reset } =
-        useFormState<SubmittedBurrowFormState, Record<string, string>>({
+        useFormState<SubmittedBurrowFormState, string[]>({
             initial: initialFormState,
             initialErrors: INITIAL_ERRORS,
             verifyEndpoint: "/burrows/verify"
         })
-    const [serverErrors, setServerErrors] = useState<string[]>([])
     const [currentStep, setCurrentStep] = useState(1)
 
     useEffect(() => {
         if (open) {
-            setServerErrors([])
+            setErrors([])
             setCurrentStep(1)
 
             // if updating and a meeting is provided
@@ -102,26 +102,13 @@ export default function CreateEventBurrowModal({
                 })
             } else {
                 reset()
-                setFormState((prev) => ({ ...prev, kind: "EVENT" }))
+                setFormState((prev) => ({ ...prev, ...defaultTimes(), kind: "EVENT" }))
             }
         }
-    }, [open, mode, meeting, reset, setFormState])
+    }, [open, mode, meeting, reset, setFormState, setErrors])
 
     function applyServerErrors(errs: string[]) {
-        setServerErrors(errs)
-        const fieldMap: Record<string, string> = {}
-        errs.forEach((msg) => {
-            const m = msg.match(/^\s*([A-Za-z][\w.-]*)\s*[:=-]\s*(.+)$/)
-
-            if (m) {
-                const field = m[1]
-                fieldMap[field] = m[2]
-            }
-        })
-
-        if (Object.keys(fieldMap).length > 0) {
-            setErrors((prev) => ({ ...prev, ...fieldMap }))
-        }
+        setErrors(errs)
     }
 
     // validate current step via server
@@ -130,7 +117,12 @@ export default function CreateEventBurrowModal({
             return await verify({
                 title: formState.title,
                 description: formState.description,
-                location: formState.location
+                location: formState.location,
+                capacity: formState.capacity,
+                tags: formState.tags
+                    .split(",")
+                    .map((t) => t.trim())
+                    .filter(Boolean),
             })
         } else if (currentStep === 3) {
             const dateMs = formState.date
@@ -156,7 +148,7 @@ export default function CreateEventBurrowModal({
         if (!(await validateCurrentStep())) return
         if (currentStep < 3) {
             setCurrentStep(currentStep + 1)
-            setErrors({})
+            setErrors([])
         }
     }, [currentStep, validateCurrentStep, setErrors])
 
@@ -164,7 +156,7 @@ export default function CreateEventBurrowModal({
     const handleBack = useCallback(() => {
         if (currentStep > 1) {
             setCurrentStep(currentStep - 1)
-            setErrors({})
+            setErrors([])
         }
     }, [currentStep, setErrors])
 
@@ -199,7 +191,7 @@ export default function CreateEventBurrowModal({
 
             // if updating, update query data and close
             if (mode === "update" && meeting) {
-                setServerErrors([])
+                setErrors([])
                 onClose()
 
                 queryClient.invalidateQueries({
@@ -216,7 +208,7 @@ export default function CreateEventBurrowModal({
                 !Array.isArray(response) &&
                 "id" in response
             ) {
-                setServerErrors([])
+                setErrors([])
 
                 const updated = response as Burrow
                 nav(`/${updated.id}`)
@@ -299,14 +291,13 @@ export default function CreateEventBurrowModal({
             <form id="event-form" onSubmit={handleSubmit}>
                 {/* errors.. uh oh! */}
                 <ViewErrors
-                    errors={serverErrors}
-                    clearErrors={() => setServerErrors([])}
+                    errors={errors}
+                    clearErrors={() => setErrors([])}
                 />
 
                 {/* basic info */}
                 {currentStep === 1 && (
                     <InfoStep
-                        errors={errors}
                         formState={formState}
                         updateField={updateField}
                         kind="EVENT"
@@ -316,7 +307,6 @@ export default function CreateEventBurrowModal({
                 {/* privacy */}
                 {currentStep === 2 && (
                     <PrivacyStep
-                        errors={errors}
                         formState={formState}
                         updateField={updateField}
                         kind="EVENT"
@@ -326,7 +316,6 @@ export default function CreateEventBurrowModal({
                 {/* schedule */}
                 {currentStep === 3 && (
                     <ScheduleStep
-                        errors={errors}
                         formState={formState}
                         updateField={updateField}
                     />

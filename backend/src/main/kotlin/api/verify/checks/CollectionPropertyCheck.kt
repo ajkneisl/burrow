@@ -1,10 +1,11 @@
 package app.burrow.api.verify.checks
 
 import app.burrow.api.verify.PropertyCheck
+import kotlin.collections.Collection
 
-/** Checks available for [Set] properties. */
-class SetPropertyCheck<E>(value: Set<E>, errors: MutableList<String>) :
-    PropertyCheck<Set<E>>(value, errors) {
+/** Checks available for [CollectionPropertyCheck] properties. */
+class CollectionPropertyCheck<E>(value: Collection<E>, errors: MutableList<String>) :
+    PropertyCheck<Collection<E>>(value, errors) {
 
     /** Verify the set size is at most [max]. */
     fun maxSize(max: Int, message: String) {
@@ -17,7 +18,7 @@ class SetPropertyCheck<E>(value: Set<E>, errors: MutableList<String>) :
     }
 
     /** Verify each element passes [check]. */
-    suspend fun each(check: suspend (element: E) -> String?) {
-        value.forEach { element -> check(element)?.let { errors += it } }
+    suspend fun each(check: suspend (index: Int, element: E) -> String?) {
+        value.forEachIndexed { index, element -> check(index, element)?.let { errors += it } }
     }
 }

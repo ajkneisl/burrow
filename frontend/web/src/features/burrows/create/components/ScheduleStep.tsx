@@ -16,12 +16,12 @@ type Timeframe = "Daily" | "Weekly" | "Monthly"
  * @author AJ Kneisl
  */
 export default function ScheduleStep({
-    errors,
     formState,
     updateField
 }: CreateStepProps) {
     const [reoccurring, setReoccurring] = useState(formState.reoccurring !== NOT_REOCCURRING)
     const [timeframe, setTimeframe] = useState("Weekly" as Timeframe)
+    const [endTimeTouched, setEndTimeTouched] = useState(false)
 
     return (
         <div className="space-y-6">
@@ -38,21 +38,18 @@ export default function ScheduleStep({
                 {/* date */}
                 <Field
                     label="Burrow Date"
-                    error={errors.date}
                     className="min-w-0 md:col-span-2"
                 >
                     <Input
                         type="date"
                         value={formState.date}
                         onChange={(e) => updateField("date", e.target.value)}
-                        error={errors.date !== undefined}
                     />
                 </Field>
 
                 {/* start time */}
                 <Field
                     label="Start Time"
-                    error={errors.startTime}
                     className="min-w-0"
                 >
                     <TimeInput
@@ -82,18 +79,25 @@ export default function ScheduleStep({
                                     "beginningTime",
                                     `${hours}:${minutes}`
                                 )
+
+                                if (!endTimeTouched) {
+                                    const endHour = value.hour + 1
+                                    const endTime =
+                                        endHour >= 24
+                                            ? "23:59"
+                                            : `${String(endHour).padStart(2, "0")}:${minutes}`
+                                    updateField("endTime", endTime)
+                                }
                             } else {
                                 updateField("beginningTime", "")
                             }
                         }}
-                        error={errors.endTime !== undefined}
                     />
                 </Field>
 
                 {/* end time */}
                 <Field
                     label="End Time"
-                    error={errors.endTime}
                     className="min-w-0"
                 >
                     <TimeInput
@@ -110,6 +114,7 @@ export default function ScheduleStep({
                                 : null
                         }
                         onChange={(value: TimeValue | null) => {
+                            setEndTimeTouched(true)
                             if (value) {
                                 const hours = String(value.hour).padStart(
                                     2,
@@ -124,7 +129,6 @@ export default function ScheduleStep({
                                 updateField("endTime", "")
                             }
                         }}
-                        error={errors.endTime !== undefined}
                     />
                 </Field>
             </div>
