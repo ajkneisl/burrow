@@ -45,7 +45,7 @@ export default function ClubProfilePicture({
     const sizeClasses = useMemo(() => {
         return {
             container: clsx(
-                size === "sm" ? "h-8 w-8 ring-1" :
+                size === "sm" ? "h-10 w-10 ring-1" :
                 size === "md" ? "h-12 w-12 ring-2" :
                 "h-24 w-24 ring-4"
             ),

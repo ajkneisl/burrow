@@ -1,6 +1,6 @@
 import clsx from "clsx"
 import { formatDateTime, humanDateLabel } from "@api/util.ts"
-import { Badge, Card } from "@umnburrow/core"
+import { Card } from "@umnburrow/core"
 import {
     BURROW_KIND_CONFIG,
     type BurrowKind,
@@ -91,6 +91,25 @@ export default function ScheduleBurrowCard({
 
                 {burrowResponse.burrow.kind !== "PROJECT" && (
                     <div className="flex flex-row items-center justify-between">
+                        {/* chat preview */}
+                        {burrowResponse.latestChatMessage ? (
+                            <div className="text-text/60 flex items-center gap-1.5 text-xs">
+                                {burrowResponse.isPinned ? (
+                                    <Pin className="text-warn h-3.5 w-3.5 shrink-0" />
+                                ) : (
+                                    <MessageSquare className="h-3.5 w-3.5 shrink-0" />
+                                )}
+                                <p className="line-clamp-1 max-w-[200px] truncate">
+                                    {burrowResponse.latestChatMessage.message}
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="text-text/40 flex items-center gap-1.5 text-xs italic">
+                                <MessageSquare className="h-3.5 w-3.5 shrink-0" />
+                                <span>No messages yet</span>
+                            </div>
+                        )}
+
                         <div className="flex flex-row items-center justify-start gap-2">
                             {burrowResponse.burrow.kind && (
                                 <span
@@ -114,40 +133,7 @@ export default function ScheduleBurrowCard({
                                     }
                                 </span>
                             )}
-
-                            {burrowResponse.burrow.tags.map((tag) => (
-                                <div className="hidden flex-row gap-2 md:flex">
-                                    <Badge
-                                        size="medium"
-                                        highlighted={
-                                            burrowResponse.burrow.tags[tag]
-                                        }
-                                        key={tag}
-                                    >
-                                        {tag}
-                                    </Badge>
-                                </div>
-                            ))}
                         </div>
-
-                        {/* chat preview */}
-                        {burrowResponse.latestChatMessage ? (
-                            <div className="text-text/60 flex items-center gap-1.5 text-xs">
-                                {burrowResponse.isPinned ? (
-                                    <Pin className="text-warn h-3.5 w-3.5 shrink-0" />
-                                ) : (
-                                    <MessageSquare className="h-3.5 w-3.5 shrink-0" />
-                                )}
-                                <p className="line-clamp-1 max-w-[200px] truncate">
-                                    {burrowResponse.latestChatMessage.message}
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="text-text/40 flex items-center gap-1.5 text-xs italic">
-                                <MessageSquare className="h-3.5 w-3.5 shrink-0" />
-                                <span>No messages yet</span>
-                            </div>
-                        )}
                     </div>
                 )}
             </div>

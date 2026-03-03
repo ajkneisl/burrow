@@ -9,7 +9,7 @@ import org.jetbrains.exposed.v1.core.Table
 object Bookmarks : Table("bookmarks") {
     /** [Bookmark.burrowID] */
     val burrowID =
-        reference("meeting_id", Burrows.id, onDelete = ReferenceOption.CASCADE)
+        reference("burrow_id", Burrows.id, onDelete = ReferenceOption.CASCADE)
             .index("ix_bookmarks_meetingID")
 
     /** [Bookmark.userID] */

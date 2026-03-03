@@ -1,6 +1,7 @@
 import type { Burrow } from "@features/burrows/burrows.types.tsx"
 import { useMemo } from "react"
 import clsx from "clsx"
+import { User } from "lucide-react"
 
 /**
  * {@see GroupMeetingBadges}
@@ -47,7 +48,7 @@ export default function BurrowCapacity({
         <>
             <span
                 className={clsx(
-                    `relative inline-flex items-center gap-1.5 overflow-hidden rounded-full border px-3 py-1 text-xs font-medium shadow-sm`,
+                    `relative inline-flex items-center gap-1.5 overflow-hidden rounded-full border px-2.5 py-1 text-xs font-medium`,
                     capClasses
                 )}
                 aria-label="Capacity"
@@ -63,27 +64,15 @@ export default function BurrowCapacity({
 
                 {/* icon + label (kept above fill) */}
                 <span className="relative z-10 flex items-center gap-1.5">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="h-4 w-4"
-                        aria-hidden
-                    >
-                        <path d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-                        <path
-                            fillRule="evenodd"
-                            d="M.458 16.042A8 8 0 0 1 10 12a8 8 0 0 1 9.542 4.042.75.75 0 0 1-.676 1.108H1.134a.75.75 0 0 1-.676-1.108Z"
-                            clipRule="evenodd"
-                        />
-                    </svg>
+                    <User size={14} strokeWidth={2.5} />
+
                     {capacityLabel}
                 </span>
             </span>
 
             {/* waitlist */}
             {burrow.waiting > 0 && (
-                <span className="border-warn bg-warn/10 text-warn inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm">
+                <span className="border-warn bg-warn/10 text-warn inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"

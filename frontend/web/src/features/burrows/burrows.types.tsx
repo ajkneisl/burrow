@@ -142,7 +142,7 @@ export function getReoccurringText(timeframe: number, slim?: boolean): string {
             word = "week"
             break
         case MONTHLY:
-            word = "month."
+            word = "month"
             break
         default:
             return ""
