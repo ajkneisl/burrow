@@ -32,11 +32,6 @@ fun scheduleWorkers() {
 
         logger.info("Scheduling worker {} every {} ms", method.name, delayMs)
 
-        workerTimer.schedule(
-            timerTask {
-                runBlocking { kFunction.callSuspend() }
-            },
-            delayMs,
-        )
+        workerTimer.schedule(timerTask { runBlocking { kFunction.callSuspend() } }, 0, delayMs)
     }
 }
