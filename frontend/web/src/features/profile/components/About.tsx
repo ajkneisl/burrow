@@ -184,7 +184,9 @@ export default function AboutView({ user, profile, isTa }: AboutProps) {
             <Card>
                 <div className="flex flex-row items-center justify-between">
                     <div className="mb-2 flex items-center justify-between">
-                        <h3 className="text-text/50 text-sm font-semibold">About</h3>
+                        <h3 className="text-text/50 text-sm font-semibold">
+                            About
+                        </h3>
                     </div>
                 </div>
 
@@ -200,6 +202,9 @@ export default function AboutView({ user, profile, isTa }: AboutProps) {
                         </Link>
                     </p>
                 )}
+
+                {/* contact */}
+                <Contact user={user} profile={profile} />
             </Card>
 
             {/* info */}
@@ -253,9 +258,6 @@ export default function AboutView({ user, profile, isTa }: AboutProps) {
                     </div>
                 </Card>
             )}
-
-            {/* contact */}
-            <Contact user={user} profile={profile} />
         </div>
     )
 }

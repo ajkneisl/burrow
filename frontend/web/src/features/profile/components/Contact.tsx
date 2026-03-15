@@ -80,7 +80,7 @@ export default function Contact({ user, profile }: ContactProps) {
     if (!hasContactInfo) return null
 
     return (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 mt-4">
             {user.email && (
                 <a href={`mailto:${user.email}`}>
                     <Chip size="lg" icon={Mail}>
