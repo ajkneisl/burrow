@@ -81,14 +81,13 @@ export default function WelcomeScreen() {
                         Get Started
                     </Button>
 
-                    <Pressable
+                    <Button
+                        variant="ghost"
+                        size="sm"
                         onPress={() => router.push("/(auth)/signin")}
-                        className="py-3"
                     >
-                        <Text className="text-text text-center font-medium text-sm opacity-50">
-                            Sign in a different way
-                        </Text>
-                    </Pressable>
+                        Sign in a different way
+                    </Button>
                 </View>
 
                 {/* Trust badges */}
@@ -201,8 +200,8 @@ export default function WelcomeScreen() {
             <View className="py-12">
                 <View className="bg-card border border-card-border rounded-3xl mx-6 p-8 items-center">
                     <Text
-                        className="text-text text-center font-bold mb-3"
-                        style={{ fontSize: 24, letterSpacing: -0.5, lineHeight: 30 }}
+                        className="text-text text-center mb-3 font-bold"
+                        style={{ fontSize: 24, letterSpacing: -0.5, lineHeight: 30}}
                     >
                         Ready to find your{"\n"}study crew?
                     </Text>

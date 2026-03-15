@@ -194,7 +194,7 @@ export function UpcomingBurrowCard({
                     {/* capacity and waitlist */}
                     <View className="flex-row items-center gap-2">
                         {/* Capacity badge */}
-                        {burrow.capacity && burrow.capacity !== 0 && (
+                        {burrow.capacity != null && burrow.capacity !== 0 && (
                             <CapacityBadge
                                 joined={joined}
                                 capacity={burrow.capacity ?? 0}

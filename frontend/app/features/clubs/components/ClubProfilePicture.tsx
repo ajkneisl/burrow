@@ -49,15 +49,15 @@ export default function ClubProfilePicture({
     }
 
     const textSizes = {
-        sm: "text-sm pt-1",
-        md: "text-base pt-1.5",
-        lg: "text-xl pt-2",
-        xl: "text-4xl pt-4"
+        sm: 12,
+        md: 16,
+        lg: 20,
+        xl: 32
     }
 
     return (
         <View
-            className={`${sizeClasses[size]} rounded-full overflow-hidden bg-primary shadow-md`}
+            className={`${sizeClasses[size]} rounded-full overflow-hidden bg-primary shadow-md items-center justify-center`}
         >
             {!imageError ? (
                 <Image
@@ -67,13 +67,16 @@ export default function ClubProfilePicture({
                     onError={() => setImageError(true)}
                 />
             ) : (
-                <View className="h-full w-full items-center justify-center bg-primary">
-                    <Text
-                        className={`${textSizes[size]} font-bold leading-none text-white`}
-                    >
-                        {initials}
-                    </Text>
-                </View>
+                <Text
+                    className="font-bold text-white"
+                    style={{
+                        fontSize: textSizes[size],
+                        textAlign: "center",
+                        textAlignVertical: "center"
+                    }}
+                >
+                    {initials}
+                </Text>
             )}
         </View>
     )

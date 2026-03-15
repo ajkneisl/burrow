@@ -1,4 +1,4 @@
-import { View, FlatList, ScrollView, RefreshControl, Pressable, Image, ActivityIndicator } from "react-native"
+import { View, FlatList, ScrollView, RefreshControl, Pressable, ActivityIndicator } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useState, useMemo } from "react"
 import { useRouter } from "expo-router"
@@ -6,7 +6,6 @@ import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { Header } from "@features/layout/components"
 import { get } from "@api/api"
-import { CDN_URL } from "@api/util"
 import { Compass, Users, Plus } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { FilterChip, Text } from "@components/core"
@@ -140,7 +139,8 @@ export default function ClubsScreen() {
                             />
                         }
                         renderItem={({ item }) => (
-                            <DiscoverClubCard
+                            <ClubCard
+                                variant="discover"
                                 club={item}
                                 isMember={myClubIds.has(item.id)}
                                 onPress={() =>
@@ -237,85 +237,5 @@ export default function ClubsScreen() {
                 </ScrollView>
             )}
         </SafeAreaView>
-    )
-}
-
-function DiscoverClubCard({
-    club,
-    isMember,
-    onPress
-}: {
-    club: Club
-    isMember: boolean
-    onPress: () => void
-}) {
-    const [imageError, setImageError] = useState(false)
-
-    const initials = useMemo(
-        () =>
-            club.displayName
-                .split(" ")
-                .slice(0, 2)
-                .map((n) => n[0]?.toUpperCase())
-                .join(""),
-        [club.displayName]
-    )
-
-    return (
-        <Pressable
-            onPress={onPress}
-            className="bg-card rounded-xl border border-card-border p-4 flex-row items-center gap-3 active:opacity-80"
-        >
-            {/* Avatar */}
-            <View className="h-12 w-12 rounded-full overflow-hidden bg-primary/10 items-center justify-center">
-                {!imageError ? (
-                    <Image
-                        source={{
-                            uri: `${CDN_URL}/avatars/club/${club.id}/avatar`
-                        }}
-                        className="h-12 w-12"
-                        onError={() => setImageError(true)}
-                    />
-                ) : (
-                    <Text className="text-primary font-bold text-lg">
-                        {initials}
-                    </Text>
-                )}
-            </View>
-
-            {/* Info */}
-            <View className="flex-1 min-w-0">
-                <View className="flex-row items-center gap-2">
-                    <Text
-                        className="text-text font-semibold text-base"
-                        numberOfLines={1}
-                    >
-                        {club.displayName}
-                    </Text>
-
-                    {isMember && (
-                        <View className="bg-primary/15 rounded-full px-2 py-0.5">
-                            <Text className="text-primary text-[10px] font-semibold">
-                                Joined
-                            </Text>
-                        </View>
-                    )}
-                </View>
-
-                <Text className="text-text opacity-50 text-xs">
-                    {club.category.charAt(0) +
-                        club.category.slice(1).toLowerCase()}
-                </Text>
-
-                {club.description ? (
-                    <Text
-                        className="text-text opacity-60 text-sm mt-1"
-                        numberOfLines={2}
-                    >
-                        {club.description}
-                    </Text>
-                ) : null}
-            </View>
-        </Pressable>
     )
 }

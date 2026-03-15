@@ -29,6 +29,10 @@ npm-debug.*
 yarn-debug.*
 yarn-error.*
 
+# lockfiles (using bun)
+package-lock.json
+yarn.lock
+
 # macOS
 .DS_Store
 *.pem

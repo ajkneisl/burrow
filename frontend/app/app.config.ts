@@ -9,7 +9,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     icon: "./assets/images/burrow.png",
     scheme: "app.umn.burrow",
     userInterfaceStyle: "automatic",
-    newArchEnabled: true,
     splash: {
         image: "./assets/images/burrow.png",
         resizeMode: "contain",
@@ -40,7 +39,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     android: {
         package: "app.umn.burrow",
         icon: "./assets/images/burrow.png",
-        edgeToEdgeEnabled: true,
         googleServicesFile: process.env.GOOGLE_SERVICES_FILE,
         predictiveBackGestureEnabled: false,
         permissions: [
@@ -89,6 +87,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         favicon: "./assets/images/favicon.png"
     },
     plugins: [
+        "react-native-maps",
         "expo-web-browser",
         "expo-router",
         [

@@ -44,7 +44,7 @@ export function ScheduleBurrowCard({ item }: ScheduleBurrowCardProps) {
                 style={{ borderRightWidth: 4, borderRightColor: kindColor }}
             >
                 {/* Title and Time Row */}
-                <View className="flex-row items-start justify-between mb-2">
+                <View className="flex-row items-center justify-between mb-2">
                     <Text
                         className="text-base font-semibold text-text flex-1 mr-2"
                         numberOfLines={1}
