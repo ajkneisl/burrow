@@ -19,7 +19,7 @@ type ClubBurrowsProps = {
 }
 
 /**
- * A clubs one-off and reoccuring Burrows.
+ * A clubs one-off and reoccurring Burrows.
  *
  * @param clubResponse The club response.
  *
@@ -54,10 +54,10 @@ export default function ClubBurrows({ clubResponse }: ClubBurrowsProps) {
 
     return (
         <>
-            {/* Reoccurring Meetings */}
+            {/* Reoccurring Burrows */}
             <View>
                 <Text className="text-text font-semibold text-sm mb-3">
-                    Reoccurring Meetings
+                    Reoccurring Burrows
                 </Text>
 
                 {reoccurringBurrows.length === 0 ? (
@@ -67,8 +67,9 @@ export default function ClubBurrows({ clubResponse }: ClubBurrowsProps) {
                             color={colors.text}
                             style={{ opacity: 0.2 }}
                         />
+
                         <Text className="text-text opacity-40 text-sm mt-2">
-                            No reoccurring meetings.
+                            No reoccurring Burrows.
                         </Text>
                     </View>
                 ) : (
@@ -84,11 +85,12 @@ export default function ClubBurrows({ clubResponse }: ClubBurrowsProps) {
                 )}
             </View>
 
-            {/* Upcoming Meetings */}
+            {/* Upcoming Burrows */}
             <View>
                 <Text className="text-text font-semibold text-sm mb-3">
-                    Meetings
+                    Burrows
                 </Text>
+
                 {upcomingBurrows.length === 0 ? (
                     <View className="items-center py-6">
                         <Calendar
@@ -97,7 +99,7 @@ export default function ClubBurrows({ clubResponse }: ClubBurrowsProps) {
                             style={{ opacity: 0.2 }}
                         />
                         <Text className="text-text opacity-40 text-sm mt-2">
-                            No meetings.
+                            No upcoming Burrows.
                         </Text>
                     </View>
                 ) : (

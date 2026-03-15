@@ -183,9 +183,9 @@ export default function ClubLayout() {
                     />
 
                     <Tabs.Screen
-                        name="meetings"
+                        name="burrows"
                         options={{
-                            title: "Meetings",
+                            title: "Burrows",
                             tabBarIcon: ({ color, size }) => (
                                 <Calendar color={color} size={size} />
                             )
