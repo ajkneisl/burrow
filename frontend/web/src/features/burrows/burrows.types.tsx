@@ -1,7 +1,13 @@
 import type { User } from "@features/auth/user.types.ts"
 import type { Profile } from "@features/profile/profile.model.ts"
-import { BookOpen, FolderKanban, PartyPopper, Users } from "lucide-react"
+import {
+    BookOpen,
+    FolderKanban,
+    PartyPopper,
+    Users,
+} from "lucide-react"
 import type { ChatMessage } from "@features/chat/chat.types.ts"
+import type { ComponentType, SVGProps } from "react"
 
 /**
  * The type of group meeting.
@@ -55,9 +61,7 @@ export const BURROW_KIND_CONFIG: Record<
     BurrowKind,
     {
         label: string
-        icon: ForwardRefExoticComponent<
-            Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
-        >
+        icon: ComponentType<SVGProps<SVGSVGElement>>
         className: "success" | "secondary" | "info" | "error"
     }
 > = {

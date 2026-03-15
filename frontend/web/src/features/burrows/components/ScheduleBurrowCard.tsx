@@ -1,6 +1,6 @@
 import clsx from "clsx"
 import { formatDateTime, humanDateLabel } from "@api/util.ts"
-import { Card } from "@umnburrow/core"
+import { Card, Chip } from "@umnburrow/core"
 import {
     BURROW_KIND_CONFIG,
     type BurrowKind,
@@ -112,26 +112,13 @@ export default function ScheduleBurrowCard({
 
                         <div className="flex flex-row items-center justify-start gap-2">
                             {burrowResponse.burrow.kind && (
-                                <span
-                                    className={clsx(
-                                        "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
-                                        BURROW_KIND_CONFIG[
-                                            burrowResponse.burrow.kind
-                                        ]?.className,
-                                        "bg-current/10"
-                                    )}
+                                <Chip
+                                    size="md"
+                                    color={BURROW_KIND_CONFIG[burrowResponse.burrow.kind]?.className}
+                                    icon={BURROW_KIND_CONFIG[burrowResponse.burrow.kind]?.icon}
                                 >
-                                    {
-                                        BURROW_KIND_CONFIG[
-                                            burrowResponse.burrow.kind
-                                        ]?.icon
-                                    }
-                                    {
-                                        BURROW_KIND_CONFIG[
-                                            burrowResponse.burrow.kind
-                                        ]?.label
-                                    }
-                                </span>
+                                    {BURROW_KIND_CONFIG[burrowResponse.burrow.kind]?.label}
+                                </Chip>
                             )}
                         </div>
                     </div>

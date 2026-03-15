@@ -20,8 +20,6 @@ import { profileEditErrors } from "@features/profile/profile.atom.ts"
 import ReportProfile from "@features/profile/components/ReportProfile.tsx"
 import ProfileBadge from "@features/profile/components/ProfileBadge.tsx"
 
-type ProfileTab = "about" | "chat" | "members"
-
 /**
  * The view of a profile.
  *

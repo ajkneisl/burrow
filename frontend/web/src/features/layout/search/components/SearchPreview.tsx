@@ -5,7 +5,7 @@ import {
 import { useNavigate } from "react-router"
 import { formatDateTime } from "@api/util.ts"
 import clsx from "clsx"
-import { Badge } from "@umnburrow/core"
+import { Badge, Chip } from "@umnburrow/core"
 import { MapPin } from "lucide-react"
 
 /**
@@ -47,16 +47,13 @@ export default function SearchPreview({ burrow, onClick }: PreviewProps) {
                 <div className="mt-2 flex flex-row flex-wrap gap-2">
                     <div className="flex flex-row flex-wrap items-center gap-1.5 pt-1">
                         {/* burrow type */}
-                        <span
-                            className={clsx(
-                                "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
-                                BURROW_KIND_CONFIG[burrow.kind]?.className,
-                                "bg-current/10"
-                            )}
+                        <Chip
+                            size="md"
+                            color={BURROW_KIND_CONFIG[burrow.kind]?.className}
+                            icon={BURROW_KIND_CONFIG[burrow.kind]?.icon}
                         >
-                            {BURROW_KIND_CONFIG[burrow.kind]?.icon}
                             {BURROW_KIND_CONFIG[burrow.kind]?.label}
-                        </span>
+                        </Chip>
                     </div>
 
                     {burrow.tags.slice(0, 2).map((tag: string) => (

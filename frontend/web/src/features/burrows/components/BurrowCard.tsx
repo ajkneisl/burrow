@@ -7,7 +7,7 @@ import {
 } from "@features/burrows/burrows.types.tsx"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { formatDateTime } from "@api/util.ts"
-import { Badge, Card, Chip, Hover } from "@umnburrow/core"
+import { Card, Chip, Hover } from "@umnburrow/core"
 import clsx from "clsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.tsx"
