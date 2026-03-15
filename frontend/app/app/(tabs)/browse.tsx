@@ -15,7 +15,9 @@ import {
     ChevronDown,
     ChevronUp,
     ChevronRight,
-    Map as MapIcon
+    Map as MapIcon,
+    MapPin,
+    MapPinned
 } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { CustomDateTimePicker, FilterChip, LabeledSwitch, Text } from "@components/core"
@@ -161,7 +163,7 @@ export default function BrowseScreen() {
                         onPress={() => setMapOpen(true)}
                         className="p-2 rounded-lg active:bg-card dark:active:bg-card"
                     >
-                        <MapIcon size={24} color={colors.text} />
+                        <MapPinned size={24} color={colors.text} />
                     </Pressable>
                 }
             />
