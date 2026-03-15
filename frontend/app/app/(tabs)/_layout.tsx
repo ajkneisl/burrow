@@ -28,7 +28,9 @@ export default function TabsLayout() {
                         backgroundColor: colors.background,
                         borderTopColor: isDark ? "#333333" : colors.cardBorder,
                         borderTopWidth: 1,
-                        paddingHorizontal: 16
+                        paddingHorizontal: 16,
+                        paddingVertical: 2,
+                        paddingTop: 10
                     },
                     tabBarItemStyle: {
                         paddingVertical: 4

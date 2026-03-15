@@ -37,7 +37,6 @@ import Animated, {
 } from "react-native-reanimated"
 import { useAtom } from "jotai"
 import { mapModalOpen } from "@features/layout/layout.atom"
-import ThemedIcon from "@components/core/ThemedIcon"
 
 /**
  * {@link BrowseScreen}
@@ -165,7 +164,17 @@ export default function BrowseScreen() {
 
     return (
         <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-            <Header title="Browse" />
+            <Header
+                title="Browse"
+                leftActions={
+                    <Pressable
+                        onPress={() => setMapOpen(true)}
+                        className="p-2 rounded-lg active:bg-card dark:active:bg-card"
+                    >
+                        <MapIcon size={24} color={colors.text} />
+                    </Pressable>
+                }
+            />
 
             {/* all filters */}
             <View className="border-b border-card-border">
@@ -388,25 +397,6 @@ export default function BrowseScreen() {
                 )}
             />
 
-            {/* Map FAB */}
-            <Pressable
-                onPress={() => setMapOpen(true)}
-                className="absolute bottom-6 right-6 bg-secondary rounded-full w-16 h-16 items-center justify-center shadow-lg active:opacity-80"
-                style={{
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 4.65,
-                    elevation: 8
-                }}
-            >
-                <ThemedIcon
-                    icon={MapIcon}
-                    size={28}
-                    strokeWidth={2.5}
-                    overrideColor="primary"
-                />
-            </Pressable>
         </SafeAreaView>
     )
 }

@@ -179,7 +179,7 @@ export function UpcomingBurrowCard({
                 )}
 
                 {/* description */}
-                {verbose && burrow.description && (
+                {verbose && burrow.description !== "" && (
                     <Text
                         className="text-sm w-full text-text mb-2"
                         numberOfLines={2}

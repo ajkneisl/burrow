@@ -53,27 +53,33 @@ export interface GeneralLocation {
  */
 export const BURROW_KIND_CONFIG: Record<
     BurrowKind,
-    { label: string; icon: React.ReactNode; className: string }
+    {
+        label: string
+        icon: ForwardRefExoticComponent<
+            Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
+        >
+        className: "success" | "secondary" | "info" | "error"
+    }
 > = {
     STUDY: {
         label: "Study",
-        icon: <BookOpen className="h-3 w-3" />,
-        className: "text-success"
+        icon: BookOpen,
+        className: "success"
     },
     EVENT: {
         label: "Event",
-        icon: <PartyPopper className="h-3 w-3" />,
-        className: "text-secondary"
+        icon: PartyPopper,
+        className: "secondary"
     },
     CLUB: {
         label: "Club",
-        icon: <Users className="h-3 w-3" />,
-        className: "text-info"
+        icon: Users,
+        className: "info"
     },
     PROJECT: {
         label: "Project",
-        icon: <FolderKanban className="h-3 w-3" />,
-        className: "text-error"
+        icon: FolderKanban,
+        className: "error"
     }
 }
 

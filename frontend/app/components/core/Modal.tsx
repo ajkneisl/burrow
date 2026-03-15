@@ -101,8 +101,9 @@ export function Modal({
     return (
         <RNModal
             visible={visible}
-            animationType={centered ? "fade" : "slide"}
+            animationType="slide"
             transparent
+            statusBarTranslucent
             onRequestClose={onClose}
             {...props}
         >

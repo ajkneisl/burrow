@@ -1,6 +1,6 @@
 {
   "name": "@umnburrow/core",
-  "version": "0.1.42",
+  "version": "0.1.47",
   "description": "Shared Burrow component and utility library.",
   "type": "module",
   "main": "./dist/index.js",
@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "lucide-react": "^0.576.0",
     "prettier": "^3.6.2",
     "react-aria-components": "^1.13.0",
     "tailwindcss-react-aria-components": "^2.0.1"

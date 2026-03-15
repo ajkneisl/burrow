@@ -14,6 +14,7 @@ interface HeaderProps {
     showNotifications?: boolean
     leftAction?: React.ReactNode
     rightAction?: React.ReactNode
+    leftActions?: React.ReactNode
 }
 
 export function Header({
@@ -22,7 +23,8 @@ export function Header({
     showSearch = true,
     showNotifications = true,
     leftAction,
-    rightAction
+    rightAction,
+    leftActions
 }: HeaderProps) {
     const router = useRouter()
     const colors = useThemeColors()
@@ -32,7 +34,9 @@ export function Header({
 
     const unreadCount = useMemo(() => {
         if (!notificationsData) return 0
+
         return notificationsData.pages
+            .filter((page) => page?.contents)
             .flatMap((page) => page.contents)
             .filter((n) => !n?.read).length
     }, [notificationsData])
@@ -72,6 +76,8 @@ export function Header({
 
                 {/* Actions */}
                 <View className="flex-row items-center gap-3">
+                    {leftActions}
+
                     {showSearch && (
                         <Pressable
                             onPress={() => setSearchOpen(true)}

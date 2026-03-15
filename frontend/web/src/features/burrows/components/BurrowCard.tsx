@@ -7,7 +7,7 @@ import {
 } from "@features/burrows/burrows.types.tsx"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { formatDateTime } from "@api/util.ts"
-import { Badge, Card, Hover } from "@umnburrow/core"
+import { Badge, Card, Chip, Hover } from "@umnburrow/core"
 import clsx from "clsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.tsx"
@@ -175,24 +175,19 @@ export function BurrowCard({
                     <div className="flex flex-row items-center gap-1 pt-1">
                         {details &&
                             burrow.tags.map((tag: string) => (
-                                <Badge key={tag}>{tag}</Badge>
+                                <Chip size="md" key={tag}>
+                                    {tag}
+                                </Chip>
                             ))}
                     </div>
 
                     <div className="flex flex-row flex-wrap items-center gap-1.5 pt-1">
                         {details && burrow.location.trim() !== "" && (
-                            <span className="bg-secondary/20 text-secondary inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium">
-                                <MapPin
-                                    className="h-3.5 w-3.5"
-                                    strokeWidth={2.5}
-                                />
-
-                                <span className="max-w-[16ch] truncate">
-                                    {burrow.location.includes(",")
-                                        ? burrow.location.split(",")[0]
-                                        : burrow.location.substring(0, 16)}
-                                </span>
-                            </span>
+                            <Chip size="md" color="secondary" icon={MapPin}>
+                                {burrow.location.includes(",")
+                                    ? burrow.location.split(",")[0]
+                                    : burrow.location.substring(0, 16)}
+                            </Chip>
                         )}
 
                         {/* action badge */}
@@ -204,16 +199,13 @@ export function BurrowCard({
                         )}
 
                         {/* burrow type */}
-                        <span
-                            className={clsx(
-                                "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
-                                BURROW_KIND_CONFIG[burrow.kind]?.className,
-                                "bg-current/10"
-                            )}
+                        <Chip
+                            size="md"
+                            color={BURROW_KIND_CONFIG[burrow.kind]?.className}
+                            icon={BURROW_KIND_CONFIG[burrow.kind]?.icon}
                         >
-                            {BURROW_KIND_CONFIG[burrow.kind]?.icon}
                             {BURROW_KIND_CONFIG[burrow.kind]?.label}
-                        </span>
+                        </Chip>
                     </div>
                 </div>
             </div>

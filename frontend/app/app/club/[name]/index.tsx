@@ -1,0 +1,33 @@
+import { ScrollView, RefreshControl } from "react-native"
+import { useState, useCallback } from "react"
+import { useQueryClient } from "@tanstack/react-query"
+import ClubDetails from "@features/clubs/view/ClubDetails"
+import { useClubContext } from "./_layout"
+
+export default function InfoTab() {
+    const { data, name, colors } = useClubContext()
+    const queryClient = useQueryClient()
+    const [refreshing, setRefreshing] = useState(false)
+
+    const handleRefresh = useCallback(async () => {
+        setRefreshing(true)
+        await queryClient.invalidateQueries({ queryKey: ["club", name] })
+        setRefreshing(false)
+    }, [name, queryClient])
+
+    return (
+        <ScrollView
+            className="flex-1 bg-background"
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}
+                    tintColor={colors.primary}
+                />
+            }
+            contentContainerStyle={{ padding: 16, gap: 20 }}
+        >
+            <ClubDetails clubResponse={data} />
+        </ScrollView>
+    )
+}

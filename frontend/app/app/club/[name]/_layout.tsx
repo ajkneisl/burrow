@@ -1,16 +1,14 @@
 import {
     View,
     Text,
-    ScrollView,
     Pressable,
-    ActivityIndicator,
-    RefreshControl
+    ActivityIndicator
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { useLocalSearchParams, useRouter } from "expo-router"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useState, useCallback } from "react"
-import { ChevronLeft, Users } from "lucide-react-native"
+import { useLocalSearchParams, useRouter, Tabs } from "expo-router"
+import { useQuery } from "@tanstack/react-query"
+import { createContext, useContext } from "react"
+import { ChevronLeft, Users, Info, Calendar } from "lucide-react-native"
 import { get } from "@api/api"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { Button } from "@components/core"
@@ -19,44 +17,44 @@ import type { ClubResponse } from "@features/clubs/club.types"
 import ClubBannerPicture from "@features/clubs/components/ClubBannerPicture"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture"
 import ClubModeration from "@features/clubs/view/ClubModeration"
-import ClubDetails from "@features/clubs/view/ClubDetails"
 import ClubJoin from "@features/clubs/view/ClubJoin"
-import ClubBurrows from "@features/clubs/view/ClubBurrows"
-import ClubMembers from "@features/clubs/view/ClubMembers"
 import useClubRole from "@features/clubs/hooks/useClubRole"
+import { useColorScheme } from "react-native"
+
+type ClubContextType = {
+    data: ClubResponse
+    name: string
+    colors: ReturnType<typeof useThemeColors>
+}
+
+const ClubContext = createContext<ClubContextType | null>(null)
+
+export function useClubContext() {
+    const ctx = useContext(ClubContext)
+    if (!ctx) throw new Error("useClubContext must be used within ClubLayout")
+    return ctx
+}
 
 /**
- * Club detail screen.
+ * Club detail layout with tab navigation.
  *
  * @author AJ Kneisl
  */
-export default function ClubDetailScreen() {
+export default function ClubLayout() {
     const { name } = useLocalSearchParams<{ name: string }>()
 
     const { isOwner } = useClubRole(name)
 
     const router = useRouter()
-    const queryClient = useQueryClient()
     const colors = useThemeColors()
+    const colorScheme = useColorScheme()
+    const isDark = colorScheme === "dark"
 
-    const [refreshing, setRefreshing] = useState(false)
-
-    const { data, isLoading, isError, refetch } = useQuery<ClubResponse>({
+    const { data, isLoading, isError } = useQuery<ClubResponse>({
         queryKey: ["club", name],
         enabled: !!name,
         queryFn: async () => await get(`/clubs/${name}`)
     })
-
-    // refresh everything when swiping down
-    const handleRefresh = useCallback(async () => {
-        setRefreshing(true)
-        await Promise.all([
-            refetch(),
-            queryClient.invalidateQueries({ queryKey: ["clubMembers", name] }),
-            queryClient.invalidateQueries({ queryKey: ["clubBurrows", name] })
-        ])
-        setRefreshing(false)
-    }, [name, refetch, queryClient])
 
     if (isLoading) {
         return (
@@ -92,37 +90,26 @@ export default function ClubDetailScreen() {
     const { club } = data
 
     return (
-        <SafeAreaView className="flex-1 bg-background">
-            {/* Header */}
-            <View className="px-6 py-4 border-b border-card-border flex-row items-center gap-3">
-                <Pressable onPress={() => router.back()} hitSlop={12}>
-                    <ThemedIcon icon={ChevronLeft} size={28} />
-                </Pressable>
-                <Text
-                    className="text-text font-semibold text-lg flex-1"
-                    numberOfLines={1}
-                >
-                    {club.displayName}
-                </Text>
-            </View>
+        <ClubContext.Provider value={{ data, name, colors }}>
+            <SafeAreaView className="flex-1 bg-background">
+                {/* Header */}
+                <View className="px-6 py-4 border-b border-card-border flex-row items-center gap-3">
+                    <Pressable onPress={() => router.back()} hitSlop={12}>
+                        <ThemedIcon icon={ChevronLeft} size={28} />
+                    </Pressable>
+                    <Text
+                        className="text-text font-semibold text-lg flex-1"
+                        numberOfLines={1}
+                    >
+                        {club.displayName}
+                    </Text>
+                </View>
 
-            <ScrollView
-                className="flex-1"
-                refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={handleRefresh}
-                        tintColor={colors.primary}
-                    />
-                }
-            >
                 {/* Banner + Profile */}
                 <View className="bg-card border-b border-card-border">
-                    {/* Banner area */}
                     <ClubBannerPicture clubID={club.id} />
 
                     <View className="px-6 pb-5">
-                        {/* Avatar overlapping banner */}
                         <View className="-mt-10 mb-3">
                             <ClubProfilePicture
                                 clubID={club.id}
@@ -131,7 +118,6 @@ export default function ClubDetailScreen() {
                             />
                         </View>
 
-                        {/* Club info */}
                         <Text className="text-text opacity-50 text-xs font-medium uppercase tracking-wider">
                             {club.category}
                         </Text>
@@ -166,20 +152,57 @@ export default function ClubDetailScreen() {
                     </View>
                 </View>
 
-                <View className="px-4 py-5 gap-5">
-                    {/* details */}
-                    <ClubDetails clubResponse={data} />
+                {/* Tab navigator */}
+                <Tabs
+                    safeAreaInsets={{ bottom: 0 }}
+                    screenOptions={{
+                        headerShown: false,
+                        tabBarActiveTintColor: colors.text,
+                        tabBarInactiveTintColor: "#9CA3AF",
+                        tabBarStyle: {
+                            backgroundColor: colors.background,
+                            borderTopColor: isDark ? "#333333" : colors.cardBorder,
+                            borderTopWidth: 1,
+                            paddingHorizontal: 16,
+                            paddingVertical: 2,
+                            paddingTop: 10
+                        },
+                        tabBarItemStyle: {
+                            paddingVertical: 4
+                        }
+                    }}
+                >
+                    <Tabs.Screen
+                        name="index"
+                        options={{
+                            title: "Info",
+                            tabBarIcon: ({ color, size }) => (
+                                <Info color={color} size={size} />
+                            )
+                        }}
+                    />
 
-                    {/* burrows */}
-                    <ClubBurrows clubResponse={data} />
+                    <Tabs.Screen
+                        name="meetings"
+                        options={{
+                            title: "Meetings",
+                            tabBarIcon: ({ color, size }) => (
+                                <Calendar color={color} size={size} />
+                            )
+                        }}
+                    />
 
-                    {/* members */}
-                    <ClubMembers clubResponse={data} />
-                </View>
-
-                {/* Bottom spacing */}
-                <View className="h-12" />
-            </ScrollView>
-        </SafeAreaView>
+                    <Tabs.Screen
+                        name="members"
+                        options={{
+                            title: "Members",
+                            tabBarIcon: ({ color, size }) => (
+                                <Users color={color} size={size} />
+                            )
+                        }}
+                    />
+                </Tabs>
+            </SafeAreaView>
+        </ClubContext.Provider>
     )
 }

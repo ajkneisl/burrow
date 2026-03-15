@@ -15,13 +15,15 @@ import useUser from "@features/auth/hooks/useUser"
 type BurrowChatProps = {
     burrowId: string
     isMember: boolean
+    /** Render without Card wrapper, filling available space */
+    fullScreen?: boolean
 }
 
 /**
  * Chat component for burrow detail page.
  * Handles all chat functionality using event bus pattern.
  */
-export function BurrowChat({ burrowId, isMember }: BurrowChatProps) {
+export function BurrowChat({ burrowId, isMember, fullScreen }: BurrowChatProps) {
     const user = useUser()
     const status = useAtomValue(syncStatus)
 
@@ -217,26 +219,34 @@ export function BurrowChat({ burrowId, isMember }: BurrowChatProps) {
         setChatText("")
     }
 
+    const chatBox = (
+        <GenericChatBox
+            status={status}
+            messages={messages}
+            members={members}
+            text={chatText}
+            onTextChange={setChatText}
+            onSend={handleSendMessage}
+            onEdit={handleEditMessage}
+            onDelete={handleDeleteMessage}
+            canEdit={canEditMessage}
+            canDelete={canDeleteMessage}
+            isEditing={!!editingMessage}
+            onCancelEdit={handleCancelEdit}
+            placeholder="Type a message..."
+            disconnectedPlaceholder="Connecting to chat..."
+        />
+    )
+
+    if (fullScreen) {
+        return <View className="flex-1">{chatBox}</View>
+    }
+
     return (
         <Card variant="bordered">
             <Text className="text-lg font-semibold text-text mb-3">Chat</Text>
             <View className="h-96 rounded-lg overflow-hidden">
-                <GenericChatBox
-                    status={status}
-                    messages={messages}
-                    members={members}
-                    text={chatText}
-                    onTextChange={setChatText}
-                    onSend={handleSendMessage}
-                    onEdit={handleEditMessage}
-                    onDelete={handleDeleteMessage}
-                    canEdit={canEditMessage}
-                    canDelete={canDeleteMessage}
-                    isEditing={!!editingMessage}
-                    onCancelEdit={handleCancelEdit}
-                    placeholder="Type a message..."
-                    disconnectedPlaceholder="Connecting to chat..."
-                />
+                {chatBox}
             </View>
         </Card>
     )

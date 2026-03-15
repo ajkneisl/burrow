@@ -84,7 +84,7 @@ export function SearchModal() {
             scrollable={false}
         >
             {/* Search Header */}
-            <View className="mt-20 px-4 pt-2 pb-4">
+            <View className="px-4 pt-2 pb-4">
                 <View className="flex-row items-center gap-3">
                     {/* Search Input */}
                     <View
