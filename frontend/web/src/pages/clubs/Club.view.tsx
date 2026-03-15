@@ -120,7 +120,11 @@ export default function ClubView() {
                                 links={club.links}
                             />
 
-                            <ClubMeetings clubName={name!} />
+                            <ClubMeetings
+                                clubName={name!}
+                                clubID={club.id}
+                                role={data.membership?.role}
+                            />
                         </div>
 
                         {/* Sidebar — Members */}
