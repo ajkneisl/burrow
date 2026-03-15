@@ -1,11 +1,5 @@
-import {
-    View,
-    Text,
-    ScrollView,
-    KeyboardAvoidingView,
-    Platform
-} from "react-native"
-import { Input } from "@components/core"
+import { View, ScrollView, KeyboardAvoidingView, Platform } from "react-native"
+import { Input, Text } from "@components/core"
 import { LocationSelector } from "@features/burrows/components/LocationSelector"
 import type { CreateStepProps } from "../create.types"
 

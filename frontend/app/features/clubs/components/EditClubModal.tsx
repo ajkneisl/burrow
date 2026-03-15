@@ -1,19 +1,10 @@
 import { useState, useCallback } from "react"
-import {
-    View,
-    Text,
-    Pressable,
-    ScrollView,
-    Switch,
-    KeyboardAvoidingView,
-    Platform,
-    FlatList
-} from "react-native"
+import { View, Pressable, ScrollView, Switch, KeyboardAvoidingView, Platform, FlatList } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
 import { X, ChevronLeft } from "lucide-react-native"
-import { Card, Input, Modal } from "@components/core"
+import { Card, Input, Modal, Text } from "@components/core"
 import ThemedIcon from "@components/core/ThemedIcon"
 import { updateClub } from "@features/clubs/clubs.api"
 import type {

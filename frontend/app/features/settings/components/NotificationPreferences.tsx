@@ -1,5 +1,5 @@
-import { View, Text, Switch, ActivityIndicator } from "react-native"
-import { Card } from "@components/core"
+import { View, Switch, ActivityIndicator } from "react-native"
+import { Card, Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import {
     useNotificationPreferences,

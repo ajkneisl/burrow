@@ -1,13 +1,6 @@
-import {
-    View,
-    Text,
-    TextInput,
-    Pressable,
-    KeyboardAvoidingView,
-    Platform
-} from "react-native"
+import { View, TextInput, Pressable, KeyboardAvoidingView, Platform } from "react-native"
 import { Pencil, Send, X } from "lucide-react-native"
-import { Button } from "@components/core"
+import { Button, Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**

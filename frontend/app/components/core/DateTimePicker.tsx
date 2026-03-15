@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { View, Text, Pressable, Platform } from "react-native"
+import { View, Pressable, Platform } from "react-native"
+import { Text } from "@components/core"
 import DateTimePicker from "@react-native-community/datetimepicker"
 import { Calendar, Clock } from "lucide-react-native"
 import ThemedIcon from "@components/core/ThemedIcon"

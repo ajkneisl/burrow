@@ -1,5 +1,6 @@
 import React from "react"
-import { Pressable, Text, ActivityIndicator, View } from "react-native"
+import { Pressable, ActivityIndicator, View } from "react-native"
+import { Text } from "@components/core"
 import type { PressableProps } from "react-native"
 import clsx from "clsx"
 import { useThemeColors } from "@api/theme/useThemeColors"

@@ -1,8 +1,8 @@
 import { useState } from "react"
-import { View, Text, ScrollView, Pressable } from "react-native"
+import { View, ScrollView, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack } from "expo-router"
-import { Card, Button } from "@components/core"
+import { Card, Button, Text } from "@components/core"
 import {
     ArrowLeft,
     User,

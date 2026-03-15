@@ -1,4 +1,4 @@
-import { View, Text } from "react-native"
+import { View } from "react-native"
 import {
     Calendar,
     Users,
@@ -7,7 +7,7 @@ import {
     School,
     BookOpen
 } from "lucide-react-native"
-import { Card } from "@components/core"
+import { Card, Text } from "@components/core"
 import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import { UserBadge } from "@features/profile/components/UserBadge"
 import { UpcomingBurrowCard } from "@features/burrows/components/UpcomingBurrowCard"

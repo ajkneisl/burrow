@@ -1,6 +1,7 @@
 import { MyClubResponse, roleBadgeConfig } from "@features/clubs/club.types"
 import { useMemo, useState } from "react"
-import { Image, Pressable, Text, View } from "react-native"
+import { Image, Pressable, View } from "react-native"
+import { Text } from "@components/core"
 import { CDN_URL } from "@api/util"
 
 type ClubCardProps = {

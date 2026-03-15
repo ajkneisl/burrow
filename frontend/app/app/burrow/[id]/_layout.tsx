@@ -1,10 +1,4 @@
-import {
-    View,
-    Text,
-    Pressable,
-    ActivityIndicator,
-    useColorScheme
-} from "react-native"
+import { View, Pressable, ActivityIndicator, useColorScheme } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter, Stack, Tabs } from "expo-router"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -19,7 +13,7 @@ import {
     MessageSquare,
     Info
 } from "lucide-react-native"
-import { Button, Modal } from "@components/core"
+import { Button, Modal, Text } from "@components/core"
 import {
     getBurrow,
     joinBurrow,

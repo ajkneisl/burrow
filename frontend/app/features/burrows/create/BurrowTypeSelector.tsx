@@ -1,4 +1,5 @@
-import { View, Text, Pressable } from "react-native"
+import { View, Pressable } from "react-native"
+import { Text } from "@components/core"
 import { SafeAreaView } from "react-native-safe-area-context"
 import {
     X,

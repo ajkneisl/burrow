@@ -1,11 +1,5 @@
-import {
-    View,
-    Text,
-    ScrollView,
-    KeyboardAvoidingView,
-    Platform
-} from "react-native"
-import { UserPicker } from "@components/core"
+import { View, ScrollView, KeyboardAvoidingView, Platform } from "react-native"
+import { UserPicker, Text } from "@components/core"
 import type { CreateStepProps } from "../create.types"
 
 export function MembersStep({

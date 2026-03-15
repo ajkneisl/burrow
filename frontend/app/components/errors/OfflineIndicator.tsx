@@ -1,4 +1,5 @@
-import { View, Text } from "react-native"
+import { View } from "react-native"
+import { Text } from "@components/core"
 import { WifiOff } from "lucide-react-native"
 import { useNetworkStatus } from "@lib/hooks/useNetworkStatus"
 

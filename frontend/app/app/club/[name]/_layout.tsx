@@ -1,9 +1,4 @@
-import {
-    View,
-    Text,
-    Pressable,
-    ActivityIndicator
-} from "react-native"
+import { View, Pressable, ActivityIndicator } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter, Tabs } from "expo-router"
 import { useQuery } from "@tanstack/react-query"
@@ -11,7 +6,7 @@ import { createContext, useContext } from "react"
 import { ChevronLeft, Users, Info, Calendar } from "lucide-react-native"
 import { get } from "@api/api"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { Button } from "@components/core"
+import { Button, Text } from "@components/core"
 import ThemedIcon from "@components/core/ThemedIcon"
 import type { ClubResponse } from "@features/clubs/club.types"
 import ClubBannerPicture from "@features/clubs/components/ClubBannerPicture"

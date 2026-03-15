@@ -1,6 +1,6 @@
-import { Text, View } from "react-native"
+import { View } from "react-native"
 import ClubMember from "@features/clubs/components/ClubMember"
-import { Card } from "@components/core"
+import { Card, Text } from "@components/core"
 import {
     type ClubMemberResponse,
     ClubResponse,

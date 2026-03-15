@@ -1,4 +1,5 @@
-import { View, Text } from "react-native"
+import { View } from "react-native"
+import { Text } from "@components/core"
 import { MessageSquare } from "lucide-react-native"
 import { BurrowChat } from "@features/chat/components/BurrowChat"
 import { useBurrowContext } from "@features/burrows/context/burrows.context"

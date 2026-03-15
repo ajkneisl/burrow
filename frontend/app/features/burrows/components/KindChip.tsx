@@ -1,6 +1,7 @@
 import { BURROW_KIND_CONFIG, BurrowKind } from "@features/burrows/burrows.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { Text, View } from "react-native"
+import { View } from "react-native"
+import { Text } from "@components/core"
 import ThemedIcon from "@components/core/ThemedIcon"
 import { MapPin } from "lucide-react-native"
 

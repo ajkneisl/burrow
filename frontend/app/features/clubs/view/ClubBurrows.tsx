@@ -6,11 +6,11 @@ import {
 } from "@features/burrows/burrows.types"
 import { get } from "@api/api"
 import { useMemo, useState } from "react"
-import { Pressable, Text, View } from "react-native"
+import { Pressable, View } from "react-native"
 import { Calendar, CalendarClock, Plus } from "lucide-react-native"
 import { UpcomingBurrowCard } from "@features/burrows/components/UpcomingBurrowCard"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { Modal } from "@components/core"
+import { Modal, Text } from "@components/core"
 import { CreateBurrowWizard } from "@features/burrows/create/CreateBurrowWizard"
 
 /**

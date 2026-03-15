@@ -1,9 +1,9 @@
-import { View, Text, ScrollView, RefreshControl } from "react-native"
+import { View, ScrollView, RefreshControl } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState, useCallback } from "react"
 import { Users, Clock, BookOpen, X } from "lucide-react-native"
-import { Button, Card } from "@components/core"
+import { Button, Card, Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import BurrowDetails from "@features/burrows/attendees/BurrowDetails"
 

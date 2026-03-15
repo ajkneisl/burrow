@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react"
-import { View, Platform, Text } from "react-native"
+import { View, Platform } from "react-native"
+import { Text } from "@components/core"
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete"
 import { MapPin } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"

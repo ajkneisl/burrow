@@ -1,9 +1,9 @@
-import { View, Text, ScrollView } from "react-native"
+import { View, ScrollView } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Stack } from "expo-router"
 import { BurrowHeatmap } from "@features/burrows/components/BurrowHeatmap"
 import { Header } from "@features/layout/components"
-import { Card } from "@components/core"
+import { Card, Text } from "@components/core"
 import { TrendingUp } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 

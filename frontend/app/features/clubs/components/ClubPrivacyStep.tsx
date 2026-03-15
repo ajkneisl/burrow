@@ -1,4 +1,5 @@
-import { Pressable, ScrollView, Switch, Text, View } from "react-native"
+import { Pressable, ScrollView, Switch, View } from "react-native"
+import { Text } from "@components/core"
 import { ClubStepProps, CLUB_PRIVACY_OPTIONS } from "@features/clubs/club.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
 

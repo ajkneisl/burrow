@@ -1,18 +1,11 @@
-import {
-    View,
-    Text,
-    FlatList,
-    ScrollView,
-    Pressable,
-    RefreshControl
-} from "react-native"
+import { View, FlatList, ScrollView, Pressable, RefreshControl } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "expo-router"
 import Toast from "react-native-toast-message"
 import { Header } from "@features/layout/components"
-import { Card, Button } from "@components/core"
+import { Card, Button, Text } from "@components/core"
 import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import { Users, UserPlus, UserMinus, ChevronRight } from "lucide-react-native"
 import {

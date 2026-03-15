@@ -1,5 +1,6 @@
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { Text, View } from "react-native"
+import { View } from "react-native"
+import { Text } from "@components/core"
 import { MapPin } from "lucide-react-native"
 import ThemedIcon from "@components/core/ThemedIcon"
 import {useMemo} from "react";

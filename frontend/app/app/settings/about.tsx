@@ -1,10 +1,10 @@
-import { View, Text, ScrollView, Pressable, Image, Linking } from "react-native"
+import { View, ScrollView, Pressable, Image, Linking } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack } from "expo-router"
 import { useState } from "react"
 import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { Card } from "@components/core"
+import { Card, Text } from "@components/core"
 import * as Application from "expo-application"
 
 const teamMembers = [

@@ -1,10 +1,4 @@
-import {
-    View,
-    Text,
-    SectionList,
-    RefreshControl,
-    Pressable
-} from "react-native"
+import { View, SectionList, RefreshControl, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useState, useMemo, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
@@ -24,11 +18,7 @@ import {
     Map as MapIcon
 } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import {
-    CustomDateTimePicker,
-    FilterChip,
-    LabeledSwitch
-} from "@components/core"
+import { CustomDateTimePicker, FilterChip, LabeledSwitch, Text } from "@components/core"
 import { humanDateLabel, weekRangeLabel } from "@api/util"
 import Animated, {
     useAnimatedStyle,

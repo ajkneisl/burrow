@@ -1,9 +1,9 @@
-import { View, Text, ScrollView, Pressable } from "react-native"
+import { View, ScrollView, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack } from "expo-router"
 import { ArrowLeft, FileText } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { Card } from "@components/core"
+import { Card, Text } from "@components/core"
 
 /**
  * Terms of Service screen.

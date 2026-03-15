@@ -3,8 +3,8 @@ import {
     ClubResponse,
     LINK_CONFIG
 } from "@features/clubs/club.types"
-import { Linking, Pressable, Text, View } from "react-native"
-import { Card } from "@components/core"
+import { Linking, Pressable, View } from "react-native"
+import { Card, Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**

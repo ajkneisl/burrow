@@ -1,7 +1,7 @@
-import { View, Text, Pressable } from "react-native"
+import { View, Pressable } from "react-native"
 import { Instagram, Globe, Linkedin, Plus, X } from "lucide-react-native"
 import type { ClubLink } from "@features/clubs/club.types"
-import { Input } from "@components/core"
+import { Input, Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import ThemedIcon from "@components/core/ThemedIcon"
 

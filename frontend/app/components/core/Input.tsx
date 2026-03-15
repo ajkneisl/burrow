@@ -1,4 +1,5 @@
-import { View, Text, TextInput, type TextInputProps } from "react-native"
+import { View, TextInput, type TextInputProps } from "react-native"
+import { Text } from "@components/core"
 import clsx from "clsx"
 
 /**
@@ -61,7 +62,7 @@ export function Input({
                 <TextInput
                     {...props}
                     className={clsx(
-                        "flex-1 items-center text-base text-text min-h-12 py-2 px-4 font-opensans",
+                        "flex-1 items-center text-base text-text min-h-12 py-2 px-4 font-sans",
                         className
                     )}
                     placeholderTextColor="#9CA3AF"

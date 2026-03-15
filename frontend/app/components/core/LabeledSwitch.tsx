@@ -1,4 +1,5 @@
-import { View, Text, Switch } from "react-native"
+import { View, Switch } from "react-native"
+import { Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 type LabeledSwitchProps = {

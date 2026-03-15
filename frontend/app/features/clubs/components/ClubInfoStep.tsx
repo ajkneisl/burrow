@@ -1,6 +1,6 @@
 import { CLUB_CATEGORIES, ClubStepProps } from "@features/clubs/club.types"
-import { Pressable, ScrollView, Text, View } from "react-native"
-import { Input } from "@components/core"
+import { Pressable, ScrollView, View } from "react-native"
+import { Input, Text } from "@components/core"
 import ClubLinksEditor from "@features/clubs/components/ClubLinksEditor"
 
 /**

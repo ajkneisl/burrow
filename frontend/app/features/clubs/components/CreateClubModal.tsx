@@ -1,19 +1,12 @@
 import { useState, useCallback } from "react"
-import {
-    View,
-    Text,
-    Pressable,
-    KeyboardAvoidingView,
-    Platform,
-    FlatList
-} from "react-native"
+import { View, Pressable, KeyboardAvoidingView, Platform, FlatList } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter } from "expo-router"
 import { useAtom } from "jotai"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
 import { X, ChevronLeft } from "lucide-react-native"
-import { Card, Modal } from "@components/core"
+import { Card, Modal, Text } from "@components/core"
 import ThemedIcon from "@components/core/ThemedIcon"
 import { createClubModalOpen } from "@features/layout/layout.atom"
 import { createClub } from "@features/clubs/clubs.api"

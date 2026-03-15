@@ -1,12 +1,6 @@
 import { useState, useMemo } from "react"
-import {
-    View,
-    Text,
-    ScrollView,
-    Pressable,
-    Image,
-    ActivityIndicator
-} from "react-native"
+import { View, ScrollView, Pressable, Image, ActivityIndicator } from "react-native"
+import { Text } from "@components/core"
 import { useQuery } from "@tanstack/react-query"
 import { Users, Check } from "lucide-react-native"
 import { get } from "@api/api"

@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, Pressable, Switch } from "react-native"
+import { View, ScrollView, Pressable, Switch } from "react-native"
+import { Text } from "@components/core"
 import { Globe, Link2, Lock } from "lucide-react-native"
 import type { CreateStepProps } from "../create.types"
 import type { BurrowVisibility } from "@features/burrows/burrows.types"

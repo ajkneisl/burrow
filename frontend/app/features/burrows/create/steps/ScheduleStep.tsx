@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, Pressable } from "react-native"
-import { CustomDateTimePicker, LabeledSwitch } from "@components/core"
+import { View, ScrollView, Pressable } from "react-native"
+import { CustomDateTimePicker, LabeledSwitch, Text } from "@components/core"
 import type { CreateStepProps } from "../create.types"
 import { useState } from "react"
 import {

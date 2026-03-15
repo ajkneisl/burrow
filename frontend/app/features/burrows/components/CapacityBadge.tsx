@@ -1,4 +1,5 @@
-import { View, Text } from "react-native"
+import { View } from "react-native"
+import { Text } from "@components/core"
 import { User } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 

@@ -1,7 +1,7 @@
-import { View, Text } from "react-native"
+import { View } from "react-native"
 import type { Notification } from "@features/notifications/notifications.types"
 import { formatTimeAgo } from "@api/util"
-import { Button } from "@components/core"
+import { Button, Text } from "@components/core"
 import { Check, X, Trash2 } from "lucide-react-native"
 
 /**

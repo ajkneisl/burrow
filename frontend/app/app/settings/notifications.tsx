@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, Pressable } from "react-native"
+import { View, ScrollView, Pressable } from "react-native"
+import { Text } from "@components/core"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack } from "expo-router"
 import { ArrowLeft } from "lucide-react-native"

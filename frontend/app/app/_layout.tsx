@@ -86,12 +86,13 @@ function ThemeManager({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
     const [fontsLoaded] = useFonts({
-        "Poppins-Regular": require("../assets/fonts/Poppins-Regular.ttf"),
-        "Poppins-Medium": require("../assets/fonts/Poppins-Medium.ttf"),
-        "Poppins-SemiBold": require("../assets/fonts/Poppins-SemiBold.ttf"),
-        "Poppins-Bold": require("../assets/fonts/Poppins-Bold.ttf"),
-        "Barlow-Medium": require("../assets/fonts/Barlow-Medium.ttf"),
-        "OpenSans-Regular": require("../assets/fonts/OpenSans-Regular.ttf")
+        "Inter-Regular": require("../assets/fonts/Inter-Regular.ttf"),
+        "Inter-Medium": require("../assets/fonts/Inter-Medium.ttf"),
+        "Inter-SemiBold": require("../assets/fonts/Inter-SemiBold.ttf"),
+        "Inter-Bold": require("../assets/fonts/Inter-Bold.ttf"),
+        "Inter-ExtraBold": require("../assets/fonts/Inter-ExtraBold.ttf"),
+        "Figtree-Bold": require("../assets/fonts/Figtree-Bold.ttf"),
+        "Figtree-ExtraBold": require("../assets/fonts/Figtree-ExtraBold.ttf")
     })
 
     useEffect(() => {

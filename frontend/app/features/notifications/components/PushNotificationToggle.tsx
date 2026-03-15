@@ -1,6 +1,6 @@
-import { View, Text, Switch, ActivityIndicator } from "react-native"
+import { View, Switch, ActivityIndicator } from "react-native"
 import { usePushNotifications } from "@features/notifications/hooks/usePushNotifications"
-import { Card } from "@components/core"
+import { Card, Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**

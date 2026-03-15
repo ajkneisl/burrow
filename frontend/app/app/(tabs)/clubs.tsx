@@ -1,13 +1,4 @@
-import {
-    View,
-    Text,
-    FlatList,
-    ScrollView,
-    RefreshControl,
-    Pressable,
-    Image,
-    ActivityIndicator
-} from "react-native"
+import { View, FlatList, ScrollView, RefreshControl, Pressable, Image, ActivityIndicator } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useState, useMemo } from "react"
 import { useRouter } from "expo-router"
@@ -18,7 +9,7 @@ import { get } from "@api/api"
 import { CDN_URL } from "@api/util"
 import { Compass, Users, Plus } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { FilterChip } from "@components/core"
+import { FilterChip, Text } from "@components/core"
 import { createClubModalOpen } from "@features/layout/layout.atom"
 import CreateClubModal from "@features/clubs/components/CreateClubModal"
 import ClubCard from "@features/clubs/components/ClubCard"

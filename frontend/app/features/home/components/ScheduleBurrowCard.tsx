@@ -1,4 +1,5 @@
-import { View, Text, Pressable } from "react-native"
+import { View, Pressable } from "react-native"
+import { Text } from "@components/core"
 import { useRouter } from "expo-router"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { MessageSquare, Pin } from "lucide-react-native"

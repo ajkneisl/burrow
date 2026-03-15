@@ -1,9 +1,9 @@
-import { View, Text, ScrollView, Image, Pressable } from "react-native"
+import { View, ScrollView, Image, Pressable, Dimensions } from "react-native"
 import { useRouter } from "expo-router"
 import { useAtom } from "jotai"
 import { authToken } from "@features/auth/auth.atom"
 import { useGoogleAuth } from "@features/auth/hooks/useGoogleAuth"
-import { Button, ViewErrors } from "@components/core"
+import { Button, ViewErrors, Text } from "@components/core"
 import { useEffect } from "react"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import {
@@ -13,9 +13,11 @@ import {
     MessageSquare,
     Shield,
     Zap,
-    CheckCircle2
+    ChevronRight
 } from "lucide-react-native"
-import * as Application from "expo-application";
+import * as Application from "expo-application"
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window")
 
 /**
  * The welcome / landing page.
@@ -38,155 +40,176 @@ export default function WelcomeScreen() {
 
     return (
         <ScrollView className="flex-1 bg-background">
-            {/* hero */}
-            <View className="bg-background px-6 pt-8 pb-6">
-                {/* bannger */}
-                <View className="mb-6 overflow-hidden rounded-2xl">
-                    <View className="bg-gradient-to-b from-primary/20 to-secondary/10 p-8 items-center">
-                        <Image
-                            source={require("@assets/images/burrow.png")}
-                            style={{
-                                width: 100,
-                                height: 100,
-                                marginBottom: 16
-                            }}
-                            resizeMode="contain"
-                        />
+            {/* Hero */}
+            <View className="px-6 pt-16 pb-12">
+                <View className="items-center mb-8">
+                    <Image
+                        source={require("@assets/images/burrow.png")}
+                        style={{ width: 80, height: 80, marginBottom: 24 }}
+                        resizeMode="contain"
+                    />
 
-                        <Text className="text-4xl font-extrabold text-center text-text mb-4 leading-tight">
-                            Study groups,{"\n"}
-                            <Text className="text-primary">made simple</Text>
-                        </Text>
+                    <Text
+                        className="text-center text-text font-extrabold mb-4"
+                        style={{ fontSize: 40, lineHeight: 44, letterSpacing: -1.5 }}
+                    >
+                        Study groups,{"\n"}
+                        <Text className="text-primary">made simple.</Text>
+                    </Text>
 
-                        <Text className="text-lg text-text text-opacity-80 text-center font-medium max-w-md">
-                            Connect with classmates, join study sessions, and
-                            ace your courses together. All in one place.
-                        </Text>
-                    </View>
+                    <Text
+                        className="text-text text-center font-sans opacity-60 max-w-xs"
+                        style={{ fontSize: 17, lineHeight: 26 }}
+                    >
+                        Connect with classmates, join study sessions, and ace
+                        your courses together.
+                    </Text>
                 </View>
 
-                {/* made by gophers */}
-                <View className="items-center mb-4">
-                    <View className="bg-secondary/10 rounded-full px-6 py-3 flex-row items-center gap-2">
-                        <Text className="text-secondary text-sm font-semibold">
-                            Made by Gophers, for Gophers
+                {/* CTA */}
+                <View className="gap-3 mb-8">
+                    {error && <ViewErrors error={error} className="mb-2" />}
+
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        fullWidth
+                        onPress={signIn}
+                        loading={loading}
+                        disabled={!isReady || loading}
+                    >
+                        Get Started
+                    </Button>
+
+                    <Pressable
+                        onPress={() => router.push("/(auth)/signin")}
+                        className="py-3"
+                    >
+                        <Text className="text-text text-center font-medium text-sm opacity-50">
+                            Sign in a different way
                         </Text>
-                    </View>
+                    </Pressable>
                 </View>
 
-                {/* trust */}
-                <View className="flex-row flex-wrap items-center justify-center gap-4">
-                    <View className="flex-row items-center gap-1.5">
-                        <CheckCircle2 size={16} color={colors.secondary} />
-                        <Text className="text-text text-opacity-60 text-sm">
-                            All Majors
-                        </Text>
-                    </View>
-                    <View className="flex-row items-center gap-1.5">
-                        <CheckCircle2 size={16} color={colors.secondary} />
-                        <Text className="text-text text-opacity-60 text-sm">
-                            Secure & Private
-                        </Text>
-                    </View>
-                    <View className="flex-row items-center gap-1.5">
-                        <CheckCircle2 size={16} color={colors.secondary} />
-                        <Text className="text-text text-opacity-60 text-sm">
-                            Completely Free
-                        </Text>
-                    </View>
+                {/* Trust badges */}
+                <View className="flex-row justify-center gap-6">
+                    {["UMN Only", "Private", "Free"].map((label) => (
+                        <View
+                            key={label}
+                            className="flex-row items-center gap-1.5"
+                        >
+                            <View className="w-1.5 h-1.5 rounded-full bg-secondary" />
+                            <Text className="text-text font-medium text-xs opacity-40">
+                                {label}
+                            </Text>
+                        </View>
+                    ))}
                 </View>
             </View>
 
-            {/* gow it works */}
+            {/* How it works */}
             <View className="bg-card px-6 py-12">
-                <Text className="text-3xl font-bold text-text text-center mb-3">
+                <Text
+                    className="text-text font-bold text-xs uppercase opacity-40 mb-2"
+                    style={{ letterSpacing: 1.5 }}
+                >
                     How it works
                 </Text>
-                <Text className="text-text text-opacity-80 text-center mb-8 text-base font-medium">
-                    Getting started is easier than finding a parking spot on
-                    campus
-                </Text>
 
-                <View className="gap-8">
-                    <StepItem
-                        number="1"
-                        title="Sign in with Google"
-                        description="Use your UMN email to instantly join. No setup, no hassle."
-                    />
-                    <StepItem
-                        number="2"
-                        title="Find or create a Burrow"
-                        description="Browse study groups for your classes or start your own in seconds."
-                    />
-                    <StepItem
-                        number="3"
-                        title="Start collaborating"
-                        description="Study with classmates, work together on a project, or simply meet new people."
-                    />
-                </View>
-            </View>
-
-            {/* features */}
-            <View className="bg-background px-6 py-12">
-                <Text className="text-3xl font-bold text-text text-center mb-8">
-                    Everything you need,{"\n"}nothing you don't
+                <Text
+                    className="text-text font-bold mb-10"
+                    style={{ fontSize: 28, letterSpacing: -0.5, lineHeight: 34 }}
+                >
+                    Three steps to{"\n"}get started
                 </Text>
 
                 <View className="gap-6">
-                    <FeatureItem
-                        icon={<Users size={20} color={colors.secondary} />}
-                        title="Browse study groups"
-                        description="Find groups for any class, with filters for time and location"
+                    <StepItem
+                        number="01"
+                        title="Sign in"
+                        description="Use your UMN email to instantly join."
+                        colors={colors}
                     />
 
-                    <FeatureItem
-                        icon={
-                            <MessageSquare size={20} color={colors.secondary} />
-                        }
-                        title="Built-in chat"
-                        description="Message your group without juggling apps"
+                    <StepItem
+                        number="02"
+                        title="Find a Burrow"
+                        description="Browse study groups or create your own."
+                        colors={colors}
                     />
 
-                    <FeatureItem
-                        icon={
-                            <CalendarClock size={20} color={colors.secondary} />
-                        }
-                        title="Smart scheduling"
-                        description="Set times and locations that work for everyone"
-                    />
-
-                    <FeatureItem
-                        icon={<Shield size={20} color={colors.secondary} />}
-                        title="UMN students only"
-                        description="Verified accounts keep things safe and relevant"
-                    />
-
-                    <FeatureItem
-                        icon={<Zap size={20} color={colors.secondary} />}
-                        title="Join instantly"
-                        description="One click to join any group that has space"
-                    />
-
-                    <FeatureItem
-                        icon={<Sparkles size={20} color={colors.secondary} />}
-                        title="Multiple types"
-                        description="Study sessions, club meetings, or events"
+                    <StepItem
+                        number="03"
+                        title="Collaborate"
+                        description="Study, build projects, or meet new people."
+                        colors={colors}
                     />
                 </View>
             </View>
 
-            {/* join */}
-            <View className="bg-card px-6 py-12">
-                <View className="bg-background rounded-2xl p-6 mb-8">
-                    <Text className="text-3xl font-bold text-text text-center mb-4">
-                        Ready to find your study crew?
-                    </Text>
-                    <Text className="text-text text-opacity-80 text-center mb-6 text-base font-medium">
-                        Join hundreds of UMN students already studying smarter
-                        together
+            {/* Features */}
+            <View className="bg-background px-6 py-12">
+                <Text
+                    className="text-text font-bold text-xs uppercase opacity-40 mb-2"
+                    style={{ letterSpacing: 1.5 }}
+                >
+                    Features
+                </Text>
+
+                <Text
+                    className="text-text font-bold mb-10"
+                    style={{ fontSize: 28, letterSpacing: -0.5, lineHeight: 34 }}
+                >
+                    Everything you need
+                </Text>
+
+                <View className="flex-row flex-wrap gap-4">
+                    <FeatureCard
+                        icon={<Users size={22} color={colors.secondary} />}
+                        title="Study groups"
+                        description="Find groups for any class"
+                    />
+                    <FeatureCard
+                        icon={<MessageSquare size={22} color={colors.secondary} />}
+                        title="Built-in chat"
+                        description="No juggling apps"
+                    />
+                    <FeatureCard
+                        icon={<CalendarClock size={22} color={colors.secondary} />}
+                        title="Scheduling"
+                        description="Set times & locations"
+                    />
+                    <FeatureCard
+                        icon={<Shield size={22} color={colors.secondary} />}
+                        title="UMN verified"
+                        description="Students only"
+                    />
+                    <FeatureCard
+                        icon={<Zap size={22} color={colors.secondary} />}
+                        title="Join instantly"
+                        description="One tap to join"
+                    />
+                    <FeatureCard
+                        icon={<Sparkles size={22} color={colors.secondary} />}
+                        title="Multiple types"
+                        description="Study, clubs, events"
+                    />
+                </View>
+            </View>
+
+            {/* Bottom CTA */}
+            <View className="py-12">
+                <View className="bg-card border border-card-border rounded-3xl mx-6 p-8 items-center">
+                    <Text
+                        className="text-text text-center font-bold mb-3"
+                        style={{ fontSize: 24, letterSpacing: -0.5, lineHeight: 30 }}
+                    >
+                        Ready to find your{"\n"}study crew?
                     </Text>
 
-                    {error && <ViewErrors error={error} className="mb-4" />}
+                    <Text className="text-text text-center font-sans opacity-50 mb-8" style={{ fontSize: 15, lineHeight: 22 }}>
+                        Join UMN students already studying smarter together.
+                    </Text>
 
                     <Button
                         variant="primary"
@@ -199,101 +222,81 @@ export default function WelcomeScreen() {
                         Sign in with Google
                     </Button>
 
-                    <Button
-                        variant="ghost"
-                        size="lg"
-                        fullWidth
-                        onPress={() => router.push("/(auth)/signin")}
-                    >
-                        or sign in a different way
-                    </Button>
-
-                    <Text className="text-xs text-text text-opacity-60 text-center mt-4 mb-3">
-                        By signing in, you agree to our Privacy Policy and Terms
-                        of Service
-                    </Text>
-
-                    <Text className="text-sm text-text text-opacity-60 text-center">
+                    <Text className="text-text text-center font-sans text-xs opacity-45 mt-5">
                         UMN email required (@umn.edu)
                     </Text>
                 </View>
+            </View>
 
-                {/* footer */}
-                <View className="items-center">
-                    <View className="flex-row justify-center gap-6 mb-6">
-                        <Pressable
-                            onPress={() => router.push("/settings/privacy")}
-                        >
-                            <Text className="text-sm text-text text-opacity-80">
-                                Privacy Policy
-                            </Text>
-                        </Pressable>
-                        <Pressable onPress={() => router.push("/settings/tos")}>
-                            <Text className="text-sm text-text text-opacity-80">
-                                Terms of Service
-                            </Text>
-                        </Pressable>
-                        <Pressable
-                            onPress={() => router.push("/settings/about")}
-                        >
-                            <Text className="text-sm text-text text-opacity-80">
-                                About
-                            </Text>
-                        </Pressable>
-                    </View>
-
-                    <Text className="text-xs text-text text-opacity-40 text-center mb-4">
-                        {Application.nativeApplicationVersion ?? "INDEV"}
-                    </Text>
+            {/* Footer */}
+            <View className="px-6 pb-10 items-center">
+                <View className="flex-row justify-center gap-6 mb-5">
+                    <Pressable onPress={() => router.push("/settings/privacy")}>
+                        <Text className="text-text font-medium text-xs opacity-50">
+                            Privacy
+                        </Text>
+                    </Pressable>
+                    <Pressable onPress={() => router.push("/settings/tos")}>
+                        <Text className="text-text font-medium text-xs opacity-50">
+                            Terms
+                        </Text>
+                    </Pressable>
+                    <Pressable onPress={() => router.push("/settings/about")}>
+                        <Text className="text-text font-medium text-xs opacity-50">
+                            About
+                        </Text>
+                    </Pressable>
                 </View>
+
+                <Text className="text-text text-center font-sans opacity-35" style={{ fontSize: 11 }}>
+                    {Application.nativeApplicationVersion ?? "INDEV"}
+                </Text>
             </View>
         </ScrollView>
     )
 }
 
 /**
- * An item in Step section.
- *
- * @param number The step number.
- * @param title The title of the step.
- * @param description The description of the step.
+ * A step in the "How it works" section.
  */
 function StepItem({
     number,
     title,
-    description
+    description,
+    colors
 }: {
     number: string
     title: string
     description: string
+    colors: ReturnType<typeof useThemeColors>
 }) {
     return (
-        <View className="flex-row items-start gap-4">
-            <View className="bg-secondary/10 h-16 w-16 rounded-2xl items-center justify-center">
-                <Text className="text-secondary text-2xl font-bold">
-                    {number}
-                </Text>
-            </View>
+        <View className="flex-row items-center gap-4">
+            <Text
+                className="text-secondary font-bold opacity-40"
+                style={{ fontSize: 32, width: 44 }}
+            >
+                {number}
+            </Text>
+
             <View className="flex-1">
-                <Text className="text-text text-lg font-bold mb-2">
+                <Text className="text-text font-semibold mb-1" style={{ fontSize: 17 }}>
                     {title}
                 </Text>
-                <Text className="text-text text-opacity-80 text-base">
+                <Text className="text-text font-sans text-sm opacity-50" style={{ lineHeight: 20 }}>
                     {description}
                 </Text>
             </View>
+
+            <ChevronRight size={18} color={colors.text} style={{ opacity: 0.25 }} />
         </View>
     )
 }
 
 /**
- * An individual feature.
- *
- * @param icon An icon describing the feature.
- * @param title The title of the feature.
- * @param description A description of the feature.
+ * A feature card in the grid.
  */
-function FeatureItem({
+function FeatureCard({
     icon,
     title,
     description
@@ -302,17 +305,22 @@ function FeatureItem({
     title: string
     description: string
 }) {
+    const cardWidth = (SCREEN_WIDTH - 48 - 16) / 2
+
     return (
-        <View className="flex-row gap-4">
-            <View className="bg-secondary/10 h-10 w-10 rounded-lg items-center justify-center flex-shrink-0">
+        <View
+            className="bg-card border border-card-border rounded-2xl p-4"
+            style={{ width: cardWidth }}
+        >
+            <View className="bg-secondary/10 w-11 h-11 rounded-xl items-center justify-center mb-3">
                 {icon}
             </View>
-            <View className="flex-1">
-                <Text className="text-text font-semibold mb-1">{title}</Text>
-                <Text className="text-text text-opacity-75 text-sm font-medium">
-                    {description}
-                </Text>
-            </View>
+            <Text className="text-text font-semibold mb-1" style={{ fontSize: 15 }}>
+                {title}
+            </Text>
+            <Text className="text-text font-sans opacity-55" style={{ fontSize: 13, lineHeight: 18 }}>
+                {description}
+            </Text>
         </View>
     )
 }

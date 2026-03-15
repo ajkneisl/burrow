@@ -1,11 +1,6 @@
 import React from "react"
-import {
-    Modal as RNModal,
-    View,
-    Text,
-    Pressable,
-    ScrollView
-} from "react-native"
+import { Modal as RNModal, View, Pressable, ScrollView } from "react-native"
+import { Text } from "@components/core"
 import type { ModalProps as RNModalProps } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { X } from "lucide-react-native"

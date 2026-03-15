@@ -1,4 +1,5 @@
-import { View, Text } from "react-native"
+import { View } from "react-native"
+import { Text } from "@components/core"
 import { Image } from "expo-image"
 import { CDN_URL } from "@api/util"
 import { useState, useMemo } from "react"

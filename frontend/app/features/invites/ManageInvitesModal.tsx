@@ -1,8 +1,8 @@
-import { View, Text, Pressable, FlatList } from "react-native"
+import { View, Pressable, FlatList } from "react-native"
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { X, Check, XCircle, Mail, UserPlus, Clock } from "lucide-react-native"
-import { Button, Card } from "@components/core"
+import { Button, Card, Text } from "@components/core"
 import {
     getInvites,
     cancelInvite,

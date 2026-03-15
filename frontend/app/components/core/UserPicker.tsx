@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react"
-import {
-    View,
-    Text,
-    TextInput,
-    FlatList,
-    Pressable,
-    ActivityIndicator
-} from "react-native"
+import { View, TextInput, FlatList, Pressable, ActivityIndicator } from "react-native"
+import { Text } from "@components/core"
 import { Search, X, UserPlus } from "lucide-react-native"
 import ThemedIcon from "@components/core/ThemedIcon"
 import { get } from "@api/api"

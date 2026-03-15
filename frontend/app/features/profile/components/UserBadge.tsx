@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
-import { Animated, Pressable, View, Text, Modal as RNModal } from "react-native"
+import { Animated, Pressable, View, Modal as RNModal } from "react-native"
+import { Text } from "@components/core"
 import { Image } from "expo-image"
 import { CDN_URL } from "@api/util"
 

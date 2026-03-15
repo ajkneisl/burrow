@@ -1,6 +1,7 @@
 import ThemedIcon from "@components/core/ThemedIcon"
 import { GraduationCap, MapPin} from "lucide-react-native"
-import { Text, View } from "react-native"
+import { View } from "react-native"
+import { Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**

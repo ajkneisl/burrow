@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, RefreshControl } from "react-native"
+import { View, ScrollView, RefreshControl } from "react-native"
 import { Pressable } from "react-native"
 import { useState, useCallback } from "react"
 import { useQueryClient } from "@tanstack/react-query"
@@ -11,7 +11,7 @@ import {
     UserPlus,
     ListChecks
 } from "lucide-react-native"
-import { Button, Card } from "@components/core"
+import { Button, Card, Text } from "@components/core"
 import { dayLabel } from "@api/util"
 import ThemedIcon from "@components/core/ThemedIcon"
 import BurrowDetails from "@features/burrows/attendees/BurrowDetails"

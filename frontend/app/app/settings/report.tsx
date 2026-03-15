@@ -1,11 +1,4 @@
-import {
-    View,
-    Text,
-    ScrollView,
-    Pressable,
-    KeyboardAvoidingView,
-    Platform
-} from "react-native"
+import { View, ScrollView, Pressable, KeyboardAvoidingView, Platform } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack, usePathname } from "expo-router"
 import { useState } from "react"
@@ -21,7 +14,7 @@ import {
     Send
 } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { Card, Button, Input } from "@components/core"
+import { Card, Button, Input, Text } from "@components/core"
 import { submitReport } from "@features/problem/problem.api"
 import type { ReportCategory } from "@features/problem/problem.types"
 import Toast from "react-native-toast-message"

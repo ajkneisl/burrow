@@ -1,10 +1,5 @@
-import {
-    View,
-    Text,
-    StyleSheet,
-    Pressable,
-    ActivityIndicator
-} from "react-native"
+import { View, StyleSheet, Pressable, ActivityIndicator } from "react-native"
+import { Text } from "@components/core"
 import { useState, useEffect, useRef } from "react"
 import { useAtom } from "jotai"
 import { useQuery } from "@tanstack/react-query"

@@ -91,7 +91,20 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     plugins: [
         "expo-web-browser",
         "expo-router",
-        "expo-font",
+        [
+            "expo-font",
+            {
+                fonts: [
+                    "./assets/fonts/Inter-Regular.ttf",
+                    "./assets/fonts/Inter-Medium.ttf",
+                    "./assets/fonts/Inter-SemiBold.ttf",
+                    "./assets/fonts/Inter-Bold.ttf",
+                    "./assets/fonts/Inter-ExtraBold.ttf",
+                    "./assets/fonts/Figtree-Bold.ttf",
+                    "./assets/fonts/Figtree-ExtraBold.ttf"
+                ]
+            }
+        ],
         [
             "expo-splash-screen",
             {

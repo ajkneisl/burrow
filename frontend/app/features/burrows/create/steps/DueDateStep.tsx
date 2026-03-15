@@ -1,5 +1,5 @@
-import { View, Text, ScrollView } from "react-native"
-import { CustomDateTimePicker } from "@components/core"
+import { View, ScrollView } from "react-native"
+import { CustomDateTimePicker, Text } from "@components/core"
 import type { CreateStepProps } from "../create.types"
 
 export function DueDateStep({

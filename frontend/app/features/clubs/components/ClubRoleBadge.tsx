@@ -1,7 +1,8 @@
 import type { ClubRole } from "@features/clubs/club.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { Crown, Shield, UserRound } from "lucide-react-native"
-import { Text, View } from "react-native"
+import { View } from "react-native"
+import { Text } from "@components/core"
 
 type ClubRoleBadgeProps = { role: ClubRole; roleName?: string }
 

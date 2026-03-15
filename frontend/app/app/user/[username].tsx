@@ -1,12 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
-import {
-    View,
-    Text,
-    ScrollView,
-    RefreshControl,
-    ActivityIndicator,
-    Pressable
-} from "react-native"
+import { View, ScrollView, RefreshControl, ActivityIndicator, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -17,7 +10,7 @@ import {
     unfollowUser
 } from "@features/auth/user.api"
 import { Header } from "@features/layout/components"
-import { Button, Modal } from "@components/core"
+import { Button, Modal, Text } from "@components/core"
 import {
     UserPlus,
     UserMinus,

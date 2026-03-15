@@ -1,4 +1,5 @@
-import { View, Text, Pressable, Alert } from "react-native"
+import { View, Pressable, Alert } from "react-native"
+import { Text } from "@components/core"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {
     ArrowUp,

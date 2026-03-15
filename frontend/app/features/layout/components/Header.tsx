@@ -1,5 +1,6 @@
 import { useMemo } from "react"
-import { View, Text, Pressable, Image } from "react-native"
+import { View, Pressable, Image, Text as RNText } from "react-native"
+import { Text } from "@components/core"
 import { useRouter } from "expo-router"
 import { Search, Bell } from "lucide-react-native"
 import { useAtom } from "jotai"
@@ -50,9 +51,10 @@ export function Header({
                         <>
                             {leftAction}
                             <Text className="text-2xl font-bold text-text">
-                                {title}
+                                {title}asd
                             </Text>
                             {badge !== undefined && badge > 0 && (
+
                                 <View className="bg-primary/20 rounded-full px-2 py-0.5">
                                     <Text className="text-xs font-semibold text-text">
                                         {badge}
@@ -67,9 +69,15 @@ export function Header({
                                 style={{ width: 40, height: 40 }}
                                 resizeMode="contain"
                             />
-                            <Text className="text-2xl font-bold text-text">
+                            <RNText
+                                style={{
+                                    fontFamily: "Figtree-ExtraBold",
+                                    fontSize: 24,
+                                    color: colors.text
+                                }}
+                            >
                                 {title}
-                            </Text>
+                            </RNText>
                         </>
                     )}
                 </View>

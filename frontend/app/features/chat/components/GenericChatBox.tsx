@@ -1,5 +1,6 @@
 import { useRef, useEffect, type ReactNode } from "react"
-import { View, Text, FlatList } from "react-native"
+import { View, FlatList } from "react-native"
+import { Text } from "@components/core"
 import { MessageSquare } from "lucide-react-native"
 import Chat from "@features/chat/components/Chat"
 import ChatInput from "@features/chat/components/ChatInput"

@@ -1,16 +1,9 @@
 import { useState, useMemo } from "react"
-import {
-    View,
-    Text,
-    TextInput,
-    SectionList,
-    Pressable,
-    ActivityIndicator
-} from "react-native"
+import { View, TextInput, SectionList, Pressable, ActivityIndicator } from "react-native"
 import { useAtom } from "jotai"
 import { useRouter } from "expo-router"
 import { useQuery } from "@tanstack/react-query"
-import { Modal } from "@components/core"
+import { Modal, Text } from "@components/core"
 import { searchModalOpen } from "../layout.atom"
 import { Search, X } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"

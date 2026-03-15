@@ -1,4 +1,5 @@
-import { Pressable, Text } from "react-native"
+import { Pressable } from "react-native"
+import { Text } from "@components/core"
 import { Plus } from "lucide-react-native"
 import { useAtom } from "jotai"
 import { createModalOpen } from "../layout.atom"
