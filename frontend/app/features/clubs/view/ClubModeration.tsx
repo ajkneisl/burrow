@@ -1,50 +1,37 @@
 import { useState } from "react"
-import { View, Alert } from "react-native"
+import { Pressable, Alert } from "react-native"
 import { useRouter } from "expo-router"
 import { useQueryClient } from "@tanstack/react-query"
 import { Pencil, Trash2 } from "lucide-react-native"
 import Toast from "react-native-toast-message"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { Button, Text } from "@components/core"
 import type { ClubResponse } from "@features/clubs/club.types"
 import EditClubModal from "@features/clubs/components/EditClubModal"
 import useClubRole from "@features/clubs/hooks/useClubRole"
 import { deleteClub } from "@features/clubs/clubs.api"
 
-/**
- * {@link ClubModeration}
- */
 type ClubModerationProps = {
     clubResponse: ClubResponse
 }
 
 /**
- * A club's moderation.
+ * Club moderation icons for the header — edit (pencil) and delete (trash).
+ * Only visible to admins/owners.
  *
- * @param clubResponse The club's response
  * @author AJ Kneisl
  */
 export default function ClubModeration({ clubResponse }: ClubModerationProps) {
     const { isOwner, isAdmin } = useClubRole(clubResponse.club.name)
-
     const router = useRouter()
     const queryClient = useQueryClient()
     const colors = useThemeColors()
-
     const [editOpen, setEditOpen] = useState(false)
 
     const onDelete = async () => {
         try {
             await deleteClub(clubResponse.club.name)
-
-            void queryClient.invalidateQueries({
-                queryKey: ["myClubs"]
-            })
-
-            Toast.show({
-                type: "success",
-                text1: "Club deleted."
-            })
+            void queryClient.invalidateQueries({ queryKey: ["myClubs"] })
+            Toast.show({ type: "success", text1: "Club deleted." })
             router.back()
         } catch (error) {
             Toast.show({
@@ -61,11 +48,7 @@ export default function ClubModeration({ clubResponse }: ClubModerationProps) {
             `Are you sure you want to delete ${clubResponse.club.displayName}? This action cannot be undone.`,
             [
                 { text: "Cancel", style: "cancel" },
-                {
-                    text: "Delete",
-                    style: "destructive",
-                    onPress: onDelete
-                }
+                { text: "Delete", style: "destructive", onPress: onDelete }
             ]
         )
     }
@@ -75,29 +58,23 @@ export default function ClubModeration({ clubResponse }: ClubModerationProps) {
     return (
         <>
             {isAdmin && (
-                <Button
-                    variant="secondary"
-                    size="sm"
+                <Pressable
                     onPress={() => setEditOpen(true)}
+                    hitSlop={12}
+                    className="p-2"
                 >
-                    <View className="flex-row items-center gap-1.5">
-                        <Pencil size={14} color={colors.text} />
-                        <Text className="text-text font-semibold text-sm">
-                            Edit
-                        </Text>
-                    </View>
-                </Button>
+                    <Pencil size={20} color={colors.text} />
+                </Pressable>
             )}
 
             {isOwner && (
-                <Button variant="danger" size="sm" onPress={handleDeletePress}>
-                    <View className="flex-row items-center gap-1.5">
-                        <Trash2 size={14} color="#fff" />
-                        <Text className="text-white font-semibold text-sm">
-                            Delete
-                        </Text>
-                    </View>
-                </Button>
+                <Pressable
+                    onPress={handleDeletePress}
+                    hitSlop={12}
+                    className="p-2"
+                >
+                    <Trash2 size={20} color={colors.error} />
+                </Pressable>
             )}
 
             {isAdmin && (

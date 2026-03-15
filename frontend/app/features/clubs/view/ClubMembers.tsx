@@ -1,6 +1,6 @@
 import { View } from "react-native"
 import ClubMember from "@features/clubs/components/ClubMember"
-import { Card, Text } from "@components/core"
+import { Text } from "@components/core"
 import {
     type ClubMemberResponse,
     ClubResponse,
@@ -48,7 +48,7 @@ export default function ClubMembers({ clubResponse }: ClubMembersProps) {
     }, [members])
 
     return (
-        <Card>
+        <View>
             <Text className="text-text font-semibold text-sm mb-3">
                 Members
             </Text>
@@ -83,6 +83,6 @@ export default function ClubMembers({ clubResponse }: ClubMembersProps) {
                     )}
                 </View>
             )}
-        </Card>
+        </View>
     )
 }

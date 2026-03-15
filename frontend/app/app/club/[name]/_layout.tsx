@@ -1,5 +1,5 @@
 import { View, Pressable, ActivityIndicator } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter, Tabs } from "expo-router"
 import { useQuery } from "@tanstack/react-query"
 import { createContext, useContext } from "react"
@@ -12,8 +12,6 @@ import type { ClubResponse } from "@features/clubs/club.types"
 import ClubBannerPicture from "@features/clubs/components/ClubBannerPicture"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture"
 import ClubModeration from "@features/clubs/view/ClubModeration"
-import ClubJoin from "@features/clubs/view/ClubJoin"
-import useClubRole from "@features/clubs/hooks/useClubRole"
 import { useColorScheme } from "react-native"
 
 type ClubContextType = {
@@ -37,13 +35,12 @@ export function useClubContext() {
  */
 export default function ClubLayout() {
     const { name } = useLocalSearchParams<{ name: string }>()
-
-    const { isOwner } = useClubRole(name)
-
     const router = useRouter()
     const colors = useThemeColors()
     const colorScheme = useColorScheme()
     const isDark = colorScheme === "dark"
+
+    const insets = useSafeAreaInsets()
 
     const { data, isLoading, isError } = useQuery<ClubResponse>({
         queryKey: ["club", name],
@@ -86,22 +83,26 @@ export default function ClubLayout() {
 
     return (
         <ClubContext.Provider value={{ data, name, colors }}>
-            <SafeAreaView className="flex-1 bg-background">
-                {/* Header */}
-                <View className="px-6 py-4 border-b border-card-border flex-row items-center gap-3">
-                    <Pressable onPress={() => router.back()} hitSlop={12}>
-                        <ThemedIcon icon={ChevronLeft} size={28} />
-                    </Pressable>
-                    <Text
-                        className="text-text font-semibold text-lg flex-1"
-                        numberOfLines={1}
-                    >
-                        {club.displayName}
-                    </Text>
-                </View>
-
-                {/* Banner + Profile */}
+            <View className="flex-1 bg-background">
+                {/* Header + Banner + Profile */}
                 <View className="bg-card border-b border-card-border">
+                    <View
+                        className="px-6 pb-4 flex-row items-center gap-3"
+                        style={{ paddingTop: insets.top + 16 }}
+                    >
+                        <Pressable onPress={() => router.back()} hitSlop={12}>
+                            <ThemedIcon icon={ChevronLeft} size={28} />
+                        </Pressable>
+                        <Text
+                            className="text-text font-semibold text-lg flex-1"
+                            numberOfLines={1}
+                        >
+                            {club.displayName}
+                        </Text>
+
+                        <ClubModeration clubResponse={data} />
+                    </View>
+
                     <ClubBannerPicture clubID={club.id} />
 
                     <View className="px-6 pb-5">
@@ -137,19 +138,11 @@ export default function ClubLayout() {
                                 {data.memberCount !== 1 ? "s" : ""}
                             </Text>
                         </View>
-
-                        {/* Actions */}
-                        <View className="flex-row items-center gap-2 mt-4">
-                            {!isOwner && <ClubJoin clubResponse={data} />}
-
-                            <ClubModeration clubResponse={data} />
-                        </View>
                     </View>
                 </View>
 
                 {/* Tab navigator */}
                 <Tabs
-                    safeAreaInsets={{ bottom: 0 }}
                     screenOptions={{
                         headerShown: false,
                         tabBarActiveTintColor: colors.text,
@@ -197,7 +190,7 @@ export default function ClubLayout() {
                         }}
                     />
                 </Tabs>
-            </SafeAreaView>
+            </View>
         </ClubContext.Provider>
     )
 }

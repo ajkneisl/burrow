@@ -1,6 +1,6 @@
-import { View, Pressable, ActivityIndicator, useColorScheme } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import { useLocalSearchParams, useRouter, Stack, Tabs } from "expo-router"
+import { View, Pressable, ActivityIndicator, useColorScheme, Alert } from "react-native"
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
+import { useLocalSearchParams, useRouter, usePathname, Stack, Tabs } from "expo-router"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState, useCallback } from "react"
 import { useAtom } from "jotai"
@@ -11,7 +11,12 @@ import {
     GraduationCap,
     EllipsisVertical,
     MessageSquare,
-    Info
+    Info,
+    Pencil,
+    Settings,
+    Trash2,
+    UserPlus,
+    ListChecks
 } from "lucide-react-native"
 import { Button, Modal, Text } from "@components/core"
 import {
@@ -53,6 +58,8 @@ export default function BurrowLayout() {
     const isDark = colorScheme === "dark"
 
     const [blocks] = useAtom(blockStatus)
+    const pathname = usePathname()
+    const insets = useSafeAreaInsets()
 
     // modals
     const [editModalOpen, setEditModalOpen] = useState(false)
@@ -234,6 +241,24 @@ export default function BurrowLayout() {
     const isPast = burrow.endTime < Date.now()
     const isProject = burrow.kind === "PROJECT"
 
+    const isInfoTab = pathname.endsWith(`/${id}`) || pathname.endsWith(`/${id}/`)
+    const isMembersTab = pathname.endsWith("/members")
+
+    const handleDelete = () => {
+        Alert.alert(
+            "Delete Burrow",
+            `Are you sure you want to delete "${burrow.title}"? This action cannot be undone.`,
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: () => deleteMutation.mutate()
+                }
+            ]
+        )
+    }
+
     const contextValue: BurrowContextType = {
         id: id!,
         data,
@@ -253,11 +278,14 @@ export default function BurrowLayout() {
 
     return (
         <BurrowContext.Provider value={contextValue}>
-            <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+            <View className="flex-1 bg-background">
                 <Stack.Screen options={{ headerShown: false }} />
 
                 {/* header */}
-                <View className="px-6 py-4 border-b border-card-border flex-row items-center justify-between">
+                <View
+                    className="bg-card px-6 pb-4 flex-row items-center justify-between"
+                    style={{ paddingTop: insets.top + 16 }}
+                >
                     <Pressable
                         onPress={() => router.back()}
                         className="p-2 -ml-2"
@@ -265,19 +293,65 @@ export default function BurrowLayout() {
                         <ThemedIcon icon={ChevronLeft} size={28} />
                     </Pressable>
 
-                    <View className="flex-row items-center gap-2">
+                    <View className="flex-row items-center gap-1">
+                        {/* Info tab: Edit, Features, Delete */}
+                        {isOwner && !isPast && isInfoTab && (
+                            <>
+                                <Pressable
+                                    onPress={() => setEditModalOpen(true)}
+                                    hitSlop={12}
+                                    className="p-2"
+                                >
+                                    <Pencil size={24} color={colors.text} />
+                                </Pressable>
+
+                                <Pressable
+                                    onPress={() => setFeaturesModalOpen(true)}
+                                    hitSlop={12}
+                                    className="p-2"
+                                >
+                                    <Settings size={24} color={colors.text} />
+                                </Pressable>
+
+                                <Pressable
+                                    onPress={handleDelete}
+                                    disabled={deleteMutation.isPending}
+                                    hitSlop={12}
+                                    className="p-2"
+                                >
+                                    <Trash2 size={24} color={colors.error} />
+                                </Pressable>
+                            </>
+                        )}
+
+                        {/* Members tab: Invite, Manage Invites */}
+                        {isOwner && !isPast && isMembersTab && (
+                            <>
+                                <Pressable
+                                    onPress={() => setInviteModalOpen(true)}
+                                    hitSlop={12}
+                                    className="p-2"
+                                >
+                                    <UserPlus size={24} color={colors.text} />
+                                </Pressable>
+
+                                <Pressable
+                                    onPress={() => setManageInvitesModalOpen(true)}
+                                    hitSlop={12}
+                                    className="p-2"
+                                >
+                                    <ListChecks size={24} color={colors.text} />
+                                </Pressable>
+                            </>
+                        )}
+
                         <Share burrowID={burrow.id} title={burrow.title} />
 
                         {!isOwner && (
                             <Pressable
                                 onPress={() => setShowMenu(true)}
-                                className="pr-2 -mr-2 rounded-lg active:bg-card"
-                                hitSlop={{
-                                    top: 10,
-                                    bottom: 10,
-                                    left: 10,
-                                    right: 10
-                                }}
+                                className="p-2"
+                                hitSlop={12}
                             >
                                 <EllipsisVertical
                                     size={24}
@@ -289,7 +363,7 @@ export default function BurrowLayout() {
                 </View>
 
                 {/* burrow info */}
-                <View className="px-6 pt-6 pb-4">
+                <View className="bg-card px-6 pt-6 pb-4 border-b border-card-border">
                     {isPast && (
                         <View className="bg-card dark:bg-card rounded-lg px-3 py-2 mb-3 flex-row items-center">
                             <ThemedIcon
@@ -521,7 +595,7 @@ export default function BurrowLayout() {
                     burrowID={burrow.id}
                     burrowTitle={burrow.title}
                 />
-            </SafeAreaView>
+            </View>
         </BurrowContext.Provider>
     )
 }

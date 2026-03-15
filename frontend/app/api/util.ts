@@ -156,7 +156,7 @@ export const formatTimeAgo = (ms: number) => {
     if (hr < 24) return `${hr}h ago`
     const d = Math.round(hr / 24)
     if (d < 7) return `${d}d ago`
-    return new Date(ms).toLocaleString()
+    return new Date(ms).toLocaleDateString()
 }
 
 /**

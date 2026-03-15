@@ -1,3 +1,4 @@
+import { View } from "react-native"
 import { ClubResponse } from "@features/clubs/club.types"
 import { Button } from "@components/core"
 import { useMemo, useState } from "react"
@@ -14,14 +15,10 @@ type ClubJoinProps = {
 export default function ClubJoin({ clubResponse }: ClubJoinProps) {
     const user = getUser()
     const queryClient = useQueryClient()
-
     const name = clubResponse.club.name
-
     const { isMember } = useClubRole(name)
-
     const [joinLoading, setJoinLoading] = useState(false)
 
-    // on join / leave
     const handleJoinLeave = async () => {
         if (!user) return
         setJoinLoading(true)
@@ -29,14 +26,12 @@ export default function ClubJoin({ clubResponse }: ClubJoinProps) {
         try {
             if (isMember) {
                 await post(`/clubs/${name}/leave`)
-
                 void queryClient.invalidateQueries({ queryKey: ["club", name] })
                 void queryClient.invalidateQueries({
                     queryKey: ["clubMembers", name]
                 })
             } else if (clubResponse?.requestedToJoin) {
                 await del(`/clubs/${name}/requests`)
-
                 queryClient.setQueryData<ClubResponse>(["club", name], (old) =>
                     old ? { ...old, requestedToJoin: false } : old
                 )
@@ -48,13 +43,11 @@ export default function ClubJoin({ clubResponse }: ClubJoinProps) {
                         ["club", name],
                         (old) => (old ? { ...old, requestedToJoin: true } : old)
                     )
-
                     Toast.show({ type: "success", text1: "Request sent!" })
                 } else {
                     void queryClient.invalidateQueries({
                         queryKey: ["club", name]
                     })
-
                     void queryClient.invalidateQueries({
                         queryKey: ["clubMembers", name]
                     })
@@ -71,9 +64,9 @@ export default function ClubJoin({ clubResponse }: ClubJoinProps) {
     }
 
     const joinButtonText = useMemo(() => {
-        if (isMember) return "Leave"
+        if (isMember) return "Leave Club"
         if (clubResponse?.requestedToJoin) return "Cancel Request"
-        return clubResponse?.club?.requestToJoin ? "Request to Join" : "Join"
+        return clubResponse?.club?.requestToJoin ? "Request to Join" : "Join Club"
     }, [
         isMember,
         clubResponse?.requestedToJoin,
@@ -81,17 +74,18 @@ export default function ClubJoin({ clubResponse }: ClubJoinProps) {
     ])
 
     const isDestructive =
-        joinButtonText === "Leave" || joinButtonText === "Cancel Request"
+        joinButtonText === "Leave Club" || joinButtonText === "Cancel Request"
 
     return (
-        <Button
-            variant={isDestructive ? "danger" : "success"}
-            size="sm"
-            onPress={handleJoinLeave}
-            disabled={!user}
-            loading={joinLoading}
-        >
-            {joinButtonText}
-        </Button>
+        <View className="px-6 py-3 bg-background">
+            <Button
+                variant={isDestructive ? "danger" : "primary"}
+                onPress={handleJoinLeave}
+                disabled={!user}
+                loading={joinLoading}
+            >
+                {joinButtonText}
+            </Button>
+        </View>
     )
 }

@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query"
 import { getAttendees } from "@features/burrows/burrows.api"
 import { Pressable, View } from "react-native"
 import { ProfilePicture } from "@features/profile/components/ProfilePicture"
-import { Card, Modal, Button, Text } from "@components/core"
+import { Card, Chip, Modal, Button, Text } from "@components/core"
 import { useRouter } from "expo-router"
 import { AttendeeActionsModal } from "@features/burrows/attendees/AttendeeActionsModal"
 import { useState } from "react"
@@ -16,8 +16,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Crown,
-    Shield,
-    Users
+    Shield
 } from "lucide-react-native"
 import ThemedIcon from "@components/core/ThemedIcon"
 
@@ -66,77 +65,31 @@ export default function Attendees({ data, fullScreen }: AttendeesProps) {
     )
 
     const getRoleBadge = (role: string) => {
-        if (role === "HOST") {
-            return (
-                <View
-                    className="flex-row items-center px-2 py-0.5 rounded-full"
-                    style={{ backgroundColor: `${colors.primary}20` }}
-                >
-                    <ThemedIcon
-                        icon={Crown}
-                        size={10}
-                        overrideColor="primary"
-                    />
-                    <Text
-                        className="text-xs font-semibold ml-1"
-                        style={{ color: colors.primary }}
-                    >
-                        Host
-                    </Text>
-                </View>
-            )
-        }
-        if (role === "MODERATOR") {
-            return (
-                <View
-                    className="flex-row items-center px-2 py-0.5 rounded-full"
-                    style={{ backgroundColor: `${colors.info}20` }}
-                >
-                    <ThemedIcon icon={Shield} size={10} overrideColor="info" />
-                    <Text
-                        className="text-xs font-semibold ml-1"
-                        style={{ color: colors.info }}
-                    >
-                        Mod
-                    </Text>
-                </View>
-            )
-        }
+        if (role === "HOST")
+            return <Chip size="sm" color="primary" icon={Crown} label="Host" />
+        if (role === "MODERATOR")
+            return <Chip size="sm" color="info" icon={Shield} label="Mod" />
         return null
     }
 
     const content = (
         <>
             {/* header */}
-            <View className={`flex-row items-center justify-between ${fullScreen ? "px-6 pt-4 pb-2" : "mb-4"}`}>
-                <View className="flex-row items-center gap-2">
-                    <View
-                        className="w-8 h-8 rounded-full items-center justify-center"
-                        style={{ backgroundColor: `${colors.primary}20` }}
-                    >
-                        <ThemedIcon
-                            icon={Users}
-                            size={16}
-                            overrideColor="primary"
-                        />
-                    </View>
-                    <View>
-                        <Text className="text-lg font-bold text-text">
-                            {data.burrow.kind === "PROJECT"
-                                ? "Team Members"
-                                : "Attendees"}
-                        </Text>
-                        <Text className="text-xs text-text text-opacity-60">
-                            {attendeesData.contents.length} total
-                        </Text>
-                    </View>
-                </View>
+            <View className={`flex-row items-center justify-between ${fullScreen ? "px-6 pt-4 pb-2" : "mb-3"}`}>
+                <Text className="text-lg font-bold text-text">
+                    {data.burrow.kind === "PROJECT"
+                        ? "Team Members"
+                        : "Attendees"}
+                </Text>
+                <Text className="text-sm text-text text-opacity-50">
+                    {attendeesData.contents.length} total
+                </Text>
             </View>
 
             {/* attendees */}
-            <View className={`gap-2 ${fullScreen ? "px-6" : ""}`}>
+            <View className={fullScreen ? "px-6" : ""}>
                 {paginatedAttendees.map(
-                    (item: BurrowMembershipResponse) => (
+                    (item: BurrowMembershipResponse, index: number) => (
                         <Pressable
                             key={item.user.id}
                             onPress={() =>
@@ -151,7 +104,11 @@ export default function Attendees({ data, fullScreen }: AttendeesProps) {
                                     setAttendeeActionsModalOpen(true)
                                 }
                             }}
-                            className="flex-row items-center p-3 rounded-xl bg-card active:bg-card-border"
+                            className={`flex-row items-center py-3 active:opacity-60 ${
+                                index < paginatedAttendees.length - 1
+                                    ? "border-b border-card-border"
+                                    : ""
+                            }`}
                         >
                             <ProfilePicture
                                 name={
@@ -179,8 +136,8 @@ export default function Attendees({ data, fullScreen }: AttendeesProps) {
 
                             <ThemedIcon
                                 icon={ChevronRight}
-                                size={18}
-                                opacity={0.4}
+                                size={16}
+                                opacity={0.3}
                             />
                         </Pressable>
                     )
@@ -189,7 +146,7 @@ export default function Attendees({ data, fullScreen }: AttendeesProps) {
 
             {/* paginator */}
             {totalPages > 1 && (
-                <View className={`flex-row items-center justify-between mt-4 pt-4 border-t border-card-border ${fullScreen ? "px-6" : ""}`}>
+                <View className={`flex-row items-center justify-between mt-3 pt-3 border-t border-card-border ${fullScreen ? "px-6" : ""}`}>
                     <Button
                         variant="ghost"
                         size="sm"
@@ -197,28 +154,12 @@ export default function Attendees({ data, fullScreen }: AttendeesProps) {
                         disabled={page === 0}
                     >
                         <View className="flex-row items-center gap-1">
-                            <ThemedIcon
-                                icon={ChevronLeft}
-                                size={16}
-                                overrideColor={
-                                    page === 0 ? "secondary" : undefined
-                                }
-                            />
-
-                            <Text
-                                style={{
-                                    color:
-                                        page === 0
-                                            ? colors.secondary
-                                            : colors.text
-                                }}
-                            >
-                                Prev
-                            </Text>
+                            <ThemedIcon icon={ChevronLeft} size={14} />
+                            <Text className="text-sm text-text">Prev</Text>
                         </View>
                     </Button>
 
-                    <Text className="text-sm text-text text-opacity-60">
+                    <Text className="text-xs text-text text-opacity-50">
                         {page + 1} / {totalPages}
                     </Text>
 
@@ -231,26 +172,8 @@ export default function Attendees({ data, fullScreen }: AttendeesProps) {
                         disabled={page === totalPages - 1}
                     >
                         <View className="flex-row items-center gap-1">
-                            <Text
-                                style={{
-                                    color:
-                                        page === totalPages - 1
-                                            ? colors.secondary
-                                            : colors.text
-                                }}
-                            >
-                                Next
-                            </Text>
-
-                            <ThemedIcon
-                                icon={ChevronRight}
-                                size={16}
-                                overrideColor={
-                                    page === totalPages - 1
-                                        ? "secondary"
-                                        : undefined
-                                }
-                            />
+                            <Text className="text-sm text-text">Next</Text>
+                            <ThemedIcon icon={ChevronRight} size={14} />
                         </View>
                     </Button>
                 </View>

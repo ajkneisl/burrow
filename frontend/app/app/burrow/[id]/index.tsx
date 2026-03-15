@@ -1,17 +1,8 @@
 import { View, ScrollView, RefreshControl } from "react-native"
-import { Pressable } from "react-native"
 import { useState, useCallback } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import {
-    Clock,
-    Archive,
-    Edit2,
-    Trash2,
-    Settings,
-    UserPlus,
-    ListChecks
-} from "lucide-react-native"
-import { Button, Card, Text } from "@components/core"
+import { Clock, Archive } from "lucide-react-native"
+import { Button, Chip, Text } from "@components/core"
 import { dayLabel } from "@api/util"
 import ThemedIcon from "@components/core/ThemedIcon"
 import BurrowDetails from "@features/burrows/attendees/BurrowDetails"
@@ -23,17 +14,11 @@ export default function AboutTab() {
     const colors = useThemeColors()
     const {
         data,
-        isOwner,
         isHostOrMod,
         isPast,
         isProject,
         blocks,
         leaveMutation,
-        deleteMutation,
-        setEditModalOpen,
-        setFeaturesModalOpen,
-        setInviteModalOpen,
-        setManageInvitesModalOpen,
         id
     } = useBurrowContext()
     const burrow = data.burrow
@@ -66,128 +51,7 @@ export default function AboutTab() {
                 />
             }
         >
-            <View className="px-6 gap-4">
-                {/* moderation tools */}
-                {isOwner && !isPast && (
-                    <Card variant="bordered">
-                        <View className="flex-row flex-wrap gap-3 justify-evenly">
-                            {/* edit burrow */}
-                            <Pressable
-                                onPress={() => setEditModalOpen(true)}
-                                className="items-center"
-                            >
-                                <View
-                                    className="w-12 h-12 rounded-full items-center justify-center mb-1"
-                                    style={{
-                                        backgroundColor: `${colors.primary}1A`
-                                    }}
-                                >
-                                    <ThemedIcon
-                                        icon={Edit2}
-                                        size={20}
-                                        overrideColor="primary"
-                                    />
-                                </View>
-
-                                <Text className="text-xs text-text">Edit</Text>
-                            </Pressable>
-
-                            {/* manage features */}
-                            <Pressable
-                                onPress={() => setFeaturesModalOpen(true)}
-                                className="items-center"
-                            >
-                                <View
-                                    className="w-12 h-12 rounded-full items-center justify-center mb-1"
-                                    style={{
-                                        backgroundColor: `${colors.secondary}1A`
-                                    }}
-                                >
-                                    <ThemedIcon
-                                        icon={Settings}
-                                        size={20}
-                                        overrideColor="secondary"
-                                    />
-                                </View>
-
-                                <Text className="text-xs text-text">
-                                    Features
-                                </Text>
-                            </Pressable>
-
-                            {/* invite users */}
-                            <Pressable
-                                onPress={() => setInviteModalOpen(true)}
-                                className="items-center"
-                            >
-                                <View
-                                    className="w-12 h-12 rounded-full items-center justify-center mb-1"
-                                    style={{
-                                        backgroundColor: `${colors.info}1A`
-                                    }}
-                                >
-                                    <ThemedIcon
-                                        icon={UserPlus}
-                                        size={20}
-                                        overrideColor={"info"}
-                                    />
-                                </View>
-
-                                <Text className="text-xs text-text">
-                                    Invite
-                                </Text>
-                            </Pressable>
-
-                            {/* manage invites*/}
-                            <Pressable
-                                onPress={() => setManageInvitesModalOpen(true)}
-                                className="items-center"
-                            >
-                                <View
-                                    className="w-12 h-12 rounded-full items-center justify-center mb-1"
-                                    style={{
-                                        backgroundColor: `${colors.info}1A`
-                                    }}
-                                >
-                                    <ThemedIcon
-                                        icon={ListChecks}
-                                        size={20}
-                                        overrideColor={"info"}
-                                    />
-                                </View>
-
-                                <Text className="text-xs text-text">
-                                    Invites
-                                </Text>
-                            </Pressable>
-
-                            {/* delete */}
-                            <Pressable
-                                onPress={() => deleteMutation.mutate()}
-                                disabled={deleteMutation.isPending}
-                                className="items-center"
-                            >
-                                <View
-                                    className="w-12 h-12 rounded-full items-center justify-center mb-1"
-                                    style={{
-                                        backgroundColor: `${colors.error}1A`
-                                    }}
-                                >
-                                    <ThemedIcon
-                                        icon={Trash2}
-                                        size={20}
-                                        overrideColor={"error"}
-                                    />
-                                </View>
-
-                                <Text className="text-xs text-text">
-                                    Delete
-                                </Text>
-                            </Pressable>
-                        </View>
-                    </Card>
-                )}
-
+            <View className="px-6 pt-4 gap-4">
                 {/* project status */}
                 {isProject && (
                     <View
@@ -202,90 +66,78 @@ export default function AboutTab() {
                                 : `${colors.success}30`
                         }}
                     >
-                        <View className="flex-row items-center justify-between">
-                            <View className="flex-row items-center gap-3">
-                                <View
-                                    className="rounded-full p-2"
+                        <View className="flex-row items-center gap-3">
+                            <View
+                                className="rounded-full p-2"
+                                style={{
+                                    backgroundColor: isPast
+                                        ? `${colors.error}25`
+                                        : `${colors.success}25`
+                                }}
+                            >
+                                <ThemedIcon
+                                    size={18}
+                                    icon={Clock}
+                                    overrideColor={isPast ? "error" : "success"}
+                                />
+                            </View>
+
+                            <View>
+                                <Text
+                                    className="font-bold text-base"
                                     style={{
-                                        backgroundColor: isPast
-                                            ? `${colors.error}25`
-                                            : `${colors.success}25`
+                                        color: isPast
+                                            ? colors.error
+                                            : colors.success
                                     }}
                                 >
-                                    <ThemedIcon
-                                        size={18}
-                                        icon={Clock}
-                                        overrideColor={
-                                            isPast ? "error" : "success"
-                                        }
-                                    />
-                                </View>
+                                    {isPast ? "Overdue" : "In Progress"}
+                                </Text>
 
-                                <View>
-                                    <Text
-                                        className="font-bold text-base"
-                                        style={{
-                                            color: isPast
-                                                ? colors.error
-                                                : colors.success
-                                        }}
-                                    >
-                                        {isPast ? "Overdue" : "In Progress"}
+                                {isPast && (
+                                    <Text className="text-text text-opacity-70 text-sm">
+                                        Due {dayLabel(burrow.endTime)}
                                     </Text>
-
-                                    {isPast && (
-                                        <Text className="text-text text-opacity-70 text-sm">
-                                            Due {dayLabel(burrow.endTime)}
-                                        </Text>
-                                    )}
-                                </View>
+                                )}
                             </View>
                         </View>
                     </View>
                 )}
 
                 {/* details */}
-                <Card variant="bordered">
-                    <Text className="text-lg font-semibold text-text mb-4">
-                        Details
-                    </Text>
-
-                    {<BurrowDetails burrowResponse={data} />}
-                </Card>
+                <BurrowDetails burrowResponse={data} />
 
                 {/* description */}
                 {burrow.description && (
-                    <Card variant="bordered">
-                        <Text className="text-lg font-semibold text-text mb-3">
-                            {isProject ? "Objective" : "Description"}
-                        </Text>
+                    <>
+                        <View className="border-t border-card-border" />
 
-                        <Text className="text-text text-opacity-80 leading-6">
-                            {burrow.description}
-                        </Text>
-                    </Card>
+                        <View>
+                            <Text className="text-xs text-text text-opacity-50 uppercase tracking-wide mb-1">
+                                {isProject ? "Objective" : "Description"}
+                            </Text>
+                            <Text className="text-text text-opacity-80 leading-6">
+                                {burrow.description}
+                            </Text>
+                        </View>
+                    </>
                 )}
 
                 {/* tags */}
                 {burrow.tags && burrow.tags.length > 0 && (
-                    <Card variant="bordered" className="mt-2">
-                        <Text className="text-lg font-semibold text-text mb-3">
-                            Tags
-                        </Text>
+                    <>
+                        <View className="border-t border-card-border" />
 
                         <View className="flex-row flex-wrap gap-2">
-                            {burrow.tags.map((tag: string, index: number) => (
-                                <View
-                                    key={index}
-                                    className="bg-background border-card-border border px-2 py-1 rounded-full"
-                                >
-                                    <Text className="text-sm text-text dark:text-text">
-                                        {tag}
-                                    </Text>
-                                </View>
+                            {burrow.tags.map((tag: string) => (
+                                <Chip
+                                    key={tag}
+                                    size="sm"
+                                    label={tag}
+                                />
                             ))}
                         </View>
-                    </Card>
+                    </>
                 )}
 
                 {/* pomodoro */}
@@ -307,7 +159,6 @@ export default function AboutTab() {
                     </Button>
                 )}
 
-                {/* Spacer for bottom tab bar */}
                 <View className="h-4" />
             </View>
         </ScrollView>

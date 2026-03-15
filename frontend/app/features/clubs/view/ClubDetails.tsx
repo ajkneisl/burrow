@@ -4,7 +4,7 @@ import {
     LINK_CONFIG
 } from "@features/clubs/club.types"
 import { Linking, Pressable, View } from "react-native"
-import { Card, Text } from "@components/core"
+import { Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**
@@ -26,7 +26,7 @@ export default function ClubDetails({ clubResponse }: ClubDetailsProps) {
     const colors = useThemeColors()
 
     return (
-        <Card>
+        <View>
             <Text className="text-text font-semibold text-sm mb-2">About</Text>
             <Text className="text-text opacity-70 text-sm leading-5">
                 {club.description || "No description provided."}
@@ -62,6 +62,6 @@ export default function ClubDetails({ clubResponse }: ClubDetailsProps) {
                     })}
                 </View>
             )}
-        </Card>
+        </View>
     )
 }
