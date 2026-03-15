@@ -5,11 +5,13 @@ import {
     NOT_REOCCURRING
 } from "@features/burrows/burrows.types"
 import { get } from "@api/api"
-import { useMemo } from "react"
-import { Text, View } from "react-native"
-import { Calendar, CalendarClock } from "lucide-react-native"
+import { useMemo, useState } from "react"
+import { Pressable, Text, View } from "react-native"
+import { Calendar, CalendarClock, Plus } from "lucide-react-native"
 import { UpcomingBurrowCard } from "@features/burrows/components/UpcomingBurrowCard"
 import { useThemeColors } from "@api/theme/useThemeColors"
+import { Modal } from "@components/core"
+import { CreateBurrowWizard } from "@features/burrows/create/CreateBurrowWizard"
 
 /**
  * {@link ClubBurrows}
@@ -27,6 +29,11 @@ type ClubBurrowsProps = {
  */
 export default function ClubBurrows({ clubResponse }: ClubBurrowsProps) {
     const colors = useThemeColors()
+    const [createOpen, setCreateOpen] = useState(false)
+
+    const canCreate =
+        clubResponse.membership?.role === "ADMINISTRATOR" ||
+        clubResponse.membership?.role === "MODERATOR"
 
     const name = clubResponse.club.name
 
@@ -114,6 +121,37 @@ export default function ClubBurrows({ clubResponse }: ClubBurrowsProps) {
                     </View>
                 )}
             </View>
+
+            {/* Floating Create Button */}
+            {canCreate && (
+                <Pressable
+                    onPress={() => setCreateOpen(true)}
+                    className="absolute bottom-6 right-6 bg-secondary rounded-full w-16 h-16 items-center justify-center shadow-lg active:opacity-80"
+                    style={{
+                        shadowColor: "#000",
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 4.65,
+                        elevation: 8
+                    }}
+                >
+                    <Plus size={28} color={colors.primary} strokeWidth={3} />
+                </Pressable>
+            )}
+
+            {/* Create Meeting Modal */}
+            <Modal
+                visible={createOpen}
+                onClose={() => setCreateOpen(false)}
+                size="full"
+                scrollable={false}
+            >
+                <CreateBurrowWizard
+                    onClose={() => setCreateOpen(false)}
+                    burrowKind="CLUB"
+                    initialData={{ clubID: clubResponse.club.id }}
+                />
+            </Modal>
         </>
     )
 }
