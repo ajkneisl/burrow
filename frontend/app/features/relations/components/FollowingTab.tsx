@@ -56,8 +56,8 @@ export default function FollowingTab() {
                     username={item.username}
                     action={{
                         label: "Unfollow",
-                        variant: "outline",
-                        icon: <UserMinus size={14} color="#666" />,
+                        variant: "primary",
+                        icon: <UserMinus size={14} color="#FFFFFF" />,
                         onPress: () => unfollow.mutate(item.userID)
                     }}
                 />

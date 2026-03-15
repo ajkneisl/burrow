@@ -7,7 +7,7 @@ import { useThemeColors } from "@api/theme/useThemeColors"
 
 type UserCardAction = {
     label: string
-    variant: "primary" | "outline"
+    variant: "primary" | "outline" | "danger"
     icon: React.ReactNode
     onPress: () => void
 }

@@ -46,8 +46,8 @@ export default function FriendsTab() {
                     username={item.username}
                     action={{
                         label: "Unfriend",
-                        variant: "outline",
-                        icon: <UserMinus size={14} color="#666" />,
+                        variant: "primary",
+                        icon: <UserMinus size={14} color="#FFFFFF" />,
                         onPress: () => unfollow.mutate(item.userID)
                     }}
                 />
