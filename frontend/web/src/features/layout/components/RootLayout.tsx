@@ -1,9 +1,9 @@
 import { useAtom, useSetAtom } from "jotai"
 import useUser from "@features/auth/hooks/useUser.ts"
-import { createBurrowModal } from "@features/burrows/create/create.atom.ts"
+import { createBurrowModal, selectedClubIDAtom } from "@features/burrows/create/create.atom.ts"
 import { themeAtom } from "@api/theme/theme.atom.ts"
 import { getTheme } from "@api/theme/theme.api.ts"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo } from "react"
 import { Outlet, useLocation } from "react-router"
 import MetaTags from "@features/layout/components/MetaTags.tsx"
 import Header from "@features/layout/components/Header.tsx"
@@ -33,7 +33,7 @@ export default function RootLayout() {
     const [createModal, setCreateModal] = useAtom(createBurrowModal)
     const [theme, setTheme] = useAtom(themeAtom)
     const setQuery = useSetAtom(searchQueryAtom)
-    const [selectedClubID, setSelectedClubID] = useState<string | null>(null)
+    const [selectedClubID, setSelectedClubID] = useAtom(selectedClubIDAtom)
 
     // fetch theme from backend in background and update local storage if different
     useEffect(() => {

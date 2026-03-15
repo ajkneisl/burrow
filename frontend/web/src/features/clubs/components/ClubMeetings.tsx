@@ -1,17 +1,22 @@
 import { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { CalendarClock, Calendar } from "lucide-react"
+import { CalendarClock, Calendar, Plus } from "lucide-react"
 import { getClubBurrows } from "@features/clubs/clubs.api.ts"
 import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 import { NOT_REOCCURRING } from "@features/burrows/burrows.types.tsx"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import useToken from "@features/auth/hooks/useToken.ts"
+import { useSetAtom } from "jotai"
+import { createBurrowModal, selectedClubIDAtom } from "@features/burrows/create/create.atom.ts"
+import type { ClubRole } from "@features/clubs/clubs.types.tsx"
 
 /**
  * {@link ClubMeetings}
  */
 type ClubMeetingsProps = {
     clubName: string
+    clubID: string
+    role?: ClubRole | null
 }
 
 /**
@@ -20,8 +25,12 @@ type ClubMeetingsProps = {
  * @param clubName The name of the club.
  * @constructor
  */
-export default function ClubMeetings({ clubName }: ClubMeetingsProps) {
+export default function ClubMeetings({ clubName, clubID, role }: ClubMeetingsProps) {
     const auth = useToken()
+    const setCreateModal = useSetAtom(createBurrowModal)
+    const setSelectedClubID = useSetAtom(selectedClubIDAtom)
+
+    const canCreate = role === "ADMINISTRATOR" || role === "MODERATOR"
 
     const { data: burrows } = useQuery<BurrowResponse[]>({
         queryKey: ["clubBurrows", clubName],
