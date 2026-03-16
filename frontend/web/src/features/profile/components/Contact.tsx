@@ -1,19 +1,19 @@
-import type { Profile } from "@features/profile/profile.model.ts"
-import { Card, Chip, Input, SelectInput } from "@umnburrow/core"
-import type { User } from "@features/auth/user.types.ts"
-import { useAtom } from "jotai"
+import type {Profile} from "@features/profile/profile.model.ts"
+import {Card, Chip, Input, SelectInput} from "@umnburrow/core"
+import type {User} from "@features/auth/user.types.ts"
+import {useAtom} from "jotai"
 import {
     isEditingProfile,
     profileEdits
 } from "@features/profile/profile.atom.ts"
-import { Instagram, Linkedin, Mail, Phone } from "lucide-react"
+import {Instagram, Linkedin, Mail, Phone} from "lucide-react"
 
 type ContactProps = {
     user: User
     profile: Profile
 }
 
-export default function Contact({ user, profile }: ContactProps) {
+export default function Contact({user, profile}: ContactProps) {
     const [editing] = useAtom(isEditingProfile)
     const [edits, setEdits] = useAtom(profileEdits)
 
