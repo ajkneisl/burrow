@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router"
+import {useNavigate} from "react-router"
 import {
     BURROW_KIND_CONFIG,
     type BurrowResponse,
@@ -6,13 +6,13 @@ import {
     NOT_REOCCURRING
 } from "@features/burrows/burrows.types.tsx"
 import useUser from "@features/auth/hooks/useUser.ts"
-import { formatDateTime } from "@api/util.ts"
-import { Card, Chip, Hover } from "@umnburrow/core"
+import {formatDateTime} from "@api/util.ts"
+import {Card, Chip, Hover} from "@umnburrow/core"
 import clsx from "clsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.tsx"
 import BurrowCapacity from "@features/burrows/components/BurrowCapacity.tsx"
-import { Calendar, Bookmark, MapPin, GraduationCap } from "lucide-react"
+import {Calendar, Bookmark, MapPin, GraduationCap} from "lucide-react"
 
 /**
  * {@see GroupMeetingCard}
@@ -33,14 +33,14 @@ type GroupMeetingCardProps = {
  * @author AJ Kneisl
  */
 export function BurrowCard({
-    meetingResponse,
-    details,
-    actionBadge
-}: GroupMeetingCardProps) {
+                               meetingResponse,
+                               details,
+                               actionBadge
+                           }: GroupMeetingCardProps) {
     const nav = useNavigate()
 
     const user = useUser()
-    const { burrow } = meetingResponse
+    const {burrow} = meetingResponse
 
     const isPast = burrow.endTime < Date.now()
     const isOwner = user !== null && burrow.ownerID === user.id
@@ -72,7 +72,7 @@ export function BurrowCard({
                                     {meetingResponse.hostedByTa && (
                                         <div className="text-info mx-1">
                                             <Hover content="This Burrow is hosted by a TA">
-                                                <GraduationCap className="h-3.5 w-3.5" />
+                                                <GraduationCap className="h-3.5 w-3.5"/>
                                             </Hover>
                                         </div>
                                     )}
@@ -123,21 +123,10 @@ export function BurrowCard({
                                 className="text-error ring-error/30 bg-error/10 inline-flex items-center gap-2 rounded-full px-2.5 py-1 ring-1 ring-inset"
                                 title="This meeting is archived"
                             >
-                                <Calendar width="18" height="18" />
+                                <Calendar width="18" height="18"/>
                                 <span className="text-xs font-medium">
                                     Past Meeting
                                 </span>
-                            </span>
-                        )}
-
-                        {/* is bookmarked :o */}
-                        {meetingResponse.bookmarked && (
-                            <span
-                                className="bg-info/10 text-info ring-info/30 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ring-1 ring-inset"
-                                title="Bookmarked"
-                            >
-                                <Bookmark className="h-4 w-4" />
-                                {details && "Bookmarked"}
                             </span>
                         )}
 
@@ -195,7 +184,18 @@ export function BurrowCard({
 
                         {/* capacity */}
                         {burrow.capacity > 0 && (
-                            <BurrowCapacity burrow={burrow} />
+                            <BurrowCapacity burrow={burrow}/>
+                        )}
+
+                        {/* is bookmarked :o */}
+                        {meetingResponse.bookmarked && (
+                            <Chip
+                                size="md"
+                                color="info"
+                                icon={Bookmark}
+                            >
+                                Bookmarked
+                            </Chip>
                         )}
 
                         {/* burrow type */}
