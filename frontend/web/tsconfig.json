@@ -8,6 +8,7 @@
       "@api/*": ["api/*"],
       "@components/*": ["components/*"]
     },
+    "incremental": false,
     "target": "ES2023",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "module": "ESNext",
