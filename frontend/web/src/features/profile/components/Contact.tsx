@@ -114,7 +114,7 @@ export default function Contact({ user, profile }: ContactProps) {
                     href={
                         profile.linkedIn.startsWith("http")
                             ? profile.linkedIn
-                            : `https://linkedin.com/in/${profile.linkedIn}`
+                            : `https://linkedin.com/${profile.linkedIn}`
                     }
                     target="_blank"
                     rel="noopener noreferrer"
