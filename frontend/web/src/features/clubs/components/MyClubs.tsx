@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { Crown, Shield, Users } from "lucide-react"
-import { Card } from "@umnburrow/core"
+import { Card, ListItem } from "@umnburrow/core"
 import { getMyClubs } from "@features/clubs/clubs.api.ts"
 import type { ClubRole, MyClubResponse } from "@features/clubs/clubs.types.tsx"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.tsx"
@@ -54,26 +54,20 @@ export default function MyClubs() {
                 {/* club list */}
                 {!isLoading &&
                     clubs.slice(0, 4).map((item) => (
-                        <li
+                        <ListItem
                             key={item.club.id}
                             onClick={() => nav(`/club/${item.club.name}`)}
-                            className="group bg-hero/80 hover:bg-hero/50 flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
-                        >
-                            <ClubProfilePicture
-                                clubID={item.club.id}
-                                displayName={item.club.displayName}
-                                clubName={item.club.name}
-                                size="sm"
-                            />
-
-                            <div className="min-w-0 flex-1">
-                                <p className="text-text truncate text-sm font-medium">
-                                    {item.club.displayName}
-                                </p>
-                            </div>
-
-                            <RoleIndicator role={item.membership.role} />
-                        </li>
+                            leading={
+                                <ClubProfilePicture
+                                    clubID={item.club.id}
+                                    displayName={item.club.displayName}
+                                    clubName={item.club.name}
+                                    size="sm"
+                                />
+                            }
+                            title={item.club.displayName}
+                            trailing={<RoleIndicator role={item.membership.role} />}
+                        />
                     ))}
 
                 {/* empty state */}

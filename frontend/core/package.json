@@ -1,6 +1,6 @@
 {
   "name": "@umnburrow/core",
-  "version": "0.1.47",
+  "version": "0.1.50",
   "description": "Shared Burrow component and utility library.",
   "type": "module",
   "main": "./dist/index.js",

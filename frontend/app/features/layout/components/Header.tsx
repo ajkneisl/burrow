@@ -51,7 +51,7 @@ export function Header({
                         <>
                             {leftAction}
                             <Text className="text-2xl font-bold text-text">
-                                {title}asd
+                                {title}
                             </Text>
                             {badge !== undefined && badge > 0 && (
 

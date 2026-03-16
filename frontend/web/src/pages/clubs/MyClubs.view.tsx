@@ -6,7 +6,7 @@ import useToken from "@features/auth/hooks/useToken.ts"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 import { getMyClubs } from "@features/clubs/clubs.api.ts"
 import type { ClubRole, MyClubResponse } from "@features/clubs/clubs.types.tsx"
-import { Button, Card, ViewErrors } from "@umnburrow/core"
+import { Button, Card, ListItem, ViewErrors } from "@umnburrow/core"
 import CreateClubModal from "@features/clubs/components/CreateClubModal.tsx"
 import clsx from "clsx"
 
@@ -115,28 +115,25 @@ export default function MyClubs() {
                 )}
 
                 {clubs.length > 0 && (
-                    <div className="space-y-3">
+                    <ul className="space-y-3">
                         {clubs.map((item) => (
-                            <Card
+                            <ListItem
                                 key={item.club.id}
-                                className="cursor-pointer p-4 transition-shadow hover:shadow-md"
                                 onClick={() => nav(`/club/${item.club.name}`)}
-                            >
-                                <div className="flex items-center justify-between gap-4">
-                                    <div className="min-w-0 flex-1">
-                                        <h3 className="text-text truncate text-base font-semibold">
-                                            {item.club.displayName}
-                                        </h3>
+                                title={item.club.displayName}
+                                subtitle={
+                                    <>
                                         <p className="text-text/40 text-xs font-medium">
                                             /club/{item.club.name}
                                         </p>
                                         {item.club.description && (
-                                            <p className="text-text/60 mt-1 line-clamp-1 text-sm">
+                                            <p className="text-text/60 mt-0.5 line-clamp-1 text-sm">
                                                 {item.club.description}
                                             </p>
                                         )}
-                                    </div>
-
+                                    </>
+                                }
+                                trailing={
                                     <span
                                         className={clsx(
                                             "inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold",
@@ -146,10 +143,10 @@ export default function MyClubs() {
                                         {roleIcon(item.membership.role)}
                                         {item.membership.roleName || item.membership.role}
                                     </span>
-                                </div>
-                            </Card>
+                                }
+                            />
                         ))}
-                    </div>
+                    </ul>
                 )}
             </div>
 

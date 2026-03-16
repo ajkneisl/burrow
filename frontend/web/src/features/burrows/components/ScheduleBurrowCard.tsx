@@ -104,7 +104,7 @@ export default function ScheduleBurrowCard({
                                 </p>
                             </div>
                         ) : (
-                            <div className="text-text/40 flex items-center gap-1.5 text-xs italic">
+                            <div className="text-text/40 flex items-center gap-1.5 text-xs">
                                 <MessageSquare className="h-3.5 w-3.5 shrink-0" />
                                 <span>No messages yet</span>
                             </div>
