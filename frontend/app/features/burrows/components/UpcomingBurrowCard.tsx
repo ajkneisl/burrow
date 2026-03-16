@@ -1,5 +1,5 @@
 import { View, Pressable } from "react-native"
-import { Text } from "@components/core"
+import { Chip, Text } from "@components/core"
 import { useRouter } from "expo-router"
 import { Clock, Check, Star, Bookmark, Repeat } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
@@ -71,7 +71,7 @@ export function UpcomingBurrowCard({
                         {/* title */}
                         <View className="flex-row items-center gap-1">
                             <Text
-                                className="text-base font-bold text-text"
+                                className="text-sm font-bold text-text"
                                 numberOfLines={1}
                             >
                                 {burrow.title}
@@ -112,7 +112,7 @@ export function UpcomingBurrowCard({
                                 />
 
                                 <Text
-                                    className="text-sm text-text"
+                                    className="text-xs text-text"
                                     style={{ opacity: 0.8 }}
                                 >
                                     {formatDateTime(
@@ -161,23 +161,6 @@ export function UpcomingBurrowCard({
                         ) : null}
                     </View>
                 </View>
-
-                {verbose && burrow.tags && burrow.tags.length > 0 && (
-                    <View className="flex flex-row mb-2">
-                        <View className="flex-row flex-wrap gap-1 mr-1">
-                            {burrow.tags.slice(0, 2).map((tag) => (
-                                <View
-                                    key={tag}
-                                    className="bg-background border-card-border border px-2 py-1 rounded-full"
-                                >
-                                    <Text className="text-xs text-text text-opacity-70">
-                                        {tag}
-                                    </Text>
-                                </View>
-                            ))}
-                        </View>
-                    </View>
-                )}
 
                 {/* description */}
                 {verbose && burrow.description !== "" && (

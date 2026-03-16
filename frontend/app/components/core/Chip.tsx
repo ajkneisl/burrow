@@ -3,7 +3,14 @@ import { Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import type { LucideIcon } from "lucide-react-native"
 
-type ChipColor = "primary" | "secondary" | "error" | "success" | "info" | "warn"
+type ChipColor =
+    | "primary"
+    | "secondary"
+    | "error"
+    | "success"
+    | "info"
+    | "warn"
+    | "plain"
 type ChipSize = "sm" | "md" | "lg"
 
 /**
@@ -44,21 +51,21 @@ export function Chip({
 }: ChipProps) {
     const colors = useThemeColors()
     const s = SIZE_STYLES[size]
-    const tint = colors[color]
+    const isPlain = color === "plain"
+    const tint = !isPlain ? colors[color] : colors.text
+    const bg = isPlain ? `${colors.text}18` : `${tint}26`
 
     return (
         <View
             className={`rounded-full flex-row items-center gap-1 ${s.container}`}
-            style={{ backgroundColor: `${tint}26` }}
+            style={{ backgroundColor: bg }}
         >
-            {Icon && (
-                <Icon size={s.icon} strokeWidth={2.5} color={tint} />
-            )}
+            {Icon && <Icon size={s.icon} strokeWidth={2.5} color={tint} />}
 
             {(label || children) && (
                 <Text
                     className={`${s.text} font-semibold`}
-                    style={{ color: tint }}
+                    style={{ color: isPlain ? `${colors.text}CC` : tint }}
                 >
                     {label ?? children}
                 </Text>
