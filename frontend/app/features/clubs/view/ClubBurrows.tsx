@@ -72,7 +72,7 @@ export default function ClubBurrows({ clubResponse }: ClubBurrowsProps) {
                         <CalendarClock
                             size={32}
                             color={colors.text}
-                            style={{ opacity: 0.2 }}
+                            style={{ opacity: 0.6 }}
                         />
 
                         <Text className="text-text opacity-40 text-sm mt-2">
@@ -103,8 +103,9 @@ export default function ClubBurrows({ clubResponse }: ClubBurrowsProps) {
                         <Calendar
                             size={32}
                             color={colors.text}
-                            style={{ opacity: 0.2 }}
+                            style={{ opacity: 0.6 }}
                         />
+
                         <Text className="text-text opacity-40 text-sm mt-2">
                             No upcoming Burrows.
                         </Text>

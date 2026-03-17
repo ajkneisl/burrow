@@ -15,7 +15,7 @@ export function SearchEmptyState() {
                 <Search
                     size={32}
                     color={colors.text}
-                    style={{ opacity: 0.3 }}
+                    style={{ opacity: 0.6 }}
                 />
             </View>
             <Text
