@@ -92,8 +92,8 @@ export default function BadgesView() {
                 return
             }
 
-            if (file.size > 3 * 1024 * 1024) {
-                alert("Image must be under 3 MB!")
+            if (file.size > 16 * 1024 * 1024) {
+                alert("Image must be under 16 MB!")
                 return
             }
 

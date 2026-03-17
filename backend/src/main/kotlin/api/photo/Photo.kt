@@ -1,21 +1,12 @@
 package app.burrow.api.photo
 
 import app.burrow.api.Error
-import app.burrow.features.account.models.userID
 import app.burrow.env
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.request.header
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.delete
-import io.ktor.server.routing.post
 import io.minio.MinioClient
 import io.minio.PutObjectArgs
 import io.minio.RemoveObjectArgs
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
-import kotlinx.serialization.Serializable
 
 // s3 information
 private val s3AccessKey = env("S3_ACCESS_KEY") ?: "minio"
@@ -27,8 +18,8 @@ val minioClient: MinioClient =
     MinioClient.builder().endpoint(s3Endpoint).credentials(s3AccessKey, s3SecretKey).build()
 
 private val VALID_CONTENT_TYPES = setOf("image/png", "image/jpeg", "image/gif", "image/webp")
-private const val MAX_IMAGE_SIZE = 3L * 1024 * 1024 // 3 MB
-private const val MAX_IMAGE_DIMENSIONS = 4096
+private const val MAX_IMAGE_SIZE = 16L * 1024 * 1024 // 16 MB
+private const val MAX_IMAGE_DIMENSIONS = 8192
 
 /**
  * Verify a photo and ensure it's not some crazy shit.
