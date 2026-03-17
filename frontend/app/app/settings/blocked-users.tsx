@@ -69,7 +69,7 @@ export default function BlockedUsersScreen() {
                     </View>
                 ) : !blockedUsers || blockedUsers.length === 0 ? (
                     <View className="items-center justify-center py-12">
-                        <ShieldOff size={48} color={colors.text} style={{ opacity: 0.3 }} />
+                        <ShieldOff size={48} color={colors.text} style={{ opacity: 0.6 }} />
                         <Text className="text-text text-opacity-60 text-center mt-4">
                             You haven't blocked anyone
                         </Text>
