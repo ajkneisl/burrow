@@ -7,7 +7,7 @@ export function SearchEmptyState() {
     const colors = useThemeColors()
 
     return (
-        <View className="flex-1 items-center justify-center px-8">
+        <View className="flex-1 items-center justify-center px-8 pb-32">
             <View
                 className="rounded-full p-5 mb-4"
                 style={{ backgroundColor: `${colors.text}10` }}

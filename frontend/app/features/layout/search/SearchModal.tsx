@@ -1,5 +1,11 @@
 import { useState, useMemo } from "react"
-import { View, TextInput, SectionList, Pressable, ActivityIndicator } from "react-native"
+import {
+    View,
+    TextInput,
+    SectionList,
+    Pressable,
+    ActivityIndicator
+} from "react-native"
 import { useAtom } from "jotai"
 import { useRouter } from "expo-router"
 import { useQuery } from "@tanstack/react-query"
@@ -162,7 +168,11 @@ export function SearchModal() {
                 <SectionList<SearchResult, SearchSection>
                     sections={sections}
                     keyExtractor={(item) =>
-                        isBurrowResult(item) ? item.burrow.id : isClubResult(item) ? item.clubID : item.userID
+                        isBurrowResult(item)
+                            ? item.burrow.id
+                            : isClubResult(item)
+                              ? item.clubID
+                              : item.userID
                     }
                     renderItem={({ item }) => (
                         <SearchResultItem
