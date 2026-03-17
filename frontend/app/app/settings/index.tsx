@@ -30,6 +30,7 @@ import { useThemeColors } from "@api/theme/useThemeColors"
 import { DeleteAccountModal } from "@features/settings/components/DeleteAccountModal"
 import * as Application from "expo-application"
 import useProfile from "@features/auth/hooks/useProfile"
+import ChangeUsernameModal from "@/app/settings/change-username";
 
 /**
  * The settings page.
@@ -43,6 +44,7 @@ export default function SettingsScreen() {
 
     const colors = useThemeColors()
     const [deleteModalVisible, setDeleteModalVisible] = useState(false)
+    const [usernameModalVisible, setUsernameModalVisible] = useState(false)
 
     const { signOut } = useGoogleAuth()
 
@@ -93,7 +95,7 @@ export default function SettingsScreen() {
                         icon={<AtSign size={20} color={colors.primary} />}
                         label="Change Username"
                         subtitle={user?.username ?? ""}
-                        onPress={() => router.push("/settings/change-username")}
+                        onPress={() => setUsernameModalVisible(true)}
                         colors={colors}
                     />
 
@@ -267,6 +269,11 @@ export default function SettingsScreen() {
                     <Text className="text-error font-semibold">Sign Out</Text>
                 </Button>
             </ScrollView>
+
+            <ChangeUsernameModal
+                visible={usernameModalVisible}
+                onClose={() => setUsernameModalVisible(false)}
+            />
 
             <DeleteAccountModal
                 visible={deleteModalVisible}
