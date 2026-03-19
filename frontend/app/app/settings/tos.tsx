@@ -231,7 +231,7 @@ export default function TermsOfServiceScreen() {
                 </Section>
 
                 {/* Acknowledgment */}
-                <Card variant="bordered" className="bg-info bg-opacity-5">
+                <Card variant="bordered" className="bg-opacity-5">
                     <Text className="text-text text-opacity-80 text-sm leading-relaxed">
                         By using Burrow, you acknowledge that you have read,
                         understood, and agree to be bound by these Terms of
