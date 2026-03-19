@@ -25,7 +25,6 @@ import { authToken } from "@features/auth/auth.atom.ts"
 import { APIProvider } from "@vis.gl/react-google-maps"
 import MapView from "@pages/Map.view.tsx"
 import Delete from "@pages/info/Delete.view.tsx"
-import TaView from "@pages/info/Ta.view.tsx"
 import Support from "@pages/info/Support.view.tsx"
 import ClubView from "@pages/clubs/Club.view.tsx"
 import Login from "@pages/Login.view.tsx"
@@ -57,7 +56,6 @@ const router = createBrowserRouter([
             { path: "discuss/:id", element: <TopicView /> },
             { path: "privacy", element: <Privacy /> },
             { path: "tos", element: <ToS /> },
-            { path: "ta", element: <TaView /> },
             { path: "burrow/:id", element: <StandardBurrow /> },
             { path: "project/:id", element: <ProjectBurrow /> },
             { path: "clubs", element: <MyClubs /> },
