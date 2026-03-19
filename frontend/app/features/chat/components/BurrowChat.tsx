@@ -34,6 +34,27 @@ export function BurrowChat({ burrowId, isMember, fullScreen }: BurrowChatProps) 
         null
     )
 
+    // Request history & members when mounting with an already-live connection
+    useEffect(() => {
+        if (status !== "LIVE") return
+
+        eventBus.dispatchEvent(
+            new SyncOutgoingEvent({
+                block: "CHAT",
+                action: "RECEIVE_HISTORY",
+                data: {}
+            })
+        )
+
+        eventBus.dispatchEvent(
+            new SyncOutgoingEvent({
+                block: "CHAT",
+                action: "RECEIVE_MEMBERS",
+                data: {}
+            })
+        )
+    }, [status])
+
     // Listen for incoming chat events
     useEffect(() => {
         const logPrefix = `[Chat: ${burrowId}]`

@@ -1,4 +1,4 @@
-import { View, TextInput, Pressable, KeyboardAvoidingView, Platform } from "react-native"
+import { View, TextInput, Pressable } from "react-native"
 import { Pencil, Send, X } from "lucide-react-native"
 import { Button, Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
@@ -48,12 +48,8 @@ export default function ChatInput({
     const canSend = !isDisabled && value.trim().length > 0
 
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={100}
-        >
-            <View className="border-t border-card-border bg-card dark:bg-card">
-              <View className="pt-4 px-4 pb-2">
+        <View className="border-t border-card-border bg-card">
+            <View className="pt-4 px-4 pb-2">
                 {/* edit mode indicator */}
                 {isEditing && (
                     <View className="bg-warn/10 border border-warn/20 rounded-lg px-3 py-2 mb-3 flex-row items-center justify-between">
@@ -107,8 +103,7 @@ export default function ChatInput({
                         )}
                     </Button>
                 </View>
-              </View>
             </View>
-        </KeyboardAvoidingView>
+        </View>
     )
 }
