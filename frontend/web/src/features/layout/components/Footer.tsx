@@ -1,4 +1,4 @@
-import { Link } from "react-router"
+import {Link} from "react-router"
 
 /**
  * Footer
@@ -8,7 +8,8 @@ import { Link } from "react-router"
 export default function Footer() {
     return (
         <footer className="border-card-border mt-auto border-t py-6">
-            <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm sm:flex-row">
+            <div
+                className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm sm:flex-row">
                 <p className="text-text/40">
                     &copy; {new Date().getFullYear()} Burrow &middot; v{import.meta.env.VITE_VERSION}
                 </p>
@@ -26,6 +27,14 @@ export default function Footer() {
                     <Link to="/tos" className="hover:text-text transition-colors">
                         Terms
                     </Link>
+                    <a
+                        href="https://apps.apple.com/us/app/burrow-at-umn/id6757548307"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-text transition-colors"
+                    >
+                        App Store
+                    </a>
                 </nav>
             </div>
         </footer>
