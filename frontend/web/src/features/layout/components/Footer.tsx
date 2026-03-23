@@ -1,8 +1,8 @@
 import {useState} from "react"
 import {Link} from "react-router"
-import {Button, Modal} from "@umnburrow/core"
+import {Modal} from "@umnburrow/core"
 import useUser from "@features/auth/hooks/useUser.ts"
-import {GraduationCap, Mail, Clock} from "lucide-react"
+import {Mail, Clock} from "lucide-react"
 
 /**
  * Footer
