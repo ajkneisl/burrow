@@ -102,7 +102,7 @@ object Authorization {
     private val key = Algorithm.HMAC512(SECRET_BYTES)
 
     /** How long the JWT is valid for. */
-    private const val VALIDITY_MS = 1000 * 60 * 60 * 24 * 3 // 3 days :)
+    private const val VALIDITY_MS = 1000 * 60 * 15 // 15 minutes
 
     /** Generate a token for an ID */
     fun generateToken(id: String, audience: String = PUBLIC_AUDIENCE): String {

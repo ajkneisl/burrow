@@ -10,6 +10,7 @@ import app.burrow.api.toEntity
 import app.burrow.env
 import app.burrow.features.account.Authorization
 import app.burrow.features.account.Users
+import app.burrow.features.account.createRefreshToken
 import app.burrow.features.account.getAllBlockedRelationships
 import app.burrow.features.account.profile.Following
 import app.burrow.features.account.profile.Profiles
@@ -150,7 +151,7 @@ data class User(
  * @return AuthorizedUser if validation succeeds
  * @throws app.burrow.api.ServerError If there's an issue.
  */
-suspend fun retrieveUser(token: String): AuthorizedUser? {
+suspend fun retrieveUser(token: String, deviceName: String = "Unknown Device"): AuthorizedUser? {
     val idToken: GoogleIdToken = googleVerifier?.verify(token) ?: throw InvalidAuthorization()
 
     val payload: GoogleIdToken.Payload = idToken.payload
@@ -193,13 +194,20 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
 
         LOGGER.info("Created new user account for {}", email)
 
+        val accessToken = Authorization.generateToken(googleID)
+        val refreshToken = createRefreshToken(googleID, deviceName)
+
         return AuthorizedUser(
             User(id = googleID, username = username, email = email, createdAt = createdDate),
             true,
-            Authorization.generateToken(googleID),
+            accessToken,
+            refreshToken,
         )
     } else {
         // existing user
+        val accessToken = Authorization.generateToken(googleID)
+        val refreshToken = createRefreshToken(googleID, deviceName)
+
         return AuthorizedUser(
             User(
                 id = googleID,
@@ -208,7 +216,8 @@ suspend fun retrieveUser(token: String): AuthorizedUser? {
                 createdAt = user[Users.createdAt],
             ),
             false,
-            Authorization.generateToken(googleID),
+            accessToken,
+            refreshToken,
         )
     }
 }

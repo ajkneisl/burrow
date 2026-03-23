@@ -1,6 +1,7 @@
 package app.burrow.features.account.alt
 
 import app.burrow.features.account.Authorization
+import app.burrow.features.account.createRefreshToken
 import app.burrow.features.account.models.AuthorizedUser
 import app.burrow.features.account.models.User
 import app.burrow.features.account.Users
@@ -36,26 +37,29 @@ data class AlternativeAccount(
  * @return The token for the account or `null` if there's a user provided issue along the way (like:
  *   wrong pw/user)
  */
-suspend fun login(username: String, password: String): AuthorizedUser? = query {
-    val accountRow =
+suspend fun login(username: String, password: String, deviceName: String = "Unknown Device"): AuthorizedUser? {
+    val accountRow = query {
         AlternativeAccounts.selectAll()
             .where { AlternativeAccounts.username eq username }
-            .singleOrNull() ?: return@query null
+            .singleOrNull()
+    } ?: return null
 
-    return@query if (BCrypt.checkpw(password, accountRow[AlternativeAccounts.password])) {
-        AuthorizedUser(
-            User(
-                id = username,
-                username = username,
-                email = "temporary@umn.app",
-                createdAt = accountRow[AlternativeAccounts.creationDate],
-            ),
-            true,
-            Authorization.generateToken(username),
-        )
-    } else {
-        null
-    }
+    if (!BCrypt.checkpw(password, accountRow[AlternativeAccounts.password])) return null
+
+    val accessToken = Authorization.generateToken(username)
+    val refreshToken = createRefreshToken(username, deviceName)
+
+    return AuthorizedUser(
+        User(
+            id = username,
+            username = username,
+            email = "temporary@umn.app",
+            createdAt = accountRow[AlternativeAccounts.creationDate],
+        ),
+        true,
+        accessToken,
+        refreshToken,
+    )
 }
 
 /**

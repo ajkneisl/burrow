@@ -4,7 +4,11 @@ import { useAtom, useSetAtom } from "jotai"
 import toast from "react-hot-toast"
 import { useMutation } from "@tanstack/react-query"
 import { ArrowLeft, ArrowRight, AlertTriangle } from "lucide-react"
-import { authToken, userDetails } from "@features/auth/auth.atom.ts"
+import {
+    authToken,
+    refreshTokenAtom,
+    userDetails
+} from "@features/auth/auth.atom.ts"
 import { altLogin } from "@features/auth/user.api.ts"
 import { Link } from "react-router"
 
@@ -17,16 +21,21 @@ export default function Login() {
     const nav = useNavigate()
 
     const [auth, setAuthToken] = useAtom(authToken)
+    const setRefreshToken = useSetAtom(refreshTokenAtom)
     const setUser = useSetAtom(userDetails)
 
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
 
+    const deviceName = `Web — ${navigator.platform || "Browser"}`
+
     const loginMutation = useMutation({
-        mutationFn: () => altLogin(username.trim(), password),
+        mutationFn: () =>
+            altLogin(username.trim(), password, deviceName),
 
         onSuccess: (data) => {
             setAuthToken(data.token)
+            setRefreshToken(data.refreshToken)
             setUser(data.user)
 
             toast.success("Welcome back!")

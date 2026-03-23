@@ -13,7 +13,12 @@ import {
     Zap,
     ArrowRight
 } from "lucide-react"
-import { authToken, newUser, userDetails } from "@features/auth/auth.atom.ts"
+import {
+    authToken,
+    newUser,
+    refreshTokenAtom,
+    userDetails
+} from "@features/auth/auth.atom.ts"
 import { ViewErrors } from "@umnburrow/core"
 import { login } from "@features/auth/user.api.ts"
 import { Link } from "react-router"
@@ -48,15 +53,19 @@ export default function LandingView() {
     }, [])
 
     const [auth, setAuthToken] = useAtom(authToken)
+    const setRefreshToken = useSetAtom(refreshTokenAtom)
     const setNewUser = useSetAtom(newUser)
     const setUser = useSetAtom(userDetails)
 
     // login
+    const deviceName = `Web — ${navigator.platform || "Browser"}`
+
     const loginMutation = useMutation({
-        mutationFn: login,
+        mutationFn: (credentials: string) => login(credentials, deviceName),
 
         onSuccess: (data) => {
             setAuthToken(data.token)
+            setRefreshToken(data.refreshToken)
             setUser(data.user)
 
             if (data.newUser) {

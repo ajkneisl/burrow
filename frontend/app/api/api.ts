@@ -1,6 +1,22 @@
-import { authToken } from "@features/auth/auth.atom"
+import { authToken, refreshTokenAtom } from "@features/auth/auth.atom"
 import { BASE_URL } from "@api/util"
 import { store } from "@api/api.atom"
+
+/** Singleton promise to prevent concurrent refresh calls. */
+let refreshPromise: Promise<boolean> | null = null
+
+/** Exchange a refresh token for new tokens (raw fetch to avoid circular imports). */
+async function doRefresh(
+    refreshToken: string
+): Promise<{ token: string; refreshToken: string }> {
+    const response = await fetch(`${BASE_URL}/user/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken })
+    })
+    if (!response.ok) throw new Error("Refresh failed")
+    return response.json()
+}
 
 /**
  * Options for a request.
@@ -102,13 +118,91 @@ export async function request<T = unknown, R = unknown>(
         )
     }
 
-    if (!response.ok) {
-        if (response.status === 401) {
-            // TODO: proper way to sign the user out?
-            await store.set(authToken, "")
-            return undefined as R
+    // attempt token refresh on 401 (skip for the refresh endpoint itself)
+    if (
+        response.status === 401 &&
+        auth &&
+        !url.includes("/user/refresh")
+    ) {
+        if (!refreshPromise) {
+            refreshPromise = (async () => {
+                try {
+                    const currentRefreshToken =
+                        await store.get(refreshTokenAtom)
+                    if (!currentRefreshToken) return false
+
+                    const result =
+                        await doRefresh(currentRefreshToken)
+                    await store.set(authToken, result.token)
+                    await store.set(
+                        refreshTokenAtom,
+                        result.refreshToken
+                    )
+                    return true
+                } catch {
+                    // refresh failed — clear tokens
+                    await store.set(authToken, "")
+                    await store.set(refreshTokenAtom, "")
+                    return false
+                } finally {
+                    refreshPromise = null
+                }
+            })()
         }
 
+        const refreshed = await refreshPromise
+
+        if (refreshed) {
+            // retry the original request with the new token
+            const newToken = await store.get(authToken)
+            const retryHeaders = { ...requestHeaders }
+            if (newToken) retryHeaders.Authorization = `Bearer ${newToken}`
+
+            const retryController = new AbortController()
+            const retryTimeoutId = setTimeout(
+                () => retryController.abort(),
+                30000
+            )
+
+            const retryResponse = await fetch(fullUrl, {
+                ...fetchOptions,
+                headers: retryHeaders,
+                signal: retryController.signal
+            })
+
+            clearTimeout(retryTimeoutId)
+
+            if (!retryResponse.ok) {
+                try {
+                    const body = await retryResponse.json()
+                    return Promise.reject(body.message || body)
+                } catch {
+                    return Promise.reject(
+                        `Request failed with status ${retryResponse.status}`
+                    )
+                }
+            }
+
+            const retryContentLength =
+                retryResponse.headers.get("content-length")
+            const retryContentType =
+                retryResponse.headers.get("content-type")
+
+            if (
+                retryResponse.status === 204 ||
+                retryContentLength === "0" ||
+                !retryContentType?.includes("application/json")
+            ) {
+                return undefined as R
+            }
+
+            return (await retryResponse.json()) as R
+        }
+
+        return Promise.reject("Unauthorized.")
+    }
+
+    if (!response.ok) {
         try {
             const body = await response.json()
 

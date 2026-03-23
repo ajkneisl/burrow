@@ -9,4 +9,10 @@ import kotlinx.serialization.Serializable
  * @param newUser If this user just registered.
  * @param token An authorization token.
  */
-@Serializable data class AuthorizedUser(val user: User, val newUser: Boolean, val token: String)
+@Serializable
+data class AuthorizedUser(
+    val user: User,
+    val newUser: Boolean,
+    val token: String,
+    val refreshToken: String,
+)

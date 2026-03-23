@@ -8,6 +8,11 @@ import { atomWithCookie } from "@api/util.ts"
 export const authToken = atomWithCookie<string>("auth", "")
 
 /**
+ * The refresh token for obtaining new access tokens.
+ */
+export const refreshTokenAtom = atomWithCookie<string>("refreshToken", "")
+
+/**
  * The user's details.
  */
 export const userDetails = atom<User | null>(null)

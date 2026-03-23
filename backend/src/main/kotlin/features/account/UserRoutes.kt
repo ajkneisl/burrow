@@ -1,5 +1,6 @@
 package app.burrow.features.account
 
+import app.burrow.api.Error
 import app.burrow.api.InvalidAuthorization
 import app.burrow.api.optionalIntQueryParameter
 import app.burrow.api.queryParameter
@@ -214,6 +215,29 @@ val USER_ROUTES: Route.() -> Unit = {
             }
         }
 
+        // ROUTE /user/sessions
+        // manage active sessions
+        route("/sessions") {
+            // GET /user/sessions
+            // list active sessions
+            get { call.respond(getRefreshTokensForUser(call.userID)) }
+
+            // DELETE /user/sessions
+            // revoke a specific session or all sessions
+            delete {
+                val all = call.request.queryParameters["all"]?.toBoolean() ?: false
+
+                if (all) {
+                    deleteAllRefreshTokensForUser(call.userID)
+                } else {
+                    val tokenId = call.queryParameter("id")
+                    deleteRefreshTokenById(tokenId, call.userID)
+                }
+
+                call.respond(HttpStatusCode.OK)
+            }
+        }
+
         // DELETE /user
         // delete your account
         delete {
@@ -234,6 +258,8 @@ val USER_ROUTES: Route.() -> Unit = {
     // PUT /user/login
     // login
     put("/login") {
+        val deviceName = call.request.queryParameters["deviceName"] ?: "Unknown Device"
+
         val idToken =
             if (call.queryParameters["platform"] == "android") {
                     val request = call.receive<AndroidAuthRequest>()
@@ -243,7 +269,7 @@ val USER_ROUTES: Route.() -> Unit = {
                 }
                 .removeSurrounding("\"")
 
-        val user = retrieveUser(idToken) ?: throw InvalidAuthorization()
+        val user = retrieveUser(idToken, deviceName) ?: throw InvalidAuthorization()
 
         call.respond(user)
     }
@@ -253,15 +279,43 @@ val USER_ROUTES: Route.() -> Unit = {
      *
      * @param username The username to the account.
      * @param password The password to the account.
+     * @param deviceName The device name for session tracking.
      */
-    @Serializable data class AltAccountLoginRequest(val username: String, val password: String)
+    @Serializable
+    data class AltAccountLoginRequest(
+        val username: String,
+        val password: String,
+        val deviceName: String = "Unknown Device",
+    )
 
-    // PUT /alt/login
+    // PUT /user/altlogin
     // login to an alternative account
     put("/altlogin") {
-        val (username, password) = call.receive<AltAccountLoginRequest>()
-        val authorizedUser = login(username, password) ?: throw InvalidAuthorization()
+        val (username, password, deviceName) = call.receive<AltAccountLoginRequest>()
+        val authorizedUser = login(username, password, deviceName) ?: throw InvalidAuthorization()
 
         call.respond(authorizedUser)
+    }
+
+    /** A request to refresh an access token. */
+    @Serializable data class RefreshRequest(val refreshToken: String)
+
+    /** The response from a token refresh. */
+    @Serializable data class RefreshResponse(val token: String, val refreshToken: String)
+
+    // POST /user/refresh
+    // exchange a refresh token for a new access token + rotated refresh token
+    post("/refresh") {
+        val (rawRefreshToken) = call.receive<RefreshRequest>()
+        val validated =
+            validateRefreshToken(rawRefreshToken)
+                ?: throw Error(401, "Invalid or expired refresh token.")
+
+        // rotate: delete old, create new with same device name
+        deleteRefreshToken(validated.tokenHash)
+        val newRefreshToken = createRefreshToken(validated.userID, validated.deviceName)
+        val newAccessToken = Authorization.generateToken(validated.userID)
+
+        call.respond(RefreshResponse(newAccessToken, newRefreshToken))
     }
 }

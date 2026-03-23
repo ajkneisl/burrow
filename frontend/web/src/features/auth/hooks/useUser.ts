@@ -1,6 +1,6 @@
 import type { User } from "../user.types.ts"
-import { useAtom } from "jotai"
-import { authToken } from "../auth.atom.ts"
+import { useAtom, useSetAtom } from "jotai"
+import { authToken, refreshTokenAtom } from "../auth.atom.ts"
 import {
     useQuery,
     useQueryClient,
@@ -19,6 +19,7 @@ export default function useUser(): User | null {
     const nav = useNavigate()
 
     const [auth, setAuth] = useAtom(authToken)
+    const setRefreshToken = useSetAtom(refreshTokenAtom)
 
     const { data, error, isLoading } = useQuery({
         queryKey: ["user"],
@@ -33,6 +34,7 @@ export default function useUser(): User | null {
     ) {
         queryClient.resetQueries({ queryKey: ["user"] })
         setAuth("")
+        setRefreshToken("")
         nav("/welcome")
         reset()
 
