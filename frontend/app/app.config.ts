@@ -28,9 +28,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         entitlements: {
             "com.apple.developer.maps": true
         },
-        config: {
-            googleMapsApiKey: process.env.GOOGLE_MAPS_IOS_API_KEY
-        },
         icon: {
             dark: "./assets/images/burrow-dark.png",
             light: "./assets/images/burrow.png"
@@ -74,12 +71,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
                 ],
                 category: ["BROWSABLE", "DEFAULT"]
             }
-        ],
-        config: {
-            googleMaps: {
-                apiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY
-            }
-        }
+        ]
     },
     web: {
         bundler: "metro",
@@ -87,7 +79,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         favicon: "./assets/images/favicon.png"
     },
     plugins: [
-        "react-native-maps",
+        [
+            "react-native-maps",
+            {
+                iosGoogleMapsApiKey:
+                    process.env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY,
+                androidGoogleMapsApiKey:
+                    process.env.EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY
+            }
+        ],
         "expo-web-browser",
         "expo-router",
         [
@@ -149,10 +149,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         },
         apiUrl: process.env.API_URL,
         cdnUrl: process.env.CDN_URL,
-        googleMapsApiKey: {
-            ios: process.env.GOOGLE_MAPS_IOS_API_KEY,
-            android: process.env.GOOGLE_MAPS_ANDROID_API_KEY
-        },
         eas: {
             projectId: "3dc55916-e2a2-4081-a6cd-b76056b7386f"
         }
