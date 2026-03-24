@@ -1,6 +1,6 @@
 import "./global.css"
 import { useEffect, useMemo } from "react"
-import { Stack } from "expo-router"
+import { Stack, useRouter, useSegments } from "expo-router"
 import { Provider, useAtom } from "jotai"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { SafeAreaProvider } from "react-native-safe-area-context"
@@ -30,6 +30,26 @@ const queryClient = new QueryClient({
         }
     }
 })
+
+/**
+ * Redirects to the login screen when the auth token is cleared
+ * while the user is on a protected route.
+ */
+function AuthGuard() {
+    const [auth] = useAtom(authToken)
+    const segments = useSegments()
+    const router = useRouter()
+
+    useEffect(() => {
+        const inAuthGroup = segments[0] === "(auth)"
+
+        if ((!auth || auth === "") && !inAuthGroup) {
+            router.replace("/(auth)/welcome")
+        }
+    }, [auth, segments, router])
+
+    return null
+}
 
 /**
  * Theme manager that loads and applies the user's theme.
@@ -113,6 +133,7 @@ export default function RootLayout() {
                 <SafeAreaProvider>
                     <Provider store={store}>
                         <QueryClientProvider client={queryClient}>
+                            <AuthGuard />
                             <ThemeManager>
                                 <OfflineIndicator />
 

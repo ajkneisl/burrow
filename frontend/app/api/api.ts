@@ -14,7 +14,9 @@ async function doRefresh(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken })
     })
+
     if (!response.ok) throw new Error("Refresh failed")
+
     return response.json()
 }
 
@@ -129,7 +131,10 @@ export async function request<T = unknown, R = unknown>(
                 try {
                     const currentRefreshToken =
                         await store.get(refreshTokenAtom)
-                    if (!currentRefreshToken) return false
+                    if (!currentRefreshToken) {
+                        await store.set(authToken, "")
+                        return false
+                    }
 
                     const result =
                         await doRefresh(currentRefreshToken)
@@ -140,7 +145,6 @@ export async function request<T = unknown, R = unknown>(
                     )
                     return true
                 } catch {
-                    // refresh failed — clear tokens
                     await store.set(authToken, "")
                     await store.set(refreshTokenAtom, "")
                     return false

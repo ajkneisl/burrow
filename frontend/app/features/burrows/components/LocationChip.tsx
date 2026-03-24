@@ -1,8 +1,5 @@
-import { useThemeColors } from "@api/theme/useThemeColors"
-import { View } from "react-native"
-import { Text } from "@components/core"
+import {Chip } from "@components/core"
 import { MapPin } from "lucide-react-native"
-import ThemedIcon from "@components/core/ThemedIcon"
 import {useMemo} from "react";
 
 /**
@@ -20,8 +17,6 @@ type LocationChipProps = {
  * @author AJ Kneisl
  */
 export default function LocationChip({ location }: LocationChipProps) {
-    const colors = useThemeColors()
-
     const shortenedLocation = useMemo(() => {
         let initialLocation = location
 
@@ -33,24 +28,8 @@ export default function LocationChip({ location }: LocationChipProps) {
     }, [location])
 
     return (
-        <View
-            className="px-3 py-1.5 rounded-full flex-row items-center gap-1.5"
-            style={{ backgroundColor: `${colors.secondary}33` }}
-        >
-            <ThemedIcon
-                icon={MapPin}
-                size={14}
-                overrideColor={"secondary"}
-                strokeWidth={2.5}
-            />
-
-            <Text
-                className="text-xs font-bold"
-                style={{ color: colors.secondary }}
-                numberOfLines={1}
-            >
-                {shortenedLocation}
-            </Text>
-        </View>
+        <Chip color="secondary" icon={MapPin}>
+            {shortenedLocation}
+        </Chip>
     )
 }

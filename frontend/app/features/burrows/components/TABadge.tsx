@@ -1,8 +1,5 @@
-import ThemedIcon from "@components/core/ThemedIcon"
-import { GraduationCap, MapPin} from "lucide-react-native"
-import { View } from "react-native"
-import { Text } from "@components/core"
-import { useThemeColors } from "@api/theme/useThemeColors"
+import { GraduationCap } from "lucide-react-native"
+import { Chip } from "@components/core"
 
 /**
  * A badge that indicates a TA.
@@ -10,23 +7,9 @@ import { useThemeColors } from "@api/theme/useThemeColors"
  * @author AJ Kneisl
  */
 export default function TABadge() {
-    const colors = useThemeColors()
-
     return (
-        <View
-            className="px-3 py-1.5 rounded-full flex-row items-center gap-1.5"
-            style={{ backgroundColor: `${colors.info}33` }}
-        >
-            <ThemedIcon
-                icon={GraduationCap}
-                size={14}
-                overrideColor={"info"}
-                strokeWidth={2.5}
-            />
-
-            <Text className="text-xs font-bold" style={{ color: colors.info }}>
-                TA
-            </Text>
-        </View>
+        <Chip color="info" icon={GraduationCap}>
+            TA
+        </Chip>
     )
 }

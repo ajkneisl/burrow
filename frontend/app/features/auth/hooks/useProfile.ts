@@ -14,12 +14,6 @@ export default function useProfile(): Profile | null {
         queryFn: async () => await getUser()
     })
 
-    // // if the request fails, log the user out
-    if (auth !== "" && error && !isLoading) {
-        router.replace("/(auth)/welcome")
-        return null
-    }
-
     // the user is not logged in
     if (!auth || auth === "" || !data) {
         return null

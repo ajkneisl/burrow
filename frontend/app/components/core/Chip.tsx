@@ -3,7 +3,7 @@ import { Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import type { LucideIcon } from "lucide-react-native"
 
-type ChipColor =
+export type ChipColor =
     | "primary"
     | "secondary"
     | "error"

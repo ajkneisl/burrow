@@ -128,9 +128,6 @@ export function UpcomingBurrowCard({
                     </View>
 
                     <View className="flex-row items-center gap-2">
-                        {/* action badge */}
-                        {actionBadge}
-
                         {/*bookmarked*/}
                         {bookmarked && (
                             <View
@@ -171,6 +168,9 @@ export function UpcomingBurrowCard({
                         {burrow.description.replaceAll(/\n/g, " ")}
                     </Text>
                 )}
+
+                {/* action badge */}
+                {actionBadge ? <View className="flex items-end">{actionBadge}</View> : <></>}
 
                 {/* Kind chip underneath date */}
                 <View className="flex-row items-center justify-between mt-2">
