@@ -4,32 +4,25 @@ COPY backend /backend
 
 RUN gradle shadowJar
 
-FROM node:latest AS frontend-build
+FROM oven/bun:latest AS frontend-build
 WORKDIR /frontend
 COPY frontend/web /frontend
 
 ENV VITE_BASE_URL="https://umn.app/api"
 ENV VITE_CDN_URL="https://cdn.umn.app"
 
-RUN npm install --force
-RUN npm run build
+RUN bun install
+RUN bun run build
 
-FROM node:lts AS admin-build
-
-# Enable corepack to manage pnpm
-RUN corepack enable
-
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-
+FROM oven/bun:latest AS admin-build
 WORKDIR /admin
 COPY frontend/admin /admin
 
 ENV VITE_BASE_URL="https://umn.app/api"
 ENV CI="true"
 
-RUN pnpm install --no-frozen-lockfile
-RUN pnpm run build
+RUN bun install
+RUN bun run build
 
 FROM ubuntu:latest
 
