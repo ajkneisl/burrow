@@ -1,11 +1,12 @@
 import { useState } from "react"
-import { View, Text, ScrollView, Pressable } from "react-native"
+import { View, ScrollView, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack } from "expo-router"
-import { Card, Button } from "@components/core"
+import { Card, Button, Text } from "@components/core"
 import {
     ArrowLeft,
     User,
+    AtSign,
     Palette,
     Bell,
     Info,
@@ -15,7 +16,8 @@ import {
     LogOut,
     ChevronRight,
     AlertCircle,
-    Trash2
+    Trash2,
+    Users
 } from "lucide-react-native"
 import { useGoogleAuth } from "@features/auth/hooks/useGoogleAuth"
 import useUser from "@features/auth/hooks/useUser"
@@ -26,7 +28,9 @@ import { saveTheme } from "@api/theme/theme.api"
 import type { Theme, ThemeColors } from "@api/theme/theme.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { DeleteAccountModal } from "@features/settings/components/DeleteAccountModal"
-import * as Application from "expo-application";
+import * as Application from "expo-application"
+import useProfile from "@features/auth/hooks/useProfile"
+import ChangeUsernameModal from "@/app/settings/change-username";
 
 /**
  * The settings page.
@@ -36,16 +40,21 @@ import * as Application from "expo-application";
 export default function SettingsScreen() {
     const router = useRouter()
     const user = useUser()
+    const profile = useProfile()
+
     const colors = useThemeColors()
     const [deleteModalVisible, setDeleteModalVisible] = useState(false)
+    const [usernameModalVisible, setUsernameModalVisible] = useState(false)
 
     const { signOut } = useGoogleAuth()
 
     const [theme, setTheme] = useAtom(themeAtom)
 
     const handleThemeChange = async (newTheme: Theme) => {
-        setTheme(newTheme)
+        await setTheme(newTheme)
+
         try {
+            console.log(newTheme)
             await saveTheme(newTheme)
         } catch (error) {
             console.error("Failed to save theme:", error)
@@ -75,8 +84,28 @@ export default function SettingsScreen() {
                     <SettingItem
                         icon={<User size={20} color={colors.primary} />}
                         label="Edit Profile"
-                        subtitle={user ? `@${user.username}` : ""}
+                        subtitle={user ? `${profile?.name}` : ""}
                         onPress={() => router.push("/settings/edit-profile")}
+                        colors={colors}
+                    />
+
+                    <View className="h-px bg-card-border my-3" />
+
+                    <SettingItem
+                        icon={<AtSign size={20} color={colors.primary} />}
+                        label="Change Username"
+                        subtitle={user?.username ?? ""}
+                        onPress={() => setUsernameModalVisible(true)}
+                        colors={colors}
+                    />
+
+                    <View className="h-px bg-card-border my-3" />
+
+                    <SettingItem
+                        icon={<Users size={20} color={colors.primary} />}
+                        label="My Clubs"
+                        subtitle="View and manage your clubs"
+                        onPress={() => router.push("/settings/my-clubs")}
                         colors={colors}
                     />
                 </Card>
@@ -175,7 +204,10 @@ export default function SettingsScreen() {
                     <SettingItem
                         icon={<Info size={20} color={colors.primary} />}
                         label="About Burrow"
-                        subtitle={"Version " + (Application.nativeApplicationVersion ?? "INDEV")}
+                        subtitle={
+                            "Version " +
+                            (Application.nativeApplicationVersion ?? "INDEV")
+                        }
                         onPress={() => {
                             router.push("/settings/about")
                         }}
@@ -237,6 +269,11 @@ export default function SettingsScreen() {
                     <Text className="text-error font-semibold">Sign Out</Text>
                 </Button>
             </ScrollView>
+
+            <ChangeUsernameModal
+                visible={usernameModalVisible}
+                onClose={() => setUsernameModalVisible(false)}
+            />
 
             <DeleteAccountModal
                 visible={deleteModalVisible}

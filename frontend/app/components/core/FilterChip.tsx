@@ -1,4 +1,5 @@
-import { Pressable, Text } from "react-native"
+import { Pressable } from "react-native"
+import { Text } from "@components/core"
 
 type FilterChipProps = {
     label: string

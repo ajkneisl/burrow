@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.umn.burrow",
+      "sha256_cert_fingerprints": [
+        "EB:56:CB:B9:5C:3C:7E:CB:4C:8D:85:FA:75:3E:BF:11:BF:3F:4C:84"
+      ]
+    }
+  }
+]

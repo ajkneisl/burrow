@@ -6,8 +6,10 @@ import {
     statusCodes,
     isSuccessResponse
 } from "@react-native-google-signin/google-signin"
-import { authToken, newUser as newUserAtom, userDetails } from "../auth.atom"
+import * as Device from "expo-device"
+import { authToken, newUser as newUserAtom, refreshTokenAtom, userDetails } from "../auth.atom"
 import { login } from "../user.api"
+import { store } from "@api/api.atom"
 
 // OAuth client IDs
 export const IOS_CLIENT_ID =
@@ -43,9 +45,11 @@ export function useGoogleAuth() {
     const handleGoogleSignIn = useCallback(
         async (idToken: string) => {
             try {
-                const data = await login(idToken)
+                const deviceName = Device.deviceName || `${Device.brand ?? ""} ${Device.modelName ?? ""}`.trim() || "Mobile Device"
+                const data = await login(idToken, deviceName)
 
                 await setAuth(data.token)
+                await store.set(refreshTokenAtom, data.refreshToken)
                 setUser(data.user)
                 setNewUser(data.newUser)
 
@@ -110,6 +114,7 @@ export function useGoogleAuth() {
             // Ignore sign out errors
         }
         await setAuth("")
+        await store.set(refreshTokenAtom, "")
         setUser(null)
         setNewUser(false)
         router.replace("/(auth)/welcome")

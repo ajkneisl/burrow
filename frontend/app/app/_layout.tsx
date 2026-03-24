@@ -1,6 +1,6 @@
 import "./global.css"
 import { useEffect, useMemo } from "react"
-import { Stack } from "expo-router"
+import { Stack, useRouter, useSegments } from "expo-router"
 import { Provider, useAtom } from "jotai"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { SafeAreaProvider } from "react-native-safe-area-context"
@@ -32,6 +32,26 @@ const queryClient = new QueryClient({
 })
 
 /**
+ * Redirects to the login screen when the auth token is cleared
+ * while the user is on a protected route.
+ */
+function AuthGuard() {
+    const [auth] = useAtom(authToken)
+    const segments = useSegments()
+    const router = useRouter()
+
+    useEffect(() => {
+        const inAuthGroup = segments[0] === "(auth)"
+
+        if ((!auth || auth === "") && !inAuthGroup) {
+            router.replace("/(auth)/welcome")
+        }
+    }, [auth, segments, router])
+
+    return null
+}
+
+/**
  * Theme manager that loads and applies the user's theme.
  * Must be inside the Jotai Provider to access theme state.
  */
@@ -45,8 +65,10 @@ function ThemeManager({ children }: { children: React.ReactNode }) {
         async function loadTheme() {
             const loadedTheme = await getTheme()
 
+            console.log("loaded: ", loadedTheme)
+
             if (theme !== loadedTheme) {
-                setTheme(loadedTheme)
+                await setTheme(loadedTheme)
             }
         }
 
@@ -54,7 +76,7 @@ function ThemeManager({ children }: { children: React.ReactNode }) {
         if (user) {
             void loadTheme()
         }
-    }, [user, theme, setTheme])
+    }, [user, setTheme])
 
     // Compute actual color scheme based on theme setting
     const computedScheme = useMemo(() => {
@@ -84,11 +106,13 @@ function ThemeManager({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
     const [fontsLoaded] = useFonts({
-        "Poppins-Regular": require("../assets/fonts/Poppins-Regular.ttf"),
-        "Poppins-Medium": require("../assets/fonts/Poppins-Medium.ttf"),
-        "Poppins-SemiBold": require("../assets/fonts/Poppins-SemiBold.ttf"),
-        "Poppins-Bold": require("../assets/fonts/Poppins-Bold.ttf"),
-        "Barlow-Medium": require("../assets/fonts/Barlow-Medium.ttf")
+        "Inter-Regular": require("../assets/fonts/Inter-Regular.ttf"),
+        "Inter-Medium": require("../assets/fonts/Inter-Medium.ttf"),
+        "Inter-SemiBold": require("../assets/fonts/Inter-SemiBold.ttf"),
+        "Inter-Bold": require("../assets/fonts/Inter-Bold.ttf"),
+        "Inter-ExtraBold": require("../assets/fonts/Inter-ExtraBold.ttf"),
+        "Figtree-Bold": require("../assets/fonts/Figtree-Bold.ttf"),
+        "Figtree-ExtraBold": require("../assets/fonts/Figtree-ExtraBold.ttf")
     })
 
     useEffect(() => {
@@ -109,6 +133,7 @@ export default function RootLayout() {
                 <SafeAreaProvider>
                     <Provider store={store}>
                         <QueryClientProvider client={queryClient}>
+                            <AuthGuard />
                             <ThemeManager>
                                 <OfflineIndicator />
 

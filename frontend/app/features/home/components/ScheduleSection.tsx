@@ -1,9 +1,10 @@
-import { View, Text, ActivityIndicator, Pressable } from "react-native"
+import { View, ActivityIndicator, Pressable } from "react-native"
+import { Text } from "@components/core"
 import { Calendar, ChevronDown } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import type { ScheduleBurrowResponse } from "@features/burrows/burrows.types"
 import { dayLabel } from "@api/util"
-import { ScheduleCard } from "./ScheduleCard"
+import { ScheduleBurrowCard } from "./ScheduleBurrowCard"
 import { useMemo, useState, useEffect } from "react"
 import Animated, {
     useAnimatedStyle,
@@ -165,7 +166,7 @@ export function ScheduleSection({
 
                         <Animated.View style={contentStyle}>
                             {projects.map((item) => (
-                                <ScheduleCard
+                                <ScheduleBurrowCard
                                     key={item.burrow.id}
                                     item={item}
                                 />
@@ -187,7 +188,7 @@ export function ScheduleSection({
                                     b.burrow.beginningTime
                             )
                             .map((item) => (
-                                <ScheduleCard
+                                <ScheduleBurrowCard
                                     key={item.burrow.id}
                                     item={item}
                                 />

@@ -28,10 +28,10 @@ export default function Header() {
     const input = <Search />
 
     return (
-        <div className="relative">
+        <div className="relative z-[1000]">
             <header
                 className={clsx(
-                    "bg-primary text-text sticky top-0 z-50 w-full flex-col",
+                    "bg-primary text-text sticky top-0 w-full flex-col",
                     !open && "shadow-md"
                 )}
             >

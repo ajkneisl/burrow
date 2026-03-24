@@ -1,9 +1,12 @@
-import { View, Text } from "react-native"
+import { View } from "react-native"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
-import { Modal, Button } from "@components/core"
-import { blockUser } from "@features/profile/block.api"
+import { Modal, Button, Text } from "@components/core"
+import { blockUser } from "@features/profile/profile.api"
 
+/**
+ * {@link BlockUserModal}
+ */
 type BlockUserModalProps = {
     visible: boolean
     onClose: () => void
@@ -11,6 +14,14 @@ type BlockUserModalProps = {
     displayName: string
 }
 
+/**
+ * The modal to block a user.
+ *
+ * @param visible If the modal is visible.
+ * @param onClose When the modal is closed.
+ * @param userID The ID to block.
+ * @param displayName The display name of the user to block.
+ */
 export function BlockUserModal({
     visible,
     onClose,
@@ -24,11 +35,13 @@ export function BlockUserModal({
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ["user"] })
             await queryClient.invalidateQueries({ queryKey: ["blockedUsers"] })
+
             Toast.show({
                 type: "success",
                 text1: "User blocked",
                 text2: `You have blocked ${displayName}`
             })
+            
             onClose()
         },
         onError: (error: any) => {
@@ -53,10 +66,12 @@ export function BlockUserModal({
                 Are you sure you want to block{" "}
                 <Text className="font-bold">{displayName}</Text>?
             </Text>
+
             <Text className="text-text text-opacity-70 mb-6">
                 They will not be able to find your profile, see your Burrows, or
                 contact you.
             </Text>
+
             <View className="flex-row gap-3">
                 <Button
                     variant="outline"

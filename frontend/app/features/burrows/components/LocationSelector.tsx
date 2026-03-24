@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react"
-import { View, useColorScheme, Platform } from "react-native"
+import { View, Platform } from "react-native"
+import { Text } from "@components/core"
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete"
 import { MapPin } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
@@ -33,8 +34,6 @@ export function LocationSelector({
     placeholder = "Search for a location..."
 }: LocationSelectorProps) {
     const colors = useThemeColors()
-    const colorScheme = useColorScheme()
-    const isDark = colorScheme === "dark"
     const ref = useRef<any>(null)
 
     useEffect(() => {
@@ -43,7 +42,7 @@ export function LocationSelector({
         }
     }, [value])
 
-    const borderColor = isDark ? "#4b5563" : "#d1d5db"
+    const borderColor = colors.cardBorder
 
     return (
         <View style={{ zIndex: 50 }}>
@@ -58,12 +57,9 @@ export function LocationSelector({
                     })
                 }}
                 query={{
-                    key:
-                        Platform.OS === "ios"
-                            ? Constants.expoConfig?.ios?.config
-                                  ?.googleMapsApiKey
-                            : Constants.expoConfig?.android?.config?.googleMaps
-                                  ?.apiKey,
+                    key: Constants.expoConfig?.extra?.googleMapsApiKey?.[
+                        Platform.OS
+            ],
                     language: "en",
                     components: "country:us"
                 }}
@@ -92,7 +88,7 @@ export function LocationSelector({
                         fontSize: 16,
                         color: colors.text,
                         paddingVertical: 12,
-                        paddingHorizontal: 12,
+                        paddingHorizontal: 16,
                         backgroundColor: "transparent",
                         marginBottom: 0
                     },

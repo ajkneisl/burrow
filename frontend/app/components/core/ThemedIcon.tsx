@@ -8,7 +8,14 @@ type ThemedIconProps = {
     icon: LucideIcon
     size: number
     opacity?: number
-    overrideColor?: "secondary" | "primary" | "info" | "error" | "success" | "warn"
+    regularColor?: string
+    overrideColor?:
+        | "secondary"
+        | "primary"
+        | "info"
+        | "error"
+        | "success"
+        | "warn"
     strokeWidth?: number
 }
 
@@ -19,6 +26,7 @@ type ThemedIconProps = {
  * @param size The size of the icon.
  * @param overrideColor If the color should be overridden.
  * @param opacity An optional opacity.
+ * @param regularColor A regular color to override with.
  * @param strokeWidth An optional stroke width.
  *
  * @author AJ Kneisl
@@ -28,11 +36,20 @@ export default function ThemedIcon({
     size,
     overrideColor,
     opacity,
+    regularColor,
     strokeWidth
 }: ThemedIconProps) {
     const colors = useThemeColors()
 
-    const color = overrideColor ? colors[overrideColor] : colors.text
+    const color =
+        regularColor ?? (overrideColor ? colors[overrideColor] : colors.text)
 
-    return <Icon size={size} color={color} style={{ opacity: opacity ?? 1 }} strokeWidth={strokeWidth} />
+    return (
+        <Icon
+            size={size}
+            color={color}
+            style={{ opacity: opacity ?? 1 }}
+            strokeWidth={strokeWidth}
+        />
+    )
 }

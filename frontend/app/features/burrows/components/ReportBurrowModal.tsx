@@ -1,20 +1,24 @@
 import { useState } from "react"
-import { View, Text, Pressable } from "react-native"
+import { View, Pressable } from "react-native"
 import { useMutation } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
 import { Check } from "lucide-react-native"
-import { Modal, Button, Input } from "@components/core"
+import { Modal, Button, Input, Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { reportBurrow, type BurrowReportCategory } from "@features/profile/report.api"
+import { reportBurrow } from "@features/profile/profile.api"
+import type { BurrowReportCategory } from "@features/profile/profile.types"
 
-const REPORT_CATEGORIES: { id: BurrowReportCategory; label: string }[] = [
-    { id: "Spam", label: "Spam or promotional content" },
-    { id: "Inappropriate Content", label: "Inappropriate content" },
-    { id: "Misleading Information", label: "Misleading information" },
-    { id: "Harassment", label: "Harassment or bullying" },
-    { id: "Other", label: "Other" }
+const REPORT_CATEGORIES: BurrowReportCategory[] = [
+    "Spam",
+    "Inappropriate Content",
+    "Misleading Information",
+    "Harassment",
+    "Other"
 ]
 
+/**
+ * {@link ReportBurrowModal}
+ */
 type ReportBurrowModalProps = {
     visible: boolean
     onClose: () => void
@@ -22,6 +26,14 @@ type ReportBurrowModalProps = {
     burrowTitle: string
 }
 
+/**
+ * A modal to report a burrow.
+ *
+ * @param visible If the modal is visible.
+ * @param onClose When the modal is closed.
+ * @param burrowID The burrow ID to report.
+ * @param burrowTitle The title of the burrow.
+ */
 export function ReportBurrowModal({
     visible,
     onClose,
@@ -85,17 +97,17 @@ export function ReportBurrowModal({
             <View className="mb-4">
                 {REPORT_CATEGORIES.map((category) => (
                     <Pressable
-                        key={category.id}
-                        onPress={() => setSelectedCategory(category.id)}
+                        key={category}
+                        onPress={() => setSelectedCategory(category)}
                         className="flex-row items-center justify-between py-3 px-4 mb-2 rounded-lg bg-card border border-card-border active:opacity-70"
                         style={
-                            selectedCategory === category.id
+                            selectedCategory === category
                                 ? { borderColor: colors.primary }
                                 : undefined
                         }
                     >
-                        <Text className="text-text">{category.label}</Text>
-                        {selectedCategory === category.id && (
+                        <Text className="text-text">{category}</Text>
+                        {selectedCategory === category && (
                             <Check size={18} color={colors.primary} />
                         )}
                     </Pressable>

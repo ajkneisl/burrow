@@ -59,7 +59,11 @@ export interface GeneralLocation {
  */
 export const BURROW_KIND_CONFIG: Record<
     BurrowKind,
-    { label: string; Icon: LucideIcon; colorKey: "success" | "secondary" | "info" | "error" }
+    {
+        label: string
+        Icon: LucideIcon
+        colorKey: "success" | "secondary" | "info" | "error"
+    }
 > = {
     STUDY: {
         label: "Study",
@@ -101,12 +105,11 @@ export type BurrowVisibility = "PUBLIC" | "UNLISTED" | "PRIVATE"
  * @param endTime The time the meeting ends.
  * @param tags The tags for the group.
  * @param capacity The maximum amount of people able to be in the meeting.
- * @param joined The amount of students in the meeting.
- * @param waiting The amount of students on the waitlist.
  */
 export interface Burrow {
     id: string
     ownerID: string
+    clubID?: string
     title: string
     description: string
     location: string
@@ -117,9 +120,46 @@ export interface Burrow {
     capacity: number
     visibility: BurrowVisibility
     requestToJoin: boolean
-    joined: number
-    waiting: number
+    reoccurring: number
     className?: string // Optional: for PROJECT type burrows
+}
+
+export const NOT_REOCCURRING = -1
+export const DAILY = 0
+export const WEEKLY = 1
+export const MONTHLY = 2
+
+export function getReoccurringText(timeframe: number, slim?: boolean): string {
+    let text = ""
+
+    switch (timeframe) {
+        case DAILY:
+            text = "daily"
+            break
+        case WEEKLY:
+            text = "weekly"
+            break
+        case MONTHLY:
+            text = "monthly"
+            break
+        default:
+            return ""
+    }
+
+    return slim ? text : `Reoccurs ${text}`
+}
+
+export function getReoccurText(timeframe: number): string {
+    switch (timeframe) {
+        case DAILY:
+            return "daily"
+        case WEEKLY:
+            return "week"
+        case MONTHLY:
+            return "month"
+        default:
+            return ""
+    }
 }
 
 /**
@@ -165,6 +205,10 @@ export interface BurrowResponse {
     bookmarked: boolean
     highlightedTags: number[]
     hostedByTa?: boolean
+    clubName?: string
+    clubDisplayName?: string
+    joined: number
+    waiting: number
 }
 
 /**

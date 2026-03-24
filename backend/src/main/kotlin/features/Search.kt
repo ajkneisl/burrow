@@ -1,0 +1,256 @@
+package app.burrow.features
+
+import app.burrow.PAGE_SIZE
+import app.burrow.api.models.PaginatedResponse
+import app.burrow.api.query
+import app.burrow.api.toEntity
+import app.burrow.features.account.Users
+import app.burrow.features.account.getAllBlockedRelationships
+import app.burrow.features.account.profile.Profile
+import app.burrow.features.account.profile.Profiles
+import app.burrow.features.burrows.Burrows
+import app.burrow.features.burrows.models.Burrow
+import app.burrow.features.burrows.models.enums.BurrowVisibility
+import app.burrow.features.burrows.searchBurrows
+import app.burrow.features.clubs.Clubs
+import app.burrow.features.clubs.models.enums.ClubPrivacy
+import kotlin.collections.map
+import kotlin.math.ceil
+import kotlinx.coroutines.flow.toList
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.QueryBuilder
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.innerJoin
+import org.jetbrains.exposed.v1.core.like
+import org.jetbrains.exposed.v1.core.lowerCase
+import org.jetbrains.exposed.v1.core.notInList
+import org.jetbrains.exposed.v1.core.or
+import org.jetbrains.exposed.v1.r2dbc.select
+
+/** A search result that can be a burrow, club, or user */
+@Serializable
+sealed class SearchResult {
+    /**
+     * A club search result.
+     *
+     * @param clubID [Club.clubID]
+     * @param displayName [Club.displayName]
+     * @param name [Club.name]
+     */
+    @Serializable
+    @SerialName("club")
+    data class Club(val clubID: String, val displayName: String, val name: String) : SearchResult()
+
+    /**
+     * A user search result.
+     *
+     * @param userID The user's ID.
+     * @param username The user's username from Users table.
+     * @param profile The user's profile information.
+     */
+    @Serializable
+    @SerialName("user")
+    data class User(
+        val userID: String,
+        val username: String,
+        val profile: Profile,
+    ) : SearchResult()
+
+    /**
+     * A burrow search result.
+     *
+     * @param burrow The burrow information.
+     * @param ownerUsername The owner's username.
+     * @param ownerProfile The owner's profile.
+     */
+    @Serializable
+    @SerialName("burrow")
+    data class BurrowResult(
+        val burrow: Burrow,
+        val ownerUsername: String,
+        val ownerProfile: Profile?,
+    ) : SearchResult()
+}
+
+/**
+ * Search through users and Burrows using a query string.
+ *
+ * @param searchQuery The search query string.
+ * @param page The page of results to return. Defaults to 1.
+ * @param requestingUserID The ID of the user making the search request (for blocking filtering).
+ * @return A [PaginatedResponse] of [SearchResult] containing matching users and Burrows.
+ */
+suspend fun search(
+    searchQuery: String,
+    page: Int = 1,
+    requestingUserID: String? = null,
+): PaginatedResponse<SearchResult> {
+    if (searchQuery.isBlank()) {
+        return PaginatedResponse(
+            page = page,
+            totalPages = 0,
+            totalResults = 0,
+            contents = emptyList(),
+        )
+    }
+
+    val pattern = "%" + searchQuery.trim().lowercase().replace("%", "\\%").replace("_", "\\_") + "%"
+
+    val userOffset = ((page - 1) * PAGE_SIZE).toLong()
+
+    // get blocked users to exclude from results
+    val blockedUserIds =
+        if (requestingUserID != null) getAllBlockedRelationships(requestingUserID) else emptySet()
+
+    return query {
+        // blocked users filter expression
+        val blockedExpr: Op<Boolean> =
+            if (blockedUserIds.isNotEmpty()) {
+                Users.id notInList blockedUserIds.toList()
+            } else {
+                Op.TRUE
+            }
+
+        // count total users (excluding blocked)
+        val userSearchExpr =
+            ((Profiles.name.lowerCase() like pattern) or
+                    (Users.username.lowerCase() like pattern)) and blockedExpr
+
+        val totalUsers =
+            Users.innerJoin(Profiles, { Users.id }, { Profiles.userID })
+                .select(Users.id)
+                .where { userSearchExpr }
+                .count()
+
+        // count total clubs (public only)
+        val clubSearchExpr =
+            (Clubs.privacy eq ClubPrivacy.PUBLIC) and
+                    ((Clubs.displayName.lowerCase() like pattern) or
+                            (Clubs.name.lowerCase() like pattern))
+
+        val totalClubs = Clubs.select(Clubs.id).where { clubSearchExpr }.count()
+
+        // count total burrows (excluding those hosted by blocked users)
+        val tagsSearchExpr =
+            object : Op<Boolean>() {
+                override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+                    queryBuilder.append("lower(array_to_string(burrows.tags, ' ')) LIKE '$pattern'")
+                }
+            }
+
+        val burrowBlockedExpr: Op<Boolean> =
+            if (blockedUserIds.isNotEmpty()) {
+                Burrows.ownerID notInList blockedUserIds.toList()
+            } else {
+                Op.TRUE
+            }
+
+        val burrowSearchExpr =
+            (Burrows.visibility eq BurrowVisibility.PUBLIC) and
+                    burrowBlockedExpr and
+                    ((Burrows.title.lowerCase() like pattern) or
+                            (Burrows.description.lowerCase() like pattern) or
+                            (Burrows.location.lowerCase() like pattern) or
+                            tagsSearchExpr)
+
+        val totalBurrows = Burrows.select(Burrows.id).where { burrowSearchExpr }.count()
+
+        val totalResults = totalUsers + totalClubs + totalBurrows
+        val totalPages = ceil(totalResults.toDouble() / PAGE_SIZE).toInt()
+
+        // search users
+        val userResults: List<SearchResult> =
+            Users.innerJoin(Profiles, { Users.id }, { Profiles.userID })
+                .select(Users.columns + Profiles.columns)
+                .where { userSearchExpr }
+                .orderBy(Profiles.name, SortOrder.ASC)
+                .offset(userOffset)
+                .limit(PAGE_SIZE)
+                .toList()
+                .map { row ->
+                    SearchResult.User(
+                        userID = row[Users.id],
+                        username = row[Users.username],
+                        profile = row.toEntity(Profiles),
+                    )
+                }
+
+        // if already enough results, show
+        if (userResults.size >= PAGE_SIZE) {
+            return@query PaginatedResponse(
+                page = page,
+                totalPages = totalPages,
+                totalResults = totalResults,
+                contents = userResults,
+            )
+        }
+
+        // fill remaining slots with clubs, then burrows
+        var remainingSlots = PAGE_SIZE - userResults.size
+
+        val clubOffset =
+            if (userOffset > totalUsers) {
+                userOffset - totalUsers
+            } else {
+                0L
+            }
+
+        val clubResults: List<SearchResult> =
+            Clubs.select(Clubs.columns)
+                .where { clubSearchExpr }
+                .orderBy(Clubs.displayName, SortOrder.ASC)
+                .offset(clubOffset)
+                .limit(remainingSlots)
+                .toList()
+                .map { row ->
+                    SearchResult.Club(
+                        clubID = row[Clubs.id],
+                        displayName = row[Clubs.displayName],
+                        name = row[Clubs.name],
+                    )
+                }
+
+        remainingSlots -= clubResults.size
+
+        if (remainingSlots <= 0) {
+            return@query PaginatedResponse(
+                page = page,
+                totalPages = totalPages,
+                totalResults = totalResults,
+                contents = userResults + clubResults,
+            )
+        }
+
+        val burrowOffset =
+            if (userOffset > totalUsers + totalClubs) {
+                userOffset - totalUsers - totalClubs
+            } else if (userOffset > totalUsers) {
+                maxOf(0L, (userOffset - totalUsers) - totalClubs)
+            } else {
+                0L
+            }
+
+        val burrowResults: List<SearchResult> =
+            searchBurrows {
+                limit = remainingSlots
+                offset = burrowOffset
+                query = searchQuery
+                this.requestingUserID = requestingUserID
+            }
+                .contents
+                .map { (burrow, author, authorProfile) ->
+                    SearchResult.BurrowResult(burrow, author ?: "Unknown", authorProfile)
+                }
+
+        PaginatedResponse(
+            page = page,
+            totalPages = totalPages,
+            totalResults = totalResults,
+            contents = userResults + clubResults + burrowResults,
+        )
+    }
+}

@@ -4,9 +4,9 @@ import {
 } from "@features/burrows/burrows.types"
 import { useQuery } from "@tanstack/react-query"
 import { getAttendees } from "@features/burrows/burrows.api"
-import { Pressable, Text, View } from "react-native"
-import { ProfilePicture } from "@components/profile/ProfilePicture"
-import { Card, Modal, Button } from "@components/core"
+import { Pressable, View } from "react-native"
+import { ProfilePicture } from "@features/profile/components/ProfilePicture"
+import { Card, Chip, Modal, Button, Text } from "@components/core"
 import { useRouter } from "expo-router"
 import { AttendeeActionsModal } from "@features/burrows/attendees/AttendeeActionsModal"
 import { useState } from "react"
@@ -16,8 +16,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Crown,
-    Shield,
-    Users
+    Shield
 } from "lucide-react-native"
 import ThemedIcon from "@components/core/ThemedIcon"
 
@@ -28,6 +27,8 @@ const ITEMS_PER_PAGE = 6
  */
 type AttendeesProps = {
     data: BurrowResponse
+    /** Render without Card wrapper, filling available space */
+    fullScreen?: boolean
 }
 
 /**
@@ -35,7 +36,7 @@ type AttendeesProps = {
  *
  * @author AJ Kneisl
  */
-export default function Attendees({ data }: AttendeesProps) {
+export default function Attendees({ data, fullScreen }: AttendeesProps) {
     const router = useRouter()
     const currentUser = useUser()
     const colors = useThemeColors()
@@ -64,44 +65,121 @@ export default function Attendees({ data }: AttendeesProps) {
     )
 
     const getRoleBadge = (role: string) => {
-        if (role === "HOST") {
-            return (
-                <View
-                    className="flex-row items-center px-2 py-0.5 rounded-full"
-                    style={{ backgroundColor: `${colors.primary}20` }}
-                >
-                    <ThemedIcon
-                        icon={Crown}
-                        size={10}
-                        overrideColor="primary"
-                    />
-                    <Text
-                        className="text-xs font-semibold ml-1"
-                        style={{ color: colors.primary }}
-                    >
-                        Host
-                    </Text>
-                </View>
-            )
-        }
-        if (role === "MODERATOR") {
-            return (
-                <View
-                    className="flex-row items-center px-2 py-0.5 rounded-full"
-                    style={{ backgroundColor: `${colors.info}20` }}
-                >
-                    <ThemedIcon icon={Shield} size={10} overrideColor="info" />
-                    <Text
-                        className="text-xs font-semibold ml-1"
-                        style={{ color: colors.info }}
-                    >
-                        Mod
-                    </Text>
-                </View>
-            )
-        }
+        if (role === "HOST")
+            return <Chip size="sm" color="primary" icon={Crown} label="Host" />
+        if (role === "MODERATOR")
+            return <Chip size="sm" color="info" icon={Shield} label="Mod" />
         return null
     }
+
+    const content = (
+        <>
+            {/* header */}
+            <View className={`flex-row items-center justify-between ${fullScreen ? "px-6 pt-4 pb-2" : "mb-3"}`}>
+                <Text className="text-lg font-bold text-text">
+                    {data.burrow.kind === "PROJECT"
+                        ? "Team Members"
+                        : "Attendees"}
+                </Text>
+                <Text className="text-sm text-text text-opacity-50">
+                    {attendeesData.contents.length} total
+                </Text>
+            </View>
+
+            {/* attendees */}
+            <View className={fullScreen ? "px-6" : ""}>
+                {paginatedAttendees.map(
+                    (item: BurrowMembershipResponse, index: number) => (
+                        <Pressable
+                            key={item.user.id}
+                            onPress={() =>
+                                router.push(`/user/${item.user.username}`)
+                            }
+                            onLongPress={() => {
+                                if (
+                                    isModerator &&
+                                    item.user.id !== currentUser?.id
+                                ) {
+                                    setSelectedAttendee(item)
+                                    setAttendeeActionsModalOpen(true)
+                                }
+                            }}
+                            className={`flex-row items-center py-3 active:opacity-60 ${
+                                index < paginatedAttendees.length - 1
+                                    ? "border-b border-card-border"
+                                    : ""
+                            }`}
+                        >
+                            <ProfilePicture
+                                name={
+                                    item.profile.name || item.user.username
+                                }
+                                userID={item.user.id}
+                                size="md"
+                            />
+
+                            <View className="flex-1 ml-3">
+                                <View className="flex-row items-center gap-2">
+                                    <Text
+                                        className="text-text font-semibold"
+                                        numberOfLines={1}
+                                    >
+                                        {item.profile.name ||
+                                            item.user.username}
+                                    </Text>
+                                    {getRoleBadge(item.membership.role)}
+                                </View>
+                                <Text className="text-sm text-text text-opacity-50">
+                                    @{item.user.username}
+                                </Text>
+                            </View>
+
+                            <ThemedIcon
+                                icon={ChevronRight}
+                                size={16}
+                                opacity={0.3}
+                            />
+                        </Pressable>
+                    )
+                )}
+            </View>
+
+            {/* paginator */}
+            {totalPages > 1 && (
+                <View className={`flex-row items-center justify-between mt-3 pt-3 border-t border-card-border ${fullScreen ? "px-6" : ""}`}>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onPress={() => setPage((p) => Math.max(0, p - 1))}
+                        disabled={page === 0}
+                    >
+                        <View className="flex-row items-center gap-1">
+                            <ThemedIcon icon={ChevronLeft} size={14} />
+                            <Text className="text-sm text-text">Prev</Text>
+                        </View>
+                    </Button>
+
+                    <Text className="text-xs text-text text-opacity-50">
+                        {page + 1} / {totalPages}
+                    </Text>
+
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onPress={() =>
+                            setPage((p) => Math.min(totalPages - 1, p + 1))
+                        }
+                        disabled={page === totalPages - 1}
+                    >
+                        <View className="flex-row items-center gap-1">
+                            <Text className="text-sm text-text">Next</Text>
+                            <ThemedIcon icon={ChevronRight} size={14} />
+                        </View>
+                    </Button>
+                </View>
+            )}
+        </>
+    )
 
     return (
         <>
@@ -130,156 +208,7 @@ export default function Attendees({ data }: AttendeesProps) {
                 )}
             </Modal>
 
-            <Card variant="bordered">
-                {/* header */}
-                <View className="flex-row items-center justify-between mb-4">
-                    <View className="flex-row items-center gap-2">
-                        <View
-                            className="w-8 h-8 rounded-full items-center justify-center"
-                            style={{ backgroundColor: `${colors.primary}20` }}
-                        >
-                            <ThemedIcon
-                                icon={Users}
-                                size={16}
-                                overrideColor="primary"
-                            />
-                        </View>
-                        <View>
-                            <Text className="text-lg font-bold text-text">
-                                {data.burrow.kind === "PROJECT"
-                                    ? "Team Members"
-                                    : "Attendees"}
-                            </Text>
-                            <Text className="text-xs text-text text-opacity-60">
-                                {attendeesData.contents.length} total
-                            </Text>
-                        </View>
-                    </View>
-                </View>
-
-                {/* attendees */}
-                <View className="gap-2">
-                    {paginatedAttendees.map(
-                        (item: BurrowMembershipResponse) => (
-                            <Pressable
-                                key={item.user.id}
-                                onPress={() =>
-                                    router.push(`/user/${item.user.username}`)
-                                }
-                                onLongPress={() => {
-                                    if (
-                                        isModerator &&
-                                        item.user.id !== currentUser?.id
-                                    ) {
-                                        setSelectedAttendee(item)
-                                        setAttendeeActionsModalOpen(true)
-                                    }
-                                }}
-                                className="flex-row items-center p-3 rounded-xl bg-card active:bg-card-border"
-                            >
-                                <ProfilePicture
-                                    name={
-                                        item.profile.name || item.user.username
-                                    }
-                                    userID={item.user.id}
-                                    size="md"
-                                />
-
-                                <View className="flex-1 ml-3">
-                                    <View className="flex-row items-center gap-2">
-                                        <Text
-                                            className="text-text font-semibold"
-                                            numberOfLines={1}
-                                        >
-                                            {item.profile.name ||
-                                                item.user.username}
-                                        </Text>
-                                        {getRoleBadge(item.membership.role)}
-                                    </View>
-                                    <Text className="text-sm text-text text-opacity-50">
-                                        @{item.user.username}
-                                    </Text>
-                                </View>
-
-                                <ThemedIcon
-                                    icon={ChevronRight}
-                                    size={18}
-                                    opacity={0.4}
-                                />
-                            </Pressable>
-                        )
-                    )}
-                </View>
-
-                {/* paginator */}
-                {totalPages > 1 && (
-                    <View className="flex-row items-center justify-between mt-4 pt-4 border-t border-card-border">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onPress={() => setPage((p) => Math.max(0, p - 1))}
-                            disabled={page === 0}
-                        >
-                            <View className="flex-row items-center gap-1">
-                                <ThemedIcon
-                                    icon={ChevronLeft}
-                                    size={16}
-                                    overrideColor={
-                                        page === 0 ? "secondary" : undefined
-                                    }
-                                />
-
-                                <Text
-                                    style={{
-                                        color:
-                                            page === 0
-                                                ? colors.secondary
-                                                : colors.text
-                                    }}
-                                >
-                                    Prev
-                                </Text>
-                            </View>
-                        </Button>
-
-                        <Text className="text-sm text-text text-opacity-60">
-                            {page + 1} / {totalPages}
-                        </Text>
-
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onPress={() =>
-                                setPage((p) => Math.min(totalPages - 1, p + 1))
-                            }
-                            disabled={page === totalPages - 1}
-                        >
-                            <View className="flex-row items-center gap-1">
-                                <Text
-                                    style={{
-                                        color:
-                                            page === totalPages - 1
-                                                ? colors.secondary
-                                                : colors.text
-                                    }}
-                                >
-                                    Next
-                                </Text>
-
-                                <ThemedIcon
-                                    icon={ChevronRight}
-                                    size={16}
-                                    overrideColor={
-                                        page === totalPages - 1
-                                            ? "secondary"
-                                            : undefined
-                                    }
-                                />
-                            </View>
-                        </Button>
-                    </View>
-                )}
-            </Card>
+            {fullScreen ? content : <Card variant="bordered">{content}</Card>}
         </>
     )
 }

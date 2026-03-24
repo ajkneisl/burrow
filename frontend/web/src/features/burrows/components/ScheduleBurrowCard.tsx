@@ -1,6 +1,6 @@
 import clsx from "clsx"
 import { formatDateTime, humanDateLabel } from "@api/util.ts"
-import { Badge, Card } from "@umnburrow/core"
+import { Card, Chip } from "@umnburrow/core"
 import {
     BURROW_KIND_CONFIG,
     type BurrowKind,
@@ -91,45 +91,6 @@ export default function ScheduleBurrowCard({
 
                 {burrowResponse.burrow.kind !== "PROJECT" && (
                     <div className="flex flex-row items-center justify-between">
-                        <div className="flex flex-row items-center justify-start gap-2">
-                            {burrowResponse.burrow.kind && (
-                                <span
-                                    className={clsx(
-                                        "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
-                                        BURROW_KIND_CONFIG[
-                                            burrowResponse.burrow.kind
-                                        ]?.className,
-                                        "bg-current/10"
-                                    )}
-                                >
-                                    {
-                                        BURROW_KIND_CONFIG[
-                                            burrowResponse.burrow.kind
-                                        ]?.icon
-                                    }
-                                    {
-                                        BURROW_KIND_CONFIG[
-                                            burrowResponse.burrow.kind
-                                        ]?.label
-                                    }
-                                </span>
-                            )}
-
-                            {burrowResponse.burrow.tags.map((tag) => (
-                                <div className="hidden flex-row gap-2 md:flex">
-                                    <Badge
-                                        size="medium"
-                                        highlighted={
-                                            burrowResponse.burrow.tags[tag]
-                                        }
-                                        key={tag}
-                                    >
-                                        {tag}
-                                    </Badge>
-                                </div>
-                            ))}
-                        </div>
-
                         {/* chat preview */}
                         {burrowResponse.latestChatMessage ? (
                             <div className="text-text/60 flex items-center gap-1.5 text-xs">
@@ -143,11 +104,23 @@ export default function ScheduleBurrowCard({
                                 </p>
                             </div>
                         ) : (
-                            <div className="text-text/40 flex items-center gap-1.5 text-xs italic">
+                            <div className="text-text/40 flex items-center gap-1.5 text-xs">
                                 <MessageSquare className="h-3.5 w-3.5 shrink-0" />
                                 <span>No messages yet</span>
                             </div>
                         )}
+
+                        <div className="flex flex-row items-center justify-start gap-2">
+                            {burrowResponse.burrow.kind && (
+                                <Chip
+                                    size="md"
+                                    color={BURROW_KIND_CONFIG[burrowResponse.burrow.kind]?.className}
+                                    icon={BURROW_KIND_CONFIG[burrowResponse.burrow.kind]?.icon}
+                                >
+                                    {BURROW_KIND_CONFIG[burrowResponse.burrow.kind]?.label}
+                                </Chip>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>

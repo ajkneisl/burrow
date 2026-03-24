@@ -56,7 +56,7 @@ export const themeColors: { light: ThemeColors; dark: ThemeColors } = {
         primary: "#87343f",
         secondary: "#ffcc00",
         card: "#2a2a2a",
-        cardBorder: "#1a1c1e",
+        cardBorder: "#3a3a3a",
         hero: "#1f2023",
         text: "#f3f4f6",
         success: "#48bb78",

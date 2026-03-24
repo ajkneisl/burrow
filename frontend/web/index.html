@@ -4,14 +4,21 @@
     <meta charset="UTF-8"/>
     <link rel="icon" type="image/png" href="/image/burrow.png"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="robots" content="index,follow">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <meta name="robots" content="index,follow"><link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Karla:ital,wght@0,200..800;1,200..800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Slab:wght@100..900&display=swap"
-          rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100;1,14..32,100&family=Manrope:wght@200..800&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
-          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
     <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library@0.6"></script>
+    <script>
+        (function() {
+            var ua = navigator.userAgent || '';
+            if (!/Android/i.test(ua)) return;
+            var p = window.location.pathname;
+            if (p.startsWith('/user/') || p.startsWith('/burrow/') || p.startsWith('/discuss/')) {
+                window.location.href = 'intent:/' + p + '#Intent;scheme=app.umn.burrow;package=app.umn.burrow;S.browser_fallback_url=' + encodeURIComponent(window.location.href) + ';end';
+            }
+        })();
+    </script>
 </head>
 <body>
 <div id="root"></div>

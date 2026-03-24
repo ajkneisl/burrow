@@ -28,7 +28,7 @@ export function useNotificationsQuery() {
         },
 
         getNextPageParam: (lastPage) => {
-            if (lastPage.page < lastPage.totalPages) {
+            if (lastPage && lastPage?.page < lastPage?.totalPages) {
                 return lastPage.page + 1
             }
 

@@ -16,6 +16,7 @@ export type Profile = {
     instagram: string | null
     linkedIn: string | null
     phoneNumber: string | null
+    badges: { id: string; description: string }[]
 }
 
 /**
@@ -40,6 +41,7 @@ export type UserResponse = {
     recentHostedBurrows: BurrowResponse[]
     email?: string
     isTa?: boolean
+    isBlocked?: boolean
 }
 
 /**

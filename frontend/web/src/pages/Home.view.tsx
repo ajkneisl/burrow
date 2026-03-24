@@ -7,7 +7,8 @@ import { newUser } from "@features/auth/auth.atom.ts"
 import NewUserIntro from "@features/auth/components/NewUserIntro.tsx"
 import Schedule from "@features/burrows/components/Schedule.tsx"
 import MyProfile from "@features/profile/components/MyProfile.tsx"
-// import Topics from "@features/chat/components/Topics.tsx";
+import MyClubs from "@features/clubs/components/MyClubs.tsx"
+import MyFriends from "@features/profile/components/MyFriends.tsx"
 
 /**
  * The homepage of Burrow.
@@ -49,13 +50,14 @@ export default function Home() {
 
             <div className="mx-auto flex w-full max-w-[2000px] grid-cols-3 flex-col gap-6 px-4 py-6 md:grid md:px-6 lg:grid-cols-4">
                 {/* profile */}
-                <aside className="md:col-span-2 md:row-start-1 lg:col-span-1 lg:row-start-1">
+                <aside className="flex flex-col gap-6 md:col-span-2 md:row-start-1 lg:col-span-1 lg:row-start-1">
                     <MyProfile />
 
-                    {/*<div className="hidden md:block">*/}
-                    {/*    /!* discuss preview *!/*/}
-                    {/*    <Topics />*/}
-                    {/*</div>*/}
+                    <div className="hidden flex-col gap-6 lg:flex">
+                        <MyFriends />
+
+                        <MyClubs />
+                    </div>
                 </aside>
 
                 {/* small border displayed on mobile */}

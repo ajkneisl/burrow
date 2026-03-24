@@ -5,10 +5,14 @@ import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import { searchMeetings } from "@features/burrows/burrows.api.ts"
 import BurrowHeatmap from "@features/burrows/components/BurrowHeatmap.tsx"
-import { Input, useDateRangePicker, ViewErrors } from "@umnburrow/core"
+import {
+    Input,
+    useDateRangePicker,
+    ViewErrors,
+    Paginator
+} from "@umnburrow/core"
 import clsx from "clsx"
 import { humanDateLabel, weekRangeLabel } from "@api/util.ts"
-import Paginator from "@components/Paginator.tsx"
 import { Loader2, ChevronRight, SlidersHorizontal } from "lucide-react"
 
 /**
@@ -339,8 +343,9 @@ export default function Browse() {
                     {!isLoading && groupedByDate.length === 0 && (
                         <div className="border-primary/20 bg-card text-text rounded-2xl border p-6 shadow-sm">
                             <p className="text-sm font-medium">
-                                No meetings match your filters.
+                                No Burrows match your filters.
                             </p>
+
                             <p className="text-text/70 mt-1 text-xs">
                                 Try adjusting your search or picking a different
                                 date.

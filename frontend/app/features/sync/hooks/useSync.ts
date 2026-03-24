@@ -137,13 +137,12 @@ export default function useSync(burrowID: string | null, isJoined: boolean) {
                 console.log(`${logPrefix} Scheduling reconnection in 10 seconds...`)
                 setRetry(`Attempting to reconnect...`)
 
-                // // retry connection after 10 seconds
-                // reconnectTimeoutRef.current = setTimeout(() => {
-                //     console.log(`${logPrefix} Attempting reconnection now`)
-                //     if ((socketRef.current?.readyState ?? 5) > WebSocket.OPEN) {
-                //         connectSync()
-                //     }
-                // }, 10_000)
+                reconnectTimeoutRef.current = setTimeout(() => {
+                    console.log(`${logPrefix} Attempting reconnection now`)
+                    if (shouldConnectRef.current && (socketRef.current?.readyState ?? 5) > WebSocket.OPEN) {
+                        connectSync()
+                    }
+                }, 10_000)
             }
         }
 

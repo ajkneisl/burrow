@@ -1,5 +1,5 @@
-import { Button, Modal } from "@components/core"
-import { Platform, Pressable, Share as RNShare, Text, View } from "react-native"
+import { Button, Modal, Text } from "@components/core"
+import { Platform, Pressable, Share as RNShare, View } from "react-native"
 import QRCode from "react-native-qrcode-svg"
 import { QrCode, Share2 } from "lucide-react-native"
 import { useRef, useState } from "react"

@@ -1,12 +1,12 @@
-import { View, Text, ScrollView, Pressable, ActivityIndicator } from "react-native"
+import { View, ScrollView, Pressable, ActivityIndicator } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack } from "expo-router"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
 import { ArrowLeft, ShieldOff, UserCircle } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { getBlockedUsers, unblockUser } from "@features/profile/block.api"
-import { Button } from "@components/core"
+import { getBlockedUsers, unblockUser } from "@features/profile/profile.api"
+import { Button, Text } from "@components/core"
 
 /**
  * Blocked users settings screen.
@@ -69,7 +69,7 @@ export default function BlockedUsersScreen() {
                     </View>
                 ) : !blockedUsers || blockedUsers.length === 0 ? (
                     <View className="items-center justify-center py-12">
-                        <ShieldOff size={48} color={colors.text} style={{ opacity: 0.3 }} />
+                        <ShieldOff size={48} color={colors.text} style={{ opacity: 0.6 }} />
                         <Text className="text-text text-opacity-60 text-center mt-4">
                             You haven't blocked anyone
                         </Text>

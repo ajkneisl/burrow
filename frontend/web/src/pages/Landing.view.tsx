@@ -11,10 +11,14 @@ import {
     MessageSquare,
     Shield,
     Zap,
-    ArrowRight,
-    CheckCircle2
+    ArrowRight
 } from "lucide-react"
-import { authToken, newUser, userDetails } from "@features/auth/auth.atom.ts"
+import {
+    authToken,
+    newUser,
+    refreshTokenAtom,
+    userDetails
+} from "@features/auth/auth.atom.ts"
 import { ViewErrors } from "@umnburrow/core"
 import { login } from "@features/auth/user.api.ts"
 import { Link } from "react-router"
@@ -49,15 +53,19 @@ export default function LandingView() {
     }, [])
 
     const [auth, setAuthToken] = useAtom(authToken)
+    const setRefreshToken = useSetAtom(refreshTokenAtom)
     const setNewUser = useSetAtom(newUser)
     const setUser = useSetAtom(userDetails)
 
     // login
+    const deviceName = `Web — ${navigator.platform || "Browser"}`
+
     const loginMutation = useMutation({
-        mutationFn: login,
+        mutationFn: (credentials: string) => login(credentials, deviceName),
 
         onSuccess: (data) => {
             setAuthToken(data.token)
+            setRefreshToken(data.refreshToken)
             setUser(data.user)
 
             if (data.newUser) {
@@ -84,18 +92,6 @@ export default function LandingView() {
         <div className="flex min-h-screen flex-col">
             <section className="relative overflow-hidden px-4 py-16 sm:py-16">
                 <div className="mx-auto max-w-6xl space-y-8">
-                    {/* made by gophers */}
-                    <div className="flex justify-center">
-                        <div className="bg-secondary/10 text-secondary inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
-                            <img
-                                src="/image/M_gold.svg"
-                                alt="University of Minnesota"
-                                className="h-5 w-5"
-                            />
-                            Made by Gophers, for Gophers
-                        </div>
-                    </div>
-
                     {/* banner */}
                     <div className="relative flex items-center justify-center">
                         <div className="border-card-border relative w-full max-w-5xl overflow-hidden rounded-2xl border shadow-2xl">
@@ -121,21 +117,15 @@ export default function LandingView() {
                         </div>
                     </div>
 
-                    {/* trust indicators */}
-                    <div className="text-text/60 flex flex-wrap items-center justify-center gap-6 text-sm">
-                        <div className="flex items-center gap-1.5">
-                            <CheckCircle2 className="text-secondary h-4 w-4" />
-                            <span>All Majors</span>
-                        </div>
-
-                        <div className="flex items-center gap-1.5">
-                            <CheckCircle2 className="text-secondary h-4 w-4" />
-                            <span>Secure & Private</span>
-                        </div>
-
-                        <div className="flex items-center gap-1.5">
-                            <CheckCircle2 className="text-secondary h-4 w-4" />
-                            <span>Completely Free</span>
+                    {/* made by gophers */}
+                    <div className="flex justify-center">
+                        <div className="bg-secondary/10 text-secondary inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
+                            <img
+                                src="/image/M_gold.svg"
+                                alt="University of Minnesota"
+                                className="h-5 w-5"
+                            />
+                            Made by Gophers, for Gophers
                         </div>
                     </div>
                 </div>
@@ -308,7 +298,7 @@ export default function LandingView() {
             </section>
 
             {/* tap in */}
-            <section className="bg-card/30 px-4 py-24 sm:px-6">
+            <section className="bg-card/30 relative px-4 py-24 sm:px-6">
                 <div className="mx-auto max-w-3xl text-center">
                     <h2 className="text-text mb-6 text-3xl font-bold sm:text-4xl md:text-5xl">
                         Ready to find your study crew?
@@ -356,7 +346,7 @@ export default function LandingView() {
                         </div>
                     </div>
 
-                    <p className="text-text/60 mb-4 text-xs">
+                    <p className="text-text/60 -mt-4 mb-4 text-xs">
                         By signing in, you agree to our{" "}
                         <Link
                             to="/privacy"
@@ -383,6 +373,14 @@ export default function LandingView() {
                         </Link>
                     </div>
                 </div>
+
+                <Link
+                    to="/login"
+                    className="group text-text/40 hover:text-text/60 absolute right-4 bottom-4 inline-flex items-center gap-2 text-xs font-medium transition-colors"
+                >
+                    Sign in a different way
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
             </section>
         </div>
     )

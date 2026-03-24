@@ -1,11 +1,5 @@
-import {
-    View,
-    Text,
-    ScrollView,
-    KeyboardAvoidingView,
-    Platform
-} from "react-native"
-import { Input } from "@components/core"
+import { View, ScrollView, KeyboardAvoidingView, Platform } from "react-native"
+import { Input, Text } from "@components/core"
 import type { CreateStepProps } from "../create.types"
 
 export function ProjectInfoStep({
@@ -25,7 +19,7 @@ export function ProjectInfoStep({
                 showsVerticalScrollIndicator={false}
             >
                 {/* Info Card */}
-                <View className="bg-primary/10 rounded-lg border border-primary/20 p-4 mb-6">
+                <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
                     <Text className="text-text text-sm font-semibold mb-2">
                         Project Details
                     </Text>

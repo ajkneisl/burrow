@@ -1,6 +1,6 @@
-import { View, Text, Switch, ActivityIndicator } from "react-native"
+import { View, Switch, ActivityIndicator } from "react-native"
 import { usePushNotifications } from "@features/notifications/hooks/usePushNotifications"
-import { Card } from "@components/core"
+import { Card, Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**
@@ -24,6 +24,7 @@ export default function MobileNotificationToggle() {
                     <Text className="text-base font-medium text-text">
                         Mobile Notifications
                     </Text>
+
                     <Text className="text-sm text-text text-opacity-60 mt-1">
                         Mobile notifications are not supported on this device.
                     </Text>

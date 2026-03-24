@@ -1,11 +1,5 @@
-import {
-    View,
-    Text,
-    ScrollView,
-    KeyboardAvoidingView,
-    Platform
-} from "react-native"
-import { UserPicker } from "@components/core"
+import { View, ScrollView, KeyboardAvoidingView, Platform } from "react-native"
+import { UserPicker, Text } from "@components/core"
 import type { CreateStepProps } from "../create.types"
 
 export function MembersStep({
@@ -41,10 +35,11 @@ export function MembersStep({
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-                <View className="bg-primary/10 rounded-lg border border-primary/20 p-4 mb-6">
+                <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
                     <Text className="text-text text-sm font-semibold mb-2">
                         {isEditMode ? "Team Members" : "Select Team Members"}
                     </Text>
+
                     <Text className="text-text text-opacity-60 text-xs">
                         {isEditMode
                             ? "Team members can be changed through the invite menu."

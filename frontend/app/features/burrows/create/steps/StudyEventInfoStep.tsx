@@ -1,11 +1,5 @@
-import {
-    View,
-    Text,
-    ScrollView,
-    KeyboardAvoidingView,
-    Platform
-} from "react-native"
-import { Input } from "@components/core"
+import { View, ScrollView, KeyboardAvoidingView, Platform } from "react-native"
+import { Input, Text } from "@components/core"
 import { LocationSelector } from "@features/burrows/components/LocationSelector"
 import type { CreateStepProps } from "../create.types"
 
@@ -49,7 +43,7 @@ export function StudyEventInfoStep({
                 showsVerticalScrollIndicator={false}
             >
                 {/* info */}
-                <View className="bg-primary/10 rounded-lg border border-primary/20 p-4 mb-6">
+                <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
                     <Text className="text-text text-sm font-semibold mb-2">
                         Basic Information
                     </Text>

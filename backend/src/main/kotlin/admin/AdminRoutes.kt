@@ -1,7 +1,7 @@
 package app.burrow.admin
 
-import app.burrow.ADMIN_AUTH
-import app.burrow.Error
+import app.burrow.api.Error
+import app.burrow.features.account.profile.BADGE_ROUTES
 import app.burrow.admin.account.Administrator
 import app.burrow.admin.account.Permissions
 import app.burrow.admin.account.adminLogin
@@ -9,7 +9,8 @@ import app.burrow.admin.account.createAdministrator
 import app.burrow.admin.account.getAdministrator
 import app.burrow.admin.account.requirePermissions
 import app.burrow.admin.log.LOG_ROUTES
-import app.burrow.report.getAllReports
+import app.burrow.features.account.Authorization.ADMIN_AUTH
+import app.burrow.features.report.getAllReports
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal
@@ -94,5 +95,8 @@ val ADMIN_ROUTES: Route.() -> Unit = {
         // ROUTE /admin/logs
         // manage and view system logs
         route("/logs", LOG_ROUTES)
+
+        // ROUTE /admin/badges
+        route("/badges", BADGE_ROUTES)
     }
 }

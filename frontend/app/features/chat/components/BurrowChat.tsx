@@ -1,7 +1,7 @@
-import { View, Text } from "react-native"
+import { View } from "react-native"
 import { useState, useEffect } from "react"
 import { useAtomValue } from "jotai"
-import { Card } from "@components/core"
+import { Card, Text } from "@components/core"
 import GenericChatBox from "./GenericChatBox"
 import type { ChatMessage, ChatMember } from "../chat.types"
 import { syncStatus } from "@features/sync/sync.atom"
@@ -15,13 +15,15 @@ import useUser from "@features/auth/hooks/useUser"
 type BurrowChatProps = {
     burrowId: string
     isMember: boolean
+    /** Render without Card wrapper, filling available space */
+    fullScreen?: boolean
 }
 
 /**
  * Chat component for burrow detail page.
  * Handles all chat functionality using event bus pattern.
  */
-export function BurrowChat({ burrowId, isMember }: BurrowChatProps) {
+export function BurrowChat({ burrowId, isMember, fullScreen }: BurrowChatProps) {
     const user = useUser()
     const status = useAtomValue(syncStatus)
 
@@ -31,6 +33,27 @@ export function BurrowChat({ burrowId, isMember }: BurrowChatProps) {
     const [editingMessage, setEditingMessage] = useState<ChatMessage | null>(
         null
     )
+
+    // Request history & members when mounting with an already-live connection
+    useEffect(() => {
+        if (status !== "LIVE") return
+
+        eventBus.dispatchEvent(
+            new SyncOutgoingEvent({
+                block: "CHAT",
+                action: "RECEIVE_HISTORY",
+                data: {}
+            })
+        )
+
+        eventBus.dispatchEvent(
+            new SyncOutgoingEvent({
+                block: "CHAT",
+                action: "RECEIVE_MEMBERS",
+                data: {}
+            })
+        )
+    }, [status])
 
     // Listen for incoming chat events
     useEffect(() => {
@@ -217,26 +240,34 @@ export function BurrowChat({ burrowId, isMember }: BurrowChatProps) {
         setChatText("")
     }
 
+    const chatBox = (
+        <GenericChatBox
+            status={status}
+            messages={messages}
+            members={members}
+            text={chatText}
+            onTextChange={setChatText}
+            onSend={handleSendMessage}
+            onEdit={handleEditMessage}
+            onDelete={handleDeleteMessage}
+            canEdit={canEditMessage}
+            canDelete={canDeleteMessage}
+            isEditing={!!editingMessage}
+            onCancelEdit={handleCancelEdit}
+            placeholder="Type a message..."
+            disconnectedPlaceholder="Connecting to chat..."
+        />
+    )
+
+    if (fullScreen) {
+        return <View className="flex-1">{chatBox}</View>
+    }
+
     return (
         <Card variant="bordered">
             <Text className="text-lg font-semibold text-text mb-3">Chat</Text>
             <View className="h-96 rounded-lg overflow-hidden">
-                <GenericChatBox
-                    status={status}
-                    messages={messages}
-                    members={members}
-                    text={chatText}
-                    onTextChange={setChatText}
-                    onSend={handleSendMessage}
-                    onEdit={handleEditMessage}
-                    onDelete={handleDeleteMessage}
-                    canEdit={canEditMessage}
-                    canDelete={canDeleteMessage}
-                    isEditing={!!editingMessage}
-                    onCancelEdit={handleCancelEdit}
-                    placeholder="Type a message..."
-                    disconnectedPlaceholder="Connecting to chat..."
-                />
+                {chatBox}
             </View>
         </Card>
     )

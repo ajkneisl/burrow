@@ -1,4 +1,5 @@
-import { View, Text, Switch } from "react-native"
+import { View, Switch } from "react-native"
+import { Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 type LabeledSwitchProps = {
@@ -15,7 +16,9 @@ export function LabeledSwitch({
     const colors = useThemeColors()
 
     return (
-        <View className="flex-row items-center gap-2 flex-1">
+        <View className="flex-row items-center justify-between gap-2 flex-1">
+            <Text className="text-text text-md font-semibold">{label}</Text>
+
             <Switch
                 value={value}
                 onValueChange={onValueChange}
@@ -25,8 +28,6 @@ export function LabeledSwitch({
                 }}
                 thumbColor="#FFFFFF"
             />
-
-            <Text className="text-text text-sm">{label}</Text>
         </View>
     )
 }

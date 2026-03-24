@@ -4,12 +4,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
     name: "Burrow",
     slug: "burrow",
-    version: "0.4.2",
+    version: "0.5.0",
     orientation: "portrait",
     icon: "./assets/images/burrow.png",
     scheme: "app.umn.burrow",
     userInterfaceStyle: "automatic",
-    newArchEnabled: true,
     splash: {
         image: "./assets/images/burrow.png",
         resizeMode: "contain",
@@ -26,17 +25,21 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
                 "Burrow needs camera access to scan QR codes.",
             ITSAppUsesNonExemptEncryption: false
         },
-        "entitlements": {
+        entitlements: {
             "com.apple.developer.maps": true
         },
         config: {
-            googleMapsApiKey: "AIzaSyBvjCvJM5WjNB_QYKhB-3-RaaWumVZ3mKw"
+            googleMapsApiKey: process.env.GOOGLE_MAPS_IOS_API_KEY
+        },
+        icon: {
+            dark: "./assets/images/burrow-dark.png",
+            light: "./assets/images/burrow.png"
         }
     },
     android: {
         package: "app.umn.burrow",
         icon: "./assets/images/burrow.png",
-        edgeToEdgeEnabled: true,
+        googleServicesFile: process.env.GOOGLE_SERVICES_FILE,
         predictiveBackGestureEnabled: false,
         permissions: [
             "ACCESS_FINE_LOCATION",
@@ -74,7 +77,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         ],
         config: {
             googleMaps: {
-                apiKey: "AIzaSyB4R5ZLFEx7Qs822dlJ9GoZud2pDw5RjTk"
+                apiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY
             }
         }
     },
@@ -84,9 +87,23 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         favicon: "./assets/images/favicon.png"
     },
     plugins: [
+        "react-native-maps",
         "expo-web-browser",
         "expo-router",
-        "expo-font",
+        [
+            "expo-font",
+            {
+                fonts: [
+                    "./assets/fonts/Inter-Regular.ttf",
+                    "./assets/fonts/Inter-Medium.ttf",
+                    "./assets/fonts/Inter-SemiBold.ttf",
+                    "./assets/fonts/Inter-Bold.ttf",
+                    "./assets/fonts/Inter-ExtraBold.ttf",
+                    "./assets/fonts/Figtree-Bold.ttf",
+                    "./assets/fonts/Figtree-ExtraBold.ttf"
+                ]
+            }
+        ],
         [
             "expo-splash-screen",
             {
@@ -130,8 +147,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         router: {
             origin: false
         },
-        apiUrl: "https://umn.app/api",
-        cdnUrl: "https://cdn.umn.app",
+        apiUrl: process.env.API_URL,
+        cdnUrl: process.env.CDN_URL,
+        googleMapsApiKey: {
+            ios: process.env.GOOGLE_MAPS_IOS_API_KEY,
+            android: process.env.GOOGLE_MAPS_ANDROID_API_KEY
+        },
         eas: {
             projectId: "3dc55916-e2a2-4081-a6cd-b76056b7386f"
         }

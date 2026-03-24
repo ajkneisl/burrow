@@ -124,7 +124,7 @@ export default function ProfilePicture({
         return {
             container: clsx(
                 isResponsive ? "h-8 w-8 ring-1 md:h-12 md:w-12 md:ring-2 lg:h-24 lg:w-24 lg:ring-4" :
-                size === "sm" ? "h-8 w-8 ring-1" :
+                size === "sm" ? "h-10 w-10 ring-1" :
                 size === "ksm" ? "h-10 w-10 ring-1" :
                 size === "md" ? "h-12 w-12 ring-2" :
                 "h-24 w-24 ring-4"

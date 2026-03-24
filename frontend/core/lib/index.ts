@@ -16,6 +16,9 @@ import Toggle from "./components/Toggle"
 import Hover from "./components/Hover"
 import useDateRangePicker from "./hooks/useDateRangePicker"
 import ViewErrors from "./components/ViewErrors"
+import Chip from "./components/Chip.tsx"
+import ListItem from "./components/ListItem.tsx"
+import Paginator from "./components/Paginator.tsx"
 
 export {
     AutocompleteInput,
@@ -32,7 +35,10 @@ export {
     Toggle,
     Hover,
     ViewErrors,
-    useDateRangePicker
+    useDateRangePicker,
+    Paginator,
+    Chip,
+    ListItem
 }
 
 export type { AutocompleteOption }

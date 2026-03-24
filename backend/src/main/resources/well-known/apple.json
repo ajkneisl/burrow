@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "CBL6R6SP6A.app.umn.burrow",
+        "paths": [
+          "/user/*",
+          "/burrow/*",
+          "/discuss/*"
+        ]
+      }
+    ]
+  }
+}

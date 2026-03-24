@@ -1,15 +1,20 @@
 import { useMemo, useState, useCallback } from "react"
-import { View, Text, SectionList, RefreshControl, Pressable } from "react-native"
+import { View, SectionList, RefreshControl, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useQuery } from "@tanstack/react-query"
-import { ArrowLeft, Calendar, RotateCcw } from "lucide-react-native"
+import {
+    ArrowLeft,
+    Calendar,
+    RotateCcw,
+    RotateCcwIcon
+} from "lucide-react-native"
 import { useRouter } from "expo-router"
 import { getUserHistory } from "@features/burrows/burrows.api"
-import { UpcomingBurrowCard } from "@features/home/components/UpcomingBurrowCard"
+import { UpcomingBurrowCard } from "@features/burrows/components/UpcomingBurrowCard"
 import { Header } from "@features/layout/components"
 import { humanDateLabel } from "@api/util"
 import type { BurrowResponse } from "@features/burrows/burrows.types"
-import { Modal } from "@components/core"
+import { Chip, Modal, Text } from "@components/core"
 import { CreateBurrowWizard } from "@features/burrows/create/CreateBurrowWizard"
 import type { SubmittedBurrowFormState } from "@features/burrows/create/create.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
@@ -110,7 +115,7 @@ export default function HistoryScreen() {
     }: {
         section: { title: string }
     }) => (
-        <View className="flex-row items-center gap-3 mb-4 mt-6 first:mt-0">
+        <View className="bg-background flex-row items-center gap-3 mb-4 mt-6 first:mt-0">
             <Text className="text-base font-semibold text-text">
                 {section.title}
             </Text>
@@ -129,22 +134,10 @@ export default function HistoryScreen() {
                 verbose
                 actionBadge={
                     canRecreate ? (
-                        <Pressable
-                            onPress={() => handleRecreate(item)}
-                            className="rounded-full px-3 py-1.5 flex-row items-center gap-1.5 active:opacity-70"
-                            style={{
-                                backgroundColor: `${colors.secondary}1A`,
-                                borderWidth: 1,
-                                borderColor: colors.secondary
-                            }}
-                        >
-                            <RotateCcw size={12} color={colors.secondary} />
-                            <Text
-                                className="text-xs font-bold"
-                                style={{ color: colors.secondary }}
-                            >
+                        <Pressable onPress={() => handleRecreate(item)}>
+                            <Chip size="lg" icon={RotateCcwIcon} color="success">
                                 Recreate
-                            </Text>
+                            </Chip>
                         </Pressable>
                     ) : undefined
                 }
@@ -155,7 +148,9 @@ export default function HistoryScreen() {
     const renderEmpty = () => (
         <View className="items-center justify-center py-12">
             <Calendar size={48} color={colors.text} style={{ opacity: 0.2 }} />
-            <Text className="text-text text-opacity-60 text-lg mt-4">No history yet</Text>
+            <Text className="text-text text-opacity-60 text-lg mt-4">
+                No history yet
+            </Text>
             <Text className="text-text text-opacity-40 text-sm mt-1">
                 Join some Burrows to see them here
             </Text>
@@ -192,7 +187,10 @@ export default function HistoryScreen() {
                     title="History"
                     showSearch={false}
                     leftAction={
-                        <Pressable onPress={() => router.back()} className="p-2 -ml-2">
+                        <Pressable
+                            onPress={() => router.back()}
+                            className="p-2 -ml-2"
+                        >
                             <ArrowLeft size={24} color={colors.text} />
                         </Pressable>
                     }
@@ -215,7 +213,10 @@ export default function HistoryScreen() {
                 title="History"
                 showSearch={false}
                 leftAction={
-                    <Pressable onPress={() => router.back()} className="p-2 -ml-2">
+                    <Pressable
+                        onPress={() => router.back()}
+                        className="p-2 -ml-2"
+                    >
                         <ArrowLeft size={24} color={colors.text} />
                     </Pressable>
                 }

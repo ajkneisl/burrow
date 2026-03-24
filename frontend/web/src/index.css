@@ -1,12 +1,13 @@
 @import "tailwindcss";
 @import "@umnburrow/core/style.css";
-@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@500&family=Poppins&display=swap');/* tailwind needs to register what styles are used in the core*/
 @source "../node_modules/@umnburrow/core/dist";
 
 @plugin "tailwindcss-react-aria-components";
 
 body {
     background: var(--background-color);
+    font-weight: normal;
+    font-family: 'Inter', sans-serif;
 }
 
 /* Border style transition for invite button */

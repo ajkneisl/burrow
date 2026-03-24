@@ -3,8 +3,10 @@ import { useNavigate } from "react-router"
 import type { Burrow } from "@features/burrows/burrows.types.tsx"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button, Modal, ViewErrors } from "@umnburrow/core"
+import useFormState from "@api/useFormState.ts"
 import DueDateStep from "@features/burrows/create/components/project/DueDateStep.tsx"
 import {
+    defaultTimes,
     initialFormState,
     type SubmittedBurrow,
     type SubmittedProjectBurrow,
@@ -13,6 +15,8 @@ import {
 import MembersStep from "@features/burrows/create/components/project/MembersStep.tsx"
 import InfoStep from "@features/burrows/create/components/project/InfoStep.tsx"
 import { addTime } from "@api/util.ts"
+
+const INITIAL_ERRORS: string[] = []
 
 /**
  * {@link CreateProjectBurrowModal}
@@ -51,16 +55,24 @@ export default function CreateProjectBurrowModal({
     const nav = useNavigate()
     const queryClient = useQueryClient()
 
-    const [formState, setFormState] =
-        useState<SubmittedBurrowFormState>(initialFormState)
-    const [errors, setErrors] = useState<Record<string, string>>({})
-    const [serverErrors, setServerErrors] = useState<string[]>([])
+    const {
+        formState,
+        setFormState,
+        errors,
+        setErrors,
+        updateField,
+        verify,
+        reset
+    } = useFormState<SubmittedBurrowFormState, string[]>({
+        initial: initialFormState,
+        initialErrors: INITIAL_ERRORS,
+        verifyEndpoint: "/burrows/verify/project"
+    })
     const [currentStep, setCurrentStep] = useState(1)
 
     useEffect(() => {
         if (open) {
-            setErrors({})
-            setServerErrors([])
+            setErrors([])
             setCurrentStep(1)
 
             // if updating and a meeting is provided
@@ -86,91 +98,78 @@ export default function CreateProjectBurrowModal({
                     requestToJoin: false,
                     date: `${yyyy}-${mm}-${dd}`,
                     beginningTime: "",
-                    endTime: `${hh}:${min}`
+                    endTime: `${hh}:${min}`,
+                    reoccurring: -1
                 })
             } else {
-                setFormState({
-                    ...initialFormState,
+                reset()
+                setFormState((prev) => ({
+                    ...prev,
+                    ...defaultTimes(),
                     kind: "PROJECT",
                     visibility: "PUBLIC",
                     capacity: 10,
                     tags: ""
-                })
+                }))
             }
         }
-    }, [open, mode, meeting])
+    }, [open, mode, meeting, reset, setFormState, setErrors])
 
     function applyServerErrors(errs: string[]) {
-        setServerErrors(errs)
-        const fieldMap: Record<string, string> = {}
-        errs.forEach((msg) => {
-            const m = msg.match(/^\s*([A-Za-z][\w.-]*)\s*[:=-]\s*(.+)$/)
-
-            if (m) {
-                const field = m[1]
-                fieldMap[field] = m[2]
-            }
-        })
-
-        if (Object.keys(fieldMap).length > 0) {
-            setErrors((prev) => ({ ...prev, ...fieldMap }))
-        }
+        setErrors(errs)
     }
 
-    // helper to update form state
-    const updateField = useCallback(
-        <K extends keyof SubmittedBurrowFormState>(
-            field: K,
-            value: SubmittedBurrowFormState[K]
-        ) => {
-            setFormState((prev) => ({ ...prev, [field]: value }))
-        },
-        []
-    )
-
-    // validate current step
-    const validateCurrentStep = useCallback((): boolean => {
-        const next: Record<string, string> = {}
-
+    // validate current step via server
+    const validateCurrentStep = useCallback(async (): Promise<boolean> => {
         if (currentStep === 1) {
-            if (!formState.title.trim()) next.title = "Required"
+            return await verify({
+                name: formState.title,
+                objective: formState.description,
+                className: formState.location
+            })
         } else if (currentStep === 3) {
-            if (!formState.date) next.date = "Required"
+            const dateMs = formState.date
+                ? new Date(`${formState.date}T00:00:00`).getTime()
+                : 0
+
+            const dueTime = formState.endTime
+                ? addTime(dateMs, formState.endTime)
+                : dateMs + 23 * 60 * 60 * 1000 + 59 * 60 * 1000
+
+            return await verify({ dueDate: dueTime })
         }
 
-        setErrors(next)
-        return Object.keys(next).length === 0
-    }, [currentStep, formState])
+        return true
+    }, [currentStep, formState, verify])
 
     // navigate to next step
-    const handleNext = useCallback(() => {
-        if (!validateCurrentStep()) return
+    const handleNext = useCallback(async () => {
+        if (!(await validateCurrentStep())) return
         if (currentStep < 3) {
             setCurrentStep(currentStep + 1)
-            setErrors({})
+            setErrors([])
         }
-    }, [currentStep, validateCurrentStep])
+    }, [currentStep, validateCurrentStep, setErrors])
 
     // navigate to previous step
     const handleBack = useCallback(() => {
         if (currentStep > 1) {
             setCurrentStep(currentStep - 1)
-            setErrors({})
+            setErrors([])
         }
-    }, [currentStep])
+    }, [currentStep, setErrors])
 
     // on submit
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
 
-        if (!validateCurrentStep()) return
+        if (!(await validateCurrentStep())) return
 
-        const dateMs = new Date(`${formState.date}T00:00:00-05:00`).getTime()
+        const dateMs = new Date(`${formState.date}T00:00:00`).getTime()
 
         const dueTime = formState.endTime
             ? addTime(dateMs, formState.endTime)
             : dateMs + 23 * 60 * 60 * 1000 + 59 * 60 * 1000
-
 
         let memberIDs: string[] = []
         try {
@@ -197,7 +196,7 @@ export default function CreateProjectBurrowModal({
 
             // if updating, update query data and close
             if (mode === "update" && meeting) {
-                setServerErrors([])
+                setErrors([])
                 onClose()
 
                 void queryClient.invalidateQueries({
@@ -214,7 +213,7 @@ export default function CreateProjectBurrowModal({
                 !Array.isArray(response) &&
                 "id" in response
             ) {
-                setServerErrors([])
+                setErrors([])
 
                 const updated = response as Burrow
                 nav(`/${updated.id}`)
@@ -255,7 +254,7 @@ export default function CreateProjectBurrowModal({
                 <div className="flex items-center gap-3">
                     {currentStep > 1 && (
                         <Button
-                            color="SECONDARY"
+                            color="ERROR"
                             type="button"
                             onClick={handleBack}
                         >
@@ -299,14 +298,13 @@ export default function CreateProjectBurrowModal({
             <form id="project-form" onSubmit={handleSubmit}>
                 {/* errors.. uh oh! */}
                 <ViewErrors
-                    errors={serverErrors}
-                    clearErrors={() => setServerErrors([])}
+                    errors={errors}
+                    clearErrors={() => setErrors([])}
                 />
 
                 {/* basic info */}
                 {currentStep === 1 && (
                     <InfoStep
-                        errors={errors}
                         formState={formState}
                         updateField={updateField}
                     />
@@ -315,7 +313,6 @@ export default function CreateProjectBurrowModal({
                 {/* team members */}
                 {currentStep === 2 && (
                     <MembersStep
-                        errors={errors}
                         formState={formState}
                         updateField={updateField}
                         mode={mode}
@@ -325,7 +322,6 @@ export default function CreateProjectBurrowModal({
                 {/* due date */}
                 {currentStep === 3 && (
                     <DueDateStep
-                        errors={errors}
                         formState={formState}
                         updateField={updateField}
                     />

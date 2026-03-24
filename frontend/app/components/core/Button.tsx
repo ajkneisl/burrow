@@ -1,7 +1,8 @@
-import React from "react"
-import { Pressable, Text, ActivityIndicator, View } from "react-native"
+import React, { useState } from "react"
+import { Pressable, ActivityIndicator, Text as RNText } from "react-native"
 import type { PressableProps } from "react-native"
 import clsx from "clsx"
+import { useThemeColors } from "@api/theme/useThemeColors"
 
 type ButtonVariant =
     | "primary"
@@ -23,6 +24,12 @@ interface ButtonProps extends Omit<PressableProps, "children"> {
     fullWidth?: boolean
 }
 
+const SIZE_STYLES = {
+    sm: { container: "px-3 py-2", fontSize: 14 },
+    md: { container: "px-4 py-3", fontSize: 16 },
+    lg: { container: "px-6 py-4", fontSize: 18 }
+}
+
 export function Button({
     variant = "primary",
     size = "md",
@@ -35,80 +42,81 @@ export function Button({
     className,
     ...props
 }: ButtonProps) {
+    const colors = useThemeColors()
+    const [pressed, setPressed] = useState(false)
     const isDisabled = disabled || loading
+    const s = SIZE_STYLES[size]
 
-    const baseStyles =
-        "flex-row items-center justify-center rounded-lg active:opacity-70"
-
-    const sizeStyles = {
-        sm: "px-3 py-2",
-        md: "px-4 py-3",
-        lg: "px-6 py-4"
+    const bgColors: Record<ButtonVariant, string> = {
+        primary: colors.primary,
+        secondary: colors.secondary,
+        danger: colors.error,
+        success: colors.success,
+        outline: "transparent",
+        ghost: "transparent"
     }
 
-    const variantStyles = {
-        primary: "bg-primary",
-        secondary: "bg-secondary",
-        danger: "bg-error",
-        success: "bg-success",
-        outline: "border-2 border-primary bg-transparent",
-        ghost: "bg-transparent"
+    const textColors: Record<ButtonVariant, string> = {
+        primary: "#FFFFFF",
+        secondary: "#111827",
+        danger: "#FFFFFF",
+        success: "#FFFFFF",
+        outline: colors.primary,
+        ghost: colors.primary
     }
 
-    const textSizeStyles = {
-        sm: "text-sm",
-        md: "text-base",
-        lg: "text-lg"
-    }
-
-    const textVariantStyles = {
-        primary: "text-white font-semibold",
-        secondary: "text-gray-900 font-semibold",
-        danger: "text-white font-semibold",
-        success: "text-white font-semibold",
-        outline: "text-primary font-semibold",
-        ghost: "text-primary font-semibold"
-    }
-
-    const disabledStyles = "opacity-50"
+    const textColor = textColors[variant]
 
     return (
         <Pressable
             {...props}
             disabled={isDisabled}
+            onPressIn={(e) => {
+                setPressed(true)
+                props.onPressIn?.(e)
+            }}
+            onPressOut={(e) => {
+                setPressed(false)
+                props.onPressOut?.(e)
+            }}
             className={clsx(
-                baseStyles,
-                sizeStyles[size],
-                variantStyles[variant],
-                isDisabled && disabledStyles,
+                "rounded-xl",
+                s.container,
                 fullWidth && "w-full",
                 className
             )}
+            style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                backgroundColor: bgColors[variant],
+                opacity: isDisabled ? 0.5 : pressed ? 0.7 : 1,
+                ...(variant === "outline" && {
+                    borderWidth: 2,
+                    borderColor: colors.primary
+                })
+            }}
         >
             {loading ? (
-                <ActivityIndicator
-                    color={
-                        variant === "outline" || variant === "ghost"
-                            ? "#7A0019"
-                            : "#FFFFFF"
-                    }
-                    size="small"
-                />
+                <ActivityIndicator color={textColor} size="small" />
             ) : (
-                <View className="flex-row items-center gap-2">
-                    {leftIcon && <View>{leftIcon}</View>}
+                <>
+                    {leftIcon}
 
-                    <Text
-                        className={clsx(
-                            textSizeStyles[size],
-                            textVariantStyles[variant]
-                        )}
+                    <RNText
+                        style={{
+                            fontFamily: "Inter-SemiBold",
+                            fontSize: s.fontSize,
+                            color: textColor,
+                            includeFontPadding: false
+                        }}
                     >
                         {children}
-                    </Text>
+                    </RNText>
 
-                    {rightIcon && <View>{rightIcon}</View>}
-                </View>
+                    {rightIcon}
+                </>
             )}
         </Pressable>
     )

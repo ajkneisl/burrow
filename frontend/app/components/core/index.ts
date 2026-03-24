@@ -1,4 +1,6 @@
 export { Button } from "./Button"
+export { Chip } from "./Chip"
+export { Text } from "./Text"
 export { Card, CardHeader, CardBody, CardFooter } from "./Card"
 export { CustomDateTimePicker } from "./DateTimePicker"
 export { FilterChip } from "./FilterChip"

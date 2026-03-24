@@ -11,6 +11,14 @@ export const authToken = atomWithAsyncStorage<string>(
 )
 
 /**
+ * The refresh token for obtaining new access tokens.
+ */
+export const refreshTokenAtom = atomWithAsyncStorage<string>(
+    "refreshToken",
+    ""
+)
+
+/**
  * The user's details.
  */
 export const userDetails = atom<User | null>(null)

@@ -1,8 +1,13 @@
 import { useState } from "react"
-import { View, Text, Pressable, Platform } from "react-native"
+import { View, Pressable, Platform } from "react-native"
+import { Text } from "@components/core"
 import DateTimePicker from "@react-native-community/datetimepicker"
 import { Calendar, Clock } from "lucide-react-native"
+import ThemedIcon from "@components/core/ThemedIcon"
 
+/**
+ * {@link CustomDateTimePicker}
+ */
 type DateTimePickerProps = {
     label?: string
     value: Date | null
@@ -14,6 +19,20 @@ type DateTimePickerProps = {
     placeholder?: string
 }
 
+/**
+ * A date or time picker with platform-specific behavior.
+ *
+ * @param label Optional label displayed above the picker.
+ * @param value The currently selected date.
+ * @param onChange Called when the user selects a new date.
+ * @param mode Whether to pick a date or time.
+ * @param error Optional error message displayed below the picker.
+ * @param minimumDate The earliest selectable date.
+ * @param maximumDate The latest selectable date.
+ * @param placeholder Placeholder text when no value is selected.
+ *
+ * @author AJ Kneisl
+ */
 export function CustomDateTimePicker({
     label,
     value,
@@ -57,7 +76,6 @@ export function CustomDateTimePicker({
     }
 
     const Icon = mode === "date" ? Calendar : Clock
-    const iconColor = error ? "#EF4444" : "#7A0019"
 
     return (
         <View className="mb-4">
@@ -70,17 +88,19 @@ export function CustomDateTimePicker({
             <Pressable
                 onPress={() => setShow(true)}
                 className={`flex-row items-center justify-between px-4 py-3 rounded-lg border ${
-                    error
-                        ? "border-error"
-                        : "border-card-border dark:border-card-border"
-                } bg-background dark:bg-background`}
+                    error ? "border-error" : "border-card-border"
+                } bg-background`}
             >
                 <Text
-                    className={`text-base ${value ? "text-text dark:text-text" : "text-text dark:text-text opacity-50"}`}
+                    className={`text-base ${value ? "text-text" : "text-text opacity-50"}`}
                 >
                     {formatValue()}
                 </Text>
-                <Icon size={20} color={iconColor} />
+                <ThemedIcon
+                    icon={Icon}
+                    size={20}
+                    overrideColor={error ? "error" : "primary"}
+                />
             </Pressable>
 
             {error && <Text className="text-sm text-error mt-1">{error}</Text>}
@@ -101,7 +121,7 @@ export function CustomDateTimePicker({
 
             {/* iOS needs a modal overlay with Done button */}
             {Platform.OS === "ios" && show && (
-                <View className="absolute bottom-0 left-0 right-0 bg-background dark:bg-background border-t border-card-border dark:border-card-border p-4">
+                <View className="absolute bottom-0 left-0 right-0 bg-background border-t border-card-border p-4">
                     <Pressable
                         onPress={() => setShow(false)}
                         className="bg-primary py-2 px-4 rounded-lg"

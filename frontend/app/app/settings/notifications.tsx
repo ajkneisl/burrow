@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, Pressable } from "react-native"
+import { View, ScrollView, Pressable } from "react-native"
+import { Text } from "@components/core"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack } from "expo-router"
 import { ArrowLeft } from "lucide-react-native"
@@ -7,6 +8,8 @@ import { NotificationPreferencesComponent } from "@features/settings/components/
 
 /**
  * Notification preferences settings screen.
+ *
+ * @author AJ Kneisl
  */
 export default function NotificationSettingsScreen() {
     const router = useRouter()
@@ -38,7 +41,6 @@ export default function NotificationSettingsScreen() {
             <ScrollView className="flex-1 px-6 py-4">
                 <NotificationPreferencesComponent />
 
-                {/* Bottom Spacer */}
                 <View className="h-12" />
             </ScrollView>
         </SafeAreaView>

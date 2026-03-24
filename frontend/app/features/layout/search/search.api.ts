@@ -1,6 +1,7 @@
 import { get } from "@api/api"
 import type { Burrow } from "@features/burrows/burrows.types"
 import { Profile } from "@features/profile/profile.model"
+import { PaginatedResponse } from "@api/api.types"
 
 /**
  * A user search result.
@@ -23,9 +24,22 @@ export type BurrowSearchResult = {
 }
 
 /**
- * A search result - either a user or a burrow.
+ * A club search result.
  */
-export type SearchResult = UserSearchResult | BurrowSearchResult
+export type ClubSearchResult = {
+    type: "club"
+    clubID: string
+    displayName: string
+    name: string
+}
+
+/**
+ * A search result - either a user, burrow, or club.
+ */
+export type SearchResult =
+    | UserSearchResult
+    | BurrowSearchResult
+    | ClubSearchResult
 
 /**
  * Type guard to check if a search result is a user.
@@ -41,6 +55,13 @@ export function isBurrowResult(
     result: SearchResult
 ): result is BurrowSearchResult {
     return result.type === "burrow"
+}
+
+/**
+ * Type guard to check if a search result is a club.
+ */
+export function isClubResult(result: SearchResult): result is ClubSearchResult {
+    return result.type === "club"
 }
 
 /**

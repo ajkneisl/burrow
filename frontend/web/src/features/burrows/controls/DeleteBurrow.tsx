@@ -1,10 +1,9 @@
-import type { Burrow } from "@features/burrows/burrows.types.tsx"
-import { toast } from "react-hot-toast"
-import { motion } from "framer-motion"
-import { useRef } from "react"
-import { deleteMeeting } from "@features/burrows/burrows.api.ts"
+import { useState } from "react"
 import { useNavigate } from "react-router"
-import { Button } from "@umnburrow/core"
+import { toast } from "react-hot-toast"
+import type { Burrow } from "@features/burrows/burrows.types.tsx"
+import { deleteMeeting } from "@features/burrows/burrows.api.ts"
+import { Button, Modal } from "@umnburrow/core"
 
 /**
  * {@link DeleteBurrow}
@@ -16,14 +15,14 @@ type DeleteMeetingProps = {
 /**
  * The button, and following confirmation, to delete a meeting.
  *
- * @param meeting The meeting to delete.
+ * @param burrow The meeting to delete.
  */
 export default function DeleteBurrow({ burrow }: DeleteMeetingProps) {
     const nav = useNavigate()
-    const confirmToastIdRef = useRef<string | null>(null)
+    const [open, setOpen] = useState(false)
 
-    // actually delete it :(
     const performDelete = async () => {
+        setOpen(false)
         const loadingID = toast.loading("Deleting meeting…")
 
         try {
@@ -37,72 +36,35 @@ export default function DeleteBurrow({ burrow }: DeleteMeetingProps) {
         }
     }
 
-    const confirmDelete = () => {
-        if (confirmToastIdRef.current) {
-            toast.dismiss(confirmToastIdRef.current)
-            confirmToastIdRef.current = null
-        }
-
-        const id = toast.custom(
-            (toastObj) => (
-                <motion.div
-                    initial={{ opacity: 0, y: -12, scale: 0.98 }}
-                    animate={
-                        toastObj.visible
-                            ? { opacity: 1, y: 0, scale: 1 }
-                            : { opacity: 0, y: -12, scale: 0.98 }
-                    }
-                    transition={{
-                        type: "spring",
-                        stiffness: 420,
-                        damping: 28,
-                        mass: 0.2
-                    }}
-                    className="border-primary/20 bg-card max-w-sm rounded-xl border p-6 shadow-lg"
-                >
-                    <div className="p-4">
-                        <p className="text-text text-sm font-medium">
-                            Delete this meeting?
-                        </p>
-
-                        <p className="text-text/70 mt-1 text-xs">
-                            This action cannot be undone.
-                        </p>
-                    </div>
-
-                    <div className="mt-3 flex justify-evenly gap-2">
-                        <Button
-                            onClick={() => {
-                                toast.dismiss(toastObj.id)
-                                confirmToastIdRef.current = null
-                            }}
-                            color="SECONDARY"
-                        >
-                            Cancel
-                        </Button>
-
-                        <Button
-                            onClick={() => {
-                                toast.dismiss(toastObj.id)
-                                confirmToastIdRef.current = null
-                                performDelete()
-                            }}
-                            color={"ERROR"}
-                        >
-                            Delete
-                        </Button>
-                    </div>
-                </motion.div>
-            ),
-            { duration: 3000, position: "top-center" }
-        )
-
-        confirmToastIdRef.current = id as string
-    }
-
     return (
-        <Button onClick={() => confirmDelete()} color="ERROR">
-            Delete
-        </Button>
+        <>
+            <Button onClick={() => setOpen(true)} color="ERROR">
+                Delete
+            </Button>
+
+            <Modal
+                open={open}
+                onClose={() => setOpen(false)}
+                title="Delete Meeting"
+            >
+                <p className="text-text text-sm font-medium">
+                    Are you sure you want to delete this meeting?
+                </p>
+
+                <p className="text-text/70 mt-1 text-xs">
+                    This action cannot be undone.
+                </p>
+
+                <div className="mt-4 flex justify-end gap-2">
+                    <Button onClick={() => setOpen(false)} color="SECONDARY">
+                        Cancel
+                    </Button>
+
+                    <Button onClick={performDelete} color="ERROR">
+                        Delete
+                    </Button>
+                </div>
+            </Modal>
+        </>
     )
 }

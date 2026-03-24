@@ -1,10 +1,10 @@
-import { View, Text, FlatList, Pressable } from "react-native"
+import { View, FlatList, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter } from "expo-router"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Check, X, Mail, Clock, Calendar } from "lucide-react-native"
 import { Header } from "@features/layout/components"
-import { Button, Card } from "@components/core"
+import { Button, Card, Text } from "@components/core"
 import {
     getReceivedInvites,
     acceptInvite,

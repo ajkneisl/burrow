@@ -39,7 +39,7 @@ export default function UserSearchPreview({
                 onClick()
             }}
             className={clsx(
-                "flex w-full flex-row items-center gap-3 px-3 py-2 text-left",
+                "flex w-full cursor-pointer flex-row items-center gap-3 px-3 py-2 text-left",
                 "bg-hero/20 text-text hover:bg-hero/40 transition-all"
             )}
         >

@@ -1,6 +1,6 @@
 import { useAtom, useSetAtom } from "jotai"
 import useUser from "@features/auth/hooks/useUser.ts"
-import { createBurrowModal } from "@features/burrows/create/create.atom.ts"
+import { createBurrowModal, selectedClubIDAtom } from "@features/burrows/create/create.atom.ts"
 import { themeAtom } from "@api/theme/theme.atom.ts"
 import { getTheme } from "@api/theme/theme.api.ts"
 import { useEffect, useMemo } from "react"
@@ -8,10 +8,11 @@ import { Outlet, useLocation } from "react-router"
 import MetaTags from "@features/layout/components/MetaTags.tsx"
 import Header from "@features/layout/components/Header.tsx"
 import { Toaster } from "react-hot-toast"
-import CreateStudyBurrowModal from "@features/burrows/create/components/study/CreateStudyBurrowModal.tsx"
+import CreateStudyBurrowModal from "@features/burrows/create/components/CreateStudyBurrowModal.tsx"
 import { createBurrow } from "@features/burrows/create/create.api.ts"
-import CreateEventBurrowModal from "@features/burrows/create/components/event/CreateEventBurrowModal.tsx"
+import CreateEventBurrowModal from "@features/burrows/create/components/CreateEventBurrowModal.tsx"
 import CreateProjectBurrowModal from "@features/burrows/create/components/project/CreateProjectBurrowModal.tsx"
+import SelectClubModal from "@features/clubs/components/SelectClubModal.tsx"
 import ViewRelations from "@features/profile/components/ViewRelations.tsx"
 import ReportProblemModal from "@features/report/components/ReportProblemModal.tsx"
 import MyInvitesModal from "@features/layout/components/MyInvitesModal.tsx"
@@ -32,6 +33,7 @@ export default function RootLayout() {
     const [createModal, setCreateModal] = useAtom(createBurrowModal)
     const [theme, setTheme] = useAtom(themeAtom)
     const setQuery = useSetAtom(searchQueryAtom)
+    const [selectedClubID, setSelectedClubID] = useAtom(selectedClubIDAtom)
 
     // fetch theme from backend in background and update local storage if different
     useEffect(() => {
@@ -115,6 +117,39 @@ export default function RootLayout() {
                     modalTitle={"Create an Event Burrow"}
                     onSubmit={async (payload) => {
                         return await createBurrow(payload)
+                    }}
+                />
+
+                {/* club meeting: select club */}
+                <SelectClubModal
+                    open={createModal === "CLUB"}
+                    onClose={() => {
+                        setCreateModal(null)
+                        setSelectedClubID(null)
+                    }}
+                    onSelect={(clubID) => {
+                        setSelectedClubID(clubID)
+                        setCreateModal("CLUB_EVENT")
+                    }}
+                />
+
+                {/* club meeting: create event for selected club */}
+                <CreateEventBurrowModal
+                    open={createModal === "CLUB_EVENT"}
+                    onClose={() => {
+                        setCreateModal(null)
+                        setSelectedClubID(null)
+                    }}
+                    mode="create"
+                    modalTitle={"Create a Club Meeting"}
+                    onSubmit={async (payload) => {
+                        if ("title" in payload) {
+                            return await createBurrow({
+                                ...payload,
+                                kind: "CLUB",
+                                clubID: selectedClubID ?? undefined
+                            })
+                        }
                     }}
                 />
 

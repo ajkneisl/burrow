@@ -1,5 +1,5 @@
-import { View, Text, Switch, ActivityIndicator } from "react-native"
-import { Card } from "@components/core"
+import { View, Switch, ActivityIndicator } from "react-native"
+import { Card, Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import {
     useNotificationPreferences,
@@ -17,49 +17,96 @@ import {
     type NotificationPreferences
 } from "@features/settings/settings.types"
 import { Mail, Smartphone, AlertCircle } from "lucide-react-native"
+import ThemedIcon from "@components/core/ThemedIcon"
 import { useState, useEffect } from "react"
 import Toast from "react-native-toast-message"
 import { usePushNotifications } from "@features/notifications/hooks/usePushNotifications"
+import clsx from "clsx"
+
+const NOTIFICATION_LABELS: Record<NotificationKind, { title: string; description: string }> = {
+    [NotificationKind.UPCOMING_MEETING]: {
+        title: "Upcoming Burrows",
+        description: "Reminders before burrows you've joined"
+    },
+    [NotificationKind.NEW_MEETING]: {
+        title: "New Burrows",
+        description: "When new burrows are created near you"
+    },
+    [NotificationKind.MEETING_MESSAGE]: {
+        title: "Burrow Messages",
+        description: "Messages in burrows you're part of"
+    },
+    [NotificationKind.INVITE_RECEIVED]: {
+        title: "Invites Received",
+        description: "When someone invites you to a burrow"
+    },
+    [NotificationKind.NEWSLETTER]: {
+        title: "Newsletter",
+        description: "Weekly updates and highlights"
+    },
+    [NotificationKind.RECOMMENDED]: {
+        title: "Recommendations",
+        description: "Suggested burrows based on your interests"
+    }
+}
 
 /**
  * Notification preferences component.
  * Allows users to manage notification types and delivery channels.
+ *
+ * @author AJ Kneisl
  */
 export function NotificationPreferencesComponent() {
     const colors = useThemeColors()
     const { isSubscribed: isMobileEnabled } = usePushNotifications()
 
-    const { data: preferences, isLoading, isError } = useNotificationPreferences()
+    const {
+        data: preferences,
+        isLoading,
+        isError
+    } = useNotificationPreferences()
     const saveMutation = useSaveNotificationPreferences()
 
-    // Local state for immediate UI updates
     const [localPreferences, setLocalPreferences] = useState<
         NotificationPreferences[] | undefined
     >(preferences)
 
-    // Sync local state with fetched data
     useEffect(() => {
         if (preferences) {
             setLocalPreferences(preferences)
         }
     }, [preferences])
 
-    const handleToggleEnabled = (kind: NotificationKind, currentChannels: number) => {
+    const savePreferences = (prefs: NotificationPreferences[]) => {
+        saveMutation.mutate(prefs, {
+            onError: () => {
+                Toast.show({
+                    type: "error",
+                    text1: "Failed to save preferences",
+                    text2: "Your changes were not saved"
+                })
+                setLocalPreferences(preferences)
+            }
+        })
+    }
+
+    const handleToggleEnabled = (
+        kind: NotificationKind,
+        currentChannels: number
+    ) => {
         if (!localPreferences) return
 
         const updated = localPreferences.map((pref) => {
-            if (pref.kind === kind) {
-                // If currently enabled (has any channels), disable all
-                // If disabled (no channels), enable mobile (if available) or email
-                const defaultChannel = isMobileEnabled ? MOBILE_CHANNEL : EMAIL_CHANNEL
-                const newChannels = currentChannels === 0 ? defaultChannel : 0
+            if (pref.kind !== kind) return pref
 
-                return {
-                    ...pref,
-                    deliveryChannels: newChannels
-                }
+            const defaultChannel = isMobileEnabled
+                ? MOBILE_CHANNEL
+                : EMAIL_CHANNEL
+
+            return {
+                ...pref,
+                deliveryChannels: currentChannels === 0 ? defaultChannel : 0
             }
-            return pref
         })
 
         setLocalPreferences(updated)
@@ -74,42 +121,25 @@ export function NotificationPreferencesComponent() {
         if (!localPreferences) return
 
         const updated = localPreferences.map((pref) => {
-            if (pref.kind === kind) {
-                const newChannels = isChannelEnabled(currentChannels, channel)
+            if (pref.kind !== kind) return pref
+
+            return {
+                ...pref,
+                deliveryChannels: isChannelEnabled(currentChannels, channel)
                     ? disableChannel(currentChannels, channel)
                     : enableChannel(currentChannels, channel)
-
-                return {
-                    ...pref,
-                    deliveryChannels: newChannels
-                }
             }
-            return pref
         })
 
         setLocalPreferences(updated)
         savePreferences(updated)
     }
 
-    const savePreferences = (prefs: NotificationPreferences[]) => {
-        saveMutation.mutate(prefs, {
-            onError: () => {
-                Toast.show({
-                    type: "error",
-                    text1: "Failed to save preferences",
-                    text2: "Your changes were not saved"
-                })
-                // Revert to server state
-                setLocalPreferences(preferences)
-            }
-        })
-    }
-
     if (isLoading) {
         return (
-            <View className="flex-1 items-center justify-center py-12">
+            <View className="flex-1 items-center justify-center py-16">
                 <ActivityIndicator size="large" color={colors.primary} />
-                <Text className="text-text text-opacity-60 mt-4">
+                <Text className="text-text opacity-50 mt-4 text-sm">
                     Loading preferences...
                 </Text>
             </View>
@@ -118,14 +148,18 @@ export function NotificationPreferencesComponent() {
 
     if (isError || !localPreferences) {
         return (
-            <Card variant="bordered" className="bg-error bg-opacity-5">
-                <View className="flex-row items-start gap-3">
-                    <AlertCircle size={20} color={colors.error} />
+            <Card variant="bordered" style={{ backgroundColor: `${colors.error}15` }}>
+                <View className="flex-row items-start gap-3 p-1">
+                    <ThemedIcon
+                        icon={AlertCircle}
+                        size={20}
+                        overrideColor="error"
+                    />
                     <View className="flex-1">
                         <Text className="text-error font-semibold mb-1">
                             Failed to load preferences
                         </Text>
-                        <Text className="text-text text-opacity-60 text-sm">
+                        <Text className="text-text opacity-50 text-sm">
                             Please try again later
                         </Text>
                     </View>
@@ -134,49 +168,37 @@ export function NotificationPreferencesComponent() {
         )
     }
 
-    const notificationKindLabels: Record<NotificationKind, string> = {
-        [NotificationKind.UPCOMING_MEETING]: "Upcoming Burrows",
-        [NotificationKind.NEW_MEETING]: "New Burrows",
-        [NotificationKind.MEETING_MESSAGE]: "Burrow Messages",
-        [NotificationKind.INVITE_RECEIVED]: "Invites Received",
-        [NotificationKind.NEWSLETTER]: "Newsletter",
-        [NotificationKind.RECOMMENDED]: "Recommendations"
-    }
-
     return (
-        <View className="space-y-4 gap-4">
-            {/* Notification Preferences */}
+        <View className="gap-5">
             {localPreferences.map((pref) => {
                 const isEnabled = pref.deliveryChannels > 0
-                const hasMobile = isChannelEnabled(
-                    pref.deliveryChannels,
-                    MOBILE_CHANNEL
-                )
-                const hasEmail = isChannelEnabled(
-                    pref.deliveryChannels,
-                    EMAIL_CHANNEL
-                )
+                const hasMobile = isChannelEnabled(pref.deliveryChannels, MOBILE_CHANNEL)
+                const hasEmail = isChannelEnabled(pref.deliveryChannels, EMAIL_CHANNEL)
+                const info = NOTIFICATION_LABELS[pref.kind]
 
                 return (
                     <Card
                         key={pref.kind}
                         variant="bordered"
-                        className={
-                            isEnabled ? "border-primary border-opacity-20" : ""
-                        }
+                        className={clsx(
+                            isEnabled && "border-primary/20"
+                        )}
                     >
                         {/* Main Toggle */}
-                        <View className="flex-row items-center justify-between mb-3">
-                            <Text className="text-text font-semibold flex-1">
-                                {notificationKindLabels[pref.kind]}
-                            </Text>
+                        <View className="flex-row items-center justify-between">
+                            <View className="flex-1 mr-4">
+                                <Text className="text-text font-semibold text-base">
+                                    {info.title}
+                                </Text>
+                                <Text className="text-text opacity-50 text-xs mt-0.5">
+                                    {info.description}
+                                </Text>
+                            </View>
+
                             <Switch
                                 value={isEnabled}
                                 onValueChange={() =>
-                                    handleToggleEnabled(
-                                        pref.kind,
-                                        pref.deliveryChannels
-                                    )
+                                    handleToggleEnabled(pref.kind, pref.deliveryChannels)
                                 }
                                 trackColor={{
                                     false: colors.card,
@@ -186,34 +208,38 @@ export function NotificationPreferencesComponent() {
                             />
                         </View>
 
-                        {/* Delivery Channels */}
+                        {/* Delivery Methods */}
                         {isEnabled && (
-                            <View className="space-y-2 gap-2 pt-3 border-t border-card-border">
-                                <Text className="text-text text-opacity-60 text-xs font-semibold uppercase mb-1">
+                            <View className="mt-4 pt-4 border-t border-card-border gap-3">
+                                <Text className="text-text opacity-40 text-[10px] font-semibold uppercase tracking-wider">
                                     Delivery Methods
                                 </Text>
 
-                                {/* Mobile Channel */}
+                                {/* Mobile */}
                                 <View className="flex-row items-center justify-between">
-                                    <View className="flex-row items-center gap-2 flex-1">
-                                        <Smartphone
+                                    <View className="flex-row items-center gap-3 flex-1">
+                                        <ThemedIcon
+                                            icon={Smartphone}
                                             size={16}
-                                            color={colors.text}
-                                            style={{ opacity: isMobileEnabled ? 0.6 : 0.3 }}
+                                            opacity={isMobileEnabled ? 0.7 : 0.3}
                                         />
                                         <View>
                                             <Text
-                                                className={`text-sm ${isMobileEnabled ? "text-text text-opacity-80" : "text-text text-opacity-40"}`}
+                                                className={clsx(
+                                                    "text-sm text-text",
+                                                    isMobileEnabled ? "opacity-80" : "opacity-40"
+                                                )}
                                             >
                                                 Mobile
                                             </Text>
                                             {!isMobileEnabled && (
-                                                <Text className="text-xs text-text text-opacity-40">
-                                                    Enable above
+                                                <Text className="text-text opacity-30 text-[11px] mt-0.5">
+                                                    Enable push notifications first
                                                 </Text>
                                             )}
                                         </View>
                                     </View>
+
                                     <Switch
                                         value={hasMobile && isMobileEnabled}
                                         onValueChange={() =>
@@ -232,18 +258,19 @@ export function NotificationPreferencesComponent() {
                                     />
                                 </View>
 
-                                {/* Email Channel */}
+                                {/* Email */}
                                 <View className="flex-row items-center justify-between">
-                                    <View className="flex-row items-center gap-2 flex-1">
-                                        <Mail
+                                    <View className="flex-row items-center gap-3 flex-1">
+                                        <ThemedIcon
+                                            icon={Mail}
                                             size={16}
-                                            color={colors.text}
-                                            style={{ opacity: 0.6 }}
+                                            opacity={0.7}
                                         />
-                                        <Text className="text-text text-opacity-80 text-sm">
+                                        <Text className="text-text opacity-80 text-sm">
                                             Email
                                         </Text>
                                     </View>
+
                                     <Switch
                                         value={hasEmail}
                                         onValueChange={() =>
@@ -266,12 +293,9 @@ export function NotificationPreferencesComponent() {
                 )
             })}
 
-            {/* Footer Note */}
-            <View className="px-4 py-3">
-                <Text className="text-text text-opacity-40 text-xs text-center">
-                    Changes are saved automatically
-                </Text>
-            </View>
+            <Text className="text-text opacity-30 text-xs text-center mt-2">
+                Changes are saved automatically
+            </Text>
         </View>
     )
 }

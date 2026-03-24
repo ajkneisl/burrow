@@ -1,3 +1,3 @@
 export { ScheduleSection } from "./ScheduleSection"
-export { ScheduleCard } from "./ScheduleCard"
+export { ScheduleBurrowCard } from "./ScheduleBurrowCard"
 export { UpcomingBurrowsSection } from "./UpcomingBurrowsSection"

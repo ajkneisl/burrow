@@ -1,10 +1,10 @@
-import { View, Text, ActivityIndicator } from "react-native"
+import { View, ActivityIndicator } from "react-native"
 import { useRouter } from "expo-router"
 import { Calendar } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { Button } from "@components/core"
+import { Button, Text } from "@components/core"
 import type { BurrowResponse } from "@features/burrows/burrows.types"
-import { UpcomingBurrowCard } from "./UpcomingBurrowCard"
+import { UpcomingBurrowCard } from "../../burrows/components/UpcomingBurrowCard"
 
 /**
  * {@link UpcomingBurrowsSection}

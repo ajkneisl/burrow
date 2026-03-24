@@ -1,5 +1,5 @@
-import { useMemo } from "react"
-import { View, Text, FlatList, Pressable } from "react-native"
+import { useMemo, useCallback } from "react"
+import { View, FlatList, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter } from "expo-router"
 import { Bell, ChevronLeft } from "lucide-react-native"
@@ -16,11 +16,16 @@ import {
 } from "@features/burrows/attendees/attendees.api"
 import ViewNotification from "@features/notifications/components/ViewNotification"
 import { Header } from "@features/layout/components"
-import { Button } from "@components/core"
+import { Button, Text } from "@components/core"
 import Toast from "react-native-toast-message"
 import type { Notification } from "@features/notifications/notifications.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
+/**
+ * View the user's notifications.
+ *
+ * @author AJ Kneisl
+ */
 export default function NotificationsScreen() {
     const router = useRouter()
     const queryClient = useQueryClient()
@@ -114,6 +119,12 @@ export default function NotificationsScreen() {
         }
     })
 
+    const handleLoadMore = useCallback(() => {
+        if (hasNextPage && !isFetchingNextPage) {
+            void fetchNextPage()
+        }
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
     const renderNotification = ({ item }: { item: Notification }) => (
         <ViewNotification
             notification={item}
@@ -197,11 +208,7 @@ export default function NotificationsScreen() {
                     renderItem={renderNotification}
                     ListEmptyComponent={renderEmpty}
                     ListFooterComponent={renderFooter}
-                    onEndReached={() => {
-                        if (hasNextPage && !isFetchingNextPage) {
-                            fetchNextPage()
-                        }
-                    }}
+                    onEndReached={handleLoadMore}
                     onEndReachedThreshold={0.5}
                     contentContainerStyle={
                         items.length === 0

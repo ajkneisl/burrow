@@ -1,7 +1,7 @@
 import { Link, Navigate, useNavigate, useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
-import { Archive, Clock, GraduationCap } from "lucide-react"
+import { Archive, Clock, GraduationCap, Repeat } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { getBurrow } from "@features/burrows/burrows.api.ts"
 import BurrowLocation from "@features/burrows/components/BurrowLocation.tsx"
@@ -20,9 +20,14 @@ import { blockStatus } from "@features/sync/sync.atom.ts"
 import { Badge, Card, Hover, ViewErrors } from "@umnburrow/core"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
+import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.tsx"
 import ShareMeeting from "@features/burrows/controls/ShareMeeting.tsx"
 import BookmarkMeeting from "@features/burrows/controls/BookmarkMeeting.tsx"
 import ReportBurrow from "@features/burrows/controls/ReportBurrow.tsx"
+import {
+    getReoccurringText,
+    NOT_REOCCURRING
+} from "@features/burrows/burrows.types.tsx"
 
 /**
  * View an individual meeting.
@@ -51,6 +56,7 @@ export default function StandardBurrow() {
     const inMeeting = data?.membership?.status === "JOINED" || isOwner
     const inPast = (data?.burrow?.endTime ?? 0) < new Date().valueOf()
     const isLoggedOut = auth === null
+    const isReoccurring = data?.burrow?.reoccurring !== NOT_REOCCURRING
 
     // set meta tags for this meeting
     useMetaTags({
@@ -196,41 +202,71 @@ export default function StandardBurrow() {
 
                                     <div className="my-1 flex flex-col-reverse items-center gap-2 text-sm md:flex-row">
                                         {/* host / author */}
-                                        <div
-                                            role="button"
-                                            onClick={() =>
-                                                nav(
-                                                    `/user/${data?.burrowAuthor}`
-                                                )
-                                            }
-                                            className="flex cursor-pointer flex-row items-center gap-2"
-                                        >
-                                            <ProfilePicture
-                                                name={
-                                                    data.burrowAuthorProfile
-                                                        ?.name ||
-                                                    burrowAuthor ||
-                                                    "Unknown"
+                                        {data.clubName && burrow.clubID ? (
+                                            <div
+                                                role="button"
+                                                onClick={() =>
+                                                    nav(
+                                                        `/club/${data.clubName}`
+                                                    )
                                                 }
-                                                userID={burrow.ownerID}
-                                                size={"sm"}
-                                            />
-                                            <p className="text-text/60 text-sm">
-                                                Hosted by{" "}
-                                                <span className="text-text/80 font-medium">
-                                                    {data.burrowAuthorProfile
-                                                        ?.name || burrowAuthor}
-                                                </span>
-                                            </p>
+                                                className="flex cursor-pointer flex-row items-center gap-2"
+                                            >
+                                                <ClubProfilePicture
+                                                    clubID={burrow.clubID}
+                                                    displayName={
+                                                        data.clubDisplayName ??
+                                                        ""
+                                                    }
+                                                    clubName={data.clubName}
+                                                    size="sm"
+                                                />
+                                                <p className="text-text/60 text-sm">
+                                                    Hosted by{" "}
+                                                    <span className="text-text/80 font-medium">
+                                                        {data.clubDisplayName}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <div
+                                                role="button"
+                                                onClick={() =>
+                                                    nav(
+                                                        `/user/${data?.burrowAuthor}`
+                                                    )
+                                                }
+                                                className="flex cursor-pointer flex-row items-center gap-2"
+                                            >
+                                                <ProfilePicture
+                                                    name={
+                                                        data.burrowAuthorProfile
+                                                            ?.name ||
+                                                        burrowAuthor ||
+                                                        "Unknown"
+                                                    }
+                                                    userID={burrow.ownerID}
+                                                    size={"sm"}
+                                                />
+                                                <p className="text-text/60 text-sm">
+                                                    Hosted by{" "}
+                                                    <span className="text-text/80 font-medium">
+                                                        {data
+                                                            .burrowAuthorProfile
+                                                            ?.name ||
+                                                            burrowAuthor}
+                                                    </span>
+                                                </p>
 
-                                            {/* TA badge */}
-                                            {data.hostedByTa && (
-                                                <span className="bg-info/10 text-info ring-info/30 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset">
-                                                    <GraduationCap className="h-3 w-3" />
-                                                    TA
-                                                </span>
-                                            )}
-                                        </div>
+                                                {/* TA badge */}
+                                                {data.hostedByTa && (
+                                                    <span className="bg-info/10 text-info ring-info/30 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset">
+                                                        <GraduationCap className="h-3 w-3" />
+                                                        TA
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
 
                                         <span className="text-text/50 hidden md:block">
                                             —
@@ -238,14 +274,24 @@ export default function StandardBurrow() {
 
                                         {/* date */}
                                         <div className="text-text/60 flex items-center gap-1.5 text-sm">
-                                            <Clock className="h-4 w-4" />
+                                            {isReoccurring ? (
+                                                <Repeat className="h-4 w-4" />
+                                            ) : (
+                                                <Clock className="h-4 w-4" />
+                                            )}
 
-                                            <span>
-                                                {formatDateTime(
-                                                    burrow.beginningTime,
-                                                    burrow.endTime
+                                            <Hover
+                                                content={getReoccurringText(
+                                                    burrow.reoccurring
                                                 )}
-                                            </span>
+                                            >
+                                                <span>
+                                                    {formatDateTime(
+                                                        burrow.beginningTime,
+                                                        burrow.endTime
+                                                    )}
+                                                </span>
+                                            </Hover>
                                         </div>
                                     </div>
 

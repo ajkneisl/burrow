@@ -1,7 +1,13 @@
 import type { User } from "@features/auth/user.types.ts"
 import type { Profile } from "@features/profile/profile.model.ts"
-import { BookOpen, FolderKanban, PartyPopper, Users } from "lucide-react"
+import {
+    BookOpen,
+    FolderKanban,
+    PartyPopper,
+    Users,
+} from "lucide-react"
 import type { ChatMessage } from "@features/chat/chat.types.ts"
+import type { ComponentType, SVGProps } from "react"
 
 /**
  * The type of group meeting.
@@ -11,7 +17,13 @@ export type BurrowKind = "STUDY" | "EVENT" | "CLUB" | "PROJECT"
 /**
  * The type of general location.
  */
-export type LocationType = "PARKING" | "VENDING" | "STUDY" | "RESTROOM" | "FOOD" | "OTHER"
+export type LocationType =
+    | "PARKING"
+    | "VENDING"
+    | "STUDY"
+    | "RESTROOM"
+    | "FOOD"
+    | "OTHER"
 
 /**
  * Base type for all locations on the map.
@@ -47,27 +59,31 @@ export interface GeneralLocation {
  */
 export const BURROW_KIND_CONFIG: Record<
     BurrowKind,
-    { label: string; icon: React.ReactNode; className: string }
+    {
+        label: string
+        icon: ComponentType<SVGProps<SVGSVGElement>>
+        className: "success" | "secondary" | "info" | "error"
+    }
 > = {
     STUDY: {
         label: "Study",
-        icon: <BookOpen className="h-3 w-3" />,
-        className: "text-success"
+        icon: BookOpen,
+        className: "success"
     },
     EVENT: {
         label: "Event",
-        icon: <PartyPopper className="h-3 w-3" />,
-        className: "text-secondary"
+        icon: PartyPopper,
+        className: "secondary"
     },
     CLUB: {
         label: "Club",
-        icon: <Users className="h-3 w-3" />,
-        className: "text-info"
+        icon: Users,
+        className: "info"
     },
     PROJECT: {
         label: "Project",
-        icon: <FolderKanban className="h-3 w-3" />,
-        className: "text-error"
+        icon: FolderKanban,
+        className: "error"
     }
 }
 
@@ -95,6 +111,7 @@ export type BurrowVisibility = "PUBLIC" | "UNLISTED" | "PRIVATE"
 export interface Burrow {
     id: string
     ownerID: string
+    clubID?: string | null
     title: string
     description: string
     location: string
@@ -105,12 +122,47 @@ export interface Burrow {
     capacity: number
     visibility: BurrowVisibility
     requestToJoin: boolean
+    reoccurring: number
     joined: number
     waiting: number
 }
 
 /**
- * The role of a member ina  meeting.
+ * The options for when the Burrow can reoccur.
+ */
+export const NOT_REOCCURRING = -1
+export const DAILY = 0
+export const WEEKLY = 1
+export const MONTHLY = 2
+
+/**
+ * Get a string depending on when the Burrow reoccurs.
+ *
+ * @param timeframe The timeframe of the Burrow.
+ * @param slim If `This Burrow reoccurs` should not be included
+ */
+export function getReoccurringText(timeframe: number, slim?: boolean): string {
+    let word = ""
+
+    switch (timeframe) {
+        case DAILY:
+            word = "day"
+            break
+        case WEEKLY:
+            word = "week"
+            break
+        case MONTHLY:
+            word = "month"
+            break
+        default:
+            return ""
+    }
+
+    return slim ? `every ${word}.` : `This Burrow reoccurs every ${word}.`
+}
+
+/**
+ * The role of a member in a meeting.
  */
 export type BurrowRole = "MEMBER" | "HOST" | "MODERATOR"
 
@@ -152,6 +204,8 @@ export interface BurrowResponse {
     bookmarked: boolean
     highlightedTags: number[]
     hostedByTa?: boolean
+    clubName?: string | null
+    clubDisplayName?: string | null
 }
 
 /**

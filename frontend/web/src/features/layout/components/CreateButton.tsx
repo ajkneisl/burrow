@@ -2,7 +2,6 @@ import { motion, AnimatePresence, type Variants } from "framer-motion"
 import { useAtom } from "jotai"
 import { createBurrowModal } from "@features/burrows/create/create.atom.ts"
 import React, { useEffect, useRef, useState, useCallback } from "react"
-import toast from "react-hot-toast"
 import clsx from "clsx"
 import { BookOpen, FolderKanban, PartyPopper, Users, Plus } from "lucide-react"
 
@@ -46,7 +45,7 @@ export default function CreateButton() {
             value: "club",
             desc: "Meet with your club",
             icon: <Users className="text-info h-5 w-5" />,
-            onClick: () => toast.error("this is coming soon :)")
+            onClick: () => setModalOpen("CLUB")
         }
     ]
 

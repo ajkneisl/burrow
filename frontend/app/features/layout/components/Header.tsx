@@ -1,5 +1,6 @@
 import { useMemo } from "react"
-import { View, Text, Pressable, Image } from "react-native"
+import { View, Pressable, Image, Text as RNText } from "react-native"
+import { Text } from "@components/core"
 import { useRouter } from "expo-router"
 import { Search, Bell } from "lucide-react-native"
 import { useAtom } from "jotai"
@@ -14,6 +15,7 @@ interface HeaderProps {
     showNotifications?: boolean
     leftAction?: React.ReactNode
     rightAction?: React.ReactNode
+    leftActions?: React.ReactNode
 }
 
 export function Header({
@@ -22,7 +24,8 @@ export function Header({
     showSearch = true,
     showNotifications = true,
     leftAction,
-    rightAction
+    rightAction,
+    leftActions
 }: HeaderProps) {
     const router = useRouter()
     const colors = useThemeColors()
@@ -32,7 +35,9 @@ export function Header({
 
     const unreadCount = useMemo(() => {
         if (!notificationsData) return 0
+
         return notificationsData.pages
+            .filter((page) => page?.contents)
             .flatMap((page) => page.contents)
             .filter((n) => !n?.read).length
     }, [notificationsData])
@@ -49,6 +54,7 @@ export function Header({
                                 {title}
                             </Text>
                             {badge !== undefined && badge > 0 && (
+
                                 <View className="bg-primary/20 rounded-full px-2 py-0.5">
                                     <Text className="text-xs font-semibold text-text">
                                         {badge}
@@ -63,15 +69,23 @@ export function Header({
                                 style={{ width: 40, height: 40 }}
                                 resizeMode="contain"
                             />
-                            <Text className="text-2xl font-bold text-text">
+                            <RNText
+                                style={{
+                                    fontFamily: "Figtree-ExtraBold",
+                                    fontSize: 24,
+                                    color: colors.text
+                                }}
+                            >
                                 {title}
-                            </Text>
+                            </RNText>
                         </>
                     )}
                 </View>
 
                 {/* Actions */}
                 <View className="flex-row items-center gap-3">
+                    {leftActions}
+
                     {showSearch && (
                         <Pressable
                             onPress={() => setSearchOpen(true)}

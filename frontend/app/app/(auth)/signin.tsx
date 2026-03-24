@@ -1,12 +1,14 @@
-import { View, Text, ScrollView, TextInput, Alert } from "react-native"
+import { View, ScrollView, TextInput, Alert } from "react-native"
 import { useRouter } from "expo-router"
 import { useAtom, useSetAtom } from "jotai"
-import { authToken, userDetails } from "@features/auth/auth.atom"
-import { Button } from "@components/core"
+import { authToken, refreshTokenAtom, userDetails } from "@features/auth/auth.atom"
+import { Button, Text } from "@components/core"
 import { useState, useEffect } from "react"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { ArrowLeft } from "lucide-react-native"
+import * as Device from "expo-device"
 import { altLogin } from "@features/auth/user.api"
+import { store } from "@api/api.atom"
 import Toast from "react-native-toast-message"
 
 /**
@@ -39,10 +41,12 @@ export default function SignInScreen() {
 
         setLoading(true)
         try {
-            const response = await altLogin(username.trim(), password)
+            const deviceName = Device.deviceName || `${Device.brand ?? ""} ${Device.modelName ?? ""}`.trim() || "Mobile Device"
+            const response = await altLogin(username.trim(), password, deviceName)
 
             // update auth token
             void setAuthToken(response.token)
+            await store.set(refreshTokenAtom, response.refreshToken)
             setUser(response.user)
 
             Toast.show({

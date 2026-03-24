@@ -1,8 +1,8 @@
-import { View, Text, Switch, Pressable } from "react-native"
+import { View, Switch, Pressable } from "react-native"
 import { useState, useEffect } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { X, MessageSquare, Timer } from "lucide-react-native"
-import { Button, Card } from "@components/core"
+import { Button, Card, Text } from "@components/core"
 import { saveBlocks } from "@features/sync/blocks.api"
 import type { Blocks } from "@features/sync/sync.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
@@ -76,6 +76,7 @@ export function BurrowFeaturesModal({
                 <Text className="text-xl font-bold text-text">
                     Burrow Features
                 </Text>
+
                 <Pressable onPress={onClose} className="p-2 -mr-2">
                     <X size={24} color={colors.text} />
                 </Pressable>
@@ -84,8 +85,8 @@ export function BurrowFeaturesModal({
             {/* Content */}
             <View className="flex-1 px-6 py-4">
                 <Text className="text-text text-opacity-60 text-sm mb-4">
-                    Enable or disable features for this burrow. Changes will apply
-                    to all members.
+                    Enable or disable features for this burrow. Changes will
+                    apply to all members.
                 </Text>
 
                 {/* Chat Toggle */}
@@ -94,9 +95,14 @@ export function BurrowFeaturesModal({
                         <View className="flex-row items-center gap-3 flex-1">
                             <View
                                 className="w-10 h-10 rounded-full items-center justify-center"
-                                style={{ backgroundColor: `${colors.primary}1A` }}
+                                style={{
+                                    backgroundColor: `${colors.primary}1A`
+                                }}
                             >
-                                <MessageSquare size={20} color={colors.primary} />
+                                <MessageSquare
+                                    size={20}
+                                    color={colors.primary}
+                                />
                             </View>
                             <View className="flex-1">
                                 <Text className="text-text font-semibold mb-0.5">
@@ -125,7 +131,9 @@ export function BurrowFeaturesModal({
                         <View className="flex-row items-center gap-3 flex-1">
                             <View
                                 className="w-10 h-10 rounded-full items-center justify-center"
-                                style={{ backgroundColor: `${colors.secondary}1A` }}
+                                style={{
+                                    backgroundColor: `${colors.secondary}1A`
+                                }}
                             >
                                 <Timer size={20} color={colors.secondary} />
                             </View>
@@ -154,8 +162,8 @@ export function BurrowFeaturesModal({
                 <View className="mt-6 p-4 bg-info/10 rounded-lg">
                     <Text className="text-text text-opacity-80 text-xs">
                         <Text className="font-semibold">Note:</Text> Disabling
-                        features will hide them from all members. Any existing data
-                        (messages, timer state) will be preserved.
+                        features will hide them from all members. Any existing
+                        data (messages, timer state) will be preserved.
                     </Text>
                 </View>
             </View>

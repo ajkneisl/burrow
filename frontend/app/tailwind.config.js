@@ -48,11 +48,12 @@ module.exports = {
                 hero: "var(--color-hero)"
             },
             fontFamily: {
-                sans: ["Poppins-Regular", "system-ui", "sans-serif"],
-                medium: ["Poppins-Medium"],
-                semibold: ["Poppins-SemiBold"],
-                bold: ["Poppins-Bold"],
-                barlow: ["Barlow-Medium"]
+                sans: ["Inter-Regular", "system-ui", "sans-serif"],
+                medium: ["Inter-Medium"],
+                semibold: ["Inter-SemiBold"],
+                bold: ["Inter-Bold"],
+                extrabold: ["Inter-ExtraBold"],
+                figtree: ["Figtree-Bold"]
             }
         }
     },

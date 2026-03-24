@@ -15,6 +15,7 @@ import { blockStatus } from "@features/sync/sync.atom.ts"
 import { Card, Hover, ViewErrors } from "@umnburrow/core"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
+import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.tsx"
 import ShareMeeting from "@features/burrows/controls/ShareMeeting.tsx"
 import BookmarkMeeting from "@features/burrows/controls/BookmarkMeeting.tsx"
 import BurrowCapacity from "@features/burrows/components/BurrowCapacity.tsx"
@@ -167,34 +168,55 @@ export default function ProjectBurrow() {
 
                                     <div className="my-1 flex flex-col-reverse items-center gap-2 text-sm md:flex-row">
                                         {/* host / author */}
-                                        <div
-                                            role="button"
-                                            onClick={() =>
-                                                nav(
-                                                    `/user/${data?.burrowAuthor}`
-                                                )
-                                            }
-                                            className="flex cursor-pointer flex-row items-center gap-2"
-                                        >
-                                            <ProfilePicture
-                                                name={
-                                                    data.burrowAuthorProfile
-                                                        ?.name ||
-                                                    burrowAuthor ||
-                                                    "Unknown"
+                                        {data.clubName && burrow.clubID ? (
+                                            <div
+                                                role="button"
+                                                onClick={() => nav(`/club/${data.clubName}`)}
+                                                className="flex cursor-pointer flex-row items-center gap-2"
+                                            >
+                                                <ClubProfilePicture
+                                                    clubID={burrow.clubID}
+                                                    displayName={data.clubDisplayName ?? ""}
+                                                    clubName={data.clubName}
+                                                    size="sm"
+                                                />
+                                                <p className="text-text/60 text-sm">
+                                                    Created by{" "}
+                                                    <span className="text-text/80 font-medium">
+                                                        {data.clubDisplayName}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <div
+                                                role="button"
+                                                onClick={() =>
+                                                    nav(
+                                                        `/user/${data?.burrowAuthor}`
+                                                    )
                                                 }
-                                                userID={burrow.ownerID}
-                                                size={"sm"}
-                                            />
+                                                className="flex cursor-pointer flex-row items-center gap-2"
+                                            >
+                                                <ProfilePicture
+                                                    name={
+                                                        data.burrowAuthorProfile
+                                                            ?.name ||
+                                                        burrowAuthor ||
+                                                        "Unknown"
+                                                    }
+                                                    userID={burrow.ownerID}
+                                                    size={"sm"}
+                                                />
 
-                                            <p className="text-text/60 text-sm">
-                                                Created by{" "}
-                                                <span className="text-text/80 font-medium">
-                                                    {data.burrowAuthorProfile
-                                                        ?.name || burrowAuthor}
-                                                </span>
-                                            </p>
-                                        </div>
+                                                <p className="text-text/60 text-sm">
+                                                    Created by{" "}
+                                                    <span className="text-text/80 font-medium">
+                                                        {data.burrowAuthorProfile
+                                                            ?.name || burrowAuthor}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        )}
 
                                         <span className="text-text/50 hidden md:block">
                                             —

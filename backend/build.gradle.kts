@@ -13,11 +13,13 @@ plugins {
 
 group = "app.burrow"
 
-version = "0.4.3"
+version = "0.5.0"
 
 application { mainClass = "app.burrow.ApplicationKt" }
 
 dependencies {
+    implementation(kotlin("reflect"))
+
     implementation("io.ktor:ktor-client-cio")
     implementation("io.ktor:ktor-client-content-negotiation")
 

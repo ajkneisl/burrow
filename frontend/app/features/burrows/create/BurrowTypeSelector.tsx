@@ -1,4 +1,6 @@
-import { View, Text, Pressable, SafeAreaView } from "react-native"
+import { View, Pressable } from "react-native"
+import { Text } from "@components/core"
+import { SafeAreaView } from "react-native-safe-area-context"
 import {
     X,
     BookOpen,
@@ -6,9 +8,12 @@ import {
     Users,
     FolderKanban
 } from "lucide-react-native"
-import { useThemeColors } from "@api/theme/useThemeColors"
+import ThemedIcon from "@components/core/ThemedIcon"
 import { BurrowKind } from "@features/burrows/burrows.types"
 
+/**
+ * {@link BurrowTypeSelector}
+ */
 type BurrowTypeSelectorProps = {
     onSelect: (type: BurrowKind) => void
     onClose: () => void
@@ -24,39 +29,45 @@ const BURROW_TYPES: {
     {
         type: "STUDY",
         label: "Study Group",
-        description: "Collaborate on coursework and exams",
+        description: "Create a study group",
         icon: BookOpen,
         color: "#10B981"
     },
     {
         type: "EVENT",
         label: "Event",
-        description: "Plan social gatherings and activities",
+        description: "Plan or host an event",
         icon: PartyPopper,
         color: "#FFCC33"
     },
     {
         type: "CLUB",
         label: "Club",
-        description: "Create a student organization or club",
+        description: "Meet with your club",
         icon: Users,
         color: "#3B82F6"
     },
     {
         type: "PROJECT",
         label: "Project",
-        description: "Manage team projects and deadlines",
+        description: "Collaborate with classmates on projects",
         icon: FolderKanban,
         color: "#EF4444"
     }
 ]
 
+/**
+ * Select the type of burrow to create.
+ *
+ * @param onSelect Called when a burrow type is selected.
+ * @param onClose Called when the selector is dismissed.
+ *
+ * @author AJ Kneisl
+ */
 export function BurrowTypeSelector({
     onSelect,
     onClose
 }: BurrowTypeSelectorProps) {
-    const colors = useThemeColors()
-
     return (
         <SafeAreaView className="flex-1 bg-background">
             {/* Header */}
@@ -65,7 +76,7 @@ export function BurrowTypeSelector({
                     Create Burrow
                 </Text>
                 <Pressable onPress={onClose}>
-                    <X size={24} color={colors.text} />
+                    <ThemedIcon icon={X} size={24} />
                 </Pressable>
             </View>
 

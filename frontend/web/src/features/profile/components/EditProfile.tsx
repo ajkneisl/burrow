@@ -95,6 +95,7 @@ export default function EditProfile({ user, profile }: EditProfileProps) {
             onClick={toggleEditing}
             loading={isSubmitting}
         >
+
             {isEditing ? "Save Profile" : "Edit Profile"}
         </Button>
     )

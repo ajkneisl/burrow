@@ -1,9 +1,9 @@
-import { View, Text, ScrollView, Pressable } from "react-native"
+import { View, ScrollView, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack } from "expo-router"
 import { ArrowLeft, FileText } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { Card } from "@components/core"
+import { Card, Text } from "@components/core"
 
 /**
  * Terms of Service screen.
@@ -231,7 +231,7 @@ export default function TermsOfServiceScreen() {
                 </Section>
 
                 {/* Acknowledgment */}
-                <Card variant="bordered" className="bg-info bg-opacity-5">
+                <Card variant="bordered" className="bg-opacity-5">
                     <Text className="text-text text-opacity-80 text-sm leading-relaxed">
                         By using Burrow, you acknowledge that you have read,
                         understood, and agree to be bound by these Terms of

@@ -5,6 +5,7 @@ import type {
 } from "@features/auth/user.types.ts"
 import type { UserResponse, Profile } from "@features/profile/profile.model.ts"
 import { del, get, post, put } from "@api/api"
+import { BASE_URL } from "@api/util"
 
 /**
  * Update a username.
@@ -39,9 +40,16 @@ export async function getUserByUsername(
  * Retrieve the token and user details when logging in.
  *
  * @param credentials Google credentials provided from login.
+ * @param deviceName The device name for session tracking.
  */
-export async function login(credentials: string): Promise<AuthorizedUser> {
-    return put("/user/login", credentials, { auth: false })
+export async function login(
+    credentials: string,
+    deviceName: string = "Mobile Device"
+): Promise<AuthorizedUser> {
+    return put("/user/login", credentials, {
+        auth: false,
+        query: { deviceName }
+    })
 }
 
 /**
@@ -51,16 +59,18 @@ export async function login(credentials: string): Promise<AuthorizedUser> {
  * @param code The authorization code from Google OAuth
  * @param codeVerifier The PKCE code verifier
  * @param redirectUri The redirect URI used in the auth request
+ * @param deviceName The device name for session tracking.
  */
 export async function loginWithCode(
     code: string,
     codeVerifier: string,
-    redirectUri: string
+    redirectUri: string,
+    deviceName: string = "Mobile Device"
 ): Promise<AuthorizedUser> {
     return put(
         "/user/login",
         { code, codeVerifier, redirectUri },
-        { auth: false, query: { platform: "android" } }
+        { auth: false, query: { platform: "android", deviceName } }
     )
 }
 
@@ -69,12 +79,37 @@ export async function loginWithCode(
  *
  * @param username The username
  * @param password The password
+ * @param deviceName The device name for session tracking.
  */
 export async function altLogin(
     username: string,
-    password: string
+    password: string,
+    deviceName: string = "Mobile Device"
 ): Promise<AuthorizedUser> {
-    return put("/user/altlogin", { username, password }, { auth: false })
+    return put(
+        "/user/altlogin",
+        { username, password, deviceName },
+        { auth: false }
+    )
+}
+
+/**
+ * Exchange a refresh token for a new access token and rotated refresh token.
+ * Uses raw fetch to avoid the request() wrapper's auth logic.
+ *
+ * @param refreshToken The current refresh token.
+ */
+export async function refreshAccessToken(
+    refreshToken: string
+): Promise<{ token: string; refreshToken: string }> {
+    const response = await fetch(`${BASE_URL}/user/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken })
+    })
+
+    if (!response.ok) throw new Error("Refresh failed")
+    return response.json()
 }
 
 /**

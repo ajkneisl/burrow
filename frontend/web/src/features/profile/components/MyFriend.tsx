@@ -3,6 +3,7 @@ import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useNavigate } from "react-router"
 import { useAtom } from "jotai"
 import { isRelationsVisible } from "@features/profile/profile.atom.ts"
+import { ListItem } from "@umnburrow/core"
 
 /**
  * {@see MyFriend}
@@ -32,17 +33,16 @@ export default function MyFriend({ friend, inModal }: MyFriendProps) {
     }
 
     return (
-        <li
-            onClick={() => viewFriend()}
-            className="group bg-background/30 hover:bg-background/60 flex cursor-pointer items-center gap-2 rounded-lg px-4 py-3 transition-colors"
-        >
-            <ProfilePicture
-                name={friend.name}
-                userID={friend.userID}
-                size={"sm"}
-            />
-
-            <span className="truncate">{friend.name}</span>
-        </li>
+        <ListItem
+            onClick={viewFriend}
+            leading={
+                <ProfilePicture
+                    name={friend.name}
+                    userID={friend.userID}
+                    size={"sm"}
+                />
+            }
+            title={friend.name}
+        />
     )
 }

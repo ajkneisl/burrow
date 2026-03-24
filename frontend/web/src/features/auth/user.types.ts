@@ -9,6 +9,7 @@ export type AuthorizedUser = {
     user: User
     newUser: boolean
     token: string
+    refreshToken: string
 }
 
 /**

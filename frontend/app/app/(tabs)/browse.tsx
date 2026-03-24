@@ -1,15 +1,9 @@
-import {
-    View,
-    Text,
-    SectionList,
-    RefreshControl,
-    Pressable
-} from "react-native"
+import { View, SectionList, RefreshControl, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useState, useMemo, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Header } from "@features/layout/components"
-import { UpcomingBurrowCard } from "@features/home/components/UpcomingBurrowCard"
+import { UpcomingBurrowCard } from "@features/burrows/components/UpcomingBurrowCard"
 import { getBurrows, searchMeetings } from "@features/burrows/burrows.api"
 import type {
     BurrowKind,
@@ -20,20 +14,21 @@ import {
     Filter,
     ChevronDown,
     ChevronUp,
-    ChevronRight
+    ChevronRight,
+    Map as MapIcon,
+    MapPin,
+    MapPinned
 } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import {
-    CustomDateTimePicker,
-    FilterChip,
-    LabeledSwitch
-} from "@components/core"
+import { CustomDateTimePicker, FilterChip, LabeledSwitch, Text } from "@components/core"
 import { humanDateLabel, weekRangeLabel } from "@api/util"
 import Animated, {
     useAnimatedStyle,
     withTiming,
     useSharedValue
 } from "react-native-reanimated"
+import { useAtom } from "jotai"
+import { mapModalOpen } from "@features/layout/layout.atom"
 
 /**
  * {@link BrowseScreen}
@@ -53,6 +48,7 @@ type GroupedSection = {
  */
 export default function BrowseScreen() {
     const colors = useThemeColors()
+    const [, setMapOpen] = useAtom(mapModalOpen)
 
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
     const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set())
@@ -160,7 +156,17 @@ export default function BrowseScreen() {
 
     return (
         <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-            <Header title="Browse" />
+            <Header
+                title="Browse"
+                leftActions={
+                    <Pressable
+                        onPress={() => setMapOpen(true)}
+                        className="p-2 rounded-lg active:bg-card dark:active:bg-card"
+                    >
+                        <MapPinned size={24} color={colors.text} />
+                    </Pressable>
+                }
+            />
 
             {/* all filters */}
             <View className="border-b border-card-border">
@@ -243,66 +249,73 @@ export default function BrowseScreen() {
 
                 {/* advanced */}
                 {showAdvancedFilters && (
-                    <View className="mx-4 mb-4 p-4 bg-card rounded-xl gap-4">
-                        {/* checkboxes */}
-                        <View className="flex-row gap-4">
-                            <LabeledSwitch
-                                label="My Hosted"
-                                value={isHost}
-                                onValueChange={setIsHost}
-                            />
+                    <View className="mx-4 mb-4 p-4 bg-card rounded-xl border border-card-border gap-5">
+                        <View className="gap-3">
+                            <Text className="text-xs font-semibold text-text uppercase tracking-wider">
+                                Show Only
+                            </Text>
 
-                            <LabeledSwitch
-                                label="Bookmarked"
-                                value={isBookmarked}
-                                onValueChange={setIsBookmarked}
-                            />
-                        </View>
-
-                        {/* Date Range */}
-                        <View className="flex-row gap-3">
-                            <View className="flex-1">
-                                <Text className="text-text/60 text-xs mb-1">
-                                    Start Date
-                                </Text>
-
-                                <CustomDateTimePicker
-                                    mode="date"
-                                    value={startDate ?? null}
-                                    onChange={setStartDate}
-                                    placeholder="Select start"
+                            <View className="flex-row gap-4">
+                                <LabeledSwitch
+                                    label="My Hosted"
+                                    value={isHost}
+                                    onValueChange={setIsHost}
                                 />
-                            </View>
 
-                            <View className="flex-1">
-                                <Text className="text-text/60 text-xs mb-1">
-                                    End Date
-                                </Text>
-
-                                <CustomDateTimePicker
-                                    mode="date"
-                                    value={endDate ?? null}
-                                    onChange={setEndDate}
-                                    placeholder="Select end"
+                                <LabeledSwitch
+                                    label="Bookmarked"
+                                    value={isBookmarked}
+                                    onValueChange={setIsBookmarked}
                                 />
                             </View>
                         </View>
 
-                        {/* clear filters */}
+                        <View className="h-px bg-card-border" />
+
+                        <View className="gap-3">
+                            <Text className="text-xs font-semibold text-text uppercase tracking-wider">
+                                Date Range
+                            </Text>
+
+                            <View className="flex-row gap-3">
+                                <View className="flex-1">
+                                    <CustomDateTimePicker
+                                        mode="date"
+                                        value={startDate ?? null}
+                                        onChange={setStartDate}
+                                        placeholder="Start date"
+                                    />
+                                </View>
+
+                                <View className="flex-1">
+                                    <CustomDateTimePicker
+                                        mode="date"
+                                        value={endDate ?? null}
+                                        onChange={setEndDate}
+                                        placeholder="End date"
+                                    />
+                                </View>
+                            </View>
+                        </View>
+
                         {hasAdvancedFilters && (
-                            <Pressable
-                                onPress={() => {
-                                    setIsHost(false)
-                                    setIsBookmarked(false)
-                                    setStartDate(undefined)
-                                    setEndDate(undefined)
-                                }}
-                                className="bg-error/10 py-2 rounded-lg"
-                            >
-                                <Text className="text-error text-sm font-medium text-center">
-                                    Clear Filters
-                                </Text>
-                            </Pressable>
+                            <>
+                                <View className="h-px bg-card-border" />
+
+                                <Pressable
+                                    onPress={() => {
+                                        setIsHost(false)
+                                        setIsBookmarked(false)
+                                        setStartDate(undefined)
+                                        setEndDate(undefined)
+                                    }}
+                                    className="bg-error/10 py-2.5 rounded-lg border border-error/20"
+                                >
+                                    <Text className="text-error text-sm font-semibold text-center">
+                                        Clear Filters
+                                    </Text>
+                                </Pressable>
+                            </>
                         )}
                     </View>
                 )}
@@ -375,6 +388,7 @@ export default function BrowseScreen() {
                     </View>
                 )}
             />
+
         </SafeAreaView>
     )
 }

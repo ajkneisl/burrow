@@ -1,11 +1,5 @@
-import { useState } from "react"
-import {
-    View,
-    Text,
-    ScrollView,
-    ActivityIndicator,
-    Pressable
-} from "react-native"
+import { useCallback, useEffect, useState } from "react"
+import { View, ScrollView, RefreshControl, ActivityIndicator, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -16,7 +10,7 @@ import {
     unfollowUser
 } from "@features/auth/user.api"
 import { Header } from "@features/layout/components"
-import { Button, Modal } from "@components/core"
+import { Button, Modal, Text } from "@components/core"
 import {
     UserPlus,
     UserMinus,
@@ -27,10 +21,11 @@ import {
     Flag
 } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
+import useUser from "@features/auth/hooks/useUser"
 import { UserProfileView } from "@features/profile/components/UserProfileView"
 import { BlockUserModal } from "@features/profile/components/BlockUserModal"
 import { ReportUserModal } from "@features/profile/components/ReportUserModal"
-import { unblockUser } from "@features/profile/block.api"
+import { unblockUser } from "@features/profile/profile.api"
 
 /**
  * User profile screen
@@ -42,6 +37,21 @@ export default function UserProfileScreen() {
     const router = useRouter()
     const queryClient = useQueryClient()
     const colors = useThemeColors()
+    const currentUser = useUser()
+
+    useEffect(() => {
+        if (currentUser && username === currentUser.username) {
+            router.replace("/(tabs)/profile")
+        }
+    }, [currentUser, username, router])
+
+    const [refreshing, setRefreshing] = useState(false)
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true)
+        await queryClient.invalidateQueries({ queryKey: ["user", username] })
+        setRefreshing(false)
+    }, [queryClient, username])
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["user", username],
@@ -284,7 +294,12 @@ export default function UserProfileScreen() {
                 displayName={displayName}
             />
 
-            <ScrollView className="flex-1 px-6 py-4">
+            <ScrollView
+                className="flex-1 px-6 py-4"
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+            >
                 {/* Blocked Banner */}
                 {isBlocked && (
                     <View

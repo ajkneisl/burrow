@@ -8,7 +8,6 @@ import type { CreateStepProps } from "@features/burrows/create/create.types.ts"
  * @see CreateProjectBurrowModal
  */
 export default function InfoStep({
-    errors,
     formState,
     updateField
 }: CreateStepProps) {
@@ -17,13 +16,11 @@ export default function InfoStep({
             {/* project name */}
             <Field
                 label="Project Name"
-                error={errors.title}
                 className="min-w-0"
             >
                 <Input
                     value={formState.title}
                     onChange={(e) => updateField("title", e.target.value)}
-                    error={errors.title !== undefined}
                     placeholder="Final Research Paper"
                 />
             </Field>

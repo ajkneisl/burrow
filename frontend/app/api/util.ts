@@ -2,8 +2,7 @@ import { atomWithStorage } from "jotai/utils"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import Constants from "expo-constants"
 
-export const BASE_URL =
-    Constants.expoConfig?.extra?.apiUrl || "https://umn.app/api"
+export const BASE_URL ="https://umn.app/api"
 export const CDN_URL = Constants.expoConfig?.extra?.cdnUrl || "https://cdn.umn.app"
 
 /**
@@ -157,7 +156,7 @@ export const formatTimeAgo = (ms: number) => {
     if (hr < 24) return `${hr}h ago`
     const d = Math.round(hr / 24)
     if (d < 7) return `${d}d ago`
-    return new Date(ms).toLocaleString()
+    return new Date(ms).toLocaleDateString()
 }
 
 /**

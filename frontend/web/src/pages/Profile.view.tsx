@@ -1,9 +1,10 @@
 import { useParams } from "react-router"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Badge, Button, Card, ViewErrors } from "@umnburrow/core"
+import { Button, Card, ViewErrors } from "@umnburrow/core"
 import {
     followUser,
     getUserByUsername,
+    unblockUser,
     unFollowUser
 } from "@features/profile/profile.api.ts"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
@@ -11,15 +12,13 @@ import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useMemo, useState } from "react"
 import useUser from "@features/auth/hooks/useUser.ts"
 import About from "@features/profile/components/About.tsx"
-import Contact from "@features/profile/components/Contact.tsx"
 import EditProfile from "@features/profile/components/EditProfile.tsx"
-import { convertGraduationYear } from "@api/util.ts"
-import { GraduationCap } from "lucide-react"
 import Relations from "@features/profile/components/Relations.tsx"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 import { useAtom } from "jotai"
 import { profileEditErrors } from "@features/profile/profile.atom.ts"
 import ReportProfile from "@features/profile/components/ReportProfile.tsx"
+import ProfileBadge from "@features/profile/components/ProfileBadge.tsx"
 
 /**
  * The view of a profile.
@@ -92,10 +91,10 @@ export default function ProfileView() {
         if (!data || !user) return true
 
         return (
-            data.profile.visibility !== "PUBLIC" && // make sure profile is not private
-            data.user.id !== user.id && // make sure it's not you
-            (data.profile.visibility === "PRIVATE" || // profile is private, cannot see
-                (data.profile.visibility === "FRIENDS" && // profile is friends only, check if friends
+            data.profile.visibility !== "PUBLIC" && //          make sure profile is not private
+            data.user.id !== user.id && //                      make sure it's not you
+            (data.profile.visibility === "PRIVATE" || //        profile is private, cannot see
+                (data.profile.visibility === "FRIENDS" && //    profile is friends only, check if friends
                     !(data.following?.youFollow && data.following?.theyFollow)))
         )
     }, [data, user])
@@ -154,6 +153,41 @@ export default function ProfileView() {
         )
     }
 
+    async function unblock() {
+        if (!data) return
+
+        try {
+            setIsSubmitting(true)
+            await unblockUser(data.user.id)
+            await queryClient.invalidateQueries({
+                queryKey: ["profile", username]
+            })
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    if (data.isBlocked) {
+        return (
+            <div className="mx-auto max-w-3xl py-16 text-center">
+                <h1 className="text-2xl font-bold">User blocked</h1>
+
+                <p className="mt-2 opacity-70">
+                    You have blocked @{data.user.username}.
+                </p>
+
+                <Button
+                    className="mt-4"
+                    color="PRIMARY"
+                    onClick={unblock}
+                    loading={isSubmitting}
+                >
+                    Unblock
+                </Button>
+            </div>
+        )
+    }
+
     return (
         <div className="relative">
             <div className="mx-auto max-w-6xl">
@@ -168,34 +202,27 @@ export default function ProfileView() {
                         />
 
                         <div className="pb-1">
-                            {/* username */}
-                            <h1 className="text-3xl font-extrabold tracking-tight">
-                                {data.profile.name}
-                            </h1>
+                            <div className="flex flex-row gap-2">
+                                {/* username */}
+                                <h1 className="text-3xl font-extrabold tracking-tight">
+                                    {data.profile.name}
+                                </h1>
 
-                            <div className="mt-1 flex flex-wrap items-center gap-2">
-                                {/* profile URL*/}
-                                <span className="text-text/60 text-sm">
-                                    @{data.user.username}
-                                </span>
-
-                                {/* graduation year */}
-                                {data.profile.gradYear !== null && (
-                                    <Badge>
-                                        {convertGraduationYear(
-                                            data.profile.gradYear
-                                        )}
-                                    </Badge>
-                                )}
-
-                                {/* TA badge */}
-                                {data.isTa && (
-                                    <span className="bg-info/10 text-info ring-info/30 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset">
-                                        <GraduationCap className="h-3 w-3" />
-                                        TA
-                                    </span>
+                                {data.profile.badges.length > 0 && (
+                                    <div className="flex flex-row gap-2">
+                                        {data.profile.badges.map((badge) => (
+                                            <ProfileBadge
+                                                id={badge.id}
+                                                description={badge.description}
+                                            />
+                                        ))}
+                                    </div>
                                 )}
                             </div>
+
+                            <span className="text-text/60 mt-1 text-sm">
+                                @{data.user.username}
+                            </span>
 
                             {/* followers / following */}
                             <Relations
@@ -251,62 +278,65 @@ export default function ProfileView() {
 
                 <ViewErrors errors={errors} clearErrors={() => setErrors([])} />
 
-                {/* main profile content*/}
+                {/* main profile content */}
                 {isPrivate ? (
-                    <Card className="mb-4 text-center">
+                    <Card className="mx-4 mb-4 text-center">
                         You cannot view this profile
                     </Card>
                 ) : (
-                    <div className="grid items-start gap-6 px-4 py-6 lg:grid-cols-[1fr_340px]">
-                        <About profile={data.profile} />
+                    <div className="grid grid-cols-1 items-start gap-6 px-4 pb-12 lg:grid-cols-[1fr_320px]">
+                        {/* left: about */}
+                        <About
+                            user={data.user}
+                            profile={data.profile}
+                            isTa={data.isTa}
+                        />
 
-                        <Contact user={data.user} profile={data.profile} />
+                        {/* right: burrows */}
+                        <div className="flex flex-col gap-6">
+                            {/* hosted */}
+                            <div className="flex flex-col gap-4">
+                                <h2 className="figtree text-lg">Hosted Burrows</h2>
+
+                                {(data.recentHostedBurrows.length ?? 0) === 0 ? (
+                                    <Card>
+                                        <p className="text-text/70 text-center">
+                                            No hosted meetings.
+                                        </p>
+                                    </Card>
+                                ) : (
+                                    data.recentHostedBurrows.map((burrow) => (
+                                        <BurrowCard
+                                            key={burrow.burrow.id}
+                                            meetingResponse={burrow}
+                                            details={false}
+                                        />
+                                    ))
+                                )}
+                            </div>
+
+                            {/* joined */}
+                            <div className="flex flex-col gap-4">
+                                <h2 className="figtree text-lg">Joined Burrows</h2>
+
+                                {(data.recentJoinedBurrows.length ?? 0) === 0 ? (
+                                    <Card>
+                                        <p className="text-text/70 text-center">
+                                            No joined meetings.
+                                        </p>
+                                    </Card>
+                                ) : (
+                                    data.recentJoinedBurrows.map((burrow) => (
+                                        <BurrowCard
+                                            key={burrow.burrow.id}
+                                            meetingResponse={burrow}
+                                            details={false}
+                                        />
+                                    ))
+                                )}
+                            </div>
+                        </div>
                     </div>
-                )}
-
-                {/* meetings section */}
-                {!isPrivate && (
-                    <section className="flex grid-cols-2 flex-col gap-4 px-4 pb-12 md:grid">
-                        {/* hosted meetings */}
-                        <div className="col-span-1 flex flex-col gap-4">
-                            <h2 className="figtree text-lg">Hosted Burrows</h2>
-
-                            {(data.recentHostedBurrows.length ?? 0) === 0 ? (
-                                <Card>
-                                    <p className="text-text/70 text-center">
-                                        No hosted meetings.
-                                    </p>
-                                </Card>
-                            ) : (
-                                data.recentHostedBurrows.map((burrow) => (
-                                    <BurrowCard
-                                        meetingResponse={burrow}
-                                        details={false}
-                                    />
-                                ))
-                            )}
-                        </div>
-
-                        {/* joined meetings */}
-                        <div className="col-span-1 flex flex-col gap-4">
-                            <h2 className="figtree text-lg">Joined Burrows</h2>
-
-                            {(data.recentJoinedBurrows.length ?? 0) === 0 ? (
-                                <Card className="w-full">
-                                    <p className="text-text/70 text-center">
-                                        No joined meetings.
-                                    </p>
-                                </Card>
-                            ) : (
-                                data.recentJoinedBurrows.map((burrow) => (
-                                    <BurrowCard
-                                        meetingResponse={burrow}
-                                        details={false}
-                                    />
-                                ))
-                            )}
-                        </div>
-                    </section>
                 )}
             </div>
         </div>

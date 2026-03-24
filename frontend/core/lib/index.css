@@ -5,8 +5,8 @@
     --background-color:         #ffffff; /* white background */
     --primary-color:            #7A0019; /* Minnesota maroon (Pantone 202C) */
     --secondary-color:          #FFCC00; /* Minnesota gold */
-    --card-background-color:    #f9fafb; /* light surface */
-    --card-border-color:        #E5E7EB; /* light border (Tailwind slate-200) */
+    --card-background-color:    #f0f1f3; /* light surface */
+    --card-border-color:        #D1D5DB; /* light border (Tailwind gray-300) */
     --hero-color:               #dedbd5; /* near-white neutral for hero sections */
     --text-color:               #212121; /* dark gray text */
     --success-color:            #008000; /* UMN green variant */

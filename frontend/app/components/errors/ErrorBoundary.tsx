@@ -1,7 +1,7 @@
 import React from "react"
-import { View, Text, ScrollView } from "react-native"
+import { View, ScrollView } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { Button } from "@components/core"
+import { Button, Text } from "@components/core"
 import { AlertTriangle } from "lucide-react-native"
 
 interface ErrorBoundaryProps {

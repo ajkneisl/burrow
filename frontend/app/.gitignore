@@ -29,12 +29,16 @@ npm-debug.*
 yarn-debug.*
 yarn-error.*
 
+# lockfiles (using bun)
+package-lock.json
+yarn.lock
+
 # macOS
 .DS_Store
 *.pem
 
 # local env files
-.env*.local
+.env.development
 
 # typescript
 *.tsbuildinfo
@@ -46,3 +50,6 @@ app-example
 /android
 
 .vscode
+
+google-services.json
+.env.production

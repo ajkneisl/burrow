@@ -1,8 +1,10 @@
 import { Tabs } from "expo-router"
 import { useColorScheme } from "react-native"
-import { Home, Search, MapPin, Users, User } from "lucide-react-native"
+import { Home, Search, Compass, Users, User } from "lucide-react-native"
 import { SearchModal } from "@features/layout/components"
 import { CreateBurrowModal } from "@features/burrows/create/CreateBurrowModal"
+import { BurrowMapModal } from "@features/burrows/components/BurrowMapModal"
+import CreateClubModal from "@features/clubs/components/CreateClubModal"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**
@@ -26,7 +28,9 @@ export default function TabsLayout() {
                         backgroundColor: colors.background,
                         borderTopColor: isDark ? "#333333" : colors.cardBorder,
                         borderTopWidth: 1,
-                        paddingHorizontal: 16
+                        paddingHorizontal: 16,
+                        paddingVertical: 2,
+                        paddingTop: 10
                     },
                     tabBarItemStyle: {
                         paddingVertical: 4
@@ -54,11 +58,11 @@ export default function TabsLayout() {
                 />
 
                 <Tabs.Screen
-                    name="map"
+                    name="clubs"
                     options={{
-                        title: "Map",
+                        title: "Clubs",
                         tabBarIcon: ({ color, size }) => (
-                            <MapPin color={color} size={size} />
+                            <Compass color={color} size={size} />
                         )
                     }}
                 />
@@ -87,6 +91,8 @@ export default function TabsLayout() {
             {/* global modals */}
             <SearchModal />
             <CreateBurrowModal />
+            <BurrowMapModal />
+            <CreateClubModal />
         </>
     )
 }
