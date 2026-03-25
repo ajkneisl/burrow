@@ -44,6 +44,7 @@ function AuthGuard() {
         const inAuthGroup = segments[0] === "(auth)"
 
         if ((!auth || auth === "") && !inAuthGroup) {
+            queryClient.clear()
             router.replace("/(auth)/welcome")
         }
     }, [auth, segments, router])

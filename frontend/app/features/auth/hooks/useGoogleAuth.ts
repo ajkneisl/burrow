@@ -117,7 +117,6 @@ export function useGoogleAuth() {
         await store.set(refreshTokenAtom, "")
         setUser(null)
         setNewUser(false)
-        router.replace("/(auth)/welcome")
     }
 
     return {
