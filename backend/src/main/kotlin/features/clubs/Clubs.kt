@@ -22,7 +22,7 @@ object Clubs : Table("clubs") {
     val displayName = varchar("display_name", 255)
 
     /** [app.burrow.features.clubs.models.Club.description] */
-    val description = varchar("description", 512).nullable()
+    val description = varchar("description", 1024).nullable()
 
     /** [app.burrow.features.clubs.models.Club.category] */
     val category = enumeration<ClubCategory>("category")

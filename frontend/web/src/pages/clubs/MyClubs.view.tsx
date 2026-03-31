@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import { useQuery } from "@tanstack/react-query"
-import { Crown, Plus, Shield, UserRound, Users } from "lucide-react"
+import { Compass, Crown, Plus, Shield, UserRound, Users } from "lucide-react"
 import useToken from "@features/auth/hooks/useToken.ts"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 import { getMyClubs } from "@features/clubs/clubs.api.ts"
@@ -97,10 +97,17 @@ export default function MyClubs() {
                         </p>
                     </div>
 
-                    <Button thin onClick={() => setCreateOpen(true)} color="SUCCESS">
-                        <Plus className="h-4 w-4" />
-                        Create Club
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button thin onClick={() => nav("/clubs/browse")}>
+                            <Compass className="h-4 w-4" />
+                            Browse
+                        </Button>
+
+                        <Button thin onClick={() => setCreateOpen(true)} color="SUCCESS">
+                            <Plus className="h-4 w-4" />
+                            Create Club
+                        </Button>
+                    </div>
                 </div>
 
                 {clubs.length === 0 && (

@@ -3,6 +3,7 @@ import type { PaginatedResponse } from "@api/api.types.ts"
 import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 import type {
     Club,
+    ClubCategory,
     ClubResponse,
     ClubMemberResponse,
     ClubRole,
@@ -84,6 +85,21 @@ export async function changeClubRole(
  */
 export async function cancelClubJoinRequest(clubName: string) {
     return await del(`/clubs/${clubName}/requests`)
+}
+
+/**
+ * Browse/discover clubs with optional category filter.
+ *
+ * @param page The page to retrieve.
+ * @param category Optional category filter.
+ */
+export async function discoverClubs(
+    page: number = 1,
+    category?: ClubCategory
+): Promise<PaginatedResponse<Club>> {
+    return await get(`/clubs`, {
+        query: { page, ...(category ? { category } : {}) }
+    })
 }
 
 /**
