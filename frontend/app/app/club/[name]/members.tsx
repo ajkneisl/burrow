@@ -25,7 +25,7 @@ export default function MembersTab() {
                     tintColor={colors.primary}
                 />
             }
-            contentContainerStyle={{ padding: 16, gap: 20 }}
+            contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 100 }}
         >
             <ClubMembers clubResponse={data} />
             <View className="h-12" />

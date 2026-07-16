@@ -1,4 +1,5 @@
-import { View, Pressable, ActivityIndicator, useColorScheme, Alert } from "react-native"
+import { View, Pressable, ActivityIndicator, Alert } from "react-native"
+import { useGlassTabOptions } from "@features/layout/components"
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter, usePathname, Stack, Tabs } from "expo-router"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -54,8 +55,7 @@ export default function BurrowLayout() {
     const queryClient = useQueryClient()
     const currentUser = useUser()
     const colors = useThemeColors()
-    const colorScheme = useColorScheme()
-    const isDark = colorScheme === "dark"
+    const tabOptions = useGlassTabOptions()
 
     const [blocks] = useAtom(blockStatus)
     const pathname = usePathname()
@@ -468,27 +468,7 @@ export default function BurrowLayout() {
                     />
                 ) : (
                     /* Tab navigator for members */
-                    <Tabs
-                        // safeAreaInsets={{ bottom: 0 }}
-                        screenOptions={{
-                            headerShown: false,
-                            tabBarActiveTintColor: colors.text,
-                            tabBarInactiveTintColor: "#9CA3AF",
-                            tabBarStyle: {
-                                backgroundColor: colors.background,
-                                borderTopColor: isDark
-                                    ? "#333333"
-                                    : colors.cardBorder,
-                                borderTopWidth: 1,
-                                paddingHorizontal: 16,
-                                paddingVertical: 2,
-                                paddingTop: 10
-                            },
-                            tabBarItemStyle: {
-                                paddingVertical: 4
-                            }
-                        }}
-                    >
+                    <Tabs screenOptions={tabOptions}>
                         <Tabs.Screen
                             name="index"
                             options={{

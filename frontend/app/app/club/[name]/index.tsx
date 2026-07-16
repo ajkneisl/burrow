@@ -27,7 +27,7 @@ export default function InfoTab() {
                         tintColor={colors.primary}
                     />
                 }
-                contentContainerStyle={{ padding: 16, gap: 20 }}
+                contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 100 }}
             >
                 <ClubDetails clubResponse={data} />
             </ScrollView>

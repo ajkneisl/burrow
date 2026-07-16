@@ -12,7 +12,7 @@ import type { ClubResponse } from "@features/clubs/club.types"
 import ClubBannerPicture from "@features/clubs/components/ClubBannerPicture"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture"
 import ClubModeration from "@features/clubs/view/ClubModeration"
-import { useColorScheme } from "react-native"
+import { useGlassTabOptions } from "@features/layout/components"
 
 type ClubContextType = {
     data: ClubResponse
@@ -37,8 +37,7 @@ export default function ClubLayout() {
     const { name } = useLocalSearchParams<{ name: string }>()
     const router = useRouter()
     const colors = useThemeColors()
-    const colorScheme = useColorScheme()
-    const isDark = colorScheme === "dark"
+    const tabOptions = useGlassTabOptions()
 
     const insets = useSafeAreaInsets()
 
@@ -142,24 +141,7 @@ export default function ClubLayout() {
                 </View>
 
                 {/* Tab navigator */}
-                <Tabs
-                    screenOptions={{
-                        headerShown: false,
-                        tabBarActiveTintColor: colors.text,
-                        tabBarInactiveTintColor: "#9CA3AF",
-                        tabBarStyle: {
-                            backgroundColor: colors.background,
-                            borderTopColor: isDark ? "#333333" : colors.cardBorder,
-                            borderTopWidth: 1,
-                            paddingHorizontal: 16,
-                            paddingVertical: 2,
-                            paddingTop: 10
-                        },
-                        tabBarItemStyle: {
-                            paddingVertical: 4
-                        }
-                    }}
-                >
+                <Tabs screenOptions={tabOptions}>
                     <Tabs.Screen
                         name="index"
                         options={{

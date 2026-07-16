@@ -42,6 +42,7 @@ export default function AboutTab() {
     return (
         <ScrollView
             className="flex-1 bg-background"
+            contentContainerClassName="pb-24"
             refreshControl={
                 <RefreshControl
                     refreshing={refreshing}

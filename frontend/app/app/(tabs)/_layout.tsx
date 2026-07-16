@@ -1,14 +1,12 @@
 import { Tabs } from "expo-router"
-import { StyleSheet, View, useColorScheme } from "react-native"
+import { View } from "react-native"
 import { Home, Compass, Plus, Users, User } from "lucide-react-native"
 import { useSetAtom } from "jotai"
-import { SearchModal } from "@features/layout/components"
+import { SearchModal, useGlassTabOptions } from "@features/layout/components"
 import { CreateBurrowModal } from "@features/burrows/create/CreateBurrowModal"
 import { BurrowMapModal } from "@features/burrows/components/BurrowMapModal"
 import CreateClubModal from "@features/clubs/components/CreateClubModal"
 import { createModalOpen } from "@features/layout/layout.atom"
-import { GlassSurface, glassAvailable } from "@components/core"
-import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**
  * The main tab layout.
@@ -16,48 +14,12 @@ import { useThemeColors } from "@api/theme/useThemeColors"
  * @author AJ Kneisl
  */
 export default function TabsLayout() {
-    const colors = useThemeColors()
-    const colorScheme = useColorScheme()
-    const isDark = colorScheme === "dark"
     const setCreateOpen = useSetAtom(createModalOpen)
+    const tabOptions = useGlassTabOptions()
 
     return (
         <>
-            <Tabs
-                screenOptions={{
-                    headerShown: false,
-                    tabBarActiveTintColor: colors.text,
-                    tabBarInactiveTintColor: "#9CA3AF",
-                    tabBarStyle: glassAvailable
-                        ? {
-                              // float over content so the glass has
-                              // something to refract
-                              position: "absolute",
-                              backgroundColor: "transparent",
-                              borderTopWidth: 0,
-                              elevation: 0,
-                              paddingHorizontal: 16,
-                              paddingVertical: 2,
-                              paddingTop: 10
-                          }
-                        : {
-                              backgroundColor: colors.background,
-                              borderTopColor: isDark
-                                  ? "#333333"
-                                  : colors.cardBorder,
-                              borderTopWidth: 1,
-                              paddingHorizontal: 16,
-                              paddingVertical: 2,
-                              paddingTop: 10
-                          },
-                    tabBarBackground: glassAvailable
-                        ? () => <GlassSurface style={StyleSheet.absoluteFill} />
-                        : undefined,
-                    tabBarItemStyle: {
-                        paddingVertical: 4
-                    }
-                }}
-            >
+            <Tabs screenOptions={tabOptions}>
                 <Tabs.Screen
                     name="index"
                     options={{
