@@ -526,6 +526,7 @@ export default function BurrowLayout() {
                     visible={editModalOpen}
                     onClose={() => setEditModalOpen(false)}
                     size="full"
+                    scrollable={false}
                 >
                     {data?.burrow && (
                         <CreateBurrowWizard

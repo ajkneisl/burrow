@@ -88,16 +88,14 @@ export default function Share({ burrowID, title }: ShareProps) {
                 <ThemedIcon icon={Share2} size={24} />
             </Pressable>
 
-            {/* qr code modal */}
+            {/* qr code drawer */}
             <Modal
                 visible={qrModalOpen}
                 onClose={() => setQrModalOpen(false)}
                 title="Share via QR Code"
-                size="md"
                 scrollable={false}
-                centered
             >
-                <View className="items-center">
+                <View className="items-center pb-2">
                     <Text className="text-sm text-text text-opacity-60 mb-6 text-center">
                         Scan to open this Burrow
                     </Text>
