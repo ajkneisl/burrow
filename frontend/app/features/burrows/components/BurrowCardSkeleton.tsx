@@ -2,8 +2,7 @@ import { View } from "react-native"
 import { Skeleton } from "@components/core"
 
 /**
- * Placeholder shown in place of an {@link UpcomingBurrowCard} while Burrows
- * are still loading.
+ * Skeleton Placeholder for loading burrow cards
  *
  * @author Yordanos Eshete
  */
