@@ -17,7 +17,7 @@ type SkeletonProps = {
  *
  * @param className Sizing/shape classes (e.g. `"h-4 w-24 rounded-full"`).
  *
- * @author AJ Kneisl
+ * @author Yordanos Eshete
  */
 export function Skeleton({ className = "" }: SkeletonProps) {
     const opacity = useSharedValue(0.4)
