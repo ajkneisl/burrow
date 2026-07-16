@@ -2,6 +2,7 @@ import { View, SectionList, RefreshControl, Pressable } from "react-native"
 import { useState, useMemo, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { UpcomingBurrowCard } from "@features/burrows/components/UpcomingBurrowCard"
+import { BurrowCardSkeleton } from "@features/burrows/components/BurrowCardSkeleton"
 import { getBurrows, searchMeetings } from "@features/burrows/burrows.api"
 import type {
     BurrowKind,
@@ -16,6 +17,7 @@ import {
     FilterChip,
     LabeledSwitch,
     Modal,
+    Skeleton,
     Text
 } from "@components/core"
 import { humanDateLabel, weekRangeLabel } from "@api/util"
@@ -58,7 +60,7 @@ export function ExploreBurrows() {
 
     const hasAdvancedFilters = isHost || isBookmarked || startDate || endDate
 
-    const { data, isLoading, isError, refetch, isRefetching } = useQuery({
+    const { data, isPending, isError, refetch, isRefetching } = useQuery({
         queryKey: [
             "burrows",
             "browse",
@@ -209,72 +211,81 @@ export function ExploreBurrows() {
             </View>
 
             {/* burrow list grouped by date */}
-            <SectionList
-                sections={groupedSections}
-                keyExtractor={(item) => item.burrow.id}
-                renderItem={({ item, section }) => {
-                    const isExpanded = expandedWeeks.has(section.week)
-                    if (!isExpanded) return null
-                    return <UpcomingBurrowCard burrowResponse={item} verbose />
-                }}
-                renderSectionHeader={({ section }) => (
-                    <SectionHeader
-                        section={section}
-                        isExpanded={expandedWeeks.has(section.week)}
-                        onToggleWeek={toggleWeek}
-                        colors={colors}
-                    />
-                )}
-                contentContainerStyle={{ padding: 24, paddingBottom: 100 }}
-                stickySectionHeadersEnabled={false}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={isRefetching}
-                        onRefresh={refetch}
-                        tintColor={colors.primary}
-                    />
-                }
-                ListEmptyComponent={() => (
-                    <View className="items-center justify-center py-12">
-                        {isLoading ? (
-                            <Text className="text-text text-opacity-60">
-                                Loading Burrows...
-                            </Text>
-                        ) : isError ? (
-                            <View className="items-center">
-                                <Text className="text-text text-opacity-60 mb-4">
-                                    Failed to load Burrows
-                                </Text>
+            {isPending ? (
+                <View style={{ padding: 24, paddingBottom: 100 }}>
+                    <Skeleton className="h-3 w-28 mb-4" />
 
-                                <Pressable
-                                    onPress={() => refetch()}
-                                    className="bg-primary px-4 py-2 rounded-lg"
-                                >
-                                    <Text className="text-white font-semibold">
-                                        Retry
+                    <BurrowCardSkeleton />
+                    <BurrowCardSkeleton />
+                    <BurrowCardSkeleton />
+                    <BurrowCardSkeleton />
+                </View>
+            ) : (
+                <SectionList
+                    sections={groupedSections}
+                    keyExtractor={(item) => item.burrow.id}
+                    renderItem={({ item, section }) => {
+                        const isExpanded = expandedWeeks.has(section.week)
+                        if (!isExpanded) return null
+                        return (
+                            <UpcomingBurrowCard burrowResponse={item} verbose />
+                        )
+                    }}
+                    renderSectionHeader={({ section }) => (
+                        <SectionHeader
+                            section={section}
+                            isExpanded={expandedWeeks.has(section.week)}
+                            onToggleWeek={toggleWeek}
+                            colors={colors}
+                        />
+                    )}
+                    contentContainerStyle={{ padding: 24, paddingBottom: 100 }}
+                    stickySectionHeadersEnabled={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={isRefetching}
+                            onRefresh={refetch}
+                            tintColor={colors.primary}
+                        />
+                    }
+                    ListEmptyComponent={() => (
+                        <View className="items-center justify-center py-12">
+                            {isError ? (
+                                <View className="items-center">
+                                    <Text className="text-text text-opacity-60 mb-4">
+                                        Failed to load Burrows
                                     </Text>
-                                </Pressable>
-                            </View>
-                        ) : (
-                            <View className="items-center">
-                                <Search
-                                    size={48}
-                                    color={colors.text}
-                                    style={{ opacity: 0.2 }}
-                                />
 
-                                <Text className="text-text text-opacity-60 mt-4">
-                                    No Burrows found
-                                </Text>
+                                    <Pressable
+                                        onPress={() => refetch()}
+                                        className="bg-primary px-4 py-2 rounded-lg"
+                                    >
+                                        <Text className="text-white font-semibold">
+                                            Retry
+                                        </Text>
+                                    </Pressable>
+                                </View>
+                            ) : (
+                                <View className="items-center">
+                                    <Search
+                                        size={48}
+                                        color={colors.text}
+                                        style={{ opacity: 0.2 }}
+                                    />
 
-                                <Text className="text-text text-opacity-40 text-sm mt-1">
-                                    Try changing your filters
-                                </Text>
-                            </View>
-                        )}
-                    </View>
-                )}
-            />
+                                    <Text className="text-text text-opacity-60 mt-4">
+                                        No Burrows found
+                                    </Text>
+
+                                    <Text className="text-text text-opacity-40 text-sm mt-1">
+                                        Try changing your filters
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
+                    )}
+                />
+            )}
 
             {/* advanced filters drawer */}
             <Modal
