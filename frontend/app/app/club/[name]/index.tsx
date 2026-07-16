@@ -2,7 +2,6 @@ import { View, ScrollView, RefreshControl } from "react-native"
 import { useState, useCallback } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import ClubDetails from "@features/clubs/view/ClubDetails"
-import ClubJoin from "@features/clubs/view/ClubJoin"
 import { useClubContext } from "./_layout"
 
 export default function InfoTab() {
@@ -31,8 +30,6 @@ export default function InfoTab() {
             >
                 <ClubDetails clubResponse={data} />
             </ScrollView>
-
-            <ClubJoin clubResponse={data} />
         </View>
     )
 }

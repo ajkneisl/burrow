@@ -12,6 +12,7 @@ import type { ClubResponse } from "@features/clubs/club.types"
 import ClubBannerPicture from "@features/clubs/components/ClubBannerPicture"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture"
 import ClubModeration from "@features/clubs/view/ClubModeration"
+import ClubJoin from "@features/clubs/view/ClubJoin"
 import { useGlassTabOptions } from "@features/layout/components"
 
 type ClubContextType = {
@@ -105,15 +106,17 @@ export default function ClubLayout() {
                     <ClubBannerPicture clubID={club.id} />
 
                     <View className="px-6 pb-5">
-                        <View className="-mt-10 mb-3">
+                        <View className="-mt-10 mb-3 flex-row items-end justify-between">
                             <ClubProfilePicture
                                 clubID={club.id}
                                 displayName={club.displayName}
                                 size="xl"
                             />
+
+                            <ClubJoin clubResponse={data} />
                         </View>
 
-                        <Text className="text-text opacity-50 text-xs font-medium uppercase tracking-wider">
+                        <Text className="text-primary text-xs font-semibold uppercase tracking-wider">
                             {club.category}
                         </Text>
 
@@ -121,11 +124,7 @@ export default function ClubLayout() {
                             {club.displayName}
                         </Text>
 
-                        <Text className="text-text opacity-40 text-sm font-medium">
-                            /club/{club.name}
-                        </Text>
-
-                        <View className="flex-row items-center gap-1.5 mt-1">
+                        <View className="flex-row items-center gap-1.5 mt-2">
                             <Users
                                 size={14}
                                 color={colors.text}

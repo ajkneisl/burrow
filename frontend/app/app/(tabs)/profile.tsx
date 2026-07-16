@@ -9,7 +9,6 @@ import { getUser } from "@features/auth/user.api"
 import { Header } from "@features/layout/components"
 import { Button, Text } from "@components/core"
 import { Settings, Edit } from "lucide-react-native"
-import { useGoogleAuth } from "@features/auth/hooks/useGoogleAuth"
 import { UserProfileView } from "@features/profile/components/UserProfileView"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import ThemedIcon from "@components/core/ThemedIcon"
@@ -23,7 +22,6 @@ export default function ProfileScreen() {
     const user = useUser()
     const profile = useProfile()
     const router = useRouter()
-    const { signOut } = useGoogleAuth()
     const colors = useThemeColors()
     const queryClient = useQueryClient()
     const [refreshing, setRefreshing] = useState(false)
@@ -105,12 +103,6 @@ export default function ProfileScreen() {
                     }
                 />
             </ScrollView>
-
-            <View className="px-6 pb-6">
-                <Button variant="danger" onPress={signOut}>
-                    Sign Out
-                </Button>
-            </View>
         </SafeAreaView>
     )
 }

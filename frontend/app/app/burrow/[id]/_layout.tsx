@@ -575,6 +575,9 @@ export default function BurrowLayout() {
                     }
                     burrowID={burrow.id}
                     burrowTitle={burrow.title}
+                    canLeave={isMember && !isHostOrMod && !isPast}
+                    isProject={isProject}
+                    onLeave={() => leaveMutation.mutate()}
                 />
             </View>
         </BurrowContext.Provider>

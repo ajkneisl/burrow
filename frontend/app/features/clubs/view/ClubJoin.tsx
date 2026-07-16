@@ -1,4 +1,3 @@
-import { View } from "react-native"
 import { ClubResponse } from "@features/clubs/club.types"
 import { Button } from "@components/core"
 import { useMemo, useState } from "react"
@@ -77,15 +76,14 @@ export default function ClubJoin({ clubResponse }: ClubJoinProps) {
         joinButtonText === "Leave Club" || joinButtonText === "Cancel Request"
 
     return (
-        <View className="px-6 py-3 bg-background">
-            <Button
-                variant={isDestructive ? "danger" : "primary"}
-                onPress={handleJoinLeave}
-                disabled={!user}
-                loading={joinLoading}
-            >
-                {joinButtonText}
-            </Button>
-        </View>
+        <Button
+            variant={isDestructive ? "outline" : "primary"}
+            size="sm"
+            onPress={handleJoinLeave}
+            disabled={!user}
+            loading={joinLoading}
+        >
+            {joinButtonText}
+        </Button>
     )
 }
