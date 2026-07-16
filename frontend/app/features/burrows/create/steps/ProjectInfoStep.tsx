@@ -1,5 +1,5 @@
 import { View, ScrollView, KeyboardAvoidingView, Platform } from "react-native"
-import { Input, Text } from "@components/core"
+import { Input } from "@components/core"
 import type { CreateStepProps } from "../create.types"
 
 export function ProjectInfoStep({
@@ -18,24 +18,12 @@ export function ProjectInfoStep({
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-                {/* Info Card */}
-                <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
-                    <Text className="text-text text-sm font-semibold mb-2">
-                        Project Details
-                    </Text>
-                    <Text className="text-text text-opacity-60 text-xs">
-                        Provide information about your project. This will help
-                        teammates understand the goal and scope.
-                    </Text>
-                </View>
-
                 {/* Project Name */}
                 <Input
                     label="Project Name *"
                     value={formState.name}
                     onChangeText={(value) => updateField("name", value)}
                     placeholder="e.g., Final Research Paper"
-                    variant="outline"
                     error={errors.name}
                 />
 
@@ -45,7 +33,7 @@ export function ProjectInfoStep({
                     value={formState.className}
                     onChangeText={(value) => updateField("className", value)}
                     placeholder="e.g., CSCI 4041"
-                    variant="outline"
+                    error={errors.className}
                 />
 
                 {/* Project Objective */}
@@ -54,7 +42,6 @@ export function ProjectInfoStep({
                     value={formState.objective}
                     onChangeText={(value) => updateField("objective", value)}
                     placeholder="What is the goal of this project? What needs to be accomplished?"
-                    variant="outline"
                     multiline
                     numberOfLines={5}
                     error={errors.objective}

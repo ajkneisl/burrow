@@ -53,7 +53,7 @@ export default function FriendsTab() {
                 />
             )}
             ItemSeparatorComponent={() => <View className="h-3" />}
-            contentContainerClassName="px-6 py-4"
+            contentContainerClassName="px-6 pt-4 pb-24"
             refreshControl={
                 <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
             }

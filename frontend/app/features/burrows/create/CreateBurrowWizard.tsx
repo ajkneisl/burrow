@@ -1,11 +1,11 @@
-import { useState, useCallback } from "react"
-import { View, Pressable, FlatList } from "react-native"
+import { useState, useCallback, useMemo } from "react"
+import { View, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter } from "expo-router"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
-import { X, ChevronLeft } from "lucide-react-native"
-import { Button, Card, Text } from "@components/core"
+import { X, ChevronLeft, CircleAlert } from "lucide-react-native"
+import { Button, Text } from "@components/core"
 import type { Burrow, BurrowKind } from "@features/burrows/burrows.types"
 import { createBurrow, updateBurrow } from "../burrows.api"
 import { useThemeColors } from "@api/theme/useThemeColors"
@@ -26,6 +26,53 @@ import { MembersStep } from "./steps/MembersStep"
 import { DueDateStep } from "./steps/DueDateStep"
 import { ClubSelectorStep } from "./steps/ClubSelectorStep"
 import ThemedIcon from "@components/core/ThemedIcon"
+
+const FIELD_MATCHERS: { prefix: string; field: string }[] = [
+    { prefix: "class name", field: "className" },
+    { prefix: "title", field: "title" },
+    { prefix: "description", field: "description" },
+    { prefix: "location", field: "location" },
+    { prefix: "objective", field: "objective" },
+    { prefix: "name", field: "name" },
+    { prefix: "due date", field: "dueDate" },
+    { prefix: "date and times", field: "date" },
+    { prefix: "beginning time", field: "beginningTime" },
+    { prefix: "end time", field: "endTime" },
+    { prefix: "the meeting time", field: "endTime" },
+    { prefix: "tags", field: "tags" },
+    { prefix: "you must have under 10 tags", field: "tags" },
+    { prefix: "capacity", field: "capacity" },
+    { prefix: "at least 1 team member", field: "teamMembers" },
+    { prefix: "please select a club", field: "clubID" }
+]
+
+/** Splits the comma-separated tags input into trimmed, non-empty tags. */
+function parseTags(tags: string): string[] {
+    return tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean)
+}
+
+/**
+ * Combines the schedule step's date + times into beginning/end timestamps.
+ *
+ * @returns The timestamps, or null if any part is missing.
+ */
+function combineDateTimes(
+    formState: SubmittedBurrowFormState
+): { beginningTime: number; endTime: number } | null {
+    const { date, beginningTime, endTime } = formState
+    if (!date || !beginningTime || !endTime) return null
+
+    const onDate = (time: Date) => {
+        const combined = new Date(date)
+        combined.setHours(time.getHours(), time.getMinutes(), 0, 0)
+        return combined.getTime()
+    }
+
+    return { beginningTime: onDate(beginningTime), endTime: onDate(endTime) }
+}
 
 /**
  * {@link CreateBurrowWizard}
@@ -87,6 +134,46 @@ export function CreateBurrowWizard({
 
     const [currentStep, setCurrentStep] = useState(1)
 
+    // attach each error to its input; anything unmatched shows in a banner
+    const { fieldErrors, generalErrors } = useMemo(() => {
+        const fields: Record<string, string> = {}
+        const general: string[] = []
+
+        serverErrors.forEach((msg) => {
+            const match = FIELD_MATCHERS.find((m) =>
+                msg.toLowerCase().startsWith(m.prefix)
+            )
+
+            if (match && !fields[match.field]) {
+                fields[match.field] = msg
+            } else {
+                general.push(msg)
+            }
+        })
+
+        return { fieldErrors: fields, generalErrors: general }
+    }, [serverErrors])
+
+    // editing a field clears its error immediately
+    const handleUpdateField = useCallback(
+        <K extends keyof SubmittedBurrowFormState>(
+            field: K,
+            value: SubmittedBurrowFormState[K]
+        ) => {
+            updateField(field, value)
+
+            setServerErrors((prev) =>
+                prev.filter((msg) => {
+                    const match = FIELD_MATCHERS.find((m) =>
+                        msg.toLowerCase().startsWith(m.prefix)
+                    )
+                    return match?.field !== field
+                })
+            )
+        },
+        [updateField, setServerErrors]
+    )
+
     const mutation = useMutation({
         mutationFn: async (payload: SubmittedBurrow) => {
             if (isEditMode && burrowID) {
@@ -143,75 +230,58 @@ export function CreateBurrowWizard({
 
     // validate current step via server
     const validateCurrentStep = useCallback(async (): Promise<boolean> => {
-        // Club selector step stays client-side (no verify endpoint for club selection)
+        const fail = (message: string) => {
+            setServerErrors([message])
+            return false
+        }
+
+        // club selector step stays client-side (no verify endpoint for it)
         if (isClubBurrow && currentStep === 1) {
-            if (!formState.clubID) {
-                setServerErrors(["Please select a club."])
-                return false
-            }
-            return true
+            return formState.clubID ? true : fail("Please select a club.")
         }
 
         if (isProjectBurrow) {
-            if (currentStep === 1) {
-                return await verify({
-                    name: formState.name,
-                    objective: formState.objective,
-                    className: formState.className
-                })
-            } else if (currentStep === 2) {
-                if (formState.teamMembers.length === 0 && !isEditMode) {
-                    setServerErrors(["At least 1 team member is required."])
-                    return false
-                }
-                return true
-            } else if (currentStep === 3) {
-                if (!formState.dueDate) {
-                    setServerErrors(["Due date is required."])
-                    return false
-                }
-                return await verify({
-                    dueDate: formState.dueDate.getTime()
-                })
+            switch (currentStep) {
+                case 1:
+                    return await verify({
+                        name: formState.name,
+                        objective: formState.objective,
+                        className: formState.className
+                    })
+
+                case 2:
+                    if (formState.teamMembers.length === 0 && !isEditMode) {
+                        return fail("At least 1 team member is required.")
+                    }
+                    return true
+
+                case 3:
+                    if (!formState.dueDate) {
+                        return fail("Due date is required.")
+                    }
+                    return await verify({
+                        dueDate: formState.dueDate.getTime()
+                    })
             }
-        } else {
-            if (contentStep === 1) {
+
+            return true
+        }
+
+        // study / event / club burrows
+        switch (contentStep) {
+            case 1:
                 return await verify({
                     title: formState.title,
                     description: formState.description,
-                    location: formState.location
+                    location: formState.location,
+                    tags: parseTags(formState.tags),
+                    capacity: formState.capacity
                 })
-            } else if (contentStep === 3) {
-                if (
-                    !formState.date ||
-                    !formState.beginningTime ||
-                    !formState.endTime
-                ) {
-                    setServerErrors(["Date and times are required."])
-                    return false
-                }
 
-                const date = formState.date
-                const beginDateTime = new Date(date)
-                beginDateTime.setHours(
-                    formState.beginningTime.getHours(),
-                    formState.beginningTime.getMinutes(),
-                    0,
-                    0
-                )
-
-                const endDateTime = new Date(date)
-                endDateTime.setHours(
-                    formState.endTime.getHours(),
-                    formState.endTime.getMinutes(),
-                    0,
-                    0
-                )
-
-                return await verify({
-                    beginningTime: beginDateTime.getTime(),
-                    endTime: endDateTime.getTime()
-                })
+            case 3: {
+                const times = combineDateTimes(formState)
+                if (!times) return fail("Date and times are required.")
+                return await verify(times)
             }
         }
 
@@ -259,50 +329,27 @@ export function CreateBurrowWizard({
             }
 
             mutation.mutate(payload)
-        } else {
-            if (
-                !formState.date ||
-                !formState.beginningTime ||
-                !formState.endTime
-            )
-                return
-
-            const beginDateTime = new Date(formState.date)
-            beginDateTime.setHours(
-                formState.beginningTime.getHours(),
-                formState.beginningTime.getMinutes(),
-                0,
-                0
-            )
-
-            const endDateTime = new Date(formState.date)
-            endDateTime.setHours(
-                formState.endTime.getHours(),
-                formState.endTime.getMinutes(),
-                0,
-                0
-            )
-
-            const payload: SubmittedStudyEventBurrow = {
-                kind: burrowKind as "STUDY" | "EVENT" | "CLUB",
-                title: formState.title.trim(),
-                description: formState.description.trim(),
-                location: formState.location.trim(),
-                beginningTime: beginDateTime.getTime(),
-                endTime: endDateTime.getTime(),
-                tags: formState.tags
-                    .split(",")
-                    .map((t) => t.trim())
-                    .filter(Boolean),
-                capacity: formState.capacity,
-                visibility: formState.visibility,
-                requestToJoin: formState.requestToJoin,
-                reoccurring: formState.reoccurring,
-                ...(formState.clubID ? { clubID: formState.clubID } : {})
-            }
-
-            mutation.mutate(payload)
+            return
         }
+
+        const times = combineDateTimes(formState)
+        if (!times) return
+
+        const payload: SubmittedStudyEventBurrow = {
+            kind: burrowKind as "STUDY" | "EVENT" | "CLUB",
+            title: formState.title.trim(),
+            description: formState.description.trim(),
+            location: formState.location.trim(),
+            ...times,
+            tags: parseTags(formState.tags),
+            capacity: formState.capacity,
+            visibility: formState.visibility,
+            requestToJoin: formState.requestToJoin,
+            reoccurring: formState.reoccurring,
+            ...(formState.clubID ? { clubID: formState.clubID } : {})
+        }
+
+        mutation.mutate(payload)
     }, [validateCurrentStep, formState, burrowKind, isProjectBurrow, mutation])
 
     // close
@@ -392,39 +439,31 @@ export function CreateBurrowWizard({
             <View className="flex-1">
                 {StepComponent && (
                     <StepComponent
-                        errors={{}}
+                        errors={fieldErrors}
                         formState={formState}
-                        updateField={updateField}
+                        updateField={handleUpdateField}
                         isEditMode={isEditMode}
                     />
                 )}
             </View>
 
-            {/* handle server errors */}
-            {serverErrors.length > 0 && (
-                <Card
-                    variant="bordered"
-                    className="mx-6"
-                    style={{
-                        backgroundColor: `${colors.error}3A`
-                    }}
-                >
-                    <Text className="font-bold mb-1">
-                        There was an issue with your input.
-                    </Text>
-
-                    <FlatList
-                        data={serverErrors}
-                        renderItem={(err) => (
-                            <Text>
-                                <Text className="font-semibold">
-                                    {err.index + 1}.
-                                </Text>{" "}
-                                {err.item}
-                            </Text>
-                        )}
+            {/* errors that don't belong to a specific input */}
+            {generalErrors.length > 0 && (
+                <View className="mx-6 mb-3 px-4 py-3 rounded-xl bg-error/10 border border-error/20 flex-row items-start gap-2.5">
+                    <CircleAlert
+                        size={16}
+                        color={colors.error}
+                        style={{ marginTop: 2 }}
                     />
-                </Card>
+
+                    <View className="flex-1 gap-1">
+                        {generalErrors.map((err, index) => (
+                            <Text key={index} className="text-sm text-error">
+                                {err}
+                            </Text>
+                        ))}
+                    </View>
+                </View>
             )}
 
             {/* cancel / next */}

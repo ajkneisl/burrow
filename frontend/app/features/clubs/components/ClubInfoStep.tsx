@@ -19,17 +19,6 @@ export default function ClubInfoStep({
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
         >
-            {/* Info Card */}
-            <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
-                <Text className="text-text text-sm font-semibold mb-2">
-                    Club Details
-                </Text>
-                <Text className="text-text text-opacity-60 text-xs">
-                    Give your club a name and description. The club name is used
-                    in URLs and must be unique.
-                </Text>
-            </View>
-
             <Input
                 label="Club Name *"
                 value={formState.name}
@@ -37,7 +26,6 @@ export default function ClubInfoStep({
                     updateField("name", value.toLowerCase().replace(/\s/g, "-"))
                 }
                 placeholder="my-club"
-                variant="outline"
                 error={errors.name}
                 autoCapitalize="none"
             />
@@ -47,7 +35,6 @@ export default function ClubInfoStep({
                 value={formState.displayName}
                 onChangeText={(value) => updateField("displayName", value)}
                 placeholder="My Club"
-                variant="outline"
                 error={errors.displayName}
             />
 

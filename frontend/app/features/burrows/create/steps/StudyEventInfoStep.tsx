@@ -42,26 +42,12 @@ export function StudyEventInfoStep({
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-                {/* info */}
-                <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
-                    <Text className="text-text text-sm font-semibold mb-2">
-                        Basic Information
-                    </Text>
-
-                    <Text className="text-text text-opacity-60 text-xs">
-                        Add details about your {formState.kind.toLowerCase()}{" "}
-                        Burrow. Be specific about the title and location to help
-                        others find you.
-                    </Text>
-                </View>
-
                 {/* title */}
                 <Input
                     label="Title *"
                     value={formState.title}
                     onChangeText={(value) => updateField("title", value)}
                     placeholder="Calculus Final Cram"
-                    variant="outline"
                     error={errors.title}
                 />
 
@@ -95,8 +81,8 @@ export function StudyEventInfoStep({
                     }
                     onChangeText={handleCapacityChange}
                     placeholder="Leave empty for unlimited"
-                    variant="outline"
                     keyboardType="numeric"
+                    error={errors.capacity}
                 />
 
                 {/* Tags */}
@@ -105,7 +91,6 @@ export function StudyEventInfoStep({
                     value={formState.tags}
                     onChangeText={(value) => updateField("tags", value)}
                     placeholder="CALC, STUDY, FINAL"
-                    variant="outline"
                     error={errors.tags}
                 />
 
@@ -115,7 +100,6 @@ export function StudyEventInfoStep({
                     value={formState.description}
                     onChangeText={(value) => updateField("description", value)}
                     placeholder="What're you studying? Who are you looking for?"
-                    variant="outline"
                     multiline
                     numberOfLines={4}
                     error={errors.description}

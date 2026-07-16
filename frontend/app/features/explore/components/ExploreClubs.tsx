@@ -1,16 +1,20 @@
-import { View, FlatList, ScrollView, RefreshControl, Pressable, ActivityIndicator } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
+import {
+    View,
+    FlatList,
+    ScrollView,
+    RefreshControl,
+    Pressable,
+    ActivityIndicator
+} from "react-native"
 import { useState, useMemo } from "react"
 import { useRouter } from "expo-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
-import { Header } from "@features/layout/components"
 import { get } from "@api/api"
 import { Compass, Users, Plus } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { FilterChip, Text } from "@components/core"
 import { createClubModalOpen } from "@features/layout/layout.atom"
-import CreateClubModal from "@features/clubs/components/CreateClubModal"
 import ClubCard from "@features/clubs/components/ClubCard"
 import type { PaginatedResponse } from "@api/api.types"
 import type {
@@ -21,8 +25,7 @@ import type {
 
 type ClubTab = "discover" | "my-clubs"
 
-const CATEGORIES: { label: string; value: ClubCategory | null }[] = [
-    { label: "All", value: null },
+const CATEGORIES: { label: string; value: ClubCategory }[] = [
     { label: "Sports", value: "SPORTS" },
     { label: "Social", value: "SOCIAL" },
     { label: "Creative", value: "CREATIVE" },
@@ -30,11 +33,11 @@ const CATEGORIES: { label: string; value: ClubCategory | null }[] = [
 ]
 
 /**
- * Club discovery screen.
+ * The Clubs side of the Explore tab — discover clubs and manage your own.
  *
  * @author AJ Kneisl
  */
-export default function ClubsScreen() {
+export function ExploreClubs() {
     const router = useRouter()
     const colors = useThemeColors()
     const [, setCreateClubOpen] = useAtom(createClubModalOpen)
@@ -77,102 +80,93 @@ export default function ClubsScreen() {
     const clubs = discoverData?.contents ?? []
 
     return (
-        <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-            <Header title="Clubs" />
-            <CreateClubModal />
-
-            {/* Tabs + Category filters */}
+        <View className="flex-1">
+            {/* Category filters — nothing selected shows all clubs */}
             <View className="px-6 py-3 border-b border-card-border">
                 <View className="flex-row gap-2 flex-wrap">
-                    <FilterChip
-                        label="Discover"
-                        active={activeTab === "discover" && category === null}
-                        onPress={() => {
-                            setActiveTab("discover")
-                            setCategory(null)
-                        }}
-                    />
-                    {CATEGORIES.filter((cat) => cat.value !== null).map(
-                        (cat) => (
-                            <FilterChip
-                                key={cat.label}
-                                label={cat.label}
-                                active={
-                                    activeTab === "discover" &&
-                                    category === cat.value
-                                }
-                                onPress={() => {
-                                    setActiveTab("discover")
-                                    setCategory(cat.value)
-                                    setPage(1)
-                                }}
-                            />
-                        )
-                    )}
+                    {CATEGORIES.map((cat) => (
+                        <FilterChip
+                            key={cat.label}
+                            label={cat.label}
+                            active={
+                                activeTab === "discover" &&
+                                category === cat.value
+                            }
+                            onPress={() => {
+                                setActiveTab("discover")
+                                // tap the active category again to clear it
+                                setCategory((prev) =>
+                                    prev === cat.value ? null : cat.value
+                                )
+                                setPage(1)
+                            }}
+                        />
+                    ))}
                     <FilterChip
                         label="My Clubs"
                         active={activeTab === "my-clubs"}
-                        onPress={() => setActiveTab("my-clubs")}
+                        onPress={() =>
+                            setActiveTab((prev) =>
+                                prev === "my-clubs" ? "discover" : "my-clubs"
+                            )
+                        }
                     />
                 </View>
             </View>
 
             {activeTab === "discover" && (
-                <>
-
-                    <FlatList
-                        data={clubs}
-                        keyExtractor={(item) => item.id}
-                        contentContainerStyle={{
-                            padding: 16,
-                            paddingBottom: 100,
-                            gap: 12
-                        }}
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={discoverRefetching}
-                                onRefresh={() => {
-                                    void refetchMine()
-                                    void refetchDiscover()
-                                }}
-                                tintColor={colors.primary}
-                            />
-                        }
-                        renderItem={({ item }) => (
-                            <ClubCard
-                                variant="discover"
-                                club={item}
-                                isMember={myClubIds.has(item.id)}
-                                onPress={() =>
-                                    router.push(`/club/${item.name}` as any)
-                                }
-                            />
-                        )}
-                        ListEmptyComponent={() => (
-                            <View className="items-center justify-center py-12">
-                                {discoverLoading ? (
-                                    <Text className="text-text opacity-60">
-                                        Loading clubs...
+                <FlatList
+                    data={clubs}
+                    keyExtractor={(item) => item.id}
+                    contentContainerStyle={{
+                        padding: 16,
+                        paddingBottom: 100,
+                        gap: 12
+                    }}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={discoverRefetching}
+                            onRefresh={() => {
+                                void refetchMine()
+                                void refetchDiscover()
+                            }}
+                            tintColor={colors.primary}
+                        />
+                    }
+                    renderItem={({ item }) => (
+                        <ClubCard
+                            variant="discover"
+                            club={item}
+                            isMember={myClubIds.has(item.id)}
+                            onPress={() =>
+                                router.push(`/club/${item.name}` as any)
+                            }
+                        />
+                    )}
+                    ListEmptyComponent={() => (
+                        <View className="items-center justify-center py-12">
+                            {discoverLoading ? (
+                                <Text className="text-text opacity-60">
+                                    Loading clubs...
+                                </Text>
+                            ) : (
+                                <View className="items-center">
+                                    <Compass
+                                        size={48}
+                                        color={colors.text}
+                                        style={{ opacity: 0.2 }}
+                                    />
+                                    <Text className="text-text opacity-60 mt-4">
+                                        No clubs found
                                     </Text>
-                                ) : (
-                                    <View className="items-center">
-                                        <Compass
-                                            size={48}
-                                            color={colors.text}
-                                            style={{ opacity: 0.2 }}
-                                        />
-                                        <Text className="text-text opacity-60 mt-4">
-                                            No clubs found
-                                        </Text>
-                                        <Text className="text-text opacity-40 text-sm mt-1">
-                                            Try changing your filters
-                                        </Text>
-                                    </View>
-                                )}
-                            </View>
-                        )}
-                    />
-                </>
+                                    <Text className="text-text opacity-40 text-sm mt-1">
+                                        Try changing your filters
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
+                    )}
+                />
             )}
 
             {activeTab === "my-clubs" && (
@@ -236,6 +230,6 @@ export default function ClubsScreen() {
                     </Pressable>
                 </ScrollView>
             )}
-        </SafeAreaView>
+        </View>
     )
 }

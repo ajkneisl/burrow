@@ -1,8 +1,8 @@
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import { View, Platform } from "react-native"
-import { Text } from "@components/core"
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete"
 import { MapPin } from "lucide-react-native"
+import { GlassSurface, glassAvailable } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import Constants from "expo-constants"
 
@@ -20,7 +20,7 @@ interface LocationSelectorProps {
 }
 
 /**
- * A location selector.
+ * A location selector, styled to match the core Input component.
  *
  * @param value The initial value. This should change depending on {@link onLocationSelect}.
  * @param onLocationSelect When the location is selected.
@@ -35,6 +35,7 @@ export function LocationSelector({
 }: LocationSelectorProps) {
     const colors = useThemeColors()
     const ref = useRef<any>(null)
+    const [focused, setFocused] = useState(false)
 
     useEffect(() => {
         if (ref.current && value) {
@@ -42,10 +43,21 @@ export function LocationSelector({
         }
     }, [value])
 
-    const borderColor = colors.cardBorder
+    const borderColor = focused
+        ? colors.primary
+        : glassAvailable
+          ? "transparent"
+          : colors.cardBorder
 
     return (
         <View style={{ zIndex: 50 }}>
+            {glassAvailable && (
+                <GlassSurface
+                    className="absolute left-0 right-0 top-0 rounded-lg"
+                    style={{ height: 48 }}
+                />
+            )}
+
             <GooglePlacesAutocomplete
                 ref={ref}
                 placeholder={placeholder}
@@ -59,7 +71,7 @@ export function LocationSelector({
                 query={{
                     key: Constants.expoConfig?.extra?.googleMapsApiKey?.[
                         Platform.OS
-            ],
+                    ],
                     language: "en",
                     components: "country:us"
                 }}
@@ -68,7 +80,9 @@ export function LocationSelector({
                 debounce={300}
                 minLength={2}
                 textInputProps={{
-                    placeholderTextColor: "#9CA3AF"
+                    placeholderTextColor: "#9CA3AF",
+                    onFocus: () => setFocused(true),
+                    onBlur: () => setFocused(false)
                 }}
                 styles={{
                     container: {
@@ -77,36 +91,41 @@ export function LocationSelector({
                     textInputContainer: {
                         flexDirection: "row",
                         alignItems: "center",
+                        height: 48,
                         borderWidth: 1,
                         borderColor,
                         borderRadius: 8,
-                        backgroundColor: colors.background,
-                        paddingLeft: 16
+                        backgroundColor: glassAvailable
+                            ? "transparent"
+                            : colors.card,
+                        paddingLeft: 12
                     },
                     textInput: {
                         flex: 1,
                         fontSize: 16,
                         color: colors.text,
-                        paddingVertical: 12,
+                        height: 46,
+                        paddingVertical: 0,
                         paddingHorizontal: 16,
                         backgroundColor: "transparent",
                         marginBottom: 0
                     },
                     listView: {
                         borderWidth: 1,
-                        borderColor,
+                        borderColor: colors.cardBorder,
                         borderRadius: 8,
                         marginTop: 4,
-                        backgroundColor: colors.background
+                        backgroundColor: colors.card,
+                        overflow: "hidden"
                     },
                     row: {
-                        backgroundColor: colors.background,
+                        backgroundColor: colors.card,
                         paddingVertical: 12,
                         paddingHorizontal: 16
                     },
                     separator: {
                         height: 1,
-                        backgroundColor: borderColor
+                        backgroundColor: colors.cardBorder
                     },
                     description: {
                         color: colors.text,

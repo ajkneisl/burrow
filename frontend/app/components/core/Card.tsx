@@ -1,6 +1,7 @@
 import React from "react"
 import { View } from "react-native"
 import type { ViewProps } from "react-native"
+import { GlassSurface, glassAvailable } from "@components/core/GlassSurface"
 import clsx from "clsx"
 
 interface CardProps extends ViewProps {
@@ -14,21 +15,26 @@ export function Card({
     className,
     ...props
 }: CardProps) {
-    const baseStyles = "bg-card rounded-2xl"
-
+    // border/shadow variants only matter on the solid fallback — glass
+    // provides its own depth and edge treatment
     const variantStyles = {
-        default: "p-4",
-        bordered: "p-4 border border-card-border",
-        elevated: "p-4 shadow-lg"
+        default: "",
+        bordered: "border border-card-border",
+        elevated: "shadow-lg"
     }
 
     return (
-        <View
+        <GlassSurface
             {...props}
-            className={clsx(baseStyles, variantStyles[variant], className)}
+            className={clsx(
+                "rounded-2xl p-4",
+                !glassAvailable && variantStyles[variant],
+                className
+            )}
+            fallbackClassName="bg-card"
         >
             {children}
-        </View>
+        </GlassSurface>
     )
 }
 

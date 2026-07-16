@@ -7,6 +7,7 @@ import { X } from "lucide-react-native"
 import clsx from "clsx"
 import { Button } from "@components/core/Button"
 import ThemedIcon from "@components/core/ThemedIcon"
+import { GlassSurface } from "@components/core/GlassSurface"
 
 /**
  * {@link Modal}
@@ -54,7 +55,7 @@ export function Modal({
     }
 
     const containerClassName = clsx(
-        "bg-background w-full",
+        "w-full overflow-hidden",
         centered ? "rounded-3xl" : "rounded-t-3xl",
         size === "full" ? "h-full rounded-none" : "",
         centered && sizeStyles[size]
@@ -113,19 +114,21 @@ export function Modal({
             >
                 <Pressable className={size === "full" ? "flex-1" : undefined} onPress={(e) => e.stopPropagation()}>
                     {size === "full" ? (
-                        <View
+                        <GlassSurface
                             style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
                             className={clsx(containerClassName, "flex-1")}
+                            fallbackClassName="bg-background"
                         >
                             {modalContent}
-                        </View>
+                        </GlassSurface>
                     ) : (
-                        <View
+                        <GlassSurface
                             style={{ paddingBottom: insets.bottom }}
                             className={containerClassName}
+                            fallbackClassName="bg-background"
                         >
                             {modalContent}
-                        </View>
+                        </GlassSurface>
                     )}
                 </Pressable>
             </Pressable>

@@ -72,7 +72,7 @@ export default function ProfileScreen() {
 
             <ScrollView
                 className="flex-1 px-6 py-4"
-                contentContainerClassName="pb-4"
+                contentContainerClassName="pb-24"
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}

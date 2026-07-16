@@ -37,10 +37,16 @@ export default function useFormState<T, E = string[]>({
             if (!verifyEndpoint) return true
 
             try {
-                const stringFields = Object.fromEntries(
-                    Object.entries(fields).map(([key, value]) => [key, String(value)])
+                // scalars go as strings (the verify endpoints coerce them
+                // by field type), but arrays must stay arrays — a
+                // stringified list silently skips list validation rules
+                const normalized = Object.fromEntries(
+                    Object.entries(fields).map(([key, value]) => [
+                        key,
+                        Array.isArray(value) ? value : String(value)
+                    ])
                 )
-                await post(verifyEndpoint, stringFields)
+                await post(verifyEndpoint, normalized)
                 setErrors(initialErrors)
                 return true
             } catch (e) {

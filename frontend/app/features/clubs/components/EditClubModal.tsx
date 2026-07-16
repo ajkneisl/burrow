@@ -204,20 +204,11 @@ export default function EditClubModal({ visible, onClose, club }: EditClubModalP
                             keyboardShouldPersistTaps="handled"
                             showsVerticalScrollIndicator={false}
                         >
-                            <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
-                                <Text className="text-text text-sm font-semibold mb-2">
-                                    Club Details
-                                </Text>
-                                <Text className="text-text text-opacity-60 text-xs">
-                                    Update your club's details. The club URL name cannot be changed.
-                                </Text>
-                            </View>
-
                             <Input
                                 label="Club Name"
                                 value={club.name}
                                 editable={false}
-                                variant="outline"
+                                helperText="The club URL name cannot be changed."
                             />
 
                             <Input
@@ -225,7 +216,6 @@ export default function EditClubModal({ visible, onClose, club }: EditClubModalP
                                 value={formState.displayName}
                                 onChangeText={(value) => updateField("displayName", value)}
                                 placeholder="My Club"
-                                variant="outline"
                             />
 
                             {/* Category */}
@@ -285,15 +275,6 @@ export default function EditClubModal({ visible, onClose, club }: EditClubModalP
                             className="flex-1 px-6"
                             showsVerticalScrollIndicator={false}
                         >
-                            <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
-                                <Text className="text-text text-sm font-semibold mb-2">
-                                    Privacy Settings
-                                </Text>
-                                <Text className="text-text text-opacity-60 text-xs">
-                                    Control who can see and join your club.
-                                </Text>
-                            </View>
-
                             <View className="mb-6">
                                 <Text className="text-base font-semibold text-text mb-3">
                                     Club Privacy

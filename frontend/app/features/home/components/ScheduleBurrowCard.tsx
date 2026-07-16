@@ -6,6 +6,7 @@ import { MessageSquare, Pin } from "lucide-react-native"
 import type { ScheduleBurrowResponse } from "@features/burrows/burrows.types"
 import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { formatDateTime, humanDateLabel } from "@api/util"
+import { Card } from "@components/core"
 
 /**
  * {@link ScheduleBurrowCard}
@@ -39,10 +40,7 @@ export function ScheduleBurrowCard({ item }: ScheduleBurrowCardProps) {
 
     return (
         <Pressable onPress={handlePress} className="mb-3">
-            <View
-                className="bg-card border border-card-border rounded-2xl p-4 overflow-hidden"
-                style={{ borderRightWidth: 4, borderRightColor: kindColor }}
-            >
+            <Card>
                 {/* Title and Time Row */}
                 <View className="flex-row items-center justify-between mb-2">
                     <Text
@@ -120,7 +118,7 @@ export function ScheduleBurrowCard({ item }: ScheduleBurrowCardProps) {
                         </View>
                     </View>
                 )}
-            </View>
+            </Card>
         </Pressable>
     )
 }

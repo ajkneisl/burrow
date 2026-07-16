@@ -1,37 +1,32 @@
 import { View, SectionList, RefreshControl, Pressable } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
 import { useState, useMemo, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { Header } from "@features/layout/components"
 import { UpcomingBurrowCard } from "@features/burrows/components/UpcomingBurrowCard"
 import { getBurrows, searchMeetings } from "@features/burrows/burrows.api"
 import type {
     BurrowKind,
     BurrowResponse
 } from "@features/burrows/burrows.types"
-import {
-    Search,
-    Filter,
-    ChevronDown,
-    ChevronUp,
-    ChevronRight,
-    Map as MapIcon,
-    MapPin,
-    MapPinned
-} from "lucide-react-native"
+import { Search, Filter, ChevronRight, MapPinned } from "lucide-react-native"
+import { useAtom } from "jotai"
+import { mapModalOpen } from "@features/layout/layout.atom"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { CustomDateTimePicker, FilterChip, LabeledSwitch, Text } from "@components/core"
+import {
+    CustomDateTimePicker,
+    FilterChip,
+    LabeledSwitch,
+    Modal,
+    Text
+} from "@components/core"
 import { humanDateLabel, weekRangeLabel } from "@api/util"
 import Animated, {
     useAnimatedStyle,
     withTiming,
     useSharedValue
 } from "react-native-reanimated"
-import { useAtom } from "jotai"
-import { mapModalOpen } from "@features/layout/layout.atom"
 
 /**
- * {@link BrowseScreen}
+ * {@link ExploreBurrows}
  */
 type GroupedSection = {
     week: string
@@ -42,18 +37,19 @@ type GroupedSection = {
 }
 
 /**
- * Browse screen
+ * The Burrows side of the Explore tab — browse upcoming Burrows with
+ * filters, grouped by week and day.
  *
  * @author AJ Kneisl
  */
-export default function BrowseScreen() {
+export function ExploreBurrows() {
     const colors = useThemeColors()
     const [, setMapOpen] = useAtom(mapModalOpen)
 
-    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
+    const [filtersOpen, setFiltersOpen] = useState(false)
     const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set())
 
-    // search filters
+    // search filters — no selection means everything
     const [selectedType, setSelectedType] = useState<BurrowKind | null>(null)
     const [isHost, setIsHost] = useState(false)
     const [isBookmarked, setIsBookmarked] = useState(false)
@@ -154,171 +150,62 @@ export default function BrowseScreen() {
         })
     }
 
+    // tap a type to filter down; tap it again to show everything
+    const toggleType = (type: BurrowKind) =>
+        setSelectedType((prev) => (prev === type ? null : type))
+
     return (
-        <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-            <Header
-                title="Browse"
-                leftActions={
+        <View className="flex-1">
+            {/* filters — nothing selected shows all Burrows */}
+            <View className="px-6 py-3 border-b border-card-border">
+                <View className="flex-row gap-2 flex-wrap items-center">
+                    <FilterChip
+                        label="Study"
+                        active={selectedType === "STUDY"}
+                        onPress={() => toggleType("STUDY")}
+                    />
+
+                    <FilterChip
+                        label="Event"
+                        active={selectedType === "EVENT"}
+                        onPress={() => toggleType("EVENT")}
+                    />
+
+                    <FilterChip
+                        label="Club"
+                        active={selectedType === "CLUB"}
+                        onPress={() => toggleType("CLUB")}
+                    />
+
+                    {/* advanced filter drawer */}
                     <Pressable
-                        onPress={() => setMapOpen(true)}
-                        className="p-2 rounded-lg active:bg-card dark:active:bg-card"
+                        onPress={() => setFiltersOpen(true)}
+                        className={`px-4 py-2 rounded-full flex-row items-center gap-1 ${
+                            hasAdvancedFilters ? "bg-primary" : "bg-card"
+                        }`}
                     >
-                        <MapPinned size={24} color={colors.text} />
-                    </Pressable>
-                }
-            />
-
-            {/* all filters */}
-            <View className="border-b border-card-border">
-                {/* different types*/}
-                <View className="px-6 py-3">
-                    <View className="flex-row gap-2 flex-wrap">
-                        {/* filter chips */}
-                        <FilterChip
-                            label="All"
-                            active={selectedType === null}
-                            onPress={() => setSelectedType(null)}
+                        <Filter
+                            size={14}
+                            color={hasAdvancedFilters ? "#FFFFFF" : colors.text}
                         />
 
-                        <FilterChip
-                            label="Study"
-                            active={selectedType === "STUDY"}
-                            onPress={() => setSelectedType("STUDY")}
-                        />
-
-                        <FilterChip
-                            label="Event"
-                            active={selectedType === "EVENT"}
-                            onPress={() => setSelectedType("EVENT")}
-                        />
-
-                        <FilterChip
-                            label="Club"
-                            active={selectedType === "CLUB"}
-                            onPress={() => setSelectedType("CLUB")}
-                        />
-
-                        {/* more filters */}
-                        <Pressable
-                            onPress={() =>
-                                setShowAdvancedFilters(!showAdvancedFilters)
-                            }
-                            className={`px-4 py-2 rounded-full flex-row items-center gap-1 ${
-                                hasAdvancedFilters ? "bg-primary" : "bg-card"
+                        <Text
+                            className={`text-sm font-semibold ${
+                                hasAdvancedFilters ? "text-white" : "text-text"
                             }`}
                         >
-                            <Filter
-                                size={14}
-                                color={
-                                    hasAdvancedFilters ? "#FFFFFF" : colors.text
-                                }
-                            />
+                            Filters
+                        </Text>
+                    </Pressable>
 
-                            <Text
-                                className={`text-sm font-semibold ${
-                                    hasAdvancedFilters
-                                        ? "text-white"
-                                        : "text-text"
-                                }`}
-                            >
-                                More
-                            </Text>
-
-                            {showAdvancedFilters ? (
-                                <ChevronUp
-                                    size={14}
-                                    color={
-                                        hasAdvancedFilters
-                                            ? "#FFFFFF"
-                                            : colors.text
-                                    }
-                                />
-                            ) : (
-                                <ChevronDown
-                                    size={14}
-                                    color={
-                                        hasAdvancedFilters
-                                            ? "#FFFFFF"
-                                            : colors.text
-                                    }
-                                />
-                            )}
-                        </Pressable>
-                    </View>
+                    {/* map view */}
+                    <Pressable
+                        onPress={() => setMapOpen(true)}
+                        className="px-3 py-2 rounded-full bg-card"
+                    >
+                        <MapPinned size={16} color={colors.text} />
+                    </Pressable>
                 </View>
-
-                {/* advanced */}
-                {showAdvancedFilters && (
-                    <View className="mx-4 mb-4 p-4 bg-card rounded-xl border border-card-border gap-5">
-                        <View className="gap-3">
-                            <Text className="text-xs font-semibold text-text uppercase tracking-wider">
-                                Show Only
-                            </Text>
-
-                            <View className="flex-row gap-4">
-                                <LabeledSwitch
-                                    label="My Hosted"
-                                    value={isHost}
-                                    onValueChange={setIsHost}
-                                />
-
-                                <LabeledSwitch
-                                    label="Bookmarked"
-                                    value={isBookmarked}
-                                    onValueChange={setIsBookmarked}
-                                />
-                            </View>
-                        </View>
-
-                        <View className="h-px bg-card-border" />
-
-                        <View className="gap-3">
-                            <Text className="text-xs font-semibold text-text uppercase tracking-wider">
-                                Date Range
-                            </Text>
-
-                            <View className="flex-row gap-3">
-                                <View className="flex-1">
-                                    <CustomDateTimePicker
-                                        mode="date"
-                                        value={startDate ?? null}
-                                        onChange={setStartDate}
-                                        placeholder="Start date"
-                                    />
-                                </View>
-
-                                <View className="flex-1">
-                                    <CustomDateTimePicker
-                                        mode="date"
-                                        value={endDate ?? null}
-                                        onChange={setEndDate}
-                                        placeholder="End date"
-                                    />
-                                </View>
-                            </View>
-                        </View>
-
-                        {hasAdvancedFilters && (
-                            <>
-                                <View className="h-px bg-card-border" />
-
-                                <Pressable
-                                    onPress={() => {
-                                        setIsHost(false)
-                                        setIsBookmarked(false)
-                                        setStartDate(undefined)
-                                        setEndDate(undefined)
-                                    }}
-                                    className="bg-error/10 py-2.5 rounded-lg border border-error/20"
-                                >
-                                    <Text className="text-error text-sm font-semibold text-center">
-                                        Clear Filters
-                                    </Text>
-                                </Pressable>
-                            </>
-                        )}
-                    </View>
-                )}
             </View>
 
             {/* burrow list grouped by date */}
@@ -389,7 +276,84 @@ export default function BrowseScreen() {
                 )}
             />
 
-        </SafeAreaView>
+            {/* advanced filters drawer */}
+            <Modal
+                visible={filtersOpen}
+                onClose={() => setFiltersOpen(false)}
+                title="Filters"
+                scrollable={false}
+            >
+                <View className="gap-5 pb-2">
+                    <View className="gap-3">
+                        <Text className="text-xs font-semibold text-text uppercase tracking-wider">
+                            Show Only
+                        </Text>
+
+                        <View className="flex-row gap-4">
+                            <LabeledSwitch
+                                label="My Hosted"
+                                value={isHost}
+                                onValueChange={setIsHost}
+                            />
+
+                            <LabeledSwitch
+                                label="Bookmarked"
+                                value={isBookmarked}
+                                onValueChange={setIsBookmarked}
+                            />
+                        </View>
+                    </View>
+
+                    <View className="h-px bg-card-border" />
+
+                    <View className="gap-3">
+                        <Text className="text-xs font-semibold text-text uppercase tracking-wider">
+                            Date Range
+                        </Text>
+
+                        <View className="flex-row gap-3">
+                            <View className="flex-1">
+                                <CustomDateTimePicker
+                                    mode="date"
+                                    value={startDate ?? null}
+                                    onChange={setStartDate}
+                                    placeholder="Start date"
+                                />
+                            </View>
+
+                            <View className="flex-1">
+                                <CustomDateTimePicker
+                                    mode="date"
+                                    value={endDate ?? null}
+                                    onChange={setEndDate}
+                                    placeholder="End date"
+                                />
+                            </View>
+                        </View>
+                    </View>
+
+                    {hasAdvancedFilters && (
+                        <>
+                            <View className="h-px bg-card-border" />
+
+                            <Pressable
+                                onPress={() => {
+                                    setIsHost(false)
+                                    setIsBookmarked(false)
+                                    setStartDate(undefined)
+                                    setEndDate(undefined)
+                                }}
+                                className="bg-error/10 py-2.5 rounded-lg border border-error/20"
+                            >
+                                <Text className="text-error text-sm font-semibold text-center">
+                                    Clear Filters
+                                </Text>
+                            </Pressable>
+                        </>
+                    )}
+                </View>
+            </Modal>
+        </View>
     )
 }
 
