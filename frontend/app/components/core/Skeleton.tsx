@@ -12,8 +12,7 @@ type SkeletonProps = {
 }
 
 /**
- * A pulsing placeholder block, used to build skeleton loaders for content
- * that hasn't finished loading yet.
+ * build skeleton for things that have not loaded yet. placeholder.
  *
  * @param className Sizing/shape classes (e.g. `"h-4 w-24 rounded-full"`).
  *
