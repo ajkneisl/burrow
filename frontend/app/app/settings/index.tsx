@@ -17,7 +17,8 @@ import {
     ChevronRight,
     AlertCircle,
     Trash2,
-    Users
+    Users,
+    BookOpen
 } from "lucide-react-native"
 import { useGoogleAuth } from "@features/auth/hooks/useGoogleAuth"
 import useUser from "@features/auth/hooks/useUser"
@@ -30,7 +31,7 @@ import { useThemeColors } from "@api/theme/useThemeColors"
 import { DeleteAccountModal } from "@features/settings/components/DeleteAccountModal"
 import * as Application from "expo-application"
 import useProfile from "@features/auth/hooks/useProfile"
-import ChangeUsernameModal from "@/app/settings/change-username";
+import ChangeUsernameModal from "@/app/settings/change-username"
 
 /**
  * The settings page.
@@ -210,6 +211,17 @@ export default function SettingsScreen() {
                         }
                         onPress={() => {
                             router.push("/settings/about")
+                        }}
+                        colors={colors}
+                    />
+
+                    <View className="h-px bg-card-border my-3" />
+
+                    <SettingItem
+                        icon={<BookOpen size={20} color={colors.primary} />}
+                        label="Articles"
+                        onPress={() => {
+                            router.push("/articles")
                         }}
                         colors={colors}
                     />
