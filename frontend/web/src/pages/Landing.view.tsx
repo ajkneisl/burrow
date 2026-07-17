@@ -327,6 +327,7 @@ export default function LandingView() {
                             <GoogleOAuthProvider clientId="808386876282-4s7060hmt21b2i069tkea6fddsumj86o.apps.googleusercontent.com">
                                 <GoogleLogin
                                     width={googleLoginWidth}
+                                    hosted_domain="umn.edu"
                                     shape="pill"
                                     size="large"
                                     text="continue_with"
