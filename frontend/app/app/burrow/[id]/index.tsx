@@ -5,13 +5,12 @@ import { CircleCheck, Clock } from "lucide-react-native"
 import { Card, Chip, Text } from "@components/core"
 import { dayLabel } from "@api/util"
 import BurrowDetails from "@features/burrows/attendees/BurrowDetails"
-import { Pomodoro } from "@features/sync/components/Pomodoro"
 import { useBurrowContext } from "@features/burrows/context/burrows.context"
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 export default function AboutTab() {
     const colors = useThemeColors()
-    const { data, isPast, isProject, blocks, id } = useBurrowContext()
+    const { data, isPast, isProject, id } = useBurrowContext()
     const burrow = data.burrow
 
     const queryClient = useQueryClient()
@@ -85,11 +84,6 @@ export default function AboutTab() {
                             <Chip key={tag} size="sm" label={tag} />
                         ))}
                     </View>
-                )}
-
-                {/* pomodoro */}
-                {blocks.includes("POMODORO") && data.membership && (
-                    <Pomodoro burrowId={id} userRole={data.membership.role} />
                 )}
 
                 <View className="h-4" />
