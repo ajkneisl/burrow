@@ -6,6 +6,7 @@ import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.spi.IsolationLevel
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.primaryConstructor
@@ -24,7 +25,6 @@ import org.jetbrains.exposed.v1.r2dbc.SchemaUtils
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.reflections.Reflections
 import org.slf4j.LoggerFactory
-import kotlin.reflect.KFunction
 
 var DB: R2dbcDatabase? = null
 
@@ -32,24 +32,24 @@ var DB: R2dbcDatabase? = null
 suspend fun <T> query(block: suspend R2dbcTransaction.() -> T): T =
     withContext(Dispatchers.IO) { suspendTransaction(DB, block) }
 
-private val runningDocker = env("DOCKER")?.toBoolean() == true
 private val LOGGER = LoggerFactory.getLogger("Database")
 
 /** Initialize and connect to the database. */
 suspend fun initDb() {
-    val address = if (runningDocker) "database" else "localhost"
+    val jdbc = env("DB_JDBC") ?: throw IllegalStateException("Could not find JDBC")
+    val user = env("DB_USER") ?: throw IllegalStateException("Could not find DB username")
+    val pass = env("DB_PASS") ?: throw IllegalStateException("Could not find DB password")
 
-    LOGGER.debug("Connecting (R2DBC) to {}", address)
+    LOGGER.debug("Connecting (R2DBC) to {}", jdbc)
 
     runCatching {
             val connectionFactory =
                 PostgresqlConnectionFactory(
                     PostgresqlConnectionConfiguration.builder()
-                        .host(address)
-                        .port(5432)
+                        .host(jdbc)
                         .database("burrow")
-                        .username("postgres")
-                        .password("postgres")
+                        .username(user)
+                        .password(pass)
                         .build()
                 )
 
@@ -99,10 +99,7 @@ internal fun resolveTable(kClass: KClass<*>): Table =
     }
 
 @PublishedApi
-internal data class EntityMapping(
-    val params: List<ParamMapping>,
-    val constructor: KFunction<Any>,
-)
+internal data class EntityMapping(val params: List<ParamMapping>, val constructor: KFunction<Any>)
 
 @PublishedApi
 internal data class ParamMapping(
