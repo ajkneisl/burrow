@@ -15,7 +15,7 @@ export default function MyProfile() {
     const profile = useProfile()
 
     return (
-        <Card className="border-text/10 from-background/60 via-background/40 to-card mt-8 flex flex-col gap-5 rounded-xl border bg-gradient-to-br p-4 shadow-md transition-colors hover:shadow-lg">
+        <Card className="border-text/10 flex flex-col rounded-xl border p-4 shadow-md">
             {/* header */}
             <div className="flex flex-row items-center justify-evenly gap-3">
                 {/* profile / user loading */}

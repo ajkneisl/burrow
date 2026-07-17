@@ -132,6 +132,7 @@ private val googleVerifier: GoogleIdTokenVerifier? by lazy {
  * @param id The user's Google ID
  * @param username The user's selected name.
  * @param email The user's email.
+ * @param accountType The type of account, granting access to the admin panel.
  * @param createdAt The date the account was created.
  */
 @Serializable
@@ -140,8 +141,21 @@ data class User(
     val id: String,
     val username: String,
     @Transient val email: String = "",
+    val accountType: AccountType = AccountType.USER,
     val createdAt: Long,
 )
+
+/**
+ * Emails that are automatically granted [AccountType.ADMIN] on login, from the comma-separated
+ * `ADMIN_EMAILS` environment variable.
+ */
+private val ADMIN_EMAILS: Set<String> by lazy {
+    env("ADMIN_EMAILS")
+        ?.split(",")
+        ?.map { it.trim().lowercase() }
+        ?.filter { it.isNotEmpty() }
+        ?.toSet() ?: emptySet()
+}
 
 /**
  * Using a Google JWT token, verify that they have the proper domain then either create an account
@@ -173,15 +187,19 @@ suspend fun retrieveUser(token: String, deviceName: String = "Unknown Device"): 
 
     val user = query { Users.selectAll().where { Users.id eq googleID }.singleOrNull() }
 
+    val bootstrapAdmin = email.lowercase() in ADMIN_EMAILS
+
     // user does not exist - create new account
     if (user == null) {
         val createdDate = getTimeMillis()
         val username = email.removeSuffix("@umn.edu")
+        val accountType = if (bootstrapAdmin) AccountType.ADMIN else AccountType.USER
 
         query {
             Users.insert {
                 it[Users.username] = username
                 it[Users.email] = email
+                it[Users.accountType] = accountType
                 it[Users.createdAt] = createdDate
                 it[Users.id] = googleID
             }
@@ -198,13 +216,29 @@ suspend fun retrieveUser(token: String, deviceName: String = "Unknown Device"): 
         val refreshToken = createRefreshToken(googleID, deviceName)
 
         return AuthorizedUser(
-            User(id = googleID, username = username, email = email, createdAt = createdDate),
+            User(
+                id = googleID,
+                username = username,
+                email = email,
+                accountType = accountType,
+                createdAt = createdDate,
+            ),
             true,
             accessToken,
             refreshToken,
         )
     } else {
         // existing user
+        var accountType = user[Users.accountType]
+
+        // promote accounts listed in ADMIN_EMAILS
+        if (bootstrapAdmin && accountType != AccountType.ADMIN) {
+            accountType = AccountType.ADMIN
+            updateAccountType(googleID, AccountType.ADMIN)
+
+            LOGGER.info("Promoted {} to administrator via ADMIN_EMAILS", email)
+        }
+
         val accessToken = Authorization.generateToken(googleID)
         val refreshToken = createRefreshToken(googleID, deviceName)
 
@@ -213,6 +247,7 @@ suspend fun retrieveUser(token: String, deviceName: String = "Unknown Device"): 
                 id = googleID,
                 username = user[Users.username],
                 email = user[Users.email],
+                accountType = accountType,
                 createdAt = user[Users.createdAt],
             ),
             false,
@@ -383,6 +418,16 @@ suspend fun validateUsername(username: String) {
         query { Users.selectAll().where { Users.username eq username }.firstOrNull() } != null ->
             throw Error(400, "This username is already taken!")
     }
+}
+
+/**
+ * Update a user's [AccountType].
+ *
+ * @param userID The ID of the user.
+ * @param accountType The new account type.
+ */
+suspend fun updateAccountType(userID: String, accountType: AccountType) {
+    query { Users.update({ Users.id eq userID }) { it[Users.accountType] = accountType } }
 }
 
 /**

@@ -30,6 +30,8 @@ import ClubView from "@pages/clubs/Club.view.tsx"
 import Login from "@pages/Login.view.tsx"
 import MyClubs from "@pages/clubs/MyClubs.view.tsx"
 import BrowseClubs from "@pages/clubs/BrowseClubs.view.tsx"
+import ArticleView from "@pages/Article.view.tsx"
+import ArticlesView from "@pages/Articles.view.tsx"
 
 /**
  * This defines all routes in Burrow.
@@ -62,6 +64,8 @@ const router = createBrowserRouter([
             { path: "clubs", element: <MyClubs /> },
             { path: "clubs/browse", element: <BrowseClubs /> },
             { path: "club/:name", element: <ClubView /> },
+            { path: "articles", element: <ArticlesView /> },
+            { path: "article/:slug", element: <ArticleView /> },
             { path: ":id", element: <BurrowRedirect /> },
             { path: "*", element: <NotFound /> }
         ]

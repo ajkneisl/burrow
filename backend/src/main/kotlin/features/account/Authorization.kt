@@ -3,6 +3,8 @@ package app.burrow.features.account
 import app.burrow.admin.log.DB_LOG
 import app.burrow.api.Error
 import app.burrow.env
+import app.burrow.features.account.models.AccountType
+import app.burrow.features.account.models.getUserByID
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
@@ -115,7 +117,6 @@ object Authorization {
     }
 
     const val PUBLIC_AUDIENCE = "burrow/general"
-    const val ADMIN_AUDIENCE = "burrow/admin"
 
     /** Verifier using same algorithm, audience, and issuer */
     fun getVerifier(audience: String = PUBLIC_AUDIENCE): JWTVerifier =
@@ -143,16 +144,23 @@ object Authorization {
             }
 
             // ADMINISTRATOR
-            // for all administrator actions, requires
-            // a special account
+            // for all administrator actions, uses the
+            // same account as PRIMARY but requires the
+            // user's account type to be ADMIN
             jwt(ADMIN_AUTH) {
                 realm = "burrow/administrator"
-                verifier(getVerifier(ADMIN_AUDIENCE))
+                verifier(getVerifier())
 
                 challenge { _, _ -> throw Error(401, "Token is invalid or expired.") }
                 validate { credential ->
-                    if (credential.payload.audience.contains(ADMIN_AUDIENCE))
-                        JWTPrincipal(credential.payload)
+                    val subject = credential.payload.subject
+
+                    if (!credential.payload.audience.contains(PUBLIC_AUDIENCE) || subject == null)
+                        return@validate null
+
+                    val user = runCatching { getUserByID(subject) }.getOrNull()
+
+                    if (user?.accountType == AccountType.ADMIN) JWTPrincipal(credential.payload)
                     else null
                 }
             }

@@ -28,9 +28,13 @@ export default function PreviewBurrows({ amount }: PreviewGroupsProps) {
 
     return (
         <div className="flex flex-col items-center justify-center gap-2 overflow-auto">
-            <h3 className="text-text/60 self-start text-sm font-semibold tracking-wide uppercase">
-                Upcoming Burrows
-            </h3>
+            <div className="flex w-full items-center gap-3">
+                <h3 className="text-text/60 text-sm font-semibold tracking-wide uppercase">
+                    Upcoming Burrows
+                </h3>
+
+                <span className="border-card-border flex-1 border-t" />
+            </div>
 
             {/* error */}
             {isError && (
@@ -72,16 +76,21 @@ export default function PreviewBurrows({ amount }: PreviewGroupsProps) {
                 data.contents.length > 0 &&
                 data.contents
                     .slice(0, amount)
-                    .map((meeting) => <BurrowCard meetingResponse={meeting} />)}
+                    .map((meeting) => (
+                        <BurrowCard
+                            key={meeting.burrow.id}
+                            meetingResponse={meeting}
+                        />
+                    ))}
 
             {/* no upcoming burrows */}
             {data && data.contents?.length === 0 && (
                 <Card
                     aria-live="polite"
                     aria-label="No upcoming meetings"
-                    className="border-text/40 text-text/50 flex h-24 w-full items-center justify-center border-2 border-dashed opacity-50"
+                    className="border-card-border flex h-24 w-full items-center justify-center border-2 border-dashed"
                 >
-                    <p className="text-center text-sm tracking-wide">
+                    <p className="text-text/50 text-center text-sm tracking-wide">
                         No upcoming Burrows.
                     </p>
                 </Card>

@@ -1,33 +1,37 @@
 /**
- * The administrator.
+ * The type of a user's account.
+ */
+export type AccountType = "USER" | "ADMIN"
+
+/**
+ * An administrator's account. This is a regular Burrow account with the
+ * ADMIN account type.
  *
- * @param id The unique ID of the admin.
+ * @param id The unique ID of the account.
  * @param username The username.
  * @param email The email.
- * @param permissionBits The permissions of the administrator.
+ * @param accountType The account's type.
  * @param createdAt When the account was created.
- * @param lastLoginAt When the user last logged in.
- * @param lastLoginIp The IP of the last user logged in.
- * @param passwordUpdatedAt When the password was updated.
  */
-export type Administrator = {
+export type AdminAccount = {
     id: string
     username: string
     email: string
-    permissionBits: number
+    accountType: AccountType
     createdAt: number
-    lastLoginAt: number | null
-    lastLoginIp: string | null
-    passwordUpdatedAt: number
 }
 
 /**
- * A response to logging in.
- *
- * @param token The authorization token.
- * @param author The user who logged in.
+ * A Burrow user, as returned by the main login endpoint.
  */
-export type AdminLoginResponse = {
+export type AuthorizedUser = {
+    user: {
+        id: string
+        username: string
+        accountType: AccountType
+        createdAt: number
+    }
+    newUser: boolean
     token: string
-    author: Administrator
+    refreshToken: string
 }

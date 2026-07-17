@@ -55,7 +55,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.mindrot:jbcrypt:0.4")
-    implementation("dev.samstevens.totp:totp:1.7.1")
 
     implementation("io.minio:minio:8.6.0")
 

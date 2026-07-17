@@ -14,7 +14,8 @@ import {
     LogOut,
     UserIcon,
     History,
-    Map
+    Map,
+    BookOpen
 } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
 
@@ -102,6 +103,16 @@ export default function HeaderDropdown() {
                             nav(`/map`)
                         }}
                         rightIcon={<Map width="18" height="18" />}
+                    />
+
+                    {/* articles */}
+                    <DropdownItem
+                        label="Articles"
+                        onSelect={() => {
+                            setOpen(false)
+                            nav("/articles")
+                        }}
+                        rightIcon={<BookOpen width="18" height="18" />}
                     />
 
                     {/* feedback */}

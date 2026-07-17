@@ -1,35 +1,42 @@
-import { type FormEvent, useState } from "react"
-import { adminLogin } from "../features/auth/admin.api.ts"
-import { Button, Input } from "@umnburrow/core"
+import { useState } from "react"
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google"
 import { useSetAtom } from "jotai"
 import { useNavigate } from "react-router"
-import { adminTokenAtom } from "../features/auth/admin.atom.ts"
+import { getAdmin, loginWithGoogle } from "../features/auth/admin.api.ts"
+import {
+    adminRefreshTokenAtom,
+    adminTokenAtom
+} from "../features/auth/admin.atom.ts"
 
 export default function LoginView() {
     const nav = useNavigate()
 
-    const [username, setUsername] = useState("")
-    const [password, setPassword] = useState("")
-    const [totp, setTotp] = useState("")
-    const [remember, setRemember] = useState(true)
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
     const setAdminToken = useSetAtom(adminTokenAtom)
+    const setRefreshToken = useSetAtom(adminRefreshTokenAtom)
 
-    async function onSubmit(e: FormEvent) {
-        e.preventDefault()
+    async function onGoogleSuccess(credential: string) {
         setError(null)
         setSubmitting(true)
 
         try {
-            const result = await adminLogin(username, password, totp)
+            const result = await loginWithGoogle(credential)
+
+            // ensure the account actually has admin access before storing
+            await getAdmin(result.token).catch(() => {
+                throw new Error(
+                    "This account does not have administrator access."
+                )
+            })
 
             setAdminToken(result.token)
+            setRefreshToken(result.refreshToken)
 
-            nav("/admin/dashboard")
-        } catch (err: any) {
-            setError(err?.message ?? "Login failed")
+            nav("/dashboard")
+        } catch (err) {
+            setError((err as Error)?.message ?? "Login failed")
         } finally {
             setSubmitting(false)
         }
@@ -51,75 +58,51 @@ export default function LoginView() {
                     {/* Divider */}
                     <div className="h-px bg-background" />
 
-                    {/* Form */}
-                    <form onSubmit={onSubmit} className="px-6 py-6 space-y-5">
+                    {/* Sign in */}
+                    <div className="px-6 py-8 space-y-5">
                         {error && (
                             <div className="text-sm rounded-lg border border-red-600/40 bg-red-600/10 px-3 py-2 text-red-200">
                                 {error}
                             </div>
                         )}
 
-                        <Input
-                            text={"Username"}
-                            placeholder={"your username"}
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                        />
+                        <p className="text-sm text-center text-muted-foreground">
+                            Sign in with your Burrow account. Administrator
+                            access is required.
+                        </p>
 
-                        <Input
-                            text={"Password"}
-                            name="password"
-                            type="password"
-                            autoComplete="current-password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••••"
-                            required
-                        />
-
-                        <Input
-                            text={"Authenticator Code"}
-                            name="totp"
-                            type="text"
-                            inputMode="numeric"
-                            pattern="\d*"
-                            maxLength={8}
-                            autoComplete="one-time-code"
-                            placeholder="123456"
-                            value={totp}
-                            onChange={(e) => setTotp(e.target.value)}
-                            required
-                        />
-
-                        <div className="flex items-center justify-between">
-                            <label className="inline-flex items-center gap-2 text-sm text-gray-300">
-                                <input
-                                    type="checkbox"
-                                    checked={remember}
-                                    onChange={(e) =>
-                                        setRemember(e.target.checked)
+                        <div className="flex justify-center">
+                            {submitting ? (
+                                <div className="text-sm text-muted-foreground">
+                                    Signing in...
+                                </div>
+                            ) : (
+                                <GoogleOAuthProvider
+                                    clientId={
+                                        import.meta.env.VITE_GOOGLE_CLIENT_ID ??
+                                        ""
                                     }
-                                    className="size-4 rounded accent-primary/90 border border-[rgb(var(--card-border-color))] bg-card"
-                                />
-                                Remember me
-                            </label>
-                            <a
-                                href="#"
-                                className="text-sm text-secondary hover:underline"
-                            >
-                                Forgot password?
-                            </a>
+                                >
+                                    <GoogleLogin
+                                        width={280}
+                                        shape="pill"
+                                        size="large"
+                                        text="continue_with"
+                                        onSuccess={(response) =>
+                                            onGoogleSuccess(
+                                                response.credential ?? ""
+                                            )
+                                        }
+                                        onError={() =>
+                                            setError(
+                                                "Failed to authenticate with Google."
+                                            )
+                                        }
+                                    />
+                                </GoogleOAuthProvider>
+                            )}
                         </div>
-
-                        <Button
-                            type="submit"
-                            color="PRIMARY"
-                            className="w-full"
-                            disabled={submitting}
-                        >
-                            Sign In
-                        </Button>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
