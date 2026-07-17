@@ -19,6 +19,7 @@ export const WEB_CLIENT_ID =
 
 // Configure Google Sign-In
 GoogleSignin.configure({
+    hostedDomain: "umn.edu",
     iosClientId: IOS_CLIENT_ID,
     webClientId: WEB_CLIENT_ID,
     scopes: ["profile", "email"],
