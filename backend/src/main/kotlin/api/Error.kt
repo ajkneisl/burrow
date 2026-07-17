@@ -19,11 +19,11 @@ class Error(code: Int, message: String) : ServerError(code, message)
 
 class MultiError(val code: Int, val messages: List<String>) : Exception()
 
-class InvalidArguments : ServerError(400, Errors.INVALID_AUTHORIZATION)
+class InvalidArguments : ServerError(400, Errors.INVALID_ARGUMENTS)
 
 class NotFound(notFound: String? = null) : ServerError(404, notFound ?: Errors.NOT_FOUND)
 
-class InvalidAuthorization : ServerError(401, Errors.INVALID_ARGUMENTS)
+class InvalidAuthorization : ServerError(401, Errors.INVALID_AUTHORIZATION)
 
 object Errors {
     const val INVALID_ARGUMENTS = "Invalid arguments."

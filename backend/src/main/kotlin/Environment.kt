@@ -1,5 +1,10 @@
 package app.burrow
 
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+
 /**
  * secrets from Bitwarden Secret Manager.
  *
@@ -7,32 +12,51 @@ package app.burrow
  */
 private val bwsEnv by lazy {
     hashMapOf<String, String>().apply {
+        val accessToken = System.getenv("BWS_TOKEN") ?: System.getenv("BWS_ACCESS_TOKEN")
+
+        if (accessToken.isNullOrBlank()) {
+            LOGGER.debug("BWS_TOKEN not set, skipping Bitwarden secrets")
+            return@apply
+        }
+
+        LOGGER.debug("Loading BWS Secrets")
+
         try {
-            ProcessBuilder(
-                    "bws",
-                    "secret",
-                    "list",
-                    "--output",
-                    "env",
-                    "--access-token",
-                    System.getenv("BWS_ACCESS_TOKEN"),
-                )
-                .start()
-                .inputStream
-                .bufferedReader()
-                .forEachLine { line ->
-                    val spl = line.split("=")
+            val command = buildList {
+                add("bws")
+                add("secret")
+                add("list")
 
-                    val varName = spl[0]
-                    val varValue = spl[1].removeSurrounding("\"")
+                // scope to a single project when one is configured
+                System.getenv("BWS_PROJECT_ID")?.let { add(it) }
 
-                    LOGGER.debug("Found $varName in BWS")
+                add("--output")
+                add("json")
+                add("--color")
+                add("no")
+                add("--access-token")
+                add(accessToken)
+            }
 
-                    put(varName, varValue)
-                }
+            val process = ProcessBuilder(command).start()
+            val stdout = process.inputStream.bufferedReader().readText()
+            val stderr = process.errorStream.bufferedReader().readText()
+
+            if (process.waitFor() != 0) {
+                LOGGER.error("bws exited with ${process.exitValue()}: ${stderr.trim()}")
+                return@apply
+            }
+
+            Json.parseToJsonElement(stdout).jsonArray.forEach { secret ->
+                val key = secret.jsonObject["key"]!!.jsonPrimitive.content
+                val value = secret.jsonObject["value"]!!.jsonPrimitive.content
+
+                LOGGER.debug("Found $key in BWS")
+
+                put(key, value)
+            }
         } catch (ex: Exception) {
-            ex.printStackTrace()
-            LOGGER.error("There was an issue loading secrets. Please check BWS.")
+            LOGGER.error("There was an issue loading secrets. Please check BWS.", ex)
         }
     }
 }

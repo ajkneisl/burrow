@@ -75,10 +75,7 @@ suspend fun initDb() {
                 table.kotlin.objectInstance
             }
 
-        allTables.forEach { table ->
-            println("Working on: ${table.tableName}")
-            SchemaUtils.createMissingTablesAndColumns(table)
-        }
+        SchemaUtils.createMissingTablesAndColumns(*allTables.toTypedArray())
     }
 
     LOGGER.debug("Connected to Database")
