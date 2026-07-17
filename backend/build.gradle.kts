@@ -85,6 +85,18 @@ repositories {
     mavenCentral()
     maven("https://jitpack.io")
     maven("https://packages.confluent.io/maven/")
+
+    // Bitwarden only publishes the Secrets Manager SDK to GitHub Packages,
+    // which requires authentication even for public artifacts
+    maven {
+        url = uri("https://maven.pkg.github.com/bitwarden/sdk-sm")
+        credentials {
+            username =
+                System.getenv("GITHUB_ACTOR") ?: findProperty("gpr.user")?.toString() ?: ""
+            password =
+                System.getenv("GITHUB_TOKEN") ?: findProperty("gpr.token")?.toString() ?: ""
+        }
+    }
 }
 
 val compileKotlin: KotlinCompile by tasks

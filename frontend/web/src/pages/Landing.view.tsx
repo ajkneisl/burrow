@@ -324,7 +324,11 @@ export default function LandingView() {
                             ref={googleLoginContainer}
                             className="flex justify-center"
                         >
-                            <GoogleOAuthProvider clientId="808386876282-4s7060hmt21b2i069tkea6fddsumj86o.apps.googleusercontent.com">
+                            <GoogleOAuthProvider
+                                clientId={
+                                    import.meta.env.VITE_GOOGLE_CLIENT_ID
+                                }
+                            >
                                 <GoogleLogin
                                     width={googleLoginWidth}
                                     hosted_domain="umn.edu"

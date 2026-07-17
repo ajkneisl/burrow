@@ -147,8 +147,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         router: {
             origin: false
         },
-        apiUrl: process.env.API_URL,
-        cdnUrl: process.env.CDN_URL,
+        apiUrl: process.env.EXPO_PUBLIC_API_URL,
+        cdnUrl: process.env.EXPO_PUBLIC_CDN_URL,
         eas: {
             projectId: "3dc55916-e2a2-4081-a6cd-b76056b7386f"
         }
