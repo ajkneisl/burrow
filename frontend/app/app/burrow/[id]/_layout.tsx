@@ -15,6 +15,7 @@ import {
     Info,
     Pencil,
     Settings,
+    Timer,
     Trash2,
     UserPlus,
     ListChecks
@@ -483,8 +484,26 @@ export default function BurrowLayout() {
                             name="chat"
                             options={{
                                 title: "Chat",
+                                // hide the tab when the CHAT block is disabled
+                                href: blocks.includes("CHAT")
+                                    ? undefined
+                                    : null,
                                 tabBarIcon: ({ color, size }) => (
                                     <MessageSquare color={color} size={size} />
+                                )
+                            }}
+                        />
+
+                        <Tabs.Screen
+                            name="pomodoro"
+                            options={{
+                                title: "Pomodoro",
+                                // hide the tab when the POMODORO block is disabled
+                                href: blocks.includes("POMODORO")
+                                    ? undefined
+                                    : null,
+                                tabBarIcon: ({ color, size }) => (
+                                    <Timer color={color} size={size} />
                                 )
                             }}
                         />
