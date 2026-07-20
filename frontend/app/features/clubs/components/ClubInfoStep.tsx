@@ -18,6 +18,8 @@ export default function ClubInfoStep({
             className="flex-1 px-6"
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
+            automaticallyAdjustKeyboardInsets
+            contentInsetAdjustmentBehavior="automatic"
         >
             <Input
                 label="Club Name *"

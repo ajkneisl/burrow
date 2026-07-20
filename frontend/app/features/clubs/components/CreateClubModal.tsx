@@ -209,7 +209,7 @@ export default function CreateClubModal() {
                 <KeyboardAvoidingView
                     behavior={Platform.OS === "ios" ? "padding" : "height"}
                     className="flex-1"
-                    keyboardVerticalOffset={0}
+                    keyboardVerticalOffset={Platform.OS === "ios" ? 120 : 0}
                 >
                     {currentStep === 1 ? (
                         <ClubInfoStep

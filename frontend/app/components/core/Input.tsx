@@ -1,7 +1,16 @@
-import { useState } from "react"
-import { View, TextInput, type TextInputProps } from "react-native"
+import { useId, useState } from "react"
+import {
+    View,
+    TextInput,
+    InputAccessoryView,
+    Keyboard,
+    Platform,
+    Pressable,
+    type TextInputProps
+} from "react-native"
 import { Text } from "@components/core"
 import { GlassSurface, glassAvailable } from "@components/core/GlassSurface"
+import { useThemeColors } from "@api/theme/useThemeColors"
 import clsx from "clsx"
 
 interface InputProps extends TextInputProps {
@@ -22,9 +31,19 @@ export function Input({
     multiline,
     onFocus,
     onBlur,
+    returnKeyType,
+    onSubmitEditing,
+    inputAccessoryViewID,
     ...props
 }: InputProps) {
     const [focused, setFocused] = useState(false)
+    const colors = useThemeColors()
+
+    // multiline fields can't submit via the return key (it just inserts a
+    // newline), so iOS gets a "Done" bar above the keyboard instead
+    const accessoryId = useId()
+    const showAccessoryBar =
+        multiline && Platform.OS === "ios" && !inputAccessoryViewID
 
     return (
         <View className="mb-4">
@@ -67,6 +86,15 @@ export function Input({
                     placeholderTextColor="#9CA3AF"
                     multiline={multiline}
                     textAlignVertical={multiline ? "top" : "center"}
+                    returnKeyType={returnKeyType ?? (multiline ? undefined : "done")}
+                    onSubmitEditing={(e) => {
+                        if (!multiline) Keyboard.dismiss()
+                        onSubmitEditing?.(e)
+                    }}
+                    inputAccessoryViewID={
+                        inputAccessoryViewID ??
+                        (showAccessoryBar ? accessoryId : undefined)
+                    }
                     onFocus={(e) => {
                         setFocused(true)
                         onFocus?.(e)
@@ -90,6 +118,21 @@ export function Input({
                 <Text className="text-sm text-text opacity-60 mt-1">
                     {helperText}
                 </Text>
+            )}
+
+            {showAccessoryBar && (
+                <InputAccessoryView nativeID={accessoryId}>
+                    <View
+                        className="flex-row justify-end px-4 py-2 border-t border-card-border"
+                        style={{ backgroundColor: colors.background }}
+                    >
+                        <Pressable onPress={() => Keyboard.dismiss()} hitSlop={8}>
+                            <Text className="text-primary font-semibold text-base">
+                                Done
+                            </Text>
+                        </Pressable>
+                    </View>
+                </InputAccessoryView>
             )}
         </View>
     )
