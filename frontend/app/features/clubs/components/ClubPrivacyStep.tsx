@@ -19,17 +19,6 @@ export default function ClubPrivacyStep({
             className="flex-1 px-6"
             showsVerticalScrollIndicator={false}
         >
-            {/* Info Card */}
-            <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
-                <Text className="text-text text-sm font-semibold mb-2">
-                    Privacy Settings
-                </Text>
-                <Text className="text-text text-opacity-60 text-xs">
-                    Control who can see and join your club. You can change these
-                    settings later.
-                </Text>
-            </View>
-
             {/* Privacy Options */}
             <View className="mb-6">
                 <Text className="text-base font-semibold text-text mb-3">

@@ -2,7 +2,7 @@ import { ScrollView, RefreshControl } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useState, useCallback } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { Header, CreateFab } from "@features/layout/components"
+import { Header } from "@features/layout/components"
 import { getSchedule, getBurrows } from "@features/burrows/burrows.api"
 import { MyProfileCard } from "@features/profile/components/MyProfileCard"
 import {
@@ -52,6 +52,7 @@ export default function HomeScreen() {
 
             <ScrollView
                 className="flex-1 px-6 py-4 bg-background"
+                contentContainerClassName="pb-24"
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
@@ -65,14 +66,7 @@ export default function HomeScreen() {
                     schedule={schedule}
                     isLoading={scheduleLoading}
                 />
-
-                <UpcomingBurrowsSection
-                    burrows={upcomingBurrows}
-                    isLoading={upcomingLoading}
-                />
             </ScrollView>
-
-            <CreateFab />
         </SafeAreaView>
     )
 }

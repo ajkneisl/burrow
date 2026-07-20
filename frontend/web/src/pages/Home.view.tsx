@@ -61,7 +61,7 @@ export default function Home() {
                 </aside>
 
                 {/* small border displayed on mobile */}
-                <div className="border-text/10 block border-t md:hidden" />
+                <div className="border-card-border block border-t md:hidden" />
 
                 {/* schedule */}
                 <section className="md:col-span-2 md:row-start-2 lg:col-span-2 lg:row-start-1">

@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { View, Pressable } from "react-native"
-import { CircleAlert, Flag, ShieldBan } from "lucide-react-native"
+import { View, Pressable, Alert } from "react-native"
+import { CircleAlert, Flag, LogOut, ShieldBan } from "lucide-react-native"
 import { Modal, Text } from "@components/core"
 import ThemedIcon from "@components/core/ThemedIcon"
 import { BlockUserModal } from "@features/profile/components/BlockUserModal"
@@ -14,6 +14,10 @@ type BurrowMenuModalProps = {
     ownerDisplayName: string
     burrowID: string
     burrowTitle: string
+    /** Whether the viewer can leave this Burrow (member, not host/mod). */
+    canLeave?: boolean
+    isProject?: boolean
+    onLeave?: () => void
 }
 
 export default function BurrowMenuModal({
@@ -22,7 +26,10 @@ export default function BurrowMenuModal({
     ownerID,
     ownerDisplayName,
     burrowID,
-    burrowTitle
+    burrowTitle,
+    canLeave,
+    isProject,
+    onLeave
 }: BurrowMenuModalProps) {
     const [showBlockModal, setShowBlockModal] = useState(false)
     const [showReportUserModal, setShowReportUserModal] = useState(false)
@@ -36,6 +43,50 @@ export default function BurrowMenuModal({
                 scrollable={false}
             >
                 <View className="pb-2">
+                    {canLeave && onLeave && (
+                        <>
+                            <Pressable
+                                onPress={() => {
+                                    onClose()
+                                    setTimeout(() => {
+                                        Alert.alert(
+                                            isProject
+                                                ? "Leave Project"
+                                                : "Leave Burrow",
+                                            `Are you sure you want to leave "${burrowTitle}"?`,
+                                            [
+                                                {
+                                                    text: "Cancel",
+                                                    style: "cancel"
+                                                },
+                                                {
+                                                    text: "Leave",
+                                                    style: "destructive",
+                                                    onPress: onLeave
+                                                }
+                                            ]
+                                        )
+                                    }, 300)
+                                }}
+                                className="flex-row items-center gap-4 py-4 active:opacity-70"
+                            >
+                                <ThemedIcon
+                                    icon={LogOut}
+                                    size={22}
+                                    overrideColor="error"
+                                />
+
+                                <Text className="text-text text-base">
+                                    {isProject
+                                        ? "Leave Project"
+                                        : "Leave Burrow"}
+                                </Text>
+                            </Pressable>
+
+                            <View className="h-px bg-card-border" />
+                        </>
+                    )}
+
                     <Pressable
                         onPress={() => {
                             onClose()

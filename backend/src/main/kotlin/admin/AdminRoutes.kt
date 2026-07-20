@@ -1,88 +1,70 @@
 package app.burrow.admin
 
-import app.burrow.api.Error
-import app.burrow.features.account.profile.BADGE_ROUTES
-import app.burrow.admin.account.Administrator
-import app.burrow.admin.account.Permissions
-import app.burrow.admin.account.adminLogin
-import app.burrow.admin.account.createAdministrator
-import app.burrow.admin.account.getAdministrator
-import app.burrow.admin.account.requirePermissions
 import app.burrow.admin.log.LOG_ROUTES
+import app.burrow.api.Error
+import app.burrow.api.query
+import app.burrow.api.urlParameter
 import app.burrow.features.account.Authorization.ADMIN_AUTH
+import app.burrow.features.account.Users
+import app.burrow.features.account.models.AccountType
+import app.burrow.features.account.models.getUserByID
+import app.burrow.features.account.models.updateAccountType
+import app.burrow.features.account.models.userID
+import app.burrow.features.account.profile.BADGE_ROUTES
+import app.burrow.features.articles.ADMIN_ARTICLE_ROUTES
 import app.burrow.features.report.getAllReports
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
-import io.ktor.server.routing.put
 import io.ktor.server.routing.route
+import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.r2dbc.selectAll
 
-val ApplicationCall.administrator
-    get() = principal<JWTPrincipal>()?.subject ?: throw Error(401, "Unauthorized.")
+/**
+ * An administrator's account details. This is a regular user account with
+ * [AccountType.ADMIN].
+ */
+@Serializable
+data class AdminAccount(
+    val id: String,
+    val username: String,
+    val email: String,
+    val accountType: AccountType,
+    val createdAt: Long,
+)
 
-suspend fun ApplicationCall.getAdministrator() =
-    getAdministrator(administrator) ?: throw Error(401, "Unauthorized.")
+/** Map a [Users] row to an [AdminAccount]. */
+private fun ResultRow.toAdminAccount() =
+    AdminAccount(
+        id = this[Users.id],
+        username = this[Users.username],
+        email = this[Users.email],
+        accountType = this[Users.accountType],
+        createdAt = this[Users.createdAt],
+    )
+
+/** Get the authorized administrator's account. */
+suspend fun ApplicationCall.administratorAccount(): AdminAccount =
+    query { Users.selectAll().where { Users.id eq userID }.singleOrNull() }?.toAdminAccount()
+        ?: throw Error(401, "Unauthorized.")
 
 /** All routes involving administrators. */
 val ADMIN_ROUTES: Route.() -> Unit = {
-    /**
-     * A request to login to the admin realm.
-     *
-     * @param username The username for the login request.
-     * @param password The password for the login request.
-     * @param totp The time based one time password.
-     */
-    @Serializable
-    data class AdminLoginRequest(val username: String, val password: String, val totp: String)
-
-    /**
-     * A response to an administrator logging in
-     *
-     * @param token An authorized JWT token.
-     * @param admin The administrator who logged in
-     */
-    @Serializable data class AdminLoginResponse(val token: String, val admin: Administrator)
-
-    // POST /admin
-    // login to the admin
-    post {
-        val (username, password, totp) = call.receive<AdminLoginRequest>()
-        val (token, admin) = adminLogin(username, password, totp)
-
-        call.respond(AdminLoginResponse(token, admin))
-    }
-
-    /** A request to create an admin account. */
-    @Serializable
-    data class CreateAdminRequest(val username: String, val password: String, val email: String)
-
-    // PUT /admin
-    // create an admin account
-    put {
-        val admin = call.getAdministrator()
-        admin.requirePermissions(Permissions.MANAGE_ADMIN_USERS)
-
-        val (username, password, email) = call.receive<CreateAdminRequest>()
-
-        val createdAdmin =
-            createAdministrator(username, email, password, Permissions.VIEW_DASHBOARD)
-
-        call.respond(createdAdmin)
-    }
-
     // AUTHENTICATE
-    // all protected paths for burrow
+    // all admin paths require an ADMIN account type
     authenticate(ADMIN_AUTH) {
         // GET /admin
         // see stuff about yourself :)
-        get { call.respond(call.getAdministrator()) }
+        get { call.respond(call.administratorAccount()) }
 
         // GET /admin/reports
         // see all reports
@@ -98,5 +80,48 @@ val ADMIN_ROUTES: Route.() -> Unit = {
 
         // ROUTE /admin/badges
         route("/badges", BADGE_ROUTES)
+
+        // ROUTE /admin/articles
+        // manage articles
+        route("/articles", ADMIN_ARTICLE_ROUTES)
+
+        // ROUTE /admin/accounts
+        // manage administrator accounts
+        route("/accounts") {
+            // GET /admin/accounts
+            // list all administrators
+            get {
+                val admins = query {
+                    Users.selectAll()
+                        .where { Users.accountType eq AccountType.ADMIN }
+                        .toList()
+                        .map { it.toAdminAccount() }
+                }
+
+                call.respond(admins)
+            }
+
+            /** A request to change a user's [AccountType]. */
+            @Serializable data class UpdateAccountTypeRequest(val accountType: AccountType)
+
+            // POST /admin/accounts/{id}
+            // change a user's account type
+            post("/{id}") {
+                val id = call.urlParameter("id")
+
+                if (id == call.userID) {
+                    throw Error(400, "You cannot change your own account type.")
+                }
+
+                val (accountType) = call.receive<UpdateAccountTypeRequest>()
+
+                // ensure the user exists
+                getUserByID(id)
+
+                updateAccountType(id, accountType)
+
+                call.respond(HttpStatusCode.OK)
+            }
+        }
     }
 }

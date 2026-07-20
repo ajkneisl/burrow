@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
     name: "Burrow",
     slug: "burrow",
-    version: "0.5.0",
+    version: "0.5.1",
     orientation: "portrait",
     icon: "./assets/images/burrow.png",
     scheme: "app.umn.burrow",
@@ -147,8 +147,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         router: {
             origin: false
         },
-        apiUrl: process.env.API_URL,
-        cdnUrl: process.env.CDN_URL,
+        apiUrl: process.env.EXPO_PUBLIC_API_URL,
+        cdnUrl: process.env.EXPO_PUBLIC_CDN_URL,
         eas: {
             projectId: "3dc55916-e2a2-4081-a6cd-b76056b7386f"
         }

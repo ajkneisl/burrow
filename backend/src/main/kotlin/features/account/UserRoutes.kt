@@ -101,7 +101,7 @@ val USER_ROUTES: Route.() -> Unit = {
                 searchUsers(
                     searchQuery = query,
                     requestingUserID = if (excludeMe) call.userID else null,
-                    excludeRequestor = excludeMe
+                    excludeRequestor = excludeMe,
                 )
 
             call.respond(results)

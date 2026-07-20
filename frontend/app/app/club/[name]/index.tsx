@@ -2,7 +2,6 @@ import { View, ScrollView, RefreshControl } from "react-native"
 import { useState, useCallback } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import ClubDetails from "@features/clubs/view/ClubDetails"
-import ClubJoin from "@features/clubs/view/ClubJoin"
 import { useClubContext } from "./_layout"
 
 export default function InfoTab() {
@@ -27,12 +26,10 @@ export default function InfoTab() {
                         tintColor={colors.primary}
                     />
                 }
-                contentContainerStyle={{ padding: 16, gap: 20 }}
+                contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 100 }}
             >
                 <ClubDetails clubResponse={data} />
             </ScrollView>
-
-            <ClubJoin clubResponse={data} />
         </View>
     )
 }

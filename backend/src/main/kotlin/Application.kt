@@ -84,7 +84,7 @@ suspend fun Application.module() {
             val method = call.request.httpMethod.value
             val uri = call.request.uri
 
-            String.format("$method ($status) [%04d ms] $uri", call.processingTimeMillis())
+            "$method ($status) [${call.processingTimeMillis()} ms] $uri"
         }
     }
 

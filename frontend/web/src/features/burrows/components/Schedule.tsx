@@ -87,7 +87,7 @@ export default function Schedule() {
     }, [projectCount])
 
     return (
-        <section className="w-full">
+        <section className="flex w-full flex-col gap-2">
             {/* errors */}
             {error && (
                 <ViewErrors clearErrors={refetch} errors={[`${error}`]} />
@@ -113,9 +113,9 @@ export default function Schedule() {
                 <Card
                     aria-live="polite"
                     aria-label="No upcoming meetings"
-                    className="border-text/40 text-text/50 flex h-24 w-full flex-col items-center justify-center border-2 border-dashed opacity-50 md:mt-8"
+                    className="border-card-border flex h-28 w-full flex-col items-center justify-center gap-1 border-2 border-dashed"
                 >
-                    <p className="text-center text-sm tracking-wide">
+                    <p className="text-text/50 text-center text-sm tracking-wide">
                         Your schedule is empty.
                     </p>
 
@@ -124,19 +124,16 @@ export default function Schedule() {
                         className="!m-0 !p-0 !text-sm"
                         onClick={() => nav("/browse")}
                     >
-                        Browse
+                        Browse Burrows
                     </Button>
                 </Card>
             )}
 
             {/* content */}
             {!isLoading && sortedGroups.length > 0 && (
-                <div className="bg-background/30 flex min-w-[240px] flex-col gap-6 rounded-xl">
+                <div className="flex flex-col gap-5">
                     {sortedGroups.map((group) => {
                         const isProjectGroup = group.label === "Projects"
-                        const groupProjectCount = isProjectGroup
-                            ? group.items.length
-                            : 0
 
                         return (
                             // individual burrows
@@ -149,35 +146,46 @@ export default function Schedule() {
                                                 !projectsExpanded
                                             )
                                         }
-                                        className="text-text/60 hover:text-text mb-2 flex w-full cursor-pointer items-center gap-2 text-left text-sm font-semibold tracking-wide uppercase transition-colors"
+                                        aria-expanded={projectsExpanded}
+                                        className="text-text/60 hover:text-text mb-2 flex w-full cursor-pointer items-center gap-3 text-left transition-colors"
                                     >
-                                        <ChevronDown
-                                            className={clsx(
-                                                "h-4 w-4 transition-transform duration-300 ease-in-out",
-                                                !projectsExpanded &&
-                                                    "-rotate-90"
-                                            )}
-                                        />
-
-                                        <span>
-                                            {group.label} ({groupProjectCount})
+                                        <span className="flex items-center gap-1.5 text-sm font-semibold tracking-wide uppercase">
+                                            <ChevronDown
+                                                className={clsx(
+                                                    "h-4 w-4 transition-transform duration-300 ease-in-out",
+                                                    !projectsExpanded &&
+                                                        "-rotate-90"
+                                                )}
+                                            />
+                                            {group.label}
                                         </span>
+
+                                        <span className="bg-text/10 rounded-full px-2 py-0.5 text-xs font-semibold">
+                                            {group.items.length}
+                                        </span>
+
+                                        <span className="border-card-border flex-1 border-t" />
                                     </button>
                                 ) : (
-                                    <h3 className="text-text/60 mb-2 text-sm font-semibold tracking-wide uppercase">
-                                        {group.label}
-                                    </h3>
+                                    <div className="mb-2 flex items-center gap-3">
+                                        <h4 className="text-text/60 text-sm font-semibold tracking-wide uppercase">
+                                            {group.label}
+                                        </h4>
+
+                                        <span className="border-card-border flex-1 border-t" />
+                                    </div>
                                 )}
 
                                 {/* Show items if not projects or if projects are expanded */}
                                 {!isProjectGroup && (
-                                    <ul className="flex flex-col gap-3">
+                                    <div className="flex flex-col gap-3">
                                         {group.items.map((it) => (
                                             <ScheduleBurrowCard
+                                                key={it.burrow.id}
                                                 burrowResponse={it}
                                             />
                                         ))}
-                                    </ul>
+                                    </div>
                                 )}
 
                                 {/* Animated project list */}
@@ -190,17 +198,14 @@ export default function Schedule() {
                                                 : "grid-rows-[0fr] opacity-0"
                                         )}
                                     >
-                                        <ul
-                                            className={clsx(
-                                                "flex flex-col gap-3 overflow-hidden"
-                                            )}
-                                        >
+                                        <div className="flex flex-col gap-3 overflow-hidden">
                                             {group.items.map((it) => (
                                                 <ScheduleBurrowCard
+                                                    key={it.burrow.id}
                                                     burrowResponse={it}
                                                 />
                                             ))}
-                                        </ul>
+                                        </div>
                                     </div>
                                 )}
                             </section>

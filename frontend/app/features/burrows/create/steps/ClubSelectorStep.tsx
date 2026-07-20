@@ -42,18 +42,6 @@ export function ClubSelectorStep({
             className="flex-1 px-6"
             showsVerticalScrollIndicator={false}
         >
-            {/* Info Card */}
-            <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
-                <Text className="text-text text-sm font-semibold mb-2">
-                    Select Club
-                </Text>
-                <Text className="text-text text-opacity-60 text-xs">
-                    Choose which club this burrow will be created under.
-                    Only clubs where you are an administrator or moderator
-                    are shown.
-                </Text>
-            </View>
-
             {isLoading ? (
                 <View className="items-center justify-center py-12">
                     <ActivityIndicator

@@ -12,6 +12,8 @@ import app.burrow.features.account.Authorization.PRIMARY_AUTH
 import app.burrow.features.account.USER_ROUTES
 import app.burrow.features.account.models.userID
 import app.burrow.features.account.settings.SETTINGS_ROUTES
+import app.burrow.features.articles.ARTICLE_ROUTES
+import app.burrow.features.articles.getPublishedArticle
 import app.burrow.features.burrows.BURROW_ROUTES
 import app.burrow.features.burrows.models.getBurrow
 import app.burrow.features.burrows.models.getBurrowResponse
@@ -64,6 +66,10 @@ fun Application.configureRouting() {
             // ROUTE /api/user
             // manage users / login
             route("/user", USER_ROUTES)
+
+            // ROUTE /api/articles
+            // view published articles
+            route("/articles", ARTICLE_ROUTES)
 
             // GET /groups/{id}
             // retrieve an individual meeting
@@ -219,6 +225,22 @@ fun Application.configureRouting() {
                                 description = "View ${user.username}'s profile on Burrow",
                                 url = "https://umn.app$path",
                                 appArgument = "app.umn.burrow://user/${user.username}",
+                            )
+                    }
+
+                    // when they're requesting an article page
+                    path.startsWith("/article/") -> {
+                        val slug = path.removePrefix("/article/").split("/").firstOrNull()
+                        val article =
+                            slug?.runCatching { getPublishedArticle(this) }?.getOrNull()
+
+                        if (article == null) defaultMeta.copy(url = "https://umn.app$path")
+                        else
+                            defaultMeta.copy(
+                                title = "Burrow — ${article.title}",
+                                description =
+                                    article.description ?: "Read ${article.title} on Burrow.",
+                                url = "https://umn.app$path",
                             )
                     }
 

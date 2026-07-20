@@ -3,11 +3,11 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start -c",
-    "start_tunnel": "expo start -c --tunnel",
-    "android": "expo run:android",
-    "ios": "expo run:ios --device",
-    "web": "expo start --web",
+    "start": "node scripts/with-bws.mjs expo start -c",
+    "start_tunnel": "node scripts/with-bws.mjs expo start -c --tunnel",
+    "android": "node scripts/with-bws.mjs expo run:android",
+    "ios": "node scripts/with-bws.mjs expo run:ios --device",
+    "web": "node scripts/with-bws.mjs expo start --web",
     "lint": "expo lint"
   },
   "dependencies": {
@@ -55,6 +55,7 @@
     "react-native-gesture-handler": "~2.30.0",
     "react-native-google-places-autocomplete": "^2.6.4",
     "react-native-maps": "1.27.2",
+    "react-native-markdown-display": "^7.0.2",
     "react-native-qrcode-svg": "^6.3.21",
     "react-native-reanimated": "~4.2.2",
     "react-native-safe-area-context": "~5.7.0",
@@ -66,6 +67,7 @@
     "tailwindcss": "~3.4.18"
   },
   "devDependencies": {
+    "@bitwarden/sdk-napi": "^1.0.0",
     "@types/react": "~19.2.14",
     "babel-plugin-module-resolver": "^5.0.2",
     "eslint": "^10.0.3",

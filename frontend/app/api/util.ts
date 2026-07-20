@@ -2,8 +2,10 @@ import { atomWithStorage } from "jotai/utils"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import Constants from "expo-constants"
 
-export const BASE_URL ="https://umn.app/api"
-export const CDN_URL = Constants.expoConfig?.extra?.cdnUrl || "https://cdn.umn.app"
+export const BASE_URL =
+    Constants.expoConfig?.extra?.apiUrl || "https://umn.app/api"
+export const CDN_URL =
+    Constants.expoConfig?.extra?.cdnUrl || "https://cdn.umn.app"
 
 /**
  * Convert a date into a more readable one.

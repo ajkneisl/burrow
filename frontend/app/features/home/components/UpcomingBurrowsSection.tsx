@@ -88,7 +88,7 @@ export function UpcomingBurrowsSection({
                 {burrows.contents.length > 5 && (
                     <Button
                         variant="outline"
-                        onPress={() => router.push("/browse")}
+                        onPress={() => router.push("/explore")}
                         className="mt-3"
                     >
                         Browse

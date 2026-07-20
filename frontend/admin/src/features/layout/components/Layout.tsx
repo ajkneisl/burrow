@@ -1,23 +1,64 @@
 import { Outlet, useNavigate } from "react-router"
 import { Button } from "@umnburrow/core"
 import { useAtom } from "jotai"
-import { adminTokenAtom } from "../../auth/admin.atom.ts"
-import { useEffect } from "react"
+import {
+    adminRefreshTokenAtom,
+    adminTokenAtom
+} from "../../auth/admin.atom.ts"
+import { useEffect, useRef } from "react"
 import useAdmin from "../../auth/hooks/useAdmin.ts"
+import { refreshSession } from "../../auth/admin.api.ts"
 import type { NavSection } from "../layout.models.ts"
 import { SidebarSection } from "./SidebarSection.tsx"
+
+/** How often to refresh the access token. Access tokens expire in 15 minutes. */
+const REFRESH_INTERVAL_MS = 10 * 60 * 1000
 
 function Layout() {
     const nav = useNavigate()
     const admin = useAdmin()
 
     const [token, setToken] = useAtom(adminTokenAtom)
+    const [refreshToken, setRefreshToken] = useAtom(adminRefreshTokenAtom)
 
     useEffect(() => {
         if (token === "") {
             window.location.href = "https://umn.app"
         }
     }, [token, nav])
+
+    // keep the access token fresh; refresh tokens rotate on each use,
+    // so track the latest one in a ref instead of re-running the effect
+    const refreshTokenRef = useRef(refreshToken)
+    refreshTokenRef.current = refreshToken
+
+    useEffect(() => {
+        const refresh = async () => {
+            const current = refreshTokenRef.current
+            if (!current) return
+
+            try {
+                const result = await refreshSession(current)
+
+                setToken(result.token)
+                setRefreshToken(result.refreshToken)
+            } catch {
+                setToken("")
+                setRefreshToken("")
+            }
+        }
+
+        refresh()
+
+        const interval = setInterval(refresh, REFRESH_INTERVAL_MS)
+        return () => clearInterval(interval)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    const signOut = () => {
+        setToken("")
+        setRefreshToken("")
+    }
 
     const SECTIONS: NavSection[] = [
         {
@@ -46,11 +87,26 @@ function Layout() {
             ]
         },
         {
+            title: "Content",
+            items: [
+                {
+                    label: "Articles",
+                    href: "/articles",
+                    color: "bg-secondary"
+                }
+            ]
+        },
+        {
             title: "System",
             items: [
                 {
                     label: "Logs",
                     href: "/logs",
+                    color: "bg-info"
+                },
+                {
+                    label: "Administrators",
+                    href: "/accounts",
                     color: "bg-info"
                 }
             ]
@@ -81,7 +137,7 @@ function Layout() {
                         <div className="mt-3">
                             <Button
                                 color="ERROR"
-                                onClick={() => setToken("")}
+                                onClick={signOut}
                                 className="w-full"
                             >
                                 Sign Out

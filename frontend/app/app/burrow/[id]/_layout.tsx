@@ -1,4 +1,5 @@
-import { View, Pressable, ActivityIndicator, useColorScheme, Alert } from "react-native"
+import { View, Pressable, ActivityIndicator, Alert } from "react-native"
+import { useGlassTabOptions } from "@features/layout/components"
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter, usePathname, Stack, Tabs } from "expo-router"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -14,6 +15,7 @@ import {
     Info,
     Pencil,
     Settings,
+    Timer,
     Trash2,
     UserPlus,
     ListChecks
@@ -54,8 +56,7 @@ export default function BurrowLayout() {
     const queryClient = useQueryClient()
     const currentUser = useUser()
     const colors = useThemeColors()
-    const colorScheme = useColorScheme()
-    const isDark = colorScheme === "dark"
+    const tabOptions = useGlassTabOptions()
 
     const [blocks] = useAtom(blockStatus)
     const pathname = usePathname()
@@ -468,27 +469,7 @@ export default function BurrowLayout() {
                     />
                 ) : (
                     /* Tab navigator for members */
-                    <Tabs
-                        // safeAreaInsets={{ bottom: 0 }}
-                        screenOptions={{
-                            headerShown: false,
-                            tabBarActiveTintColor: colors.text,
-                            tabBarInactiveTintColor: "#9CA3AF",
-                            tabBarStyle: {
-                                backgroundColor: colors.background,
-                                borderTopColor: isDark
-                                    ? "#333333"
-                                    : colors.cardBorder,
-                                borderTopWidth: 1,
-                                paddingHorizontal: 16,
-                                paddingVertical: 2,
-                                paddingTop: 10
-                            },
-                            tabBarItemStyle: {
-                                paddingVertical: 4
-                            }
-                        }}
-                    >
+                    <Tabs screenOptions={tabOptions}>
                         <Tabs.Screen
                             name="index"
                             options={{
@@ -503,8 +484,26 @@ export default function BurrowLayout() {
                             name="chat"
                             options={{
                                 title: "Chat",
+                                // hide the tab when the CHAT block is disabled
+                                href: blocks.includes("CHAT")
+                                    ? undefined
+                                    : null,
                                 tabBarIcon: ({ color, size }) => (
                                     <MessageSquare color={color} size={size} />
+                                )
+                            }}
+                        />
+
+                        <Tabs.Screen
+                            name="pomodoro"
+                            options={{
+                                title: "Pomodoro",
+                                // hide the tab when the POMODORO block is disabled
+                                href: blocks.includes("POMODORO")
+                                    ? undefined
+                                    : null,
+                                tabBarIcon: ({ color, size }) => (
+                                    <Timer color={color} size={size} />
                                 )
                             }}
                         />
@@ -526,6 +525,7 @@ export default function BurrowLayout() {
                     visible={editModalOpen}
                     onClose={() => setEditModalOpen(false)}
                     size="full"
+                    scrollable={false}
                 >
                     {data?.burrow && (
                         <CreateBurrowWizard
@@ -594,6 +594,9 @@ export default function BurrowLayout() {
                     }
                     burrowID={burrow.id}
                     burrowTitle={burrow.title}
+                    canLeave={isMember && !isHostOrMod && !isPast}
+                    isProject={isProject}
+                    onLeave={() => leaveMutation.mutate()}
                 />
             </View>
         </BurrowContext.Provider>

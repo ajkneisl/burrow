@@ -1,4 +1,5 @@
 import { View } from "react-native"
+import { useRouter } from "expo-router"
 import {
     Calendar,
     Users,
@@ -15,7 +16,6 @@ import { useThemeColors } from "@api/theme/useThemeColors"
 import type { User } from "@features/auth/user.types"
 import type { Profile, Following } from "@features/profile/profile.model"
 import type { BurrowResponse } from "@features/burrows/burrows.types"
-import TABadge from "@features/burrows/components/TABadge"
 import {
     formatInstagramUrl,
     formatLinkedInUrl
@@ -57,6 +57,7 @@ export function UserProfileView({
     isTa
 }: UserProfileViewProps) {
     const colors = useThemeColors()
+    const router = useRouter()
 
     return (
         <>
@@ -79,17 +80,14 @@ export function UserProfileView({
                     <Text className="text-text text-opacity-60">
                         @{user.username}
                     </Text>
-
-                    {/* TA badge */}
-                    {isTa && <TABadge />}
                 </View>
 
                 {/* badges */}
                 {profile.badges.length > 0 && (
                     <View className="flex flex-row gap-2 mt-4">
-                        {profile.badges.map(({ id, description }) => (
+                        {profile.badges.map(({ id, description }, index) => (
                             <UserBadge
-                                key={id}
+                                key={`${id}-${index}`}
                                 id={id}
                                 description={description}
                             />
@@ -143,6 +141,19 @@ export function UserProfileView({
                 <Text className="text-text text-opacity-80">
                     {profile.bio || "No description."}
                 </Text>
+
+                {/* TA indicator */}
+                {isTa && (
+                    <Text className="text-text text-opacity-50 text-xs mt-4">
+                        This user is a TA.{" "}
+                        <Text
+                            className="text-text text-opacity-50 underline"
+                            onPress={() => router.push("/article/ta")}
+                        >
+                            Learn more about what this means.
+                        </Text>
+                    </Text>
+                )}
             </Card>
 
             {/* Info Section */}

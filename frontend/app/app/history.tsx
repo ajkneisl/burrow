@@ -260,6 +260,7 @@ export default function HistoryScreen() {
                     setSelectedBurrow(null)
                 }}
                 size="full"
+                scrollable={false}
             >
                 {selectedBurrow && (
                     <CreateBurrowWizard

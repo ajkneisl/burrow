@@ -1,5 +1,5 @@
 import { View, ScrollView } from "react-native"
-import { CustomDateTimePicker, Text } from "@components/core"
+import { CustomDateTimePicker } from "@components/core"
 import type { CreateStepProps } from "../create.types"
 
 export function DueDateStep({
@@ -12,17 +12,6 @@ export function DueDateStep({
 
     return (
         <ScrollView className="flex-1 px-6">
-            {/* Info Card */}
-            <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
-                <Text className="text-text text-sm font-semibold mb-2">
-                    Project Due Date
-                </Text>
-                <Text className="text-text text-opacity-60 text-xs">
-                    Set when this project is due. This helps keep your team on
-                    track and organized.
-                </Text>
-            </View>
-
             {/* Due Date Picker */}
             <CustomDateTimePicker
                 label="Due Date *"

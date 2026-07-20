@@ -16,6 +16,8 @@ interface HeaderProps {
     leftAction?: React.ReactNode
     rightAction?: React.ReactNode
     leftActions?: React.ReactNode
+    /** Rendered next to the logo in place of the title (e.g. a mode switch). */
+    titleContent?: React.ReactNode
 }
 
 export function Header({
@@ -25,7 +27,8 @@ export function Header({
     showNotifications = true,
     leftAction,
     rightAction,
-    leftActions
+    leftActions,
+    titleContent
 }: HeaderProps) {
     const router = useRouter()
     const colors = useThemeColors()
@@ -47,7 +50,16 @@ export function Header({
             <View className="flex-row items-center justify-between">
                 {/* Logo/Title */}
                 <View className="flex-row items-center gap-3 flex-1">
-                    {leftAction ? (
+                    {titleContent ? (
+                        <>
+                            <Image
+                                source={require("@assets/images/burrow.png")}
+                                style={{ width: 40, height: 40 }}
+                                resizeMode="contain"
+                            />
+                            {titleContent}
+                        </>
+                    ) : leftAction ? (
                         <>
                             {leftAction}
                             <Text className="text-2xl font-bold text-text">

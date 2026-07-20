@@ -35,17 +35,11 @@ export function MembersStep({
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-                <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
-                    <Text className="text-text text-sm font-semibold mb-2">
-                        {isEditMode ? "Team Members" : "Select Team Members"}
+                {isEditMode && (
+                    <Text className="text-sm text-text opacity-60 mb-4">
+                        Team members can be changed through the invite menu.
                     </Text>
-
-                    <Text className="text-text text-opacity-60 text-xs">
-                        {isEditMode
-                            ? "Team members can be changed through the invite menu."
-                            : "Search for and add teammates to your project. You can add up to 10 members."}
-                    </Text>
-                </View>
+                )}
 
                 {!isEditMode && (
                     <UserPicker

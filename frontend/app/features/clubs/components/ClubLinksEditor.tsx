@@ -56,7 +56,6 @@ export default function ClubLinksEditor({ links, onChange }: ClubLinksEditorProp
                                 value={links[key] ?? ""}
                                 onChangeText={(value) => updateLink(key, value)}
                                 placeholder={config.placeholder}
-                                variant="outline"
                                 autoCapitalize="none"
                             />
                         </View>

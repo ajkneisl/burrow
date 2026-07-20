@@ -25,7 +25,7 @@ export default function MeetingsTab() {
                     tintColor={colors.primary}
                 />
             }
-            contentContainerStyle={{ padding: 16, gap: 20 }}
+            contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 100 }}
         >
             <ClubBurrows clubResponse={data} />
             <View className="h-12" />

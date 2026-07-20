@@ -1,5 +1,6 @@
 import React from "react"
 import { Modal as RNModal, View, Pressable, ScrollView } from "react-native"
+import Animated, { FadeIn, SlideInDown } from "react-native-reanimated"
 import { Text } from "@components/core"
 import type { ModalProps as RNModalProps } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -7,6 +8,7 @@ import { X } from "lucide-react-native"
 import clsx from "clsx"
 import { Button } from "@components/core/Button"
 import ThemedIcon from "@components/core/ThemedIcon"
+import { GlassSurface } from "@components/core/GlassSurface"
 
 /**
  * {@link Modal}
@@ -54,7 +56,7 @@ export function Modal({
     }
 
     const containerClassName = clsx(
-        "bg-background w-full",
+        "w-full overflow-hidden",
         centered ? "rounded-3xl" : "rounded-t-3xl",
         size === "full" ? "h-full rounded-none" : "",
         centered && sizeStyles[size]
@@ -96,7 +98,9 @@ export function Modal({
     return (
         <RNModal
             visible={visible}
-            animationType="slide"
+            // fade only the scrim — the sheet slides in on its own below,
+            // so the dark backdrop doesn't ride up with it
+            animationType="fade"
             transparent
             statusBarTranslucent
             onRequestClose={onClose}
@@ -111,24 +115,38 @@ export function Modal({
                 )}
                 onPress={onClose}
             >
-                <Pressable className={size === "full" ? "flex-1" : undefined} onPress={(e) => e.stopPropagation()}>
+                <AnimatedPressable
+                    entering={
+                        centered
+                            ? FadeIn.duration(180)
+                            : SlideInDown.duration(280)
+                    }
+                    className={
+                        size === "full" ? "flex-1" : centered ? undefined : "w-full"
+                    }
+                    onPress={(e) => e.stopPropagation()}
+                >
                     {size === "full" ? (
-                        <View
+                        <GlassSurface
                             style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
                             className={clsx(containerClassName, "flex-1")}
+                            fallbackClassName="bg-background"
                         >
                             {modalContent}
-                        </View>
+                        </GlassSurface>
                     ) : (
-                        <View
+                        <GlassSurface
                             style={{ paddingBottom: insets.bottom }}
                             className={containerClassName}
+                            fallbackClassName="bg-background"
                         >
                             {modalContent}
-                        </View>
+                        </GlassSurface>
                     )}
-                </Pressable>
+                </AnimatedPressable>
             </Pressable>
         </RNModal>
     )
 }
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable)

@@ -3,29 +3,10 @@ import { formatDateTime, humanDateLabel } from "@api/util.ts"
 import { Card, Chip } from "@umnburrow/core"
 import {
     BURROW_KIND_CONFIG,
-    type BurrowKind,
     type ScheduleBurrowResponse
 } from "@features/burrows/burrows.types.tsx"
 import { useNavigate } from "react-router"
 import { MessageSquare, Pin } from "lucide-react"
-
-/**
- * Get the border color based on the kind of Burrow.
- *
- * @param kind The kind of Burrow
- */
-function getBurrowColor(kind: BurrowKind) {
-    switch (kind) {
-        case "EVENT":
-            return "border-r-4 border-secondary border-0"
-        case "PROJECT":
-            return "border-r-4 border-error border-0"
-        case "STUDY":
-            return "border-r-4 border-success border-0"
-        case "CLUB":
-            return "border-r-4 border-info border-0"
-    }
-}
 
 /**
  * {@see ScheduleBurrowCard}
@@ -49,11 +30,6 @@ export default function ScheduleBurrowCard({
 
     return (
         <Card
-            key={burrowResponse.burrow.id}
-            className={clsx(
-                "from:card bg-gradient-to-br",
-                getBurrowColor(burrowResponse.burrow.kind)
-            )}
             isHoverable={true}
             onClick={() => nav(`/burrow/${burrowResponse.burrow.id}`)}
         >
@@ -66,14 +42,14 @@ export default function ScheduleBurrowCard({
                 )}
             >
                 {/* burrow title */}
-                <div className="flex w-full items-center justify-between ">
-                    <h4 className="text-text max-w-1/2 truncate text-base font-semibold">
+                <div className="flex w-full items-center justify-between gap-2">
+                    <h4 className="text-text truncate text-base font-semibold">
                         {burrowResponse.burrow.title}
                     </h4>
 
                     {/* date of burrow */}
                     <time
-                        className="text-text/80 text-sm"
+                        className="text-text/60 shrink-0 text-sm"
                         aria-label="Time range"
                     >
                         {burrowResponse.burrow.kind === "PROJECT"
@@ -114,10 +90,22 @@ export default function ScheduleBurrowCard({
                             {burrowResponse.burrow.kind && (
                                 <Chip
                                     size="md"
-                                    color={BURROW_KIND_CONFIG[burrowResponse.burrow.kind]?.className}
-                                    icon={BURROW_KIND_CONFIG[burrowResponse.burrow.kind]?.icon}
+                                    color={
+                                        BURROW_KIND_CONFIG[
+                                            burrowResponse.burrow.kind
+                                        ]?.className
+                                    }
+                                    icon={
+                                        BURROW_KIND_CONFIG[
+                                            burrowResponse.burrow.kind
+                                        ]?.icon
+                                    }
                                 >
-                                    {BURROW_KIND_CONFIG[burrowResponse.burrow.kind]?.label}
+                                    {
+                                        BURROW_KIND_CONFIG[
+                                            burrowResponse.burrow.kind
+                                        ]?.label
+                                    }
                                 </Chip>
                             )}
                         </div>

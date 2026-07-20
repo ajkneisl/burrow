@@ -65,18 +65,6 @@ export function ScheduleStep({
 
     return (
         <ScrollView className="flex-1 px-6">
-            {/* info */}
-            <View className="bg-card rounded-lg border border-card-border p-4 mb-6">
-                <Text className="text-text text-sm font-semibold mb-2">
-                    Schedule Your Session
-                </Text>
-
-                <Text className="text-text text-opacity-60 text-xs">
-                    Pick a date and time for your Burrow. Make sure to choose a
-                    time that works for your schedule.
-                </Text>
-            </View>
-
             {/* date picker */}
             <CustomDateTimePicker
                 label="Date *"

@@ -25,10 +25,13 @@ interface ButtonProps extends Omit<PressableProps, "children"> {
 }
 
 const SIZE_STYLES = {
-    sm: { container: "px-3 py-2", fontSize: 14 },
-    md: { container: "px-4 py-3", fontSize: 16 },
-    lg: { container: "px-6 py-4", fontSize: 18 }
+    sm: { px: 12, py: 8, fontSize: 14 },
+    md: { px: 16, py: 12, fontSize: 16 },
+    lg: { px: 24, py: 16, fontSize: 18 }
 }
+
+/** Border width on the outline variant — folded into its padding so all variants render the same size. */
+const OUTLINE_BORDER_WIDTH = 2
 
 export function Button({
     variant = "primary",
@@ -79,21 +82,21 @@ export function Button({
                 setPressed(false)
                 props.onPressOut?.(e)
             }}
-            className={clsx(
-                "rounded-xl",
-                s.container,
-                fullWidth && "w-full",
-                className
-            )}
+            className={clsx("rounded-xl", fullWidth && "w-full", className)}
             style={{
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 8,
+                paddingHorizontal:
+                    s.px -
+                    (variant === "outline" ? OUTLINE_BORDER_WIDTH : 0),
+                paddingVertical:
+                    s.py - (variant === "outline" ? OUTLINE_BORDER_WIDTH : 0),
                 backgroundColor: bgColors[variant],
                 opacity: isDisabled ? 0.5 : pressed ? 0.7 : 1,
                 ...(variant === "outline" && {
-                    borderWidth: 2,
+                    borderWidth: OUTLINE_BORDER_WIDTH,
                     borderColor: colors.primary
                 })
             }}

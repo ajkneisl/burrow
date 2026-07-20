@@ -1,23 +1,23 @@
-import { View, ScrollView, Image, Pressable, Dimensions } from "react-native"
+import { View, Image, Pressable } from "react-native"
 import { useRouter } from "expo-router"
 import { useAtom } from "jotai"
 import { authToken } from "@features/auth/auth.atom"
 import { useGoogleAuth } from "@features/auth/hooks/useGoogleAuth"
 import { Button, ViewErrors, Text } from "@components/core"
 import { useEffect } from "react"
-import { useThemeColors } from "@api/theme/useThemeColors"
-import {
-    Users,
-    CalendarClock,
-    Sparkles,
-    MessageSquare,
-    Shield,
-    Zap,
-    ChevronRight
-} from "lucide-react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { StatusBar } from "expo-status-bar"
+import Animated, { FadeInDown } from "react-native-reanimated"
+import * as Haptics from "expo-haptics"
 import * as Application from "expo-application"
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window")
+/** UMN maroon gradient covering the whole page. */
+const MAROON_GRADIENT =
+    "linear-gradient(165deg, #96233c 0%, #7a0019 45%, #45000e 100%)"
+
+/** Soft gold glow layered on top of the maroon surface. */
+const GOLD_GLOW =
+    "radial-gradient(circle at 50% 30%, rgba(255,204,0,0.22) 0%, rgba(255,204,0,0) 60%)"
 
 /**
  * The welcome / landing page.
@@ -27,7 +27,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window")
 export default function WelcomeScreen() {
     const router = useRouter()
     const { signIn, loading, error, isReady } = useGoogleAuth()
-    const colors = useThemeColors()
+    const insets = useSafeAreaInsets()
 
     const [auth] = useAtom(authToken)
 
@@ -38,288 +38,182 @@ export default function WelcomeScreen() {
         }
     }, [auth, router])
 
+    const handleSignIn = () => {
+        if (process.env.EXPO_OS === "ios") {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+        }
+        signIn()
+    }
+
     return (
-        <ScrollView className="flex-1 bg-background">
+        <View
+            className="flex-1 px-6 overflow-hidden"
+            style={{
+                paddingTop: insets.top,
+                paddingBottom: insets.bottom + 16,
+                backgroundColor: "#7a0019",
+                experimental_backgroundImage: MAROON_GRADIENT
+            }}
+        >
+            <StatusBar style="light" />
+
+            {/* Decorative shapes */}
+            <View
+                className="absolute"
+                style={{
+                    top: -80,
+                    left: -100,
+                    width: 320,
+                    height: 320,
+                    borderRadius: 999,
+                    backgroundColor: "rgba(255,255,255,0.05)"
+                }}
+            />
+            <View
+                className="absolute"
+                style={{
+                    top: 120,
+                    right: -120,
+                    width: 280,
+                    height: 280,
+                    borderRadius: 999,
+                    backgroundColor: "rgba(255,255,255,0.04)"
+                }}
+            />
+            <View
+                className="absolute"
+                style={{
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 360,
+                    experimental_backgroundImage: GOLD_GLOW
+                }}
+            />
+
             {/* Hero */}
-            <View className="px-6 pt-16 pb-12">
-                <View className="items-center mb-8">
-                    <Image
-                        source={require("@assets/images/burrow.png")}
-                        style={{ width: 80, height: 80, marginBottom: 24 }}
-                        resizeMode="contain"
-                    />
+            <Animated.View
+                entering={FadeInDown.duration(500)}
+                className="flex-1 items-center justify-center"
+            >
+                <Image
+                    source={require("@assets/images/burrow.png")}
+                    style={{ width: 96, height: 96, marginBottom: 24 }}
+                    resizeMode="contain"
+                />
 
-                    <Text
-                        className="text-center text-text font-extrabold mb-4"
-                        style={{ fontSize: 40, lineHeight: 44, letterSpacing: -1.5 }}
-                    >
-                        Study groups,{"\n"}
-                        <Text className="text-primary">made simple.</Text>
+                <Text
+                    className="text-center font-figtree text-white mb-4"
+                    style={{
+                        fontSize: 42,
+                        lineHeight: 46,
+                        letterSpacing: -1
+                    }}
+                >
+                    Study groups,{"\n"}
+                    <Text className="font-figtree text-secondary">
+                        made simple.
                     </Text>
+                </Text>
 
+                <Text
+                    className="text-center font-sans max-w-xs"
+                    style={{
+                        fontSize: 17,
+                        lineHeight: 26,
+                        color: "rgba(255,255,255,0.75)"
+                    }}
+                >
+                    Find classmates, plan study sessions, and keep your group in
+                    one place.
+                </Text>
+            </Animated.View>
+
+            {/* CTA */}
+            <Animated.View
+                entering={FadeInDown.delay(120).duration(500)}
+                className="gap-4"
+            >
+                {error && <ViewErrors error={error} className="mb-2" />}
+
+                <Button
+                    variant="secondary"
+                    size="lg"
+                    fullWidth
+                    onPress={handleSignIn}
+                    loading={loading}
+                    disabled={!isReady || loading}
+                >
+                    Get Started
+                </Button>
+
+                <Pressable
+                    onPress={() => router.push("/(auth)/signin")}
+                    hitSlop={8}
+                    className="items-center"
+                >
                     <Text
-                        className="text-text text-center font-sans opacity-60 max-w-xs"
-                        style={{ fontSize: 17, lineHeight: 26 }}
-                    >
-                        Connect with classmates, join study sessions, and ace
-                        your courses together.
-                    </Text>
-                </View>
-
-                {/* CTA */}
-                <View className="gap-3 mb-8">
-                    {error && <ViewErrors error={error} className="mb-2" />}
-
-                    <Button
-                        variant="primary"
-                        size="lg"
-                        fullWidth
-                        onPress={signIn}
-                        loading={loading}
-                        disabled={!isReady || loading}
-                    >
-                        Get Started
-                    </Button>
-
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onPress={() => router.push("/(auth)/signin")}
+                        className="font-semibold text-sm"
+                        style={{ color: "rgba(255,255,255,0.7)" }}
                     >
                         Sign in a different way
-                    </Button>
-                </View>
-
-                {/* Trust badges */}
-                <View className="flex-row justify-center gap-6">
-                    {["UMN Only", "Private", "Free"].map((label) => (
-                        <View
-                            key={label}
-                            className="flex-row items-center gap-1.5"
-                        >
-                            <View className="w-1.5 h-1.5 rounded-full bg-secondary" />
-                            <Text className="text-text font-medium text-xs opacity-40">
-                                {label}
-                            </Text>
-                        </View>
-                    ))}
-                </View>
-            </View>
-
-            {/* How it works */}
-            <View className="bg-card px-6 py-12">
-                <Text
-                    className="text-text font-bold text-xs uppercase opacity-40 mb-2"
-                    style={{ letterSpacing: 1.5 }}
-                >
-                    How it works
-                </Text>
-
-                <Text
-                    className="text-text font-bold mb-10"
-                    style={{ fontSize: 28, letterSpacing: -0.5, lineHeight: 34 }}
-                >
-                    Three steps to{"\n"}get started
-                </Text>
-
-                <View className="gap-6">
-                    <StepItem
-                        number="01"
-                        title="Sign in"
-                        description="Use your UMN email to instantly join."
-                        colors={colors}
-                    />
-
-                    <StepItem
-                        number="02"
-                        title="Find a Burrow"
-                        description="Browse study groups or create your own."
-                        colors={colors}
-                    />
-
-                    <StepItem
-                        number="03"
-                        title="Collaborate"
-                        description="Study, build projects, or meet new people."
-                        colors={colors}
-                    />
-                </View>
-            </View>
-
-            {/* Features */}
-            <View className="bg-background px-6 py-12">
-                <Text
-                    className="text-text font-bold text-xs uppercase opacity-40 mb-2"
-                    style={{ letterSpacing: 1.5 }}
-                >
-                    Features
-                </Text>
-
-                <Text
-                    className="text-text font-bold mb-10"
-                    style={{ fontSize: 28, letterSpacing: -0.5, lineHeight: 34 }}
-                >
-                    Everything you need
-                </Text>
-
-                <View className="flex-row flex-wrap gap-4">
-                    <FeatureCard
-                        icon={<Users size={22} color={colors.secondary} />}
-                        title="Study groups"
-                        description="Find groups for any class"
-                    />
-                    <FeatureCard
-                        icon={<MessageSquare size={22} color={colors.secondary} />}
-                        title="Built-in chat"
-                        description="No juggling apps"
-                    />
-                    <FeatureCard
-                        icon={<CalendarClock size={22} color={colors.secondary} />}
-                        title="Scheduling"
-                        description="Set times & locations"
-                    />
-                    <FeatureCard
-                        icon={<Shield size={22} color={colors.secondary} />}
-                        title="UMN verified"
-                        description="Students only"
-                    />
-                    <FeatureCard
-                        icon={<Zap size={22} color={colors.secondary} />}
-                        title="Join instantly"
-                        description="One tap to join"
-                    />
-                    <FeatureCard
-                        icon={<Sparkles size={22} color={colors.secondary} />}
-                        title="Multiple types"
-                        description="Study, clubs, events"
-                    />
-                </View>
-            </View>
-
-            {/* Bottom CTA */}
-            <View className="py-12">
-                <View className="bg-card border border-card-border rounded-3xl mx-6 p-8 items-center">
-                    <Text
-                        className="text-text text-center mb-3 font-bold"
-                        style={{ fontSize: 24, letterSpacing: -0.5, lineHeight: 30}}
-                    >
-                        Ready to find your{"\n"}study crew?
                     </Text>
-
-                    <Text className="text-text text-center font-sans opacity-50 mb-8" style={{ fontSize: 15, lineHeight: 22 }}>
-                        Join UMN students already studying smarter together.
-                    </Text>
-
-                    <Button
-                        variant="primary"
-                        size="lg"
-                        fullWidth
-                        onPress={signIn}
-                        loading={loading}
-                        disabled={!isReady || loading}
-                    >
-                        Sign in with Google
-                    </Button>
-
-                    <Text className="text-text text-center font-sans text-xs opacity-45 mt-5">
-                        UMN email required (@umn.edu)
-                    </Text>
-                </View>
-            </View>
+                </Pressable>
+            </Animated.View>
 
             {/* Footer */}
-            <View className="px-6 pb-10 items-center">
-                <View className="flex-row justify-center gap-6 mb-5">
-                    <Pressable onPress={() => router.push("/settings/privacy")}>
-                        <Text className="text-text font-medium text-xs opacity-50">
+            <View className="items-center mt-8">
+                <View className="flex-row items-center justify-center gap-3 mb-3">
+                    <Pressable
+                        onPress={() => router.push("/settings/privacy")}
+                        hitSlop={8}
+                    >
+                        <Text
+                            className="font-medium text-xs"
+                            style={{ color: "rgba(255,255,255,0.5)" }}
+                        >
                             Privacy
                         </Text>
                     </Pressable>
-                    <Pressable onPress={() => router.push("/settings/tos")}>
-                        <Text className="text-text font-medium text-xs opacity-50">
+                    <View
+                        className="w-1 h-1 rounded-full"
+                        style={{ backgroundColor: "rgba(255,255,255,0.25)" }}
+                    />
+                    <Pressable
+                        onPress={() => router.push("/settings/tos")}
+                        hitSlop={8}
+                    >
+                        <Text
+                            className="font-medium text-xs"
+                            style={{ color: "rgba(255,255,255,0.5)" }}
+                        >
                             Terms
                         </Text>
                     </Pressable>
-                    <Pressable onPress={() => router.push("/settings/about")}>
-                        <Text className="text-text font-medium text-xs opacity-50">
+                    <View
+                        className="w-1 h-1 rounded-full"
+                        style={{ backgroundColor: "rgba(255,255,255,0.25)" }}
+                    />
+                    <Pressable
+                        onPress={() => router.push("/settings/about")}
+                        hitSlop={8}
+                    >
+                        <Text
+                            className="font-medium text-xs"
+                            style={{ color: "rgba(255,255,255,0.5)" }}
+                        >
                             About
                         </Text>
                     </Pressable>
                 </View>
 
-                <Text className="text-text text-center font-sans opacity-35" style={{ fontSize: 11 }}>
+                <Text
+                    className="text-center font-sans"
+                    style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}
+                >
                     {Application.nativeApplicationVersion ?? "INDEV"}
                 </Text>
             </View>
-        </ScrollView>
-    )
-}
-
-/**
- * A step in the "How it works" section.
- */
-function StepItem({
-    number,
-    title,
-    description,
-    colors
-}: {
-    number: string
-    title: string
-    description: string
-    colors: ReturnType<typeof useThemeColors>
-}) {
-    return (
-        <View className="flex-row items-center gap-4">
-            <Text
-                className="text-secondary font-bold opacity-40"
-                style={{ fontSize: 32, width: 44 }}
-            >
-                {number}
-            </Text>
-
-            <View className="flex-1">
-                <Text className="text-text font-semibold mb-1" style={{ fontSize: 17 }}>
-                    {title}
-                </Text>
-                <Text className="text-text font-sans text-sm opacity-50" style={{ lineHeight: 20 }}>
-                    {description}
-                </Text>
-            </View>
-
-            <ChevronRight size={18} color={colors.text} style={{ opacity: 0.25 }} />
-        </View>
-    )
-}
-
-/**
- * A feature card in the grid.
- */
-function FeatureCard({
-    icon,
-    title,
-    description
-}: {
-    icon: React.ReactNode
-    title: string
-    description: string
-}) {
-    const cardWidth = (SCREEN_WIDTH - 48 - 16) / 2
-
-    return (
-        <View
-            className="bg-card border border-card-border rounded-2xl p-4"
-            style={{ width: cardWidth }}
-        >
-            <View className="bg-secondary/10 w-11 h-11 rounded-xl items-center justify-center mb-3">
-                {icon}
-            </View>
-            <Text className="text-text font-semibold mb-1" style={{ fontSize: 15 }}>
-                {title}
-            </Text>
-            <Text className="text-text font-sans opacity-55" style={{ fontSize: 13, lineHeight: 18 }}>
-                {description}
-            </Text>
         </View>
     )
 }

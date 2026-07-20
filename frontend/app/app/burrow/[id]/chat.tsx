@@ -7,6 +7,7 @@ import { useThemeColors } from "@api/theme/useThemeColors"
 import { useAtomValue } from "jotai"
 import { syncStatus, syncRetry } from "@features/sync/sync.atom"
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs"
+import { glassAvailable } from "@components/core"
 
 export default function ChatTab() {
     const colors = useThemeColors()
@@ -41,6 +42,15 @@ export default function ChatTab() {
             behavior={Platform.OS === "ios" ? "padding" : undefined}
             keyboardVerticalOffset={tabBarHeight}
         >
+            {/* KeyboardAvoidingView overwrites its own paddingBottom, so
+                the clearance for the floating glass tab bar lives on an
+                inner view instead */}
+            <View
+                className="flex-1"
+                style={{
+                    paddingBottom: glassAvailable ? tabBarHeight : 0
+                }}
+            >
             {/* Connection status banner */}
             {status !== "LIVE" && (
                 <View
@@ -73,7 +83,8 @@ export default function ChatTab() {
                 </View>
             )}
 
-            <BurrowChat burrowId={id} isMember={isMember} fullScreen />
+                <BurrowChat burrowId={id} isMember={isMember} fullScreen />
+            </View>
         </KeyboardAvoidingView>
     )
 }

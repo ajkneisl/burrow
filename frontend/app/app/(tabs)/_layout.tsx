@@ -1,11 +1,12 @@
 import { Tabs } from "expo-router"
-import { useColorScheme } from "react-native"
-import { Home, Search, Compass, Users, User } from "lucide-react-native"
-import { SearchModal } from "@features/layout/components"
+import { View } from "react-native"
+import { Home, Compass, Plus, Users, User } from "lucide-react-native"
+import { useSetAtom } from "jotai"
+import { SearchModal, useGlassTabOptions } from "@features/layout/components"
 import { CreateBurrowModal } from "@features/burrows/create/CreateBurrowModal"
 import { BurrowMapModal } from "@features/burrows/components/BurrowMapModal"
 import CreateClubModal from "@features/clubs/components/CreateClubModal"
-import { useThemeColors } from "@api/theme/useThemeColors"
+import { createModalOpen } from "@features/layout/layout.atom"
 
 /**
  * The main tab layout.
@@ -13,30 +14,12 @@ import { useThemeColors } from "@api/theme/useThemeColors"
  * @author AJ Kneisl
  */
 export default function TabsLayout() {
-    const colors = useThemeColors()
-    const colorScheme = useColorScheme()
-    const isDark = colorScheme === "dark"
+    const setCreateOpen = useSetAtom(createModalOpen)
+    const tabOptions = useGlassTabOptions()
 
     return (
         <>
-            <Tabs
-                screenOptions={{
-                    headerShown: false,
-                    tabBarActiveTintColor: colors.text,
-                    tabBarInactiveTintColor: "#9CA3AF",
-                    tabBarStyle: {
-                        backgroundColor: colors.background,
-                        borderTopColor: isDark ? "#333333" : colors.cardBorder,
-                        borderTopWidth: 1,
-                        paddingHorizontal: 16,
-                        paddingVertical: 2,
-                        paddingTop: 10
-                    },
-                    tabBarItemStyle: {
-                        paddingVertical: 4
-                    }
-                }}
-            >
+            <Tabs screenOptions={tabOptions}>
                 <Tabs.Screen
                     name="index"
                     options={{
@@ -48,22 +31,46 @@ export default function TabsLayout() {
                 />
 
                 <Tabs.Screen
-                    name="browse"
+                    name="explore"
                     options={{
-                        title: "Browse",
+                        title: "Explore",
                         tabBarIcon: ({ color, size }) => (
-                            <Search color={color} size={size} />
+                            <Compass color={color} size={size} />
                         )
                     }}
                 />
 
+                {/* center create button — opens the modal, never navigates */}
                 <Tabs.Screen
-                    name="clubs"
+                    name="create"
                     options={{
-                        title: "Clubs",
-                        tabBarIcon: ({ color, size }) => (
-                            <Compass color={color} size={size} />
+                        title: "Create",
+                        tabBarLabel: () => null,
+                        tabBarIcon: () => (
+                            <View
+                                className="w-12 h-12 rounded-full bg-primary items-center justify-center"
+                                style={{
+                                    marginTop: 4,
+                                    shadowColor: "#000",
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.2,
+                                    shadowRadius: 4,
+                                    elevation: 4
+                                }}
+                            >
+                                <Plus
+                                    size={26}
+                                    color="#FFFFFF"
+                                    strokeWidth={3}
+                                />
+                            </View>
                         )
+                    }}
+                    listeners={{
+                        tabPress: (e) => {
+                            e.preventDefault()
+                            setCreateOpen(true)
+                        }
                     }}
                 />
 
