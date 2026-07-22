@@ -6,16 +6,13 @@ import toast from "react-hot-toast"
 import {useMutation} from "@tanstack/react-query"
 import {motion} from "framer-motion"
 import {
-    ArrowRight,
     CalendarClock,
     Check,
-    GraduationCap,
     ListChecks,
     MapPin,
     Megaphone,
     MessageSquare,
     Shield,
-    UserPlus,
     Users
 } from "lucide-react"
 import {
@@ -27,13 +24,9 @@ import {
 import {ViewErrors} from "@umnburrow/core"
 import {login} from "@features/auth/user.api.ts"
 
-/** UMN maroon gradient shared by the hero glow and the bottom CTA card. */
+/** UMN maroon gradient used on the bottom CTA card. */
 const MAROON_GRADIENT =
     "bg-[linear-gradient(165deg,#96233c_0%,#7a0019_45%,#45000e_100%)]"
-
-/** Soft gold glow layered on top of the maroon surfaces. */
-const GOLD_GLOW =
-    "bg-[radial-gradient(circle_at_50%_30%,rgba(255,204,0,0.22)_0%,rgba(255,204,0,0)_60%)]"
 
 /** Brand maroon accent that flips to gold in the dark theme. */
 const ACCENT_TEXT = "text-[#7a0019] [[data-theme=DARK]_&]:text-secondary"
@@ -148,26 +141,15 @@ export default function LandingView() {
                     id="top"
                     className="relative overflow-hidden px-6 pt-36 pb-16 sm:pt-44"
                 >
-                    {/* Ambient background glow */}
-                    <div className="pointer-events-none absolute inset-0">
-                        <div
-                            className="absolute -top-40 left-1/2 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(122,0,25,0.14)_0%,rgba(122,0,25,0)_100%)]"/>
-                        <div
-                            className="absolute top-24 left-[12%] h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(255,204,0,0.16)_0%,rgba(255,204,0,0)_100%)]"/>
-                        <div
-                            className="absolute top-40 right-[8%] h-80 w-80 rounded-full bg-[radial-gradient(closest-side,rgba(122,0,25,0.10)_0%,rgba(122,0,25,0)_100%)]"/>
-                    </div>
-
                     <div className="relative mx-auto flex max-w-3xl flex-col items-center text-center">
-                        <motion.div
+                        <motion.p
                             initial={{opacity: 0, y: 16}}
                             animate={{opacity: 1, y: 0}}
                             transition={{duration: 0.5, ease: "easeOut"}}
-                            className="border-card-border bg-card text-text/70 mb-6 flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold"
+                            className={`mb-4 text-xs font-bold tracking-[0.2em] uppercase ${ACCENT_TEXT}`}
                         >
-                            <GraduationCap className="h-3.5 w-3.5"/>
                             Made for the University of Minnesota
-                        </motion.div>
+                        </motion.p>
 
                         <motion.h1
                             initial={{opacity: 0, y: 20}}
@@ -259,11 +241,8 @@ export default function LandingView() {
                             delay: 0.3,
                             ease: "easeOut"
                         }}
-                        className="relative mx-auto mt-16 max-w-4xl"
+                        className="mx-auto mt-16 max-w-4xl"
                     >
-                        <div
-                            className={`absolute inset-x-8 -top-6 bottom-8 rounded-[40px] opacity-60 blur-3xl ${MAROON_GRADIENT}`}
-                        />
                         <HeroWindowDemo/>
                     </motion.div>
                 </section>
@@ -311,45 +290,23 @@ export default function LandingView() {
                             demo={<ProjectBurrowDemo/>}
                         />
 
-                        <FeatureSection
-                            icon={<Megaphone className="h-5 w-5"/>}
-                            eyebrow="Clubs"
-                            title="Your club, beyond the club fair."
-                            description="Browse every club on campus, join the ones you love, and keep up with announcements and events without digging through emails."
-                            bullets={[
-                                "Discover clubs you didn't know existed",
-                                "Announcements and events in one feed",
-                                "See all your clubs on your profile"
-                            ]}
-                            demo={<ClubDemo/>}
-                        />
-
-                        <FeatureSection
-                            flip
-                            icon={<MessageSquare className="h-5 w-5"/>}
-                            eyebrow="Messaging"
-                            title="Chat lives where the plans are."
-                            description="Every burrow and club comes with built-in chat, so the conversation stays with the people and plans it belongs to."
-                            bullets={[
-                                "No more hunting for the right group chat",
-                                "Message friends directly, too",
-                                "See it all in real time"
-                            ]}
-                            demo={<ChatDemo/>}
-                        />
-
-                        <FeatureSection
-                            icon={<Users className="h-5 w-5"/>}
-                            eyebrow="Friends"
-                            title="Keep the people you meet."
-                            description="Met someone great in a study session? Add them as a friend, see what they're up to, and make the next plan together."
-                            bullets={[
-                                "Send and accept friend requests",
-                                "See mutual burrows and clubs",
-                                "All your friends in one list"
-                            ]}
-                            demo={<FriendsDemo/>}
-                        />
+                        <FadeIn className="grid gap-6 sm:grid-cols-3">
+                            <FeatureCard
+                                icon={<Megaphone className="h-5 w-5"/>}
+                                title="Clubs, beyond the fair"
+                                description="Browse every club on campus and keep up with announcements without digging through email."
+                            />
+                            <FeatureCard
+                                icon={<MessageSquare className="h-5 w-5"/>}
+                                title="Chat where the plans are"
+                                description="Every burrow and club comes with built-in chat, right where the conversation belongs."
+                            />
+                            <FeatureCard
+                                icon={<Users className="h-5 w-5"/>}
+                                title="Keep the people you meet"
+                                description="Add friends from a study session and make the next plan together."
+                            />
+                        </FadeIn>
                     </div>
                 </section>
 
@@ -393,12 +350,6 @@ export default function LandingView() {
                         <div
                             className={`relative mx-auto max-w-5xl overflow-hidden rounded-[32px] px-8 py-20 text-center ${MAROON_GRADIENT}`}
                         >
-                            <div
-                                className={`absolute inset-x-0 top-0 h-64 ${GOLD_GLOW}`}
-                            />
-                            <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/5"/>
-                            <div className="absolute -right-20 -bottom-28 h-80 w-80 rounded-full bg-white/5"/>
-
                             <div className="relative flex flex-col items-center">
                                 <h2 className="figtree mb-4 text-4xl tracking-tight text-white sm:text-5xl">
                                     Your people are
@@ -513,6 +464,31 @@ function FeatureSection({
             >
                 {demo}
             </FadeIn>
+        </div>
+    )
+}
+
+/**
+ * A compact feature callout: icon, title, one-line description. No demo.
+ */
+function FeatureCard({
+                         icon,
+                         title,
+                         description
+                     }: {
+    icon: ReactNode
+    title: string
+    description: string
+}) {
+    return (
+        <div className="border-card-border bg-card rounded-2xl border p-6">
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[#7a0019] text-white">
+                {icon}
+            </div>
+            <h3 className="text-text mb-1.5 text-lg font-semibold">
+                {title}
+            </h3>
+            <p className="text-text/60 text-sm">{description}</p>
         </div>
     )
 }
@@ -823,183 +799,3 @@ function ProjectBurrowDemo() {
     )
 }
 
-/**
- * Demo: a club page with an announcement and upcoming event.
- */
-function ClubDemo() {
-    return (
-        <DemoWindow label="Clubs">
-            <div
-                className={`relative mb-4 flex h-20 items-end overflow-hidden rounded-2xl p-4 ${MAROON_GRADIENT}`}
-            >
-                <div className={`absolute inset-0 ${GOLD_GLOW}`}/>
-                <h4 className="figtree relative text-xl text-white">
-                    Gopher Robotics Club
-                </h4>
-            </div>
-
-            <div className="mb-4 flex items-center justify-between">
-                <span className="text-text/60 flex items-center gap-1.5 text-sm">
-                    <Users className="h-4 w-4"/>
-                    128 members
-                </span>
-                <div className="rounded-full bg-[#7a0019] px-4 py-1.5 text-xs font-semibold text-white">
-                    Join club
-                </div>
-            </div>
-
-            <div className="flex flex-col gap-2.5">
-                <div className="bg-background border-card-border rounded-xl border p-3.5">
-                    <div
-                        className="text-text/45 mb-1 flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase">
-                        <Megaphone className="h-3 w-3"/>
-                        Announcement
-                    </div>
-                    <p className="text-text text-sm">
-                        Parts for the new arm came in! Build night moved to
-                        Thursday 🤖
-                    </p>
-                </div>
-
-                <div
-                    className="bg-background border-card-border flex items-center justify-between rounded-xl border p-3.5">
-                    <div>
-                        <p className="text-text text-sm font-semibold">
-                            Build night
-                        </p>
-                        <p className="text-text/55 text-xs">
-                            Thu · 6:00 PM · Anderson Labs
-                        </p>
-                    </div>
-                    <span className="text-text/60 flex items-center gap-1 text-xs font-semibold">
-                        RSVP
-                        <ArrowRight className="h-3.5 w-3.5"/>
-                    </span>
-                </div>
-            </div>
-        </DemoWindow>
-    )
-}
-
-/**
- * Demo: a live chat thread with a typing indicator.
- */
-function ChatDemo() {
-    return (
-        <DemoWindow label="Chat · HW 4 study session">
-            <div className="flex flex-col gap-2.5">
-                <div className="flex items-end gap-2">
-                    <Avatar initials="MK" color="gold" className="h-6 w-6"/>
-                    <div
-                        className="bg-background border-card-border text-text max-w-[80%] rounded-2xl rounded-bl-md border px-4 py-2 text-sm">
-                        does anyone have the notes from Friday?
-                    </div>
-                </div>
-
-                <div className="flex justify-end">
-                    <div className="max-w-[80%] rounded-2xl rounded-br-md bg-[#7a0019] px-4 py-2 text-sm text-white">
-                        yep, dropping them here in a sec 📄
-                    </div>
-                </div>
-
-                <div className="flex items-end gap-2">
-                    <Avatar initials="SR" className="h-6 w-6"/>
-                    <div
-                        className="bg-background border-card-border text-text max-w-[80%] rounded-2xl rounded-bl-md border px-4 py-2 text-sm">
-                        you're the best. same room as last week?
-                    </div>
-                </div>
-
-                <div className="flex justify-end">
-                    <div className="max-w-[80%] rounded-2xl rounded-br-md bg-[#7a0019] px-4 py-2 text-sm text-white">
-                        yeah, Lind 325, we're by the windows
-                    </div>
-                </div>
-
-                {/* Typing indicator */}
-                <div className="flex items-end gap-2">
-                    <Avatar initials="MK" color="gold" className="h-6 w-6"/>
-                    <div
-                        className="bg-background border-card-border flex gap-1 rounded-2xl rounded-bl-md border px-4 py-3">
-                        <span className="bg-text/40 h-1.5 w-1.5 animate-bounce rounded-full"/>
-                        <span className="bg-text/40 h-1.5 w-1.5 animate-bounce rounded-full [animation-delay:0.15s]"/>
-                        <span className="bg-text/40 h-1.5 w-1.5 animate-bounce rounded-full [animation-delay:0.3s]"/>
-                    </div>
-                </div>
-            </div>
-
-            {/* Input bar */}
-            <div
-                className="border-card-border bg-background text-text/40 mt-4 flex items-center justify-between rounded-full border px-4 py-2.5 text-sm">
-                Message the group…
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#7a0019]">
-                    <ArrowRight className="h-3.5 w-3.5 text-white"/>
-                </span>
-            </div>
-        </DemoWindow>
-    )
-}
-
-/**
- * Demo: a friend request and friends list.
- */
-function FriendsDemo() {
-    return (
-        <DemoWindow label="Friends">
-            <div className="bg-background border-card-border mb-3 rounded-2xl border p-4">
-                <div className="flex items-center gap-3">
-                    <Avatar initials="MK" color="gold" className="h-10 w-10"/>
-                    <div className="min-w-0">
-                        <p className="text-text text-sm font-semibold">
-                            Maya K.
-                        </p>
-                        <p className="text-text/55 text-xs">
-                            2 mutual burrows · CSCI 1133
-                        </p>
-                    </div>
-                    <div
-                        className="ml-auto flex items-center gap-1.5 rounded-full bg-[#7a0019] px-4 py-1.5 text-xs font-semibold text-white">
-                        <UserPlus className="h-3.5 w-3.5"/>
-                        Accept
-                    </div>
-                </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-                <div className="bg-background border-card-border flex items-center gap-3 rounded-xl border px-4 py-2.5">
-                    <div className="relative">
-                        <Avatar initials="SR"/>
-                        <span
-                            className="border-card bg-success absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2"/>
-                    </div>
-                    <div>
-                        <p className="text-text text-sm font-semibold">
-                            Sam R.
-                        </p>
-                        <p className="text-text/55 text-xs">
-                            In a burrow now · Walter Library
-                        </p>
-                    </div>
-                    <MessageSquare className="text-text/40 ml-auto h-4 w-4"/>
-                </div>
-
-                <div className="bg-background border-card-border flex items-center gap-3 rounded-xl border px-4 py-2.5">
-                    <div className="relative">
-                        <Avatar initials="DT" color="gray"/>
-                        <span
-                            className="border-card bg-success absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2"/>
-                    </div>
-                    <div>
-                        <p className="text-text text-sm font-semibold">
-                            Devin T.
-                        </p>
-                        <p className="text-text/55 text-xs">
-                            Gopher Robotics Club
-                        </p>
-                    </div>
-                    <MessageSquare className="text-text/40 ml-auto h-4 w-4"/>
-                </div>
-            </div>
-        </DemoWindow>
-    )
-}
