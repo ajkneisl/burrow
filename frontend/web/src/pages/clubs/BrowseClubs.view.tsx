@@ -9,6 +9,7 @@ import {discoverClubs, getMyClubs} from "@features/clubs/clubs.api.ts"
 import type {Club, ClubCategory} from "@features/clubs/clubs.types.tsx"
 import {Card, Chip, Paginator, ViewErrors} from "@umnburrow/core"
 import {CDN_URL} from "@api/util.ts"
+import BrowseTabs from "@features/browse/components/BrowseTabs.tsx"
 
 const CATEGORIES: { label: string; value: ClubCategory | null }[] = [
     {label: "All", value: null},
@@ -106,6 +107,8 @@ export default function BrowseClubs() {
     return (
         <section className="mx-auto w-full max-w-7xl">
             <section className="mx-auto w-full max-w-4xl p-4 sm:p-6">
+                <BrowseTabs />
+
                 {/* Category filters */}
                 <div className="mb-6 flex flex-wrap gap-2">
                     {CATEGORIES.map((cat) => (
