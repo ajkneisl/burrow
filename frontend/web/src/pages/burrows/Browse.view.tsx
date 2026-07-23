@@ -14,6 +14,7 @@ import {
 import clsx from "clsx"
 import { humanDateLabel, weekRangeLabel } from "@api/util.ts"
 import { Loader2, ChevronRight, SlidersHorizontal } from "lucide-react"
+import BrowseTabs from "@features/browse/components/BrowseTabs.tsx"
 
 /**
  * Search through all Burrows.
@@ -153,6 +154,7 @@ export default function Browse() {
     if (error)
         return (
             <main className="mx-auto w-full max-w-4xl p-4 sm:p-6">
+                <BrowseTabs />
                 <ViewErrors errors={[`${error}`]} clearErrors={refetch} />
             </main>
         )
@@ -161,6 +163,8 @@ export default function Browse() {
         <section className="mx-auto w-full max-w-7xl">
             <section className="flex w-full grid-cols-3 flex-col-reverse lg:grid">
                 <section className="col-span-2 mx-auto w-full max-w-4xl p-4 sm:p-6">
+                    <BrowseTabs />
+
                     {/* top controls */}
                     <div className="mb-4 flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <button
