@@ -1,8 +1,8 @@
-import { View, ScrollView, TextInput, Alert } from "react-native"
+import { View, ScrollView, Alert } from "react-native"
 import { useRouter } from "expo-router"
 import { useAtom, useSetAtom } from "jotai"
 import { authToken, refreshTokenAtom, userDetails } from "@features/auth/auth.atom"
-import { Button, Text } from "@components/core"
+import { Button, Input, Text } from "@components/core"
 import { useState, useEffect } from "react"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { ArrowLeft } from "lucide-react-native"
@@ -106,46 +106,32 @@ export default function SignInScreen() {
                 </View>
 
                 {/* Sign In Form */}
-                <View className="space-y-4 gap-4">
+                <View>
                     {/* username input */}
-                    <View>
-                        <Text className="text-text font-semibold mb-2">
-                            Username
-                        </Text>
-
-                        <TextInput
-                            value={username}
-                            onChangeText={setUsername}
-                            placeholder="Enter your username"
-                            placeholderTextColor="#9CA3AF"
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                            className="bg-card border border-card-border rounded-lg px-4 py-3 text-base text-text"
-                            editable={!loading}
-                        />
-                    </View>
+                    <Input
+                        label="Username"
+                        value={username}
+                        onChangeText={setUsername}
+                        placeholder="Enter your username"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        editable={!loading}
+                    />
 
                     {/* password input */}
-                    <View>
-                        <Text className="text-text font-semibold mb-2">
-                            Password
-                        </Text>
-
-                        <TextInput
-                            value={password}
-                            onChangeText={setPassword}
-                            placeholder="Enter your password"
-                            placeholderTextColor="#9CA3AF"
-                            secureTextEntry
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                            className="bg-card border border-card-border rounded-lg px-4 py-3 text-base text-text"
-                            editable={!loading}
-                        />
-                    </View>
+                    <Input
+                        label="Password"
+                        value={password}
+                        onChangeText={setPassword}
+                        placeholder="Enter your password"
+                        secureTextEntry
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        editable={!loading}
+                    />
 
                     {/* sign in button */}
-                    <View className="mt-6">
+                    <View className="mt-2">
                         <Button
                             variant="primary"
                             size="lg"
