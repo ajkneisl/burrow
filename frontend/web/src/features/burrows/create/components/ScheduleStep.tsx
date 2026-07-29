@@ -25,11 +25,11 @@ export default function ScheduleStep({
 
     return (
         <div className="space-y-6">
-            <div className="border-card-border bg-card rounded-lg border p-4">
-                <p className="text-text mb-2 text-sm font-medium">
+            <div className="rounded-lg border border-card-border bg-card p-4">
+                <p className="mb-2 text-sm font-medium text-text">
                     Schedule Your Burrow
                 </p>
-                <p className="text-text/60 text-xs">
+                <p className="text-xs text-text/60">
                     Choose when your Burrow will take place.
                 </p>
             </div>

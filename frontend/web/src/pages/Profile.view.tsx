@@ -116,22 +116,22 @@ export default function ProfileView() {
                 <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
                     <Card>
                         <div className="p-6">
-                            <div className="bg-card h-6 w-40 animate-pulse rounded" />
+                            <div className="h-6 w-40 animate-pulse rounded bg-card" />
                             <div className="mt-4 space-y-2">
-                                <div className="bg-card h-4 w-full animate-pulse rounded" />
-                                <div className="bg-card h-4 w-5/6 animate-pulse rounded" />
-                                <div className="bg-card h-4 w-2/3 animate-pulse rounded" />
+                                <div className="h-4 w-full animate-pulse rounded bg-card" />
+                                <div className="h-4 w-5/6 animate-pulse rounded bg-card" />
+                                <div className="h-4 w-2/3 animate-pulse rounded bg-card" />
                             </div>
                         </div>
                     </Card>
 
                     <Card>
                         <div className="p-6">
-                            <div className="bg-card h-6 w-32 animate-pulse rounded" />
+                            <div className="h-6 w-32 animate-pulse rounded bg-card" />
                             <div className="mt-4 space-y-3">
-                                <div className="bg-card h-4 w-full animate-pulse rounded" />
-                                <div className="bg-card h-4 w-full animate-pulse rounded" />
-                                <div className="bg-card h-4 w-full animate-pulse rounded" />
+                                <div className="h-4 w-full animate-pulse rounded bg-card" />
+                                <div className="h-4 w-full animate-pulse rounded bg-card" />
+                                <div className="h-4 w-full animate-pulse rounded bg-card" />
                             </div>
                         </div>
                     </Card>
@@ -220,7 +220,7 @@ export default function ProfileView() {
                                 )}
                             </div>
 
-                            <span className="text-text/60 mt-1 text-sm">
+                            <span className="mt-1 text-sm text-text/60">
                                 @{data.user.username}
                             </span>
 
@@ -300,7 +300,7 @@ export default function ProfileView() {
 
                                 {(data.recentHostedBurrows.length ?? 0) === 0 ? (
                                     <Card>
-                                        <p className="text-text/70 text-center">
+                                        <p className="text-center text-text/70">
                                             No hosted meetings.
                                         </p>
                                     </Card>
@@ -321,7 +321,7 @@ export default function ProfileView() {
 
                                 {(data.recentJoinedBurrows.length ?? 0) === 0 ? (
                                     <Card>
-                                        <p className="text-text/70 text-center">
+                                        <p className="text-center text-text/70">
                                             No joined meetings.
                                         </p>
                                     </Card>

@@ -126,7 +126,7 @@ export default function EditClubModal({ open, onClose, club }: EditClubModalProp
     const footer = useMemo(() => {
         return (
             <div className="flex w-full items-center justify-between">
-                <div className="text-text/60 text-sm">Step {currentStep} of 2</div>
+                <div className="text-sm text-text/60">Step {currentStep} of 2</div>
 
                 <div className="flex items-center gap-3">
                     {currentStep > 1 && (
@@ -162,9 +162,9 @@ export default function EditClubModal({ open, onClose, club }: EditClubModalProp
 
                 {currentStep === 1 && (
                     <div className="space-y-6">
-                        <div className="bg-card border-card-border rounded-lg border p-4">
-                            <p className="text-text mb-2 text-sm font-medium">Club Details</p>
-                            <p className="text-text/60 text-xs">
+                        <div className="rounded-lg border border-card-border bg-card p-4">
+                            <p className="mb-2 text-sm font-medium text-text">Club Details</p>
+                            <p className="text-xs text-text/60">
                                 Update your club's details. The club URL name cannot be changed.
                             </p>
                         </div>
@@ -214,9 +214,9 @@ export default function EditClubModal({ open, onClose, club }: EditClubModalProp
 
                 {currentStep === 2 && (
                     <div className="space-y-6">
-                        <div className="border-card-border bg-card rounded-lg border p-4">
-                            <p className="text-text mb-2 text-sm font-medium">Privacy Settings</p>
-                            <p className="text-text/60 text-xs">
+                        <div className="rounded-lg border border-card-border bg-card p-4">
+                            <p className="mb-2 text-sm font-medium text-text">Privacy Settings</p>
+                            <p className="text-xs text-text/60">
                                 Control who can see and join your club.
                             </p>
                         </div>

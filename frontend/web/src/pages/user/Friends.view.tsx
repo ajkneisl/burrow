@@ -29,7 +29,7 @@ export default function Friends() {
                 <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                     {/* friends */}
                     <div className="mb-6">
-                        <h1 className="text-text mb-2 text-3xl font-bold">
+                        <h1 className="mb-2 text-3xl font-bold text-text">
                             Friends
                         </h1>
 
@@ -48,11 +48,11 @@ export default function Friends() {
                                     {Array.from({ length: 3 }).map((_, i) => (
                                         <Card key={i} className="p-4">
                                             <div className="flex gap-4">
-                                                <div className="bg-text/10 h-16 w-16 animate-pulse rounded-full" />
+                                                <div className="size-16 animate-pulse rounded-full bg-text/10" />
                                                 <div className="flex-1 space-y-2">
-                                                    <div className="bg-text/10 h-5 w-32 animate-pulse rounded" />
-                                                    <div className="bg-text/10 h-4 w-24 animate-pulse rounded" />
-                                                    <div className="bg-text/10 h-3 w-40 animate-pulse rounded" />
+                                                    <div className="h-5 w-32 animate-pulse rounded bg-text/10" />
+                                                    <div className="h-4 w-24 animate-pulse rounded bg-text/10" />
+                                                    <div className="h-3 w-40 animate-pulse rounded bg-text/10" />
                                                 </div>
                                             </div>
                                         </Card>
@@ -61,13 +61,13 @@ export default function Friends() {
                             ) : !friends || friends.length === 0 ? (
                                 // no friends
                                 <Card className="p-12 text-center">
-                                    <UserPlus className="text-text/20 mx-auto mb-4 h-12 w-12" />
+                                    <UserPlus className="mx-auto mb-4 size-12 text-text/20" />
 
-                                    <h3 className="text-text mb-2 text-lg font-semibold">
+                                    <h3 className="mb-2 text-lg font-semibold text-text">
                                         No friends yet
                                     </h3>
 
-                                    <p className="text-text/60 text-sm">
+                                    <p className="text-sm text-text/60">
                                         Start connecting with people to see them
                                         here
                                     </p>
@@ -88,7 +88,7 @@ export default function Friends() {
                         {/* discovered users */}
                         <div className="lg:col-span-1">
                             <Card className="sticky top-4 p-4">
-                                <h2 className="text-text mb-4 text-lg font-semibold">
+                                <h2 className="mb-4 text-lg font-semibold text-text">
                                     Discover
                                 </h2>
 
@@ -101,10 +101,10 @@ export default function Friends() {
                                                     key={i}
                                                     className="flex items-center gap-3"
                                                 >
-                                                    <div className="bg-text/10 h-12 w-12 animate-pulse rounded-full" />
+                                                    <div className="size-12 animate-pulse rounded-full bg-text/10" />
                                                     <div className="flex-1 space-y-2">
-                                                        <div className="bg-text/10 h-4 w-24 animate-pulse rounded" />
-                                                        <div className="bg-text/10 h-3 w-20 animate-pulse rounded" />
+                                                        <div className="h-4 w-24 animate-pulse rounded bg-text/10" />
+                                                        <div className="h-3 w-20 animate-pulse rounded bg-text/10" />
                                                     </div>
                                                 </div>
                                             )
@@ -113,7 +113,7 @@ export default function Friends() {
                                 ) : !discoveredUsers ||
                                   discoveredUsers.length === 0 ? (
                                     // no discovered users
-                                    <p className="text-text/60 text-center text-sm">
+                                    <p className="text-center text-sm text-text/60">
                                         No suggestions available
                                     </p>
                                 ) : (

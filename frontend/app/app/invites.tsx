@@ -171,7 +171,7 @@ export default function ReceivedInvitesScreen() {
                 No pending invites
             </Text>
             <Text className="text-text text-opacity-40 text-sm mt-1">
-                You're all caught up!
+                You&apos;re all caught up!
             </Text>
         </View>
     )

@@ -78,7 +78,7 @@ export function BurrowFeatures({ inPast }: MeetingFeaturesProps) {
                     </>
                 }
             >
-                <div className="divide-y divide-base-300">
+                <div className="divide-base-300 divide-y">
                     <Toggle
                         title="Meeting Chat"
                         description="A live chat for meeting members."

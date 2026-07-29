@@ -44,9 +44,9 @@ export default function FriendCard({ friend }: { friend: Relation }) {
                 <button
                     ref={dropdownBtnRef}
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="text-text/40 hover:text-text hover:bg-text/10 rounded-full p-1.5 transition-colors"
+                    className="rounded-full p-1.5 text-text/40 transition-colors hover:bg-text/10 hover:text-text"
                 >
-                    <MoreVertical className="h-4 w-4" />
+                    <MoreVertical className="size-4" />
                 </button>
 
                 <Dropdown
@@ -57,7 +57,7 @@ export default function FriendCard({ friend }: { friend: Relation }) {
                 >
                     <DropdownItem
                         label="Report"
-                        rightIcon={<Flag className="h-4 w-4" />}
+                        rightIcon={<Flag className="size-4" />}
                         onSelect={() => {
                             setDropdownOpen(false)
                         }}
@@ -65,7 +65,7 @@ export default function FriendCard({ friend }: { friend: Relation }) {
 
                     <DropdownItem
                         label="Unfollow"
-                        rightIcon={<UserMinus className="h-4 w-4" />}
+                        rightIcon={<UserMinus className="size-4" />}
                         onSelect={() => {
                             setDropdownOpen(false)
                             unfollowMutation.mutate()
@@ -88,18 +88,18 @@ export default function FriendCard({ friend }: { friend: Relation }) {
                 <div className="flex flex-1 flex-col gap-3">
                     {/* name & username*/}
                     <div>
-                        <h3 className="text-text text-sm font-semibold md:text-base">
+                        <h3 className="text-sm font-semibold text-text md:text-base">
                             {friend.name}
                         </h3>
 
-                        <p className="text-text/60 text-xs md:text-sm">
+                        <p className="text-xs text-text/60 md:text-sm">
                             @{friend.username}
                         </p>
                     </div>
 
                     {/* friends since */}
                     {friend.friendsAt && (
-                        <p className="text-text/50 text-xs">
+                        <p className="text-xs text-text/50">
                             Friends since{" "}
                             {new Date(friend.friendsAt).toLocaleDateString(
                                 "en-US",

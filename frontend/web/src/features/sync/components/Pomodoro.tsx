@@ -79,18 +79,18 @@ export default function Pomodoro({ burrowID, membership }: PomodoroProps) {
                         <span
                             className={`rounded-full border-2 px-4 py-2 text-sm font-semibold transition-all duration-300 ${
                                 state.isBreak
-                                    ? "bg-info/20 text-info border-info/40 shadow-info/20 shadow-lg"
-                                    : "bg-secondary/20 text-secondary border-secondary/40 shadow-secondary/20 shadow-lg"
+                                    ? "border-info/40 bg-info/20 text-info shadow-lg shadow-info/20"
+                                    : "border-secondary/40 bg-secondary/20 text-secondary shadow-lg shadow-secondary/20"
                             }`}
                         >
                             {phaseLabel} Phase
                         </span>
                         <button
                             onClick={resync}
-                            className="hover:bg-hero/60 text-text/60 hover:text-text rounded-full p-2 transition-colors"
+                            className="rounded-full p-2 text-text/60 transition-colors hover:bg-hero/60 hover:text-text"
                             title="Resync timer"
                         >
-                            <RefreshCwIcon className="h-4 w-4" />
+                            <RefreshCwIcon className="size-4" />
                         </button>
                     </div>
                 </div>
@@ -98,7 +98,7 @@ export default function Pomodoro({ burrowID, membership }: PomodoroProps) {
                 {/* circular timer display */}
                 <div className="relative mb-6">
                     {/* circular progress ring */}
-                    <svg className="h-64 w-64 -rotate-90" viewBox="0 0 256 256">
+                    <svg className="size-64 -rotate-90" viewBox="0 0 256 256">
                         {/* Background circle */}
                         <circle
                             cx="128"
@@ -134,20 +134,20 @@ export default function Pomodoro({ burrowID, membership }: PomodoroProps) {
 
                     {/* timer text centered in circle */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <div className="text-text text-6xl font-bold tracking-tight tabular-nums select-none">
+                        <div className="text-6xl font-bold tracking-tight text-text tabular-nums select-none">
                             {msToClock(optimisticRemaining)}
                         </div>
 
                         <div className="mt-3 flex items-center gap-2">
                             <div
-                                className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                                className={`size-2 rounded-full transition-all duration-300 ${
                                     state.isActive
-                                        ? "bg-success animate-pulse"
+                                        ? "animate-pulse bg-success"
                                         : "bg-text/30"
                                 }`}
                             />
 
-                            <span className="text-text/60 text-sm font-medium">
+                            <span className="text-sm font-medium text-text/60">
                                 {state.isActive ? "Active" : "Paused"}
                             </span>
                         </div>
@@ -155,7 +155,7 @@ export default function Pomodoro({ burrowID, membership }: PomodoroProps) {
                 </div>
 
                 {/* status text */}
-                <div className="text-text/50 mb-6 text-sm">
+                <div className="mb-6 text-sm text-text/50">
                     {state.isActive
                         ? `Started at ${new Date(state.startedAt).toLocaleTimeString()}`
                         : "Timer is stopped"}
@@ -174,12 +174,12 @@ export default function Pomodoro({ burrowID, membership }: PomodoroProps) {
                         >
                             {state.isActive ? (
                                 <>
-                                    <PauseCircleIcon className="h-4 w-4" />{" "}
+                                    <PauseCircleIcon className="size-4" />{" "}
                                     Pause Timer
                                 </>
                             ) : (
                                 <>
-                                    <PlayCircleIcon className="h-4 w-4" /> Start
+                                    <PlayCircleIcon className="size-4" /> Start
                                     Timer
                                 </>
                             )}

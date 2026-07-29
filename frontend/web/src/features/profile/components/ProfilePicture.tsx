@@ -123,11 +123,11 @@ export default function ProfilePicture({
 
         return {
             container: clsx(
-                isResponsive ? "h-8 w-8 ring-1 md:h-12 md:w-12 md:ring-2 lg:h-24 lg:w-24 lg:ring-4" :
-                size === "sm" ? "h-10 w-10 ring-1" :
-                size === "ksm" ? "h-10 w-10 ring-1" :
-                size === "md" ? "h-12 w-12 ring-2" :
-                "h-24 w-24 ring-4"
+                isResponsive ? "size-8 ring-1 md:size-12 md:ring-2 lg:size-24 lg:ring-4" :
+                size === "sm" ? "size-10 ring-1" :
+                size === "ksm" ? "size-10 ring-1" :
+                size === "md" ? "size-12 ring-2" :
+                "size-24 ring-4"
             ),
             text: clsx(
                 isResponsive ? "md:text-md text-sm lg:text-2xl" :
@@ -136,10 +136,10 @@ export default function ProfilePicture({
                 "text-2xl"
             ),
             indicator: clsx(
-                isResponsive ? "h-2 w-2 md:h-3 md:w-3 lg:h-4 lg:w-4" :
-                size === "sm" || size === "ksm" ? "h-2 w-2" :
-                size === "md" ? "h-3 w-3" :
-                "h-4 w-4"
+                isResponsive ? "size-2 md:size-3 lg:size-4" :
+                size === "sm" || size === "ksm" ? "size-2" :
+                size === "md" ? "size-3" :
+                "size-4"
             )
         }
     }, [size])
@@ -213,7 +213,7 @@ export default function ProfilePicture({
         <div className="relative">
             <div
                 className={clsx(
-                    "ring-primary ring-offset-base-100 overflow-hidden rounded-full shadow",
+                    "ring-offset-base-100 overflow-hidden rounded-full shadow ring-primary",
                     getResponsiveClasses.container,
                     editable && "cursor-pointer"
                 )}
@@ -234,7 +234,7 @@ export default function ProfilePicture({
                             <canvas
                                 ref={staticCanvasRef}
                                 className={clsx(
-                                    "h-full w-full object-cover",
+                                    "size-full object-cover",
                                     isHovering && "hidden",
                                     !isHovering &&
                                         "group-hover:hidden hover:hidden"
@@ -247,9 +247,9 @@ export default function ProfilePicture({
                             src={avatarUrl}
                             alt={`${name}'s profile picture`}
                             className={clsx(
-                                "h-full w-full object-cover",
+                                "size-full object-cover",
                                 isGif && "hidden group-hover:block hover:block",
-                                isHovering && isGif && "!block"
+                                isHovering && isGif && "block!"
                             )}
                             onError={() => setImageError(true)}
                         />
@@ -257,7 +257,7 @@ export default function ProfilePicture({
                 ) : (
                     <div
                         className={clsx(
-                            "bg-hero flex h-full w-full items-center justify-center font-bold",
+                            "flex size-full items-center justify-center bg-hero font-bold",
                             getResponsiveClasses.text
                         )}
                     >
@@ -272,10 +272,10 @@ export default function ProfilePicture({
                             className={clsx(
                                 "text-white",
                                 size === "sm"
-                                    ? "h-4 w-4"
+                                    ? "size-4"
                                     : size === "md"
-                                      ? "h-6 w-6"
-                                      : "h-8 w-8"
+                                      ? "size-6"
+                                      : "size-8"
                             )}
                             fill="none"
                             stroke="currentColor"
@@ -294,7 +294,7 @@ export default function ProfilePicture({
                 {/* uploading */}
                 {editable && uploading && (
                     <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
-                        <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
+                        <div className="size-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
                     </div>
                 )}
             </div>
@@ -314,7 +314,7 @@ export default function ProfilePicture({
             {isOnline !== undefined && (
                 <div
                     className={clsx(
-                        "absolute bottom-0 right-0 rounded-full border-2 border-card",
+                        "absolute right-0 bottom-0 rounded-full border-2 border-card",
                         getResponsiveClasses.indicator,
                         isOnline ? "bg-success" : "bg-text/20"
                     )}

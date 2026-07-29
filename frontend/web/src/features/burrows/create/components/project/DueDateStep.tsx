@@ -16,11 +16,11 @@ export default function DueDateStep({
 }: CreateStepProps) {
     return (
         <div className="space-y-6">
-            <div className="border-border bg-hero/50 rounded-lg border p-4">
-                <p className="text-text mb-2 text-sm font-medium">
+            <div className="border-border rounded-lg border bg-hero/50 p-4">
+                <p className="mb-2 text-sm font-medium text-text">
                     Project Timeline
                 </p>
-                <p className="text-text/60 text-xs">
+                <p className="text-xs text-text/60">
                     Set the deadline for when this project needs to be
                     completed.
                 </p>

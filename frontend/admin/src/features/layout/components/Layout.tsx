@@ -30,7 +30,10 @@ function Layout() {
     // keep the access token fresh; refresh tokens rotate on each use,
     // so track the latest one in a ref instead of re-running the effect
     const refreshTokenRef = useRef(refreshToken)
-    refreshTokenRef.current = refreshToken
+
+    useEffect(() => {
+        refreshTokenRef.current = refreshToken
+    }, [refreshToken])
 
     useEffect(() => {
         const refresh = async () => {

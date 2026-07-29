@@ -43,7 +43,7 @@ export default function ClubLinksEditor({ links, onChange }: ClubLinksEditorProp
                     <div key={key} className="flex items-end gap-2">
                         <Field label={config.label} className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
-                                <Icon className="text-text/40 h-4 w-4 shrink-0" />
+                                <Icon className="size-4 shrink-0 text-text/40" />
                                 <Input
                                     value={links[key] ?? ""}
                                     onChange={(e) => updateLink(key, e.target.value)}
@@ -54,10 +54,10 @@ export default function ClubLinksEditor({ links, onChange }: ClubLinksEditorProp
                         <button
                             type="button"
                             onClick={() => removeLink(key)}
-                            className="text-text/40 hover:bg-error/20 hover:text-error mb-1 rounded-md p-2 transition-colors"
+                            className="mb-1 rounded-md p-2 text-text/40 transition-colors hover:bg-error/20 hover:text-error"
                             aria-label={`Remove ${config.label}`}
                         >
-                            <X className="h-4 w-4" />
+                            <X className="size-4" />
                         </button>
                     </div>
                 )
@@ -72,10 +72,10 @@ export default function ClubLinksEditor({ links, onChange }: ClubLinksEditorProp
                                 key={option.key}
                                 type="button"
                                 onClick={() => addLink(option.key)}
-                                className="border-border bg-hero/20 hover:bg-hero/50 text-text/60 hover:text-text flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors"
+                                className="border-border flex items-center gap-1.5 rounded-full border bg-hero/20 px-3 py-1.5 text-xs font-medium text-text/60 transition-colors hover:bg-hero/50 hover:text-text"
                             >
-                                <Plus className="h-3 w-3" />
-                                <Icon className="h-3.5 w-3.5" />
+                                <Plus className="size-3" />
+                                <Icon className="size-3.5" />
                                 {option.label}
                             </button>
                         )

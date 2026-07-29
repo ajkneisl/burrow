@@ -1,5 +1,5 @@
 import { StyleSheet, useColorScheme } from "react-native"
-import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs"
+import type { BottomTabNavigationOptions } from "expo-router/js-tabs"
 import { GlassSurface, glassAvailable } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 

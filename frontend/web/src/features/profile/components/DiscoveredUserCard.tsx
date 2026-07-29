@@ -48,15 +48,15 @@ export default function DiscoveredUserCard({ user }: { user: DiscoveredUser }) {
     })
 
     return (
-        <Card className="bg-background! flex flex-row items-start gap-2">
+        <Card className="flex flex-row items-start gap-2 bg-background!">
             {/* profile picture */}
             <ProfilePicture name={user.name} userID={user.userID} size="md" />
 
             <div className="flex-1">
-                <h4 className="text-text text-sm font-semibold">{user.name}</h4>
-                <p className="text-text/60 text-xs">@{user.username}</p>
+                <h4 className="text-sm font-semibold text-text">{user.name}</h4>
+                <p className="text-xs text-text/60">@{user.username}</p>
 
-                <p className="text-text/40 text-xs mt-2">
+                <p className="mt-2 text-xs text-text/40">
                     {getReasoningLabel(user.reasoning)}
                 </p>
             </div>
@@ -82,7 +82,7 @@ export default function DiscoveredUserCard({ user }: { user: DiscoveredUser }) {
                         "Following"
                     ) : (
                         <>
-                            <Plus className="h-4 w-4" />
+                            <Plus className="size-4" />
                             Follow
                         </>
                     )}

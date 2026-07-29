@@ -14,7 +14,7 @@ export default function HomeButton() {
             aria-haspopup="menu"
             aria-label="Go back"
             onClick={() => nav("/")}
-            icon={<HomeIcon className="h-5 w-5" />}
+            icon={<HomeIcon className="size-5" />}
         />
     )
 }

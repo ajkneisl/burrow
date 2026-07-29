@@ -210,7 +210,7 @@ export default function AboutScreen() {
                             </Text>
                             , for students at the University of Minnesota. Our
                             goal is to make studying and connecting with one
-                            another easier. Whether that's a group study
+                            another easier. Whether that&apos;s a group study
                             session, a club meeting, or a social event, Burrow
                             helps keep things organized and collaborative.
                         </Text>

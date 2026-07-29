@@ -198,7 +198,7 @@ export function AttendeeActionsModal({
                         </Text>
 
                         <Text className="text-text text-opacity-60 text-xs">
-                            See {attendee.user.username}'s profile
+                            See {attendee.user.username}&apos;s profile
                         </Text>
                     </View>
                 </Pressable>

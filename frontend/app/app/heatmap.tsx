@@ -30,7 +30,7 @@ export default function HeatmapScreen() {
                                 Your Burrow Activity
                             </Text>
                             <Text className="text-text text-opacity-60 text-sm">
-                                See when you've been most active in burrows. Each
+                                See when you&apos;ve been most active in burrows. Each
                                 cell represents a day, with darker colors showing
                                 more activity.
                             </Text>

@@ -19,15 +19,15 @@ export default function MyFriends() {
     })
 
     return (
-        <Card className="border-text/10 flex flex-col gap-4 rounded-xl border p-4 shadow-md">
+        <Card className="flex flex-col gap-4 rounded-xl border border-text/10 p-4 shadow-md">
             <div className="flex items-center justify-between">
-                <h2 className="text-text/60 figtree text-[11px] tracking-wider uppercase">
+                <h2 className="figtree text-[11px] tracking-wider text-text/60 uppercase">
                     Friends
                 </h2>
 
                 <button
                     onClick={() => nav("/friends")}
-                    className="text-text/60 hover:text-text/80 cursor-pointer text-xs hover:underline"
+                    className="cursor-pointer text-xs text-text/60 hover:text-text/80 hover:underline"
                 >
                     View all
                 </button>
@@ -48,18 +48,18 @@ export default function MyFriends() {
                     Array.from({ length: 3 }).map((_, i) => (
                         <li
                             key={i}
-                            className="bg-hero/80 flex items-center gap-2 rounded-lg px-4 py-3"
+                            className="flex items-center gap-2 rounded-lg bg-hero/80 px-4 py-3"
                         >
-                            <div className="bg-text/10 size-8 animate-pulse rounded-full" />
-                            <div className="bg-text/10 h-3 w-32 animate-pulse rounded" />
+                            <div className="size-8 animate-pulse rounded-full bg-text/10" />
+                            <div className="h-3 w-32 animate-pulse rounded bg-text/10" />
                         </li>
                     ))}
 
                 {/* empty state */}
                 {!isLoading && data && data.length === 0 && (
-                    <li className="bg-background/30 flex flex-col items-center gap-1 rounded-lg px-4 py-6">
-                        <Users className="text-text/30 h-6 w-6" />
-                        <p className="text-text/40 text-sm">No friends yet</p>
+                    <li className="flex flex-col items-center gap-1 rounded-lg bg-background/30 px-4 py-6">
+                        <Users className="size-6 text-text/30" />
+                        <p className="text-sm text-text/40">No friends yet</p>
                     </li>
                 )}
             </ul>

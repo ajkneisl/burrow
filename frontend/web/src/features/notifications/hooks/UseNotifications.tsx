@@ -48,8 +48,8 @@ export default function useNotifications() {
                     >
                         <div className="flex items-start gap-3 p-4">
                             {/* Icon */}
-                            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-50">
-                                <Bell className="h-5 w-5 text-red-600" fill="currentColor" />
+                            <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-lg bg-red-50">
+                                <Bell className="size-5 text-red-600" fill="currentColor" />
                             </div>
 
                             {/* Content */}

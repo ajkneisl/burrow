@@ -85,8 +85,8 @@ export default function NotificationKindSettings({
 
     return (
         <div
-            className="border-card-border bg-background
-         w-full space-y-3 rounded-lg border px-3"
+            className="w-full space-y-3
+         rounded-lg border border-card-border bg-background px-3"
         >
             {/* main toggle for the certain kind */}
             <Toggle
