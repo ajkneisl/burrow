@@ -59,12 +59,12 @@ export default function ChatInput({
         <div className={className}>
             {/* edit mode indicator */}
             {isEditing && (
-                <div className="bg-warn/10 border-warn/20 mb-3 flex items-center justify-between rounded-lg border px-3 py-2">
+                <div className="mb-3 flex items-center justify-between rounded-lg border border-warn/20 bg-warn/10 px-3 py-2">
                     <div className="flex items-center gap-2">
-                        <div className="bg-warn/20 rounded p-1">
-                            <Pencil className="text-warn h-3 w-3" />
+                        <div className="rounded bg-warn/20 p-1">
+                            <Pencil className="size-3 text-warn" />
                         </div>
-                        <span className="text-text/80 text-xs font-medium">
+                        <span className="text-xs font-medium text-text/80">
                             Editing message
                         </span>
                     </div>
@@ -73,10 +73,10 @@ export default function ChatInput({
                         <button
                             type="button"
                             onClick={onCancelEdit}
-                            className="text-text/60 hover:text-text hover:bg-background/60 rounded p-1 transition-colors"
+                            className="rounded p-1 text-text/60 transition-colors hover:bg-background/60 hover:text-text"
                             aria-label="Cancel editing"
                         >
-                            <X className="h-4 w-4" />
+                            <X className="size-4" />
                         </button>
                     )}
                 </div>
@@ -101,7 +101,7 @@ export default function ChatInput({
                     disabled={!canSend}
                     className="px-4"
                 >
-                    {isEditing ? "Save" : <Send className="h-4 w-4" />}
+                    {isEditing ? "Save" : <Send className="size-4" />}
                 </Button>
             </div>
         </div>

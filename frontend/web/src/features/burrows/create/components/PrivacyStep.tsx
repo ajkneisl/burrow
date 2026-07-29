@@ -46,11 +46,11 @@ export default function PrivacyStep({
 
     return (
         <div className="space-y-6">
-            <div className="border-card-border bg-card rounded-lg border p-4">
-                <p className="text-text mb-2 text-sm font-medium">
+            <div className="rounded-lg border border-card-border bg-card p-4">
+                <p className="mb-2 text-sm font-medium text-text">
                     Privacy Settings
                 </p>
-                <p className="text-text/60 text-xs">{copy.subtitle}</p>
+                <p className="text-xs text-text/60">{copy.subtitle}</p>
             </div>
 
             {/* visibility */}

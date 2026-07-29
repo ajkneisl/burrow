@@ -12,7 +12,7 @@ export default function ProfileSocialButton({
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-card border-card-border hover:bg-card/80 flex flex-1 items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition"
+            className="flex flex-1 items-center justify-center gap-2 rounded-full border border-card-border bg-card px-4 py-2.5 text-sm font-medium transition hover:bg-card/80"
         >
             {icon}
             <span>{label}</span>

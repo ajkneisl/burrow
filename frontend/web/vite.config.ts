@@ -1,7 +1,6 @@
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
-import tsconfigPaths from "vite-tsconfig-paths"
 
 async function loadBitwardenSecrets() {
     const accessToken = process.env.BWS_TOKEN
@@ -48,6 +47,8 @@ export default defineConfig(async () => {
     await loadBitwardenSecrets()
 
     return {
-        plugins: [react(), tailwindcss(), tsconfigPaths()]
+        // Vite 8 resolves tsconfig `paths` natively, replacing vite-tsconfig-paths
+        resolve: { tsconfigPaths: true },
+        plugins: [react(), tailwindcss()]
     }
 })

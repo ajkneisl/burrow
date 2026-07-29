@@ -81,7 +81,7 @@ export default function ReportProblemModal() {
         <Modal open={open} onClose={() => setOpen(false)} title="Feedback">
             <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
-                    <div className="border-error/20 bg-error/5 text-error rounded-lg border px-3 py-2 text-sm">
+                    <div className="rounded-lg border border-error/20 bg-error/5 px-3 py-2 text-sm text-error">
                         {error}
                     </div>
                 )}
@@ -118,7 +118,7 @@ export default function ReportProblemModal() {
                 </div>
 
                 <TextArea
-                    className="max-h-[512px] min-h-[128px] w-full resize-y"
+                    className="max-h-128 min-h-32 w-full resize-y"
                     text={"Describe your issue"}
                     placeholder="Steps to reproduce, what you expected, and what happened instead."
                     value={details}
@@ -130,7 +130,7 @@ export default function ReportProblemModal() {
                 />
 
                 {/* Context preview */}
-                <div className="border-card-border bg-card text-text/70 rounded-lg border px-3 py-2 text-xs">
+                <div className="rounded-lg border border-card-border bg-card px-3 py-2 text-xs text-text/70">
                     <div>
                         <span className="font-medium">Version:</span>{" "}
                         {import.meta.env.VITE_VERSION} (

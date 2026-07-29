@@ -48,11 +48,11 @@ export default function ClubMembers({ clubName }: ClubMembersProps) {
             <h3 className="mb-3 text-sm font-semibold">Members</h3>
 
             {membersLoading && (
-                <div className="text-text/60 text-sm">Loading members...</div>
+                <div className="text-sm text-text/60">Loading members...</div>
             )}
 
             {!membersLoading && sortedMembers.length === 0 && (
-                <div className="text-text/50 text-sm">No members yet.</div>
+                <div className="text-sm text-text/50">No members yet.</div>
             )}
 
             {!membersLoading && sortedMembers.length > 0 && (

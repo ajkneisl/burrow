@@ -100,15 +100,15 @@ export default function GenericChatBox({
             {/* Messages container */}
             <div
                 ref={listRef}
-                className="scrollbar-thin scrollbar-thumb-background/60 scrollbar-track-transparent flex-1 overflow-y-auto py-4"
+                className="flex-1 scrollbar-thin scrollbar-thumb-background/60 scrollbar-track-transparent overflow-y-auto py-4"
             >
                 {messages.length === 0 ? (
                     <div className="flex h-full flex-col items-center justify-center">
-                        <MessageSquare className="text-text/20 mb-3 h-12 w-12" />
-                        <p className="text-text/60 text-center text-sm font-medium">
+                        <MessageSquare className="mb-3 size-12 text-text/20" />
+                        <p className="text-center text-sm font-medium text-text/60">
                             No messages yet
                         </p>
-                        <p className="text-text/40 text-center text-xs">
+                        <p className="text-center text-xs text-text/40">
                             Start the conversation
                         </p>
                     </div>

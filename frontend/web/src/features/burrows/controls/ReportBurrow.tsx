@@ -44,7 +44,7 @@ export default function ReportBurrow({
                 onClick={() => setDropdownOpen((v) => !v)}
                 ref={buttonRef}
             >
-                <Flag className="h-5 w-5" />
+                <Flag className="size-5" />
             </MeetingButton>
 
             {/* options dropdown */}
@@ -61,7 +61,7 @@ export default function ReportBurrow({
                         setReportAuthorOpen(true)
                         setDropdownOpen(false)
                     }}
-                    rightIcon={<User className="h-4 w-4" />}
+                    rightIcon={<User className="size-4" />}
                 />
 
                 <DropdownItem
@@ -70,7 +70,7 @@ export default function ReportBurrow({
                         setReportBurrowOpen(true)
                         setDropdownOpen(false)
                     }}
-                    rightIcon={<FileWarning className="h-4 w-4" />}
+                    rightIcon={<FileWarning className="size-4" />}
                 />
             </Dropdown>
 

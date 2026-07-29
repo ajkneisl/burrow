@@ -1,83 +1,44 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val exposed_version: String by project
-val h2_version: String by project
-val kotlin_version: String by project
-val logback_version: String by project
-
 plugins {
-    kotlin("jvm") version "2.2.20"
-    id("io.ktor.plugin") version "3.3.0"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.ktor)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 group = "app.burrow"
 
-version = "0.5.0"
+version = "0.6.0"
 
 application { mainClass = "app.burrow.ApplicationKt" }
 
 dependencies {
     implementation(kotlin("reflect"))
 
-    implementation("io.ktor:ktor-client-cio")
-    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation(libs.bundles.ktor.client)
+    implementation(libs.bundles.ktor.server)
 
-    implementation("io.ktor:ktor-server-auth")
-    implementation("io.ktor:ktor-server-auth-jwt")
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.r2dbc)
+    implementation(libs.r2dbc.pool)
+    implementation(libs.r2dbc.postgresql)
 
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.ktor:ktor-server-cors")
-    implementation("io.ktor:ktor-server-default-headers")
-    implementation("io.ktor:ktor-server-core")
-    implementation("io.ktor:ktor-server-auth")
-    implementation("io.ktor:ktor-server-auth-jwt")
-    implementation("io.ktor:ktor-server-auto-head-response")
-    implementation("io.ktor:ktor-server-sse")
-    implementation("io.ktor:ktor-server-host-common")
-    implementation("io.ktor:ktor-server-status-pages")
-    implementation("io.ktor:ktor-server-content-negotiation")
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.ktor:ktor-server-netty")
-    implementation("io.ktor:ktor-server-websockets")
-    implementation("io.ktor:ktor-server-call-logging")
+    implementation(libs.ktor.rate.limiting)
+    implementation(libs.logback.classic)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.reflections)
+    implementation(libs.jbcrypt)
+    implementation(libs.minio)
+    implementation(libs.google.api.client)
+    implementation(platform(libs.aws.bom))
+    implementation(libs.aws.ses)
+    implementation(libs.web.push)
+    implementation(libs.khealth)
+    implementation(libs.expo.server.sdk)
 
-    implementation("dev.hayden:khealth:3.0.2")
-
-    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
-    implementation("org.jetbrains.exposed:exposed-r2dbc:$exposed_version")
-
-    implementation("io.r2dbc:r2dbc-pool:1.0.2.RELEASE")
-    implementation("org.postgresql:r2dbc-postgresql:1.0.7.RELEASE")
-
-    implementation("io.github.flaxoos:ktor-server-rate-limiting:2.2.1")
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-    implementation("org.reflections:reflections:0.10.2")
-    implementation("org.mindrot:jbcrypt:0.4")
-
-    implementation("io.minio:minio:8.6.0")
-
-    // Google OAuth verification
-    implementation("com.google.api-client:google-api-client:2.7.0")
-
-    // AWS SES for email notifications
-    implementation(platform("software.amazon.awssdk:bom:2.29.29"))
-    implementation("software.amazon.awssdk:ses")
-
-    // Web Push for browser notifications
-    implementation("nl.martijndwars:web-push:5.1.1")
-
-    // expo push for mobile notif
-    implementation("io.github.hlspablo:expo-server-sdk-java:3.1.6")
-
-    testImplementation("io.kotest:kotest-runner-junit5:6.0.4")
-    testImplementation("io.kotest:kotest-assertions-core:6.0.4")
-    testImplementation("io.kotest:kotest-property:6.0.4")
-    testImplementation("io.kotest:kotest-assertions-ktor:6.0.4")
-
-    testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation(libs.bundles.kotest)
+    testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.kotlin.test.junit)
 }
 
 repositories {
@@ -98,11 +59,10 @@ repositories {
     }
 }
 
-val compileKotlin: KotlinCompile by tasks
+// nested type aliases are stable as of language version 2.4, so the opt-in flag is no longer needed
 val compileTestKotlin: KotlinCompile by tasks
 
-compileKotlin.compilerOptions { freeCompilerArgs.set(listOf("-Xnested-type-aliases")) }
-compileTestKotlin.compilerOptions { freeCompilerArgs.set(listOf("-Xnested-type-aliases", "-Xskip-prerelease-check")) }
+compileTestKotlin.compilerOptions { freeCompilerArgs.set(listOf("-Xskip-prerelease-check")) }
 
 ktor {
     development = false

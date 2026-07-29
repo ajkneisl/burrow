@@ -107,28 +107,28 @@ export default function LandingView() {
                 {/* Floating pill nav */}
                 <header className="fixed inset-x-0 top-4 z-50 px-4">
                     <nav
-                        className="border-card-border/70 bg-background/75 mx-auto flex max-w-3xl items-center justify-between rounded-full border py-2 pr-2 pl-4 shadow-lg shadow-black/5 backdrop-blur-xl">
+                        className="mx-auto flex max-w-3xl items-center justify-between rounded-full border border-card-border/70 bg-background/75 py-2 pr-2 pl-4 shadow-lg shadow-black/5 backdrop-blur-xl">
                         <a href="#top" className="flex items-center gap-2.5">
                             <img
                                 src="/image/burrow.png"
                                 alt="Burrow"
-                                className="h-8 w-8"
+                                className="size-8"
                             />
-                            <span className="figtree text-text text-lg">
+                            <span className="figtree text-lg text-text">
                                 Burrow
                             </span>
                         </a>
 
-                        <div className="text-text/70 hidden items-center gap-6 text-sm font-medium sm:flex">
+                        <div className="hidden items-center gap-6 text-sm font-medium text-text/70 sm:flex">
                             <a
                                 href="#features"
-                                className="hover:text-text transition-colors"
+                                className="transition-colors hover:text-text"
                             >
                                 Features
                             </a>
                             <a
                                 href="#how"
-                                className="hover:text-text transition-colors"
+                                className="transition-colors hover:text-text"
                             >
                                 How it works
                             </a>
@@ -151,11 +151,11 @@ export default function LandingView() {
                     {/* Ambient background glow */}
                     <div className="pointer-events-none absolute inset-0">
                         <div
-                            className="absolute -top-40 left-1/2 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(122,0,25,0.14)_0%,rgba(122,0,25,0)_100%)]"/>
+                            className="absolute -top-40 left-1/2 h-130 w-205 -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(122,0,25,0.14)_0%,rgba(122,0,25,0)_100%)]"/>
                         <div
-                            className="absolute top-24 left-[12%] h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(255,204,0,0.16)_0%,rgba(255,204,0,0)_100%)]"/>
+                            className="absolute top-24 left-[12%] size-72 rounded-full bg-[radial-gradient(closest-side,rgba(255,204,0,0.16)_0%,rgba(255,204,0,0)_100%)]"/>
                         <div
-                            className="absolute top-40 right-[8%] h-80 w-80 rounded-full bg-[radial-gradient(closest-side,rgba(122,0,25,0.10)_0%,rgba(122,0,25,0)_100%)]"/>
+                            className="absolute top-40 right-[8%] size-80 rounded-full bg-[radial-gradient(closest-side,rgba(122,0,25,0.10)_0%,rgba(122,0,25,0)_100%)]"/>
                     </div>
 
                     <div className="relative mx-auto flex max-w-3xl flex-col items-center text-center">
@@ -163,9 +163,9 @@ export default function LandingView() {
                             initial={{opacity: 0, y: 16}}
                             animate={{opacity: 1, y: 0}}
                             transition={{duration: 0.5, ease: "easeOut"}}
-                            className="border-card-border bg-card text-text/70 mb-6 flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold"
+                            className="mb-6 flex items-center gap-2 rounded-full border border-card-border bg-card px-4 py-1.5 text-xs font-semibold text-text/70"
                         >
-                            <GraduationCap className="h-3.5 w-3.5"/>
+                            <GraduationCap className="size-3.5"/>
                             Made for the University of Minnesota
                         </motion.div>
 
@@ -177,7 +177,7 @@ export default function LandingView() {
                                 delay: 0.05,
                                 ease: "easeOut"
                             }}
-                            className="figtree text-text mb-6 text-5xl leading-[1.05] tracking-tight sm:text-7xl"
+                            className="figtree leading-1.05 mb-6 text-5xl tracking-tight text-text sm:text-7xl"
                         >
                             Find your people
                             <br/>
@@ -192,7 +192,7 @@ export default function LandingView() {
                                 delay: 0.12,
                                 ease: "easeOut"
                             }}
-                            className="text-text/60 mb-10 max-w-xl text-lg sm:text-xl"
+                            className="mb-10 max-w-xl text-lg text-text/60 sm:text-xl"
                         >
                             Study sessions, project teams, clubs, and friends.
                             Everything happening on campus, in one place.
@@ -221,28 +221,28 @@ export default function LandingView() {
 
                             <Link
                                 to="/login"
-                                className="text-text/60 hover:text-text mt-4 text-sm font-medium transition-colors"
+                                className="mt-4 text-sm font-medium text-text/60 transition-colors hover:text-text"
                             >
                                 Sign in a different way
                             </Link>
 
-                            <p className="text-text/45 mt-6 flex items-center gap-1.5 text-xs">
-                                <Shield className="h-3.5 w-3.5"/>
+                            <p className="mt-6 flex items-center gap-1.5 text-xs text-text/45">
+                                <Shield className="size-3.5"/>
                                 Verified UMN students only (@umn.edu)
                             </p>
 
-                            <p className="text-text/45 mt-3 text-xs">
+                            <p className="mt-3 text-xs text-text/45">
                                 By signing in, you agree to our{" "}
                                 <Link
                                     to="/privacy"
-                                    className="text-text/60 hover:text-text underline"
+                                    className="text-text/60 underline hover:text-text"
                                 >
                                     Privacy Policy
                                 </Link>{" "}
                                 and{" "}
                                 <Link
                                     to="/tos"
-                                    className="text-text/60 hover:text-text underline"
+                                    className="text-text/60 underline hover:text-text"
                                 >
                                     Terms of Service
                                 </Link>
@@ -277,7 +277,7 @@ export default function LandingView() {
                             >
                                 Features
                             </p>
-                            <h2 className="figtree text-text text-4xl tracking-tight sm:text-5xl">
+                            <h2 className="figtree text-4xl tracking-tight text-text sm:text-5xl">
                                 One app for your
                                 <br/>
                                 whole campus life.
@@ -285,7 +285,7 @@ export default function LandingView() {
                         </FadeIn>
 
                         <FeatureSection
-                            icon={<CalendarClock className="h-5 w-5"/>}
+                            icon={<CalendarClock className="size-5"/>}
                             eyebrow="Study Burrows"
                             title="Never study alone again."
                             description="Start a study session for any class in seconds. Pick a time and a spot on campus, and classmates can find it and join instantly."
@@ -299,7 +299,7 @@ export default function LandingView() {
 
                         <FeatureSection
                             flip
-                            icon={<ListChecks className="h-5 w-5"/>}
+                            icon={<ListChecks className="size-5"/>}
                             eyebrow="Project Burrows"
                             title="Build things with your team."
                             description="Project Burrows are longer-lived spaces for class projects, hackathons, and side projects, with your team, tasks, and chat together."
@@ -312,7 +312,7 @@ export default function LandingView() {
                         />
 
                         <FeatureSection
-                            icon={<Megaphone className="h-5 w-5"/>}
+                            icon={<Megaphone className="size-5"/>}
                             eyebrow="Clubs"
                             title="Your club, beyond the club fair."
                             description="Browse every club on campus, join the ones you love, and keep up with announcements and events without digging through emails."
@@ -326,7 +326,7 @@ export default function LandingView() {
 
                         <FeatureSection
                             flip
-                            icon={<MessageSquare className="h-5 w-5"/>}
+                            icon={<MessageSquare className="size-5"/>}
                             eyebrow="Messaging"
                             title="Chat lives where the plans are."
                             description="Every burrow and club comes with built-in chat, so the conversation stays with the people and plans it belongs to."
@@ -339,7 +339,7 @@ export default function LandingView() {
                         />
 
                         <FeatureSection
-                            icon={<Users className="h-5 w-5"/>}
+                            icon={<Users className="size-5"/>}
                             eyebrow="Friends"
                             title="Keep the people you meet."
                             description="Met someone great in a study session? Add them as a friend, see what they're up to, and make the next plan together."
@@ -362,7 +362,7 @@ export default function LandingView() {
                             >
                                 How it works
                             </p>
-                            <h2 className="figtree text-text text-4xl tracking-tight sm:text-5xl">
+                            <h2 className="figtree text-4xl tracking-tight text-text sm:text-5xl">
                                 Three steps. That's it.
                             </h2>
                         </FadeIn>
@@ -396,8 +396,8 @@ export default function LandingView() {
                             <div
                                 className={`absolute inset-x-0 top-0 h-64 ${GOLD_GLOW}`}
                             />
-                            <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/5"/>
-                            <div className="absolute -right-20 -bottom-28 h-80 w-80 rounded-full bg-white/5"/>
+                            <div className="absolute -top-24 -left-24 size-72 rounded-full bg-white/5"/>
+                            <div className="absolute -right-20 -bottom-28 size-80 rounded-full bg-white/5"/>
 
                             <div className="relative flex flex-col items-center">
                                 <h2 className="figtree mb-4 text-4xl tracking-tight text-white sm:text-5xl">
@@ -474,7 +474,7 @@ function FeatureSection({
         <div className="mb-24 grid items-center gap-10 sm:mb-32 sm:grid-cols-2 sm:gap-16">
             <FadeIn className={flip ? "sm:order-2" : ""}>
                 <div
-                    className={`mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#7a0019] text-white`}
+                    className={`mb-5 flex size-11 items-center justify-center rounded-2xl bg-[#7a0019] text-white`}
                 >
                     {icon}
                 </div>
@@ -485,21 +485,21 @@ function FeatureSection({
                     {eyebrow}
                 </p>
 
-                <h3 className="figtree text-text mb-4 text-3xl tracking-tight sm:text-4xl">
+                <h3 className="figtree mb-4 text-3xl tracking-tight text-text sm:text-4xl">
                     {title}
                 </h3>
 
-                <p className="text-text/60 mb-6 text-lg">{description}</p>
+                <p className="mb-6 text-lg text-text/60">{description}</p>
 
                 <ul className="flex flex-col gap-3">
                     {bullets.map((bullet) => (
                         <li
                             key={bullet}
-                            className="text-text/70 flex items-start gap-2.5 text-sm"
+                            className="flex items-start gap-2.5 text-sm text-text/70"
                         >
                             <span
-                                className="bg-secondary mt-0.5 flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full">
-                                <Check className="h-3 w-3 text-gray-900"/>
+                                className="mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded-full bg-secondary">
+                                <Check className="size-3 text-gray-900"/>
                             </span>
                             {bullet}
                         </li>
@@ -530,12 +530,12 @@ function StepCard({
     description: string
 }) {
     return (
-        <FadeIn className="bg-card border-card-border rounded-3xl border p-7">
-            <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#7a0019]">
-                <span className="text-secondary font-bold">{number}</span>
+        <FadeIn className="rounded-3xl border border-card-border bg-card p-7">
+            <div className="mb-5 flex size-10 items-center justify-center rounded-full bg-[#7a0019]">
+                <span className="font-bold text-secondary">{number}</span>
             </div>
-            <h3 className="text-text mb-1.5 text-lg font-semibold">{title}</h3>
-            <p className="text-text/60 text-sm">{description}</p>
+            <h3 className="mb-1.5 text-lg font-semibold text-text">{title}</h3>
+            <p className="text-sm text-text/60">{description}</p>
         </FadeIn>
     )
 }
@@ -554,15 +554,15 @@ function DemoWindow({
 }) {
     return (
         <div
-            className={`bg-card border-card-border overflow-hidden rounded-3xl border shadow-2xl shadow-black/10 ${className}`}
+            className={`overflow-hidden rounded-3xl border border-card-border bg-card shadow-2xl shadow-black/10 ${className}`}
         >
-            <div className="border-card-border bg-background flex items-center gap-2 border-b px-5 py-3.5">
+            <div className="flex items-center gap-2 border-b border-card-border bg-background px-5 py-3.5">
                 <div className="flex gap-1.5">
-                    <div className="h-3 w-3 rounded-full bg-[#ff5f57]"/>
-                    <div className="h-3 w-3 rounded-full bg-[#febc2e]"/>
-                    <div className="h-3 w-3 rounded-full bg-[#28c840]"/>
+                    <div className="size-3 rounded-full bg-[#ff5f57]"/>
+                    <div className="size-3 rounded-full bg-[#febc2e]"/>
+                    <div className="size-3 rounded-full bg-[#28c840]"/>
                 </div>
-                <span className="text-text/45 ml-2 text-xs font-semibold tracking-widest uppercase">
+                <span className="ml-2 text-xs font-semibold tracking-widest text-text/45 uppercase">
                     {label}
                 </span>
             </div>
@@ -589,7 +589,7 @@ function Avatar({
 
     return (
         <div
-            className={`border-card flex h-8 w-8 items-center justify-center rounded-full border-2 text-[10px] font-bold ${colors[color]} ${className}`}
+            className={`flex size-8 items-center justify-center rounded-full border-2 border-card text-[10px] font-bold ${colors[color]} ${className}`}
         >
             {initials}
         </div>
@@ -608,8 +608,8 @@ function Tag({
         <span
             className={
                 solid
-                    ? "bg-secondary rounded-full px-2.5 py-1 text-[10px] font-bold tracking-widest text-gray-900"
-                    : "border-card-border text-text/70 rounded-full border px-2.5 py-1 text-[10px] font-semibold tracking-widest"
+                    ? "rounded-full bg-secondary px-2.5 py-1 text-[10px] font-bold tracking-widest text-gray-900"
+                    : "rounded-full border border-card-border px-2.5 py-1 text-[10px] font-semibold tracking-widest text-text/70"
             }
         >
             {children}
@@ -626,23 +626,23 @@ function HeroWindowDemo() {
         <DemoWindow label="burrow.study" className="relative">
             <div className="pointer-events-none grid gap-4 select-none sm:grid-cols-5">
                 {/* Session card */}
-                <div className="bg-background border-card-border rounded-2xl border p-5 sm:col-span-3">
+                <div className="rounded-2xl border border-card-border bg-background p-5 sm:col-span-3">
                     <div className="mb-3 flex items-center gap-2">
                         <Tag solid>STUDY</Tag>
                         <Tag>CSCI 1133</Tag>
                     </div>
 
-                    <h3 className="text-text mb-3 text-lg font-semibold">
+                    <h3 className="mb-3 text-lg font-semibold text-text">
                         Homework 4 study session
                     </h3>
 
-                    <div className="text-text/60 flex flex-col gap-1.5 text-sm">
+                    <div className="flex flex-col gap-1.5 text-sm text-text/60">
                         <div className="flex items-center gap-2">
-                            <CalendarClock className="h-4 w-4"/>
+                            <CalendarClock className="size-4"/>
                             Tonight · 7:00 PM
                         </div>
                         <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4"/>
+                            <MapPin className="size-4"/>
                             Lind Hall 325
                         </div>
                     </div>
@@ -662,7 +662,7 @@ function HeroWindowDemo() {
                                     className="-ml-2"
                                 />
                             </div>
-                            <span className="text-text/60 ml-3 text-sm">
+                            <span className="ml-3 text-sm text-text/60">
                                 5 going
                             </span>
                         </div>
@@ -674,16 +674,16 @@ function HeroWindowDemo() {
                 </div>
 
                 {/* Chat preview */}
-                <div className="bg-background border-card-border rounded-2xl border p-4 sm:col-span-2">
+                <div className="rounded-2xl border border-card-border bg-background p-4 sm:col-span-2">
                     <div
-                        className="text-text/45 mb-3 flex items-center gap-1.5 text-xs font-semibold tracking-widest uppercase">
-                        <MessageSquare className="h-3.5 w-3.5"/>
+                        className="mb-3 flex items-center gap-1.5 text-xs font-semibold tracking-widest text-text/45 uppercase">
+                        <MessageSquare className="size-3.5"/>
                         Chat
                     </div>
 
                     <div className="flex flex-col gap-2">
                         <div
-                            className="bg-card border-card-border text-text max-w-[90%] self-start rounded-2xl rounded-bl-md border px-3.5 py-2 text-sm">
+                            className="max-w-[90%] self-start rounded-2xl rounded-bl-md border border-card-border bg-card px-3.5 py-2 text-sm text-text">
                             anyone else stuck on problem 3?
                         </div>
                         <div
@@ -691,7 +691,7 @@ function HeroWindowDemo() {
                             yeah, we got a table by the windows
                         </div>
                         <div
-                            className="bg-card border-card-border text-text max-w-[90%] self-start rounded-2xl rounded-bl-md border px-3.5 py-2 text-sm">
+                            className="max-w-[90%] self-start rounded-2xl rounded-bl-md border border-card-border bg-card px-3.5 py-2 text-sm text-text">
                             omw 🏃
                         </div>
                     </div>
@@ -708,21 +708,21 @@ function StudyBurrowDemo() {
     return (
         <DemoWindow label="Browse · CSCI 2021">
             <div className="flex flex-col gap-3">
-                <div className="bg-background border-card-border rounded-2xl border p-4">
+                <div className="rounded-2xl border border-card-border bg-background p-4">
                     <div className="mb-2 flex items-center gap-2">
                         <Tag solid>STUDY</Tag>
                         <Tag>CSCI 2021</Tag>
                     </div>
-                    <h4 className="text-text mb-2 font-semibold">
+                    <h4 className="mb-2 font-semibold text-text">
                         Midterm 2 review grind
                     </h4>
-                    <div className="text-text/60 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text/60">
                         <span className="flex items-center gap-1.5">
-                            <CalendarClock className="h-4 w-4"/>
+                            <CalendarClock className="size-4"/>
                             Thu · 6:30 PM
                         </span>
                         <span className="flex items-center gap-1.5">
-                            <MapPin className="h-4 w-4"/>
+                            <MapPin className="size-4"/>
                             Walter Library
                         </span>
                     </div>
@@ -742,21 +742,21 @@ function StudyBurrowDemo() {
                     </div>
                 </div>
 
-                <div className="bg-background border-card-border rounded-2xl border p-4 opacity-70">
+                <div className="rounded-2xl border border-card-border bg-background p-4 opacity-70">
                     <div className="mb-2 flex items-center gap-2">
                         <Tag solid>STUDY</Tag>
                         <Tag>CSCI 2021</Tag>
                     </div>
-                    <h4 className="text-text mb-2 font-semibold">
+                    <h4 className="mb-2 font-semibold text-text">
                         Lab 8 co-working
                     </h4>
-                    <div className="text-text/60 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text/60">
                         <span className="flex items-center gap-1.5">
-                            <CalendarClock className="h-4 w-4"/>
+                            <CalendarClock className="size-4"/>
                             Sat · 1:00 PM
                         </span>
                         <span className="flex items-center gap-1.5">
-                            <MapPin className="h-4 w-4"/>
+                            <MapPin className="size-4"/>
                             Keller Hall
                         </span>
                     </div>
@@ -777,36 +777,36 @@ function ProjectBurrowDemo() {
                 <Tag>HACKATHON</Tag>
             </div>
 
-            <h4 className="text-text mb-1 text-lg font-semibold">
+            <h4 className="mb-1 text-lg font-semibold text-text">
                 MinneHack campus events app
             </h4>
-            <p className="text-text/55 mb-4 text-sm">
+            <p className="mb-4 text-sm text-text/55">
                 Team of 4 · Demo day in 12 days
             </p>
 
             <div className="flex flex-col gap-2">
-                <div className="bg-background border-card-border flex items-center gap-3 rounded-xl border px-4 py-2.5">
-                    <span className="bg-secondary flex h-5 w-5 items-center justify-center rounded-md">
-                        <Check className="h-3.5 w-3.5 text-gray-900"/>
+                <div className="flex items-center gap-3 rounded-xl border border-card-border bg-background px-4 py-2.5">
+                    <span className="flex size-5 items-center justify-center rounded-md bg-secondary">
+                        <Check className="size-3.5 text-gray-900"/>
                     </span>
-                    <span className="text-text/50 text-sm line-through">
+                    <span className="text-sm text-text/50 line-through">
                         Set up the repo
                     </span>
                 </div>
-                <div className="bg-background border-card-border flex items-center gap-3 rounded-xl border px-4 py-2.5">
-                    <span className="bg-secondary flex h-5 w-5 items-center justify-center rounded-md">
-                        <Check className="h-3.5 w-3.5 text-gray-900"/>
+                <div className="flex items-center gap-3 rounded-xl border border-card-border bg-background px-4 py-2.5">
+                    <span className="flex size-5 items-center justify-center rounded-md bg-secondary">
+                        <Check className="size-3.5 text-gray-900"/>
                     </span>
-                    <span className="text-text/50 text-sm line-through">
+                    <span className="text-sm text-text/50 line-through">
                         Sketch the event feed
                     </span>
                 </div>
-                <div className="bg-background border-card-border flex items-center gap-3 rounded-xl border px-4 py-2.5">
-                    <span className="border-card-border h-5 w-5 rounded-md border-2"/>
-                    <span className="text-text text-sm">
+                <div className="flex items-center gap-3 rounded-xl border border-card-border bg-background px-4 py-2.5">
+                    <span className="size-5 rounded-md border-2 border-card-border"/>
+                    <span className="text-sm text-text">
                         Hook up the map view
                     </span>
-                    <Avatar initials="AJ" className="ml-auto h-6 w-6"/>
+                    <Avatar initials="AJ" className="ml-auto size-6"/>
                 </div>
             </div>
 
@@ -817,7 +817,7 @@ function ProjectBurrowDemo() {
                     <Avatar initials="SR" color="gray" className="-ml-2"/>
                     <Avatar initials="DT" className="-ml-2"/>
                 </div>
-                <span className="text-text/60 text-sm">2 of 5 done</span>
+                <span className="text-sm text-text/60">2 of 5 done</span>
             </div>
         </DemoWindow>
     )
@@ -839,8 +839,8 @@ function ClubDemo() {
             </div>
 
             <div className="mb-4 flex items-center justify-between">
-                <span className="text-text/60 flex items-center gap-1.5 text-sm">
-                    <Users className="h-4 w-4"/>
+                <span className="flex items-center gap-1.5 text-sm text-text/60">
+                    <Users className="size-4"/>
                     128 members
                 </span>
                 <div className="rounded-full bg-[#7a0019] px-4 py-1.5 text-xs font-semibold text-white">
@@ -849,31 +849,31 @@ function ClubDemo() {
             </div>
 
             <div className="flex flex-col gap-2.5">
-                <div className="bg-background border-card-border rounded-xl border p-3.5">
+                <div className="rounded-xl border border-card-border bg-background p-3.5">
                     <div
-                        className="text-text/45 mb-1 flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase">
-                        <Megaphone className="h-3 w-3"/>
+                        className="mb-1 flex items-center gap-1.5 text-[10px] font-bold tracking-widest text-text/45 uppercase">
+                        <Megaphone className="size-3"/>
                         Announcement
                     </div>
-                    <p className="text-text text-sm">
+                    <p className="text-sm text-text">
                         Parts for the new arm came in! Build night moved to
                         Thursday 🤖
                     </p>
                 </div>
 
                 <div
-                    className="bg-background border-card-border flex items-center justify-between rounded-xl border p-3.5">
+                    className="flex items-center justify-between rounded-xl border border-card-border bg-background p-3.5">
                     <div>
-                        <p className="text-text text-sm font-semibold">
+                        <p className="text-sm font-semibold text-text">
                             Build night
                         </p>
-                        <p className="text-text/55 text-xs">
+                        <p className="text-xs text-text/55">
                             Thu · 6:00 PM · Anderson Labs
                         </p>
                     </div>
-                    <span className="text-text/60 flex items-center gap-1 text-xs font-semibold">
+                    <span className="flex items-center gap-1 text-xs font-semibold text-text/60">
                         RSVP
-                        <ArrowRight className="h-3.5 w-3.5"/>
+                        <ArrowRight className="size-3.5"/>
                     </span>
                 </div>
             </div>
@@ -889,9 +889,9 @@ function ChatDemo() {
         <DemoWindow label="Chat · HW 4 study session">
             <div className="flex flex-col gap-2.5">
                 <div className="flex items-end gap-2">
-                    <Avatar initials="MK" color="gold" className="h-6 w-6"/>
+                    <Avatar initials="MK" color="gold" className="size-6"/>
                     <div
-                        className="bg-background border-card-border text-text max-w-[80%] rounded-2xl rounded-bl-md border px-4 py-2 text-sm">
+                        className="max-w-[80%] rounded-2xl rounded-bl-md border border-card-border bg-background px-4 py-2 text-sm text-text">
                         does anyone have the notes from Friday?
                     </div>
                 </div>
@@ -903,9 +903,9 @@ function ChatDemo() {
                 </div>
 
                 <div className="flex items-end gap-2">
-                    <Avatar initials="SR" className="h-6 w-6"/>
+                    <Avatar initials="SR" className="size-6"/>
                     <div
-                        className="bg-background border-card-border text-text max-w-[80%] rounded-2xl rounded-bl-md border px-4 py-2 text-sm">
+                        className="max-w-[80%] rounded-2xl rounded-bl-md border border-card-border bg-background px-4 py-2 text-sm text-text">
                         you're the best. same room as last week?
                     </div>
                 </div>
@@ -918,22 +918,22 @@ function ChatDemo() {
 
                 {/* Typing indicator */}
                 <div className="flex items-end gap-2">
-                    <Avatar initials="MK" color="gold" className="h-6 w-6"/>
+                    <Avatar initials="MK" color="gold" className="size-6"/>
                     <div
-                        className="bg-background border-card-border flex gap-1 rounded-2xl rounded-bl-md border px-4 py-3">
-                        <span className="bg-text/40 h-1.5 w-1.5 animate-bounce rounded-full"/>
-                        <span className="bg-text/40 h-1.5 w-1.5 animate-bounce rounded-full [animation-delay:0.15s]"/>
-                        <span className="bg-text/40 h-1.5 w-1.5 animate-bounce rounded-full [animation-delay:0.3s]"/>
+                        className="flex gap-1 rounded-2xl rounded-bl-md border border-card-border bg-background px-4 py-3">
+                        <span className="size-1.5 animate-bounce rounded-full bg-text/40"/>
+                        <span className="size-1.5 animate-bounce rounded-full bg-text/40 [animation-delay:0.15s]"/>
+                        <span className="size-1.5 animate-bounce rounded-full bg-text/40 [animation-delay:0.3s]"/>
                     </div>
                 </div>
             </div>
 
             {/* Input bar */}
             <div
-                className="border-card-border bg-background text-text/40 mt-4 flex items-center justify-between rounded-full border px-4 py-2.5 text-sm">
+                className="mt-4 flex items-center justify-between rounded-full border border-card-border bg-background px-4 py-2.5 text-sm text-text/40">
                 Message the group…
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#7a0019]">
-                    <ArrowRight className="h-3.5 w-3.5 text-white"/>
+                <span className="flex size-6 items-center justify-center rounded-full bg-[#7a0019]">
+                    <ArrowRight className="size-3.5 text-white"/>
                 </span>
             </div>
         </DemoWindow>
@@ -946,58 +946,58 @@ function ChatDemo() {
 function FriendsDemo() {
     return (
         <DemoWindow label="Friends">
-            <div className="bg-background border-card-border mb-3 rounded-2xl border p-4">
+            <div className="mb-3 rounded-2xl border border-card-border bg-background p-4">
                 <div className="flex items-center gap-3">
-                    <Avatar initials="MK" color="gold" className="h-10 w-10"/>
+                    <Avatar initials="MK" color="gold" className="size-10"/>
                     <div className="min-w-0">
-                        <p className="text-text text-sm font-semibold">
+                        <p className="text-sm font-semibold text-text">
                             Maya K.
                         </p>
-                        <p className="text-text/55 text-xs">
+                        <p className="text-xs text-text/55">
                             2 mutual burrows · CSCI 1133
                         </p>
                     </div>
                     <div
                         className="ml-auto flex items-center gap-1.5 rounded-full bg-[#7a0019] px-4 py-1.5 text-xs font-semibold text-white">
-                        <UserPlus className="h-3.5 w-3.5"/>
+                        <UserPlus className="size-3.5"/>
                         Accept
                     </div>
                 </div>
             </div>
 
             <div className="flex flex-col gap-2">
-                <div className="bg-background border-card-border flex items-center gap-3 rounded-xl border px-4 py-2.5">
+                <div className="flex items-center gap-3 rounded-xl border border-card-border bg-background px-4 py-2.5">
                     <div className="relative">
                         <Avatar initials="SR"/>
                         <span
-                            className="border-card bg-success absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2"/>
+                            className="absolute -right-0.5 -bottom-0.5 size-3 rounded-full border-2 border-card bg-success"/>
                     </div>
                     <div>
-                        <p className="text-text text-sm font-semibold">
+                        <p className="text-sm font-semibold text-text">
                             Sam R.
                         </p>
-                        <p className="text-text/55 text-xs">
+                        <p className="text-xs text-text/55">
                             In a burrow now · Walter Library
                         </p>
                     </div>
-                    <MessageSquare className="text-text/40 ml-auto h-4 w-4"/>
+                    <MessageSquare className="ml-auto size-4 text-text/40"/>
                 </div>
 
-                <div className="bg-background border-card-border flex items-center gap-3 rounded-xl border px-4 py-2.5">
+                <div className="flex items-center gap-3 rounded-xl border border-card-border bg-background px-4 py-2.5">
                     <div className="relative">
                         <Avatar initials="DT" color="gray"/>
                         <span
-                            className="border-card bg-success absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2"/>
+                            className="absolute -right-0.5 -bottom-0.5 size-3 rounded-full border-2 border-card bg-success"/>
                     </div>
                     <div>
-                        <p className="text-text text-sm font-semibold">
+                        <p className="text-sm font-semibold text-text">
                             Devin T.
                         </p>
-                        <p className="text-text/55 text-xs">
+                        <p className="text-xs text-text/55">
                             Gopher Robotics Club
                         </p>
                     </div>
-                    <MessageSquare className="text-text/40 ml-auto h-4 w-4"/>
+                    <MessageSquare className="ml-auto size-4 text-text/40"/>
                 </div>
             </div>
         </DemoWindow>

@@ -22,7 +22,7 @@ export default function Field({
 }) {
     return (
         <div className={className}>
-            <label className="text-text/80 mb-1 block text-[13px] font-medium tracking-wide">
+            <label className="mb-1 block text-[13px] font-medium tracking-wide text-text/80">
                 {label}
             </label>
             {children}

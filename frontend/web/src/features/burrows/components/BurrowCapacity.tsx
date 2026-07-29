@@ -72,12 +72,12 @@ export default function BurrowCapacity({
 
             {/* waitlist */}
             {burrow.waiting > 0 && (
-                <span className="border-warn bg-warn/10 text-warn inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-warn bg-warn/10 px-2.5 py-1 text-xs font-medium text-warn">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        className="h-4 w-4"
+                        className="size-4"
                         aria-hidden
                     >
                         <path d="M7.5 6a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm9 0a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM2 20c0-2.5 2-4.5 4.5-4.5h3c2.5 0 4.5 2 4.5 4.5v1H2v-1Zm12.5 0c0-2.5 2-4.5 4.5-4.5h3c2.5 0 4.5 2 4.5 4.5v1h-12v-1Z" />

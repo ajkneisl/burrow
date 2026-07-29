@@ -42,7 +42,7 @@ export default function DisplayMember(props: DisplayMemberProps) {
     return (
         <li
             key={`${props.profile.userID}`}
-            className="bg-background/60 border-background/80 rounded-2xl border p-4"
+            className="rounded-2xl border border-background/80 bg-background/60 p-4"
         >
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -64,13 +64,13 @@ export default function DisplayMember(props: DisplayMemberProps) {
                                         {props.profile.name}
 
                                         {props.isSelf && (
-                                            <span className="text-text/60 ml-1 text-[10px] font-normal">
+                                            <span className="ml-1 text-[10px] font-normal text-text/60">
                                                 (you)
                                             </span>
                                         )}
                                     </span>
 
-                                    <span className="text-text/70 text-xs">
+                                    <span className="text-xs text-text/70">
                                         @{props.username}
                                     </span>
                                 </div>
@@ -78,7 +78,7 @@ export default function DisplayMember(props: DisplayMemberProps) {
                         </div>
 
                         {/* footer and functions*/}
-                        <div className="text-text/50 text-xs">
+                        <div className="text-xs text-text/50">
                             {props.footer}
 
                             {Object.keys(props.functions).length > 0 &&
@@ -88,7 +88,7 @@ export default function DisplayMember(props: DisplayMemberProps) {
                                     return (
                                         <Button
                                             color="LINK"
-                                            className="text-text/50 ml-2 text-xs"
+                                            className="ml-2 text-xs text-text/50"
                                             onClick={() => func()}
                                         >
                                             {key}

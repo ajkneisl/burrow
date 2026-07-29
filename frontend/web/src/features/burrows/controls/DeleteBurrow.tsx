@@ -47,11 +47,11 @@ export default function DeleteBurrow({ burrow }: DeleteMeetingProps) {
                 onClose={() => setOpen(false)}
                 title="Delete Meeting"
             >
-                <p className="text-text text-sm font-medium">
+                <p className="text-sm font-medium text-text">
                     Are you sure you want to delete this meeting?
                 </p>
 
-                <p className="text-text/70 mt-1 text-xs">
+                <p className="mt-1 text-xs text-text/70">
                     This action cannot be undone.
                 </p>
 

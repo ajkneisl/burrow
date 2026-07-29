@@ -60,12 +60,12 @@ export default function InfoStep({
 
     return (
         <div className="space-y-6">
-            <div className="bg-card border-card-border rounded-lg border p-4">
-                <p className="text-text mb-2 text-sm font-medium">
+            <div className="rounded-lg border border-card-border bg-card p-4">
+                <p className="mb-2 text-sm font-medium text-text">
                     {copy.heading}
                 </p>
 
-                <p className="text-text/60 text-xs">{copy.subtitle}</p>
+                <p className="text-xs text-text/60">{copy.subtitle}</p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">

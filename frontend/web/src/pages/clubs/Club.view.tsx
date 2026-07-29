@@ -80,15 +80,15 @@ export default function ClubView() {
                                             {club.category}
                                         </span>
 
-                                        <h1 className="text-text mt-1 truncate text-xl font-bold tracking-tight md:text-3xl">
+                                        <h1 className="mt-1 truncate text-xl font-bold tracking-tight text-text md:text-3xl">
                                             {club.displayName}
                                         </h1>
-                                        <p className="text-text/40 text-sm font-medium">
+                                        <p className="text-sm font-medium text-text/40">
                                             /club/{club.name}
                                         </p>
 
-                                        <div className="text-text/60 mt-1 flex items-center gap-1.5 text-sm">
-                                            <Users className="h-4 w-4" />
+                                        <div className="mt-1 flex items-center gap-1.5 text-sm text-text/60">
+                                            <Users className="size-4" />
                                             <span>
                                                 {data.memberCount} member
                                                 {data.memberCount !== 1
@@ -128,7 +128,7 @@ export default function ClubView() {
                         </div>
 
                         {/* Sidebar — Members */}
-                        <div className="order-[-1] col-span-1 space-y-6 md:order-2">
+                        <div className="-order-1 col-span-1 space-y-6 md:order-2">
                             <ClubMembers
                                 clubName={name!}
                             />

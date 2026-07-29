@@ -30,7 +30,7 @@ export default function SettingsNavigationButton({
             type="button"
             onClick={() => setSection(name)}
             className={clsx(
-                `inline-flex flex-1 cursor-pointer flex-row items-center justify-between gap-2 rounded-lg px-3 py-3 text-xs md:text-sm`,
+                `inline-flex flex-1 cursor-pointer flex-row items-center justify-between gap-2 rounded-lg p-3 text-xs md:text-sm`,
                 section === name ? "bg-hero" : "hover:bg-hero/60"
             )}
         >

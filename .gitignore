@@ -5,3 +5,5 @@ key
 dist
 .claude
 *.iml
+# TypeScript incremental build metadata
+*.tsbuildinfo

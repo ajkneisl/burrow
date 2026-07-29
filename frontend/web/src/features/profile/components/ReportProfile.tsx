@@ -36,7 +36,7 @@ export default function ReportProfile({
                 aria-label="More options"
                 onClick={() => setDropdownOpen((dropdown) => !dropdown)}
             >
-                <Flag className="h-5 w-5" />
+                <Flag className="size-5" />
             </Button>
 
             {/* options dropdown */}
@@ -53,7 +53,7 @@ export default function ReportProfile({
                         setReportUserOpen(true)
                         setDropdownOpen(false)
                     }}
-                    rightIcon={<User className="h-4 w-4" />}
+                    rightIcon={<User className="size-4" />}
                 />
 
                 <DropdownItem
@@ -62,7 +62,7 @@ export default function ReportProfile({
                         setBlockUserOpen(true)
                         setDropdownOpen(false)
                     }}
-                    rightIcon={<UserRoundX className="h-4 w-4" />}
+                    rightIcon={<UserRoundX className="size-4" />}
                 />
             </Dropdown>
 

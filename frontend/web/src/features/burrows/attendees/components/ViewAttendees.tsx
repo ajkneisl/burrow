@@ -138,7 +138,7 @@ export default function ViewAttendees({
     const attendeesView = (
         <>
             {isLoading && (
-                <div className="border-hero bg-background text-text rounded-lg border p-4">
+                <div className="rounded-lg border border-hero bg-background p-4 text-text">
                     Loading attendees…
                 </div>
             )}
@@ -197,7 +197,7 @@ export default function ViewAttendees({
     const joinRequestsView = (
         <>
             {requestsLoading && (
-                <div className="border-hero bg-card text-text rounded-lg border p-4">
+                <div className="rounded-lg border border-hero bg-card p-4 text-text">
                     Loading join requests…
                 </div>
             )}
@@ -220,7 +220,7 @@ export default function ViewAttendees({
                         ))}
 
                         {pendingRequests.length === 0 && (
-                            <Card className="!bg-background/60 !border-background/80 text-text/70 text-sm ">
+                            <Card className="border-background/80! bg-background/60! text-sm text-text/70 ">
                                 No pending join requests.
                             </Card>
                         )}

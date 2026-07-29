@@ -53,13 +53,13 @@ export default function BlockUserModal({
     return (
         <Modal open={open} onClose={handleClose} title="Confirm Block">
             <div className="space-y-4">
-                <p className="text-text/80 text-sm">
+                <p className="text-sm text-text/80">
                     Are you sure you want to block{" "}
                     <span className="font-semibold">{username}</span>?
                 </p>
 
                 {error && (
-                    <div className="border-error/20 bg-error/5 text-error rounded-lg border px-3 py-2 text-sm">
+                    <div className="rounded-lg border border-error/20 bg-error/5 px-3 py-2 text-sm text-error">
                         {error}
                     </div>
                 )}

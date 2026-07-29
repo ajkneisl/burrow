@@ -250,7 +250,7 @@ export default function CreateStudyBurrowModal({
     const footer = useMemo(() => {
         return (
             <div className="flex w-full items-center justify-between">
-                <div className="text-text/60 text-sm">
+                <div className="text-sm text-text/60">
                     Step {currentStep} of 3
                 </div>
 

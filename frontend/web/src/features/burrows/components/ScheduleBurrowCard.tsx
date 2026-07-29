@@ -43,13 +43,13 @@ export default function ScheduleBurrowCard({
             >
                 {/* burrow title */}
                 <div className="flex w-full items-center justify-between gap-2">
-                    <h4 className="text-text truncate text-base font-semibold">
+                    <h4 className="truncate text-base font-semibold text-text">
                         {burrowResponse.burrow.title}
                     </h4>
 
                     {/* date of burrow */}
                     <time
-                        className="text-text/60 shrink-0 text-sm"
+                        className="shrink-0 text-sm text-text/60"
                         aria-label="Time range"
                     >
                         {burrowResponse.burrow.kind === "PROJECT"
@@ -69,19 +69,19 @@ export default function ScheduleBurrowCard({
                     <div className="flex flex-row items-center justify-between">
                         {/* chat preview */}
                         {burrowResponse.latestChatMessage ? (
-                            <div className="text-text/60 flex items-center gap-1.5 text-xs">
+                            <div className="flex items-center gap-1.5 text-xs text-text/60">
                                 {burrowResponse.isPinned ? (
-                                    <Pin className="text-warn h-3.5 w-3.5 shrink-0" />
+                                    <Pin className="size-3.5 shrink-0 text-warn" />
                                 ) : (
-                                    <MessageSquare className="h-3.5 w-3.5 shrink-0" />
+                                    <MessageSquare className="size-3.5 shrink-0" />
                                 )}
-                                <p className="line-clamp-1 max-w-[200px] truncate">
+                                <p className="line-clamp-1 max-w-50 truncate">
                                     {burrowResponse.latestChatMessage.message}
                                 </p>
                             </div>
                         ) : (
-                            <div className="text-text/40 flex items-center gap-1.5 text-xs">
-                                <MessageSquare className="h-3.5 w-3.5 shrink-0" />
+                            <div className="flex items-center gap-1.5 text-xs text-text/40">
+                                <MessageSquare className="size-3.5 shrink-0" />
                                 <span>No messages yet</span>
                             </div>
                         )}

@@ -23,28 +23,28 @@ export default function CreateButton() {
             label: "Study Session",
             value: "study",
             desc: "Create a study group",
-            icon: <BookOpen className="text-success h-5 w-5" />,
+            icon: <BookOpen className="size-5 text-success" />,
             onClick: () => setModalOpen("STUDY")
         },
         {
             label: "Group Project",
             value: "project",
             desc: "Collaborate with classmates on projects",
-            icon: <FolderKanban className="text-error h-5 w-5" />,
+            icon: <FolderKanban className="size-5 text-error" />,
             onClick: () => setModalOpen("PROJECT")
         },
         {
             label: "Event Meeting",
             value: "event",
             desc: "Plan or host an event",
-            icon: <PartyPopper className="text-secondary h-5 w-5" />,
+            icon: <PartyPopper className="size-5 text-secondary" />,
             onClick: () => setModalOpen("EVENT")
         },
         {
             label: "Club Meeting",
             value: "club",
             desc: "Meet with your club",
-            icon: <Users className="text-info h-5 w-5" />,
+            icon: <Users className="size-5 text-info" />,
             onClick: () => setModalOpen("CLUB")
         }
     ]
@@ -151,11 +151,11 @@ export default function CreateButton() {
                 aria-controls="create-menu"
                 onClick={() => setOpen((v) => !v)}
                 onKeyDown={onButtonKeyDown}
-                className="bg-secondary hover:bg-secondary-hover inline-flex cursor-pointer items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-neutral-900 shadow-sm transition-colors"
+                className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-sm font-medium text-neutral-900 shadow-sm transition-colors hover:bg-secondary-hover"
                 whileTap={{ scale: 0.97 }}
                 whileHover={{ scale: 1.03 }}
             >
-                <Plus className="h-4 w-4" aria-hidden="true" />
+                <Plus className="size-4" aria-hidden="true" />
                 <span className="hidden md:block">Create</span>
             </motion.button>
 
@@ -175,7 +175,7 @@ export default function CreateButton() {
                             "absolute right-0 w-64 rounded-2xl",
                             "bottom-full mb-2 origin-bottom-right",
                             "md:top-full md:bottom-auto md:mt-2 md:mb-0 md:origin-top-right",
-                            "border-primary/20 bg-background overflow-hidden border shadow-xl ring-1 ring-black/5 focus:outline-none"
+                            "overflow-hidden border border-primary/20 bg-background shadow-xl ring-1 ring-black/5 focus:outline-none"
                         )}
                     >
                         <ul className="p-1.5" role="none">
@@ -198,14 +198,14 @@ export default function CreateButton() {
                                                 closeMenu()
                                                 opt.onClick()
                                             }}
-                                            className="group text-text hover:bg-card focus-visible:ring-primary flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none md:text-base"
+                                            className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-text transition-colors hover:bg-card focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none md:text-base"
                                         >
                                             {opt.icon}
                                             <span className="flex-1 text-left">
                                                 <span className="block font-medium">
                                                     {opt.label}
                                                 </span>
-                                                <span className="text-text/40 block text-xs">
+                                                <span className="block text-xs text-text/40">
                                                     {opt.desc}
                                                 </span>
                                             </span>

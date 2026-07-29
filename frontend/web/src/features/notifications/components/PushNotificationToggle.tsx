@@ -47,11 +47,11 @@ export function PushNotificationToggle() {
         <div className="col-span-4 flex items-center justify-center">
             <div className="border-border flex w-full flex-col items-center justify-between gap-2 rounded-lg border p-4 md:w-1/2 md:flex-row">
                 <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 rounded-lg p-2">
+                    <div className="rounded-lg bg-primary/10 p-2">
                         {isSubscribed ? (
-                            <Bell className="text-primary h-5 w-5" />
+                            <Bell className="size-5 text-primary" />
                         ) : (
-                            <BellOff className="text-muted-foreground h-5 w-5" />
+                            <BellOff className="text-muted-foreground size-5" />
                         )}
                     </div>
                     <div>

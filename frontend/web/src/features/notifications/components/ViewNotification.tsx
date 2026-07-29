@@ -43,8 +43,8 @@ export default function ViewNotification({
     return (
         <article
             className={clsx(
-                "border-background/80 bg-background/60 text-text group hover:border-primary/40 relative flex flex-col gap-3 rounded-2xl border p-4 transition-all select-none",
-                !notification?.read && "border-l-secondary border-l-4"
+                "group relative flex flex-col gap-3 rounded-2xl border border-background/80 bg-background/60 p-4 text-text transition-all select-none hover:border-primary/40",
+                !notification?.read && "border-l-4 border-l-secondary"
             )}
         >
             <div className="flex items-start justify-between gap-3">
@@ -56,13 +56,13 @@ export default function ViewNotification({
                         </h3>
 
                         {!notification.read && (
-                            <span className="bg-secondary mt-0.5 h-2 w-2 shrink-0 rounded-full" />
+                            <span className="mt-0.5 size-2 shrink-0 rounded-full bg-secondary" />
                         )}
                     </div>
-                    <p className="text-text/70 mt-1.5 line-clamp-2 text-sm">
+                    <p className="mt-1.5 line-clamp-2 text-sm text-text/70">
                         {notification.content}
                     </p>
-                    <div className="text-text/50 mt-2 text-xs">
+                    <div className="mt-2 text-xs text-text/50">
                         {formatTimeAgo(
                             notification.sentDate || notification.scheduledDate
                         )}

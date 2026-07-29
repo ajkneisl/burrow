@@ -67,7 +67,7 @@ export default function ArticleScreen() {
                     </Text>
 
                     <Text className="text-text text-opacity-60 text-center mb-6">
-                        This article doesn't exist or is no longer available.
+                        This article doesn&apos;t exist or is no longer available.
                     </Text>
 
                     <Button onPress={() => router.back()}>Go back</Button>

@@ -1,7 +1,7 @@
 import { defineConfig } from "vite"
-import react from "@vitejs/plugin-react"
+import react, { reactCompilerPreset } from "@vitejs/plugin-react"
+import babel from "@rolldown/plugin-babel"
 import tailwindcss from "@tailwindcss/vite"
-import tsconfigPaths from "vite-tsconfig-paths"
 
 async function loadBitwardenSecrets() {
     const accessToken = process.env.BWS_TOKEN
@@ -49,14 +49,13 @@ export default defineConfig(async () => {
 
     return {
         base: "/admin/",
+        // Vite 8 resolves tsconfig `paths` natively, replacing vite-tsconfig-paths
+        resolve: { tsconfigPaths: true },
         plugins: [
             tailwindcss(),
-            tsconfigPaths(),
-            react({
-                babel: {
-                    plugins: [["babel-plugin-react-compiler"]]
-                }
-            })
+            react(),
+            // React Compiler moved out of plugin-react's options in v6
+            babel({ presets: [reactCompilerPreset()] })
         ]
     }
 })

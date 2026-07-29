@@ -55,14 +55,14 @@ export function BurrowCard({
         <Card onClick={onClick} isHoverable={true} className="group w-full">
             <div className="flex flex-col gap-4">
                 <div className="flex min-w-0 items-start justify-between gap-4">
-                    <div className="text-text/70 flex flex-col items-start justify-between gap-2 text-sm">
+                    <div className="flex flex-col items-start justify-between gap-2 text-sm text-text/70">
                         {/* title, description and timing */}
                         <div className="flex w-full flex-col ">
                             {/* title */}
                             <div className="flex w-full items-center gap-2">
                                 <h3
                                     className={clsx(
-                                        "text-md text-text truncate items-center flex font-semibold tracking-tight",
+                                        "text-md flex items-center truncate font-semibold tracking-tight text-text",
                                         !details && "max-w-[16ch]"
                                     )}
                                 >
@@ -70,22 +70,22 @@ export function BurrowCard({
 
                                     {/* TA badge */}
                                     {meetingResponse.hostedByTa && (
-                                        <div className="text-info mx-1">
+                                        <div className="mx-1 text-info">
                                             <Hover content="This Burrow is hosted by a TA">
-                                                <GraduationCap className="h-3.5 w-3.5"/>
+                                                <GraduationCap className="size-3.5"/>
                                             </Hover>
                                         </div>
                                     )}
                                 </h3>
 
                                 {isJoined && !isOwner && (
-                                    <p className="text-text/40 inline-flex items-center text-xs">
+                                    <p className="inline-flex items-center text-xs text-text/40">
                                         Joined
                                     </p>
                                 )}
 
                                 {isOwner && (
-                                    <p className="text-text/40 inline-flex items-center text-xs">
+                                    <p className="inline-flex items-center text-xs text-text/40">
                                         Hosting
                                     </p>
                                 )}
@@ -94,7 +94,7 @@ export function BurrowCard({
                             {/* timing */}
                             <div className="flex flex-row items-center gap-2">
                                 <time
-                                    className="text-text/80 inline-flex items-center gap-1 rounded-full text-xs font-medium"
+                                    className="inline-flex items-center gap-1 rounded-full text-xs font-medium text-text/80"
                                     aria-label="Time Occurring"
                                 >
                                     {formatDateTime(
@@ -109,7 +109,7 @@ export function BurrowCard({
 
                             {/* description */}
                             {details && (
-                                <p className="text-text/70 mt-2 max-w-prose text-sm text-clip">
+                                <p className="mt-2 max-w-prose text-sm text-clip text-text/70">
                                     {burrow.description}
                                 </p>
                             )}
@@ -120,7 +120,7 @@ export function BurrowCard({
                         {/* if it's in the past */}
                         {isPast && details && (
                             <span
-                                className="text-error ring-error/30 bg-error/10 inline-flex items-center gap-2 rounded-full px-2.5 py-1 ring-1 ring-inset"
+                                className="inline-flex items-center gap-2 rounded-full bg-error/10 px-2.5 py-1 text-error ring-1 ring-error/30 ring-inset"
                                 title="This meeting is archived"
                             >
                                 <Calendar width="18" height="18"/>

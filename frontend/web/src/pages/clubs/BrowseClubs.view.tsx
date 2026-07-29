@@ -30,7 +30,7 @@ function ClubBannerImage({club}: { club: Club }) {
 
     if (error) {
         return (
-            <div className="from-primary/20 to-primary/5 h-full w-full bg-gradient-to-br"/>
+            <div className="size-full bg-gradient-to-br from-primary/20 to-primary/5"/>
         )
     }
 
@@ -38,7 +38,7 @@ function ClubBannerImage({club}: { club: Club }) {
         <img
             src={`${CDN_URL}/avatars/club/${club.id}/banner`}
             alt={`${club.displayName} banner`}
-            className="h-full w-full object-cover"
+            className="size-full object-cover"
             onError={() => setError(true)}
         />
     )
@@ -55,7 +55,7 @@ function ClubAvatar({club}: { club: Club }) {
     if (error) {
         return (
             <div
-                className="bg-hero text-text/60 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ring-2 ring-card">
+                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-hero text-sm font-bold text-text/60 ring-2 ring-card">
                 {initials}
             </div>
         )
@@ -65,7 +65,7 @@ function ClubAvatar({club}: { club: Club }) {
         <img
             src={`${CDN_URL}/avatars/club/${club.id}/avatar`}
             alt={club.displayName}
-            className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-card"
+            className="size-10 shrink-0 rounded-full object-cover ring-2 ring-card"
             onError={() => setError(true)}
         />
     )
@@ -132,19 +132,19 @@ export default function BrowseClubs() {
                         {Array.from({length: 6}).map((_, i) => (
                             <div
                                 key={i}
-                                className="bg-card border-card-border overflow-hidden rounded-2xl border shadow-sm"
+                                className="overflow-hidden rounded-2xl border border-card-border bg-card shadow-sm"
                             >
-                                <div className="bg-hero h-28 w-full animate-pulse"/>
+                                <div className="h-28 w-full animate-pulse bg-hero"/>
                                 <div className="p-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="bg-hero -mt-8 h-10 w-10 animate-pulse rounded-full"/>
+                                        <div className="-mt-8 size-10 animate-pulse rounded-full bg-hero"/>
                                         <div className="flex-1 space-y-2">
-                                            <div className="bg-hero h-5 w-40 animate-pulse rounded"/>
-                                            <div className="bg-hero h-3 w-full animate-pulse rounded"/>
+                                            <div className="h-5 w-40 animate-pulse rounded bg-hero"/>
+                                            <div className="h-3 w-full animate-pulse rounded bg-hero"/>
                                         </div>
                                     </div>
                                     <div className="mt-3 flex gap-2">
-                                        <div className="bg-hero h-6 w-16 animate-pulse rounded-full"/>
+                                        <div className="h-6 w-16 animate-pulse rounded-full bg-hero"/>
                                     </div>
                                 </div>
                             </div>
@@ -164,11 +164,11 @@ export default function BrowseClubs() {
                 {!isLoading && !error && clubs.length === 0 && (
                     <Card className="p-8">
                         <div className="flex flex-col items-center gap-2 text-center">
-                            <Compass className="text-text/20 h-12 w-12"/>
-                            <p className="text-text/60 text-sm">
+                            <Compass className="size-12 text-text/20"/>
+                            <p className="text-sm text-text/60">
                                 No clubs found
                             </p>
-                            <p className="text-text/40 text-xs">
+                            <p className="text-xs text-text/40">
                                 Try changing your filters
                             </p>
                         </div>
@@ -182,7 +182,7 @@ export default function BrowseClubs() {
                                 <Card
                                     key={club.id}
                                     isHoverable
-                                    className="!p-0 overflow-hidden"
+                                    className="overflow-hidden p-0!"
                                     onClick={() => nav(`/club/${club.name}`)}
                                 >
                                     {/* Banner */}
@@ -200,12 +200,12 @@ export default function BrowseClubs() {
 
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex items-center gap-2">
-                                                    <h3 className="text-text truncate font-semibold tracking-tight">
+                                                    <h3 className="truncate font-semibold tracking-tight text-text">
                                                         {club.displayName}
                                                     </h3>
 
                                                     {myClubIds.has(club.id) && (
-                                                        <p className="text-text/40 inline-flex items-center text-xs">
+                                                        <p className="inline-flex items-center text-xs text-text/40">
                                                             Joined
                                                         </p>
                                                     )}
@@ -214,7 +214,7 @@ export default function BrowseClubs() {
                                         </div>
 
                                         {club.description && (
-                                            <p className="text-text/60 mt-2 line-clamp-2 text-sm">
+                                            <p className="mt-2 line-clamp-2 text-sm text-text/60">
                                                 {club.description}
                                             </p>
                                         )}
