@@ -176,6 +176,19 @@ export async function getClubBurrows(
 }
 
 /**
+ * Get a page of a club's Burrow history. Moderators and administrators only.
+ *
+ * @param clubName The name of the club.
+ * @param page The page to retrieve.
+ */
+export async function getClubHistory(
+    clubName: string,
+    page: number = 1
+): Promise<PaginatedResponse<BurrowResponse>> {
+    return await get(`/clubs/${clubName}/history`, { query: { page } })
+}
+
+/**
  * Upload a new photo for a club.
  *
  * @param clubName The name of the club.

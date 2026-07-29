@@ -3,7 +3,7 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter, Tabs } from "expo-router"
 import { useQuery } from "@tanstack/react-query"
 import { createContext, useContext } from "react"
-import { ChevronLeft, Users, Info, Calendar } from "lucide-react-native"
+import { ChevronLeft, Users, Info, Calendar, History } from "lucide-react-native"
 import { get } from "@api/api"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { Button, Text } from "@components/core"
@@ -80,6 +80,9 @@ export default function ClubLayout() {
     }
 
     const { club } = data
+    const isMod =
+        data.membership?.role === "ADMINISTRATOR" ||
+        data.membership?.role === "MODERATOR"
 
     return (
         <ClubContext.Provider value={{ data, name, colors }}>
@@ -167,6 +170,18 @@ export default function ClubLayout() {
                             title: "Members",
                             tabBarIcon: ({ color, size }) => (
                                 <Users color={color} size={size} />
+                            )
+                        }}
+                    />
+
+                    {/* Moderators and administrators only */}
+                    <Tabs.Screen
+                        name="history"
+                        options={{
+                            title: "History",
+                            href: isMod ? undefined : null,
+                            tabBarIcon: ({ color, size }) => (
+                                <History color={color} size={size} />
                             )
                         }}
                     />
