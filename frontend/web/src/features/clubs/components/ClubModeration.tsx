@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import { useQueryClient } from "@tanstack/react-query"
-import { Pencil, UserPlus, Trash2 } from "lucide-react"
+import { Pencil, UserPlus, Trash2, History } from "lucide-react"
 import { toast } from "react-hot-toast"
 import { Button, Modal } from "@umnburrow/core"
 import { deleteClub } from "@features/clubs/clubs.api.ts"
@@ -50,6 +50,16 @@ export default function ClubModeration({
                 <Button color="SECONDARY" onClick={() => setEditOpen(true)}>
                     <Pencil className="size-3.5" />
                     Edit
+                </Button>
+            )}
+
+            {isMod && (
+                <Button
+                    color="SECONDARY"
+                    onClick={() => nav(`/club/${clubName}/history`)}
+                >
+                    <History className="h-3.5 w-3.5" />
+                    History
                 </Button>
             )}
 

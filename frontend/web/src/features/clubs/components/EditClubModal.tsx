@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react"
+import { Link } from "react-router"
+import { ChevronRight, History } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button, Input, Modal, SelectInput, TextArea, Toggle, ViewErrors } from "@umnburrow/core"
 import { updateClub } from "@features/clubs/clubs.api.ts"
@@ -240,6 +242,26 @@ export default function EditClubModal({ open, onClose, club }: EditClubModalProp
                                 checked={formState.requestToJoin}
                                 onChange={(checked) => updateField("requestToJoin", checked)}
                             />
+                        </div>
+
+                        <div className="min-w-0 border-t border-neutral-200 pt-4">
+                            <Link
+                                to={`/club/${club.name}/history`}
+                                onClick={onClose}
+                                className="border-card-border hover:bg-hero flex items-center gap-3 rounded-lg border p-4 transition-colors"
+                            >
+                                <History className="text-text/60 h-5 w-5 shrink-0" />
+
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-text text-sm font-medium">Burrow History</p>
+                                    <p className="text-text/60 text-xs">
+                                        Every Burrow this club has held. Unsaved changes will be
+                                        lost.
+                                    </p>
+                                </div>
+
+                                <ChevronRight className="text-text/40 h-4 w-4 shrink-0" />
+                            </Link>
                         </div>
                     </div>
                 )}

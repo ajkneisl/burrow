@@ -1,4 +1,6 @@
 import { del, get, patch, post } from "@api/api"
+import type { PaginatedResponse } from "@api/api.types.ts"
+import type { BurrowResponse } from "@features/burrows/burrows.types"
 import type {
     Club,
     ClubResponse,
@@ -46,4 +48,17 @@ export async function updateClub(
  */
 export async function deleteClub(clubName: string): Promise<void> {
     return await del(`/clubs/${clubName}`)
+}
+
+/**
+ * Get a page of a club's Burrow history. Moderators and administrators only.
+ *
+ * @param clubName The name of the club.
+ * @param page The page to retrieve.
+ */
+export async function getClubHistory(
+    clubName: string,
+    page: number = 1
+): Promise<PaginatedResponse<BurrowResponse>> {
+    return await get(`/clubs/${clubName}/history`, { query: { page } })
 }

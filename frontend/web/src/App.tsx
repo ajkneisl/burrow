@@ -27,6 +27,7 @@ import MapView from "@pages/Map.view.tsx"
 import Delete from "@pages/info/Delete.view.tsx"
 import Support from "@pages/info/Support.view.tsx"
 import ClubView from "@pages/clubs/Club.view.tsx"
+import ClubHistory from "@pages/clubs/ClubHistory.view.tsx"
 import Login from "@pages/Login.view.tsx"
 import MyClubs from "@pages/clubs/MyClubs.view.tsx"
 import BrowseClubs from "@pages/clubs/BrowseClubs.view.tsx"
@@ -64,6 +65,7 @@ const router = createBrowserRouter([
             { path: "clubs", element: <MyClubs /> },
             { path: "clubs/browse", element: <BrowseClubs /> },
             { path: "club/:name", element: <ClubView /> },
+            { path: "club/:name/history", element: <ClubHistory /> },
             { path: "articles", element: <ArticlesView /> },
             { path: "article/:slug", element: <ArticleView /> },
             { path: ":id", element: <BurrowRedirect /> },

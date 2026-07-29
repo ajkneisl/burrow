@@ -3,7 +3,8 @@ import { View, Pressable, ScrollView, Switch, KeyboardAvoidingView, Platform, Fl
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
-import { X, ChevronLeft } from "lucide-react-native"
+import { X, ChevronLeft, ChevronRight, History } from "lucide-react-native"
+import { useRouter } from "expo-router"
 import { Card, Input, Modal, Text } from "@components/core"
 import ThemedIcon from "@components/core/ThemedIcon"
 import { updateClub } from "@features/clubs/clubs.api"
@@ -40,6 +41,7 @@ type EditClubModalProps = {
 export default function EditClubModal({ visible, onClose, club }: EditClubModalProps) {
     const queryClient = useQueryClient()
     const colors = useThemeColors()
+    const router = useRouter()
 
     const [formState, setFormState] = useState<EditClubFormState>(() => ({
         displayName: club.displayName,
@@ -350,6 +352,31 @@ export default function EditClubModal({ visible, onClose, club }: EditClubModalP
                                         thumbColor="#FFFFFF"
                                     />
                                 </View>
+                            </View>
+
+                            {/* Burrow history lives on its own tab */}
+                            <View className="border-t border-gray-200 pt-6 mt-6">
+                                <Pressable
+                                    onPress={() => {
+                                        handleClose()
+                                        router.push(`/club/${club.name}/history`)
+                                    }}
+                                    className="flex-row items-center gap-3 p-4 rounded-lg border border-card-border"
+                                >
+                                    <History size={20} color={colors.text} />
+
+                                    <View className="flex-1">
+                                        <Text className="text-base font-semibold text-text">
+                                            Burrow History
+                                        </Text>
+                                        <Text className="text-sm text-text text-opacity-60">
+                                            Every Burrow this club has held. Unsaved changes will
+                                            be lost.
+                                        </Text>
+                                    </View>
+
+                                    <ChevronRight size={18} color={colors.text} />
+                                </Pressable>
                             </View>
 
                             <View className="h-8" />
