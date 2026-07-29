@@ -52,10 +52,10 @@ private val bwsEnv by lazy {
                 val key = secret.jsonObject["key"]!!.jsonPrimitive.content
                 val value = secret.jsonObject["value"]!!.jsonPrimitive.content
 
-                LOGGER.debug("Found $key in BWS")
-
                 put(key, value)
             }
+
+            LOGGER.debug("loaded {} secret(s) from Bitwarden", size)
         } catch (ex: Exception) {
             LOGGER.error("There was an issue loading secrets. Please check BWS.", ex)
         }
