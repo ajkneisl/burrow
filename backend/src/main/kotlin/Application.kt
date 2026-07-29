@@ -109,10 +109,15 @@ suspend fun Application.module() {
         allowNonSimpleContentTypes = true
         allowSameOrigin = true
 
-        allowHost("localhost:5173", schemes = listOf("http"))
-        allowHost("127.0.0.1:5173", schemes = listOf("http"))
-        allowHost("0.0.0.0:5173", schemes = listOf("http"))
-        allowHost("umn.app", schemes = listOf("http", "https"))
+        when (STAGE) {
+            Stage.PROD -> allowHost("umn.app", schemes = listOf("http", "https"))
+            Stage.STAGING -> allowHost("staging.umn.app", schemes = listOf("http", "https"))
+            Stage.DEV -> {
+                allowHost("localhost:5173", schemes = listOf("http"))
+                allowHost("127.0.0.1:5173", schemes = listOf("http"))
+                allowHost("0.0.0.0:5173", schemes = listOf("http"))
+            }
+        }
     }
 
     configureAuthentication()

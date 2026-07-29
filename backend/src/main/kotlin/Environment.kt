@@ -1,5 +1,6 @@
 package app.burrow
 
+import kotlin.system.exitProcess
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -63,6 +64,20 @@ private val bwsEnv by lazy {
 
 /** Retrieve an environment variable from Bitwarden, fallback to System if it's not there. */
 fun env(name: String): String? = bwsEnv[name] ?: System.getenv(name)
+
+val STAGE =
+    try {
+        Stage.valueOf(env("STAGE") ?: "DEV")
+    } catch (_: Exception) {
+        LOGGER.error("[FATAL] Invalid value for stage.")
+        exitProcess(-1)
+    }
+
+enum class Stage {
+    PROD,
+    STAGING,
+    DEV,
+}
 
 /** Parse [args] and change based on what's included. */
 fun parseArgs(args: Array<String>) {
