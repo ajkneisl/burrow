@@ -213,9 +213,9 @@ export default function BurrowHeatmap({
                                                 <div
                                                     key={`loading-day-${di}`}
                                                     className={clsx(
-                                                        "h-4 w-4 rounded-sm",
+                                                        "size-4 rounded-sm",
                                                         day.inMonth
-                                                            ? "bg-background animate-pulse"
+                                                            ? "animate-pulse bg-background"
                                                             : "bg-base-300"
                                                     )}
                                                 />
@@ -240,7 +240,7 @@ export default function BurrowHeatmap({
                                                     return (
                                                         <div
                                                             key={`empty-${di}`}
-                                                            className="bg-base-300 h-4 w-4 rounded-sm"
+                                                            className="bg-base-300 size-4 rounded-sm"
                                                             aria-hidden="true"
                                                         />
                                                     )
@@ -279,8 +279,8 @@ export default function BurrowHeatmap({
                                                                 }
                                                             }}
                                                             className={clsx(
-                                                                "h-4 w-4 cursor-pointer rounded-sm",
-                                                                "focus:ring-secondary/60 focus:ring-2 focus:outline-none",
+                                                                "size-4 cursor-pointer rounded-sm",
+                                                                "focus:ring-2 focus:ring-secondary/60 focus:outline-none",
                                                                 colorClass
                                                             )}
                                                             aria-label={
@@ -299,45 +299,45 @@ export default function BurrowHeatmap({
                 ))}
 
                 {error && (
-                    <div className="text-error text-sm">
+                    <div className="text-sm text-error">
                         Failed to load heatmap.
                     </div>
                 )}
             </div>
 
             {/* legend */}
-            <div className="text-text/70 flex flex-row gap-2 self-center text-xs">
+            <div className="flex flex-row gap-2 self-center text-xs text-text/70">
                 <span>More</span>
                 <div
                     role="button"
                     tabIndex={0}
                     className={clsx(
-                        "h-4 w-4 cursor-pointer rounded-sm",
-                        "focus:ring-secondary/60 bg-secondary focus:ring-2 focus:outline-none"
+                        "size-4 cursor-pointer rounded-sm",
+                        "bg-secondary focus:ring-2 focus:ring-secondary/60 focus:outline-none"
                     )}
                 />
                 <div
                     role="button"
                     tabIndex={0}
                     className={clsx(
-                        "h-4 w-4 cursor-pointer rounded-sm",
-                        "focus:ring-secondary/60 bg-secondary/60 focus:ring-2 focus:outline-none"
+                        "size-4 cursor-pointer rounded-sm",
+                        "bg-secondary/60 focus:ring-2 focus:ring-secondary/60 focus:outline-none"
                     )}
                 />
                 <div
                     role="button"
                     tabIndex={0}
                     className={clsx(
-                        "h-4 w-4 cursor-pointer rounded-sm",
-                        "focus:ring-secondary/60 bg-secondary/40 focus:ring-2 focus:outline-none"
+                        "size-4 cursor-pointer rounded-sm",
+                        "bg-secondary/40 focus:ring-2 focus:ring-secondary/60 focus:outline-none"
                     )}
                 />
                 <div
                     role="button"
                     tabIndex={0}
                     className={clsx(
-                        "h-4 w-4 cursor-pointer rounded-sm",
-                        "focus:ring-secondary/60 bg-secondary/20 focus:ring-2 focus:outline-none"
+                        "size-4 cursor-pointer rounded-sm",
+                        "bg-secondary/20 focus:ring-2 focus:ring-secondary/60 focus:outline-none"
                     )}
                 />
                 <span>Less</span>

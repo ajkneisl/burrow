@@ -13,16 +13,28 @@ export default tseslint.config([
         extends: [
             js.configs.recommended,
             tseslint.configs.recommended,
-            reactHooks.configs["recommended-latest"],
+            reactHooks.configs.flat["recommended-latest"],
             reactRefresh.configs.vite,
-            tailwind.configs["flat/recommended"]
+            tailwind.configs.recommended
         ],
         languageOptions: {
             ecmaVersion: 2020,
             globals: globals.browser
         },
+        settings: {
+            // v4 reads the theme from the CSS entrypoint; it defaults to src/style.css
+            tailwindcss: { cssConfigPath: "src/index.css" }
+        },
         rules: {
-            "tailwindcss/no-custom-classname": "off"
+            "tailwindcss/no-custom-classname": "off",
+
+            // react-hooks v7 ships React Compiler readiness rules as errors. This app
+            // doesn't run the compiler (see vite.config.ts — admin does, web doesn't),
+            // so surface them as warnings until the flagged effects are reworked.
+            "react-hooks/set-state-in-effect": "warn",
+            "react-hooks/purity": "warn",
+            "react-hooks/immutability": "warn",
+            "react-hooks/preserve-manual-memoization": "warn"
         }
     }
 ])

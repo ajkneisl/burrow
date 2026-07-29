@@ -99,9 +99,9 @@ export default function Schedule() {
                     {Array.from({ length: 5 }).map((_, i) => (
                         <Card key={i}>
                             <div className="animate-pulse space-y-2">
-                                <div className="bg-text/10 h-4 w-1/2 rounded" />
-                                <div className="bg-text/10 h-3 w-1/3 rounded" />
-                                <div className="bg-text/10 h-3 w-40 rounded" />
+                                <div className="h-4 w-1/2 rounded bg-text/10" />
+                                <div className="h-3 w-1/3 rounded bg-text/10" />
+                                <div className="h-3 w-40 rounded bg-text/10" />
                             </div>
                         </Card>
                     ))}
@@ -113,15 +113,15 @@ export default function Schedule() {
                 <Card
                     aria-live="polite"
                     aria-label="No upcoming meetings"
-                    className="border-card-border flex h-28 w-full flex-col items-center justify-center gap-1 border-2 border-dashed"
+                    className="flex h-28 w-full flex-col items-center justify-center gap-1 border-2 border-dashed border-card-border"
                 >
-                    <p className="text-text/50 text-center text-sm tracking-wide">
+                    <p className="text-center text-sm tracking-wide text-text/50">
                         Your schedule is empty.
                     </p>
 
                     <Button
                         color="LINK"
-                        className="!m-0 !p-0 !text-sm"
+                        className="m-0! p-0! text-sm!"
                         onClick={() => nav("/browse")}
                     >
                         Browse Burrows
@@ -147,12 +147,12 @@ export default function Schedule() {
                                             )
                                         }
                                         aria-expanded={projectsExpanded}
-                                        className="text-text/60 hover:text-text mb-2 flex w-full cursor-pointer items-center gap-3 text-left transition-colors"
+                                        className="mb-2 flex w-full cursor-pointer items-center gap-3 text-left text-text/60 transition-colors hover:text-text"
                                     >
                                         <span className="flex items-center gap-1.5 text-sm font-semibold tracking-wide uppercase">
                                             <ChevronDown
                                                 className={clsx(
-                                                    "h-4 w-4 transition-transform duration-300 ease-in-out",
+                                                    "size-4 transition-transform duration-300 ease-in-out",
                                                     !projectsExpanded &&
                                                         "-rotate-90"
                                                 )}
@@ -160,19 +160,19 @@ export default function Schedule() {
                                             {group.label}
                                         </span>
 
-                                        <span className="bg-text/10 rounded-full px-2 py-0.5 text-xs font-semibold">
+                                        <span className="rounded-full bg-text/10 px-2 py-0.5 text-xs font-semibold">
                                             {group.items.length}
                                         </span>
 
-                                        <span className="border-card-border flex-1 border-t" />
+                                        <span className="flex-1 border-t border-card-border" />
                                     </button>
                                 ) : (
                                     <div className="mb-2 flex items-center gap-3">
-                                        <h4 className="text-text/60 text-sm font-semibold tracking-wide uppercase">
+                                        <h4 className="text-sm font-semibold tracking-wide text-text/60 uppercase">
                                             {group.label}
                                         </h4>
 
-                                        <span className="border-card-border flex-1 border-t" />
+                                        <span className="flex-1 border-t border-card-border" />
                                     </div>
                                 )}
 

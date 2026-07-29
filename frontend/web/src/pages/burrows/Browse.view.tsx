@@ -169,9 +169,9 @@ export default function Browse() {
                     <div className="mb-4 flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <button
                             onClick={() => setShowFilters(!showFilters)}
-                            className="text-text/70 hover:text-text flex cursor-pointer items-center gap-2 text-sm font-medium transition-colors"
+                            className="flex cursor-pointer items-center gap-2 text-sm font-medium text-text/70 transition-colors hover:text-text"
                         >
-                            <SlidersHorizontal className="h-5 w-5" />
+                            <SlidersHorizontal className="size-5" />
                         </button>
                         {/* search */}
                         <div className="flex-1">
@@ -197,7 +197,7 @@ export default function Browse() {
                                     transition={{ duration: 0.2 }}
                                     className="overflow-hidden"
                                 >
-                                    <div className="bg-card border-card-border flex flex-wrap gap-4 rounded-lg border p-4">
+                                    <div className="flex flex-wrap gap-4 rounded-lg border border-card-border bg-card p-4">
                                         <label className="flex cursor-pointer items-center gap-3">
                                             <button
                                                 type="button"
@@ -207,7 +207,7 @@ export default function Browse() {
                                                     setIsHost(!isHost)
                                                 }
                                                 className={clsx(
-                                                    "focus:ring-primary/20 relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:outline-none",
+                                                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-primary/20 focus:outline-none",
                                                     isHost
                                                         ? "bg-primary"
                                                         : "bg-text/20"
@@ -215,14 +215,14 @@ export default function Browse() {
                                             >
                                                 <span
                                                     className={clsx(
-                                                        "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                                                        "pointer-events-none inline-block size-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
                                                         isHost
                                                             ? "translate-x-5"
                                                             : "translate-x-0"
                                                     )}
                                                 />
                                             </button>
-                                            <span className="text-text text-sm font-medium">
+                                            <span className="text-sm font-medium text-text">
                                                 Hosting
                                             </span>
                                         </label>
@@ -238,7 +238,7 @@ export default function Browse() {
                                                     )
                                                 }
                                                 className={clsx(
-                                                    "focus:ring-primary/20 relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:outline-none",
+                                                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-primary/20 focus:outline-none",
                                                     isBookmarked
                                                         ? "bg-primary"
                                                         : "bg-text/20"
@@ -246,14 +246,14 @@ export default function Browse() {
                                             >
                                                 <span
                                                     className={clsx(
-                                                        "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                                                        "pointer-events-none inline-block size-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
                                                         isBookmarked
                                                             ? "translate-x-5"
                                                             : "translate-x-0"
                                                     )}
                                                 />
                                             </button>
-                                            <span className="text-text text-sm font-medium">
+                                            <span className="text-sm font-medium text-text">
                                                 Bookmarked
                                             </span>
                                         </label>
@@ -265,7 +265,7 @@ export default function Browse() {
                                                 aria-checked={isTa}
                                                 onClick={() => setIsTa(!isTa)}
                                                 className={clsx(
-                                                    "focus:ring-info/20 relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:outline-none",
+                                                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-info/20 focus:outline-none",
                                                     isTa
                                                         ? "bg-info"
                                                         : "bg-text/20"
@@ -273,14 +273,14 @@ export default function Browse() {
                                             >
                                                 <span
                                                     className={clsx(
-                                                        "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                                                        "pointer-events-none inline-block size-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
                                                         isTa
                                                             ? "translate-x-5"
                                                             : "translate-x-0"
                                                     )}
                                                 />
                                             </button>
-                                            <span className="text-text text-sm font-medium">
+                                            <span className="text-sm font-medium text-text">
                                                 TA Hosted
                                             </span>
                                         </label>
@@ -295,38 +295,38 @@ export default function Browse() {
                             {Array.from({ length: 5 }).map((_, i) => (
                                 <div
                                     key={i}
-                                    className="bg-card border-card-border rounded-2xl border p-4 shadow-sm"
+                                    className="rounded-2xl border border-card-border bg-card p-4 shadow-sm"
                                 >
                                     <div className="flex flex-col gap-4">
                                         {/* Header row */}
                                         <div className="flex items-start justify-between gap-4">
                                             <div className="flex flex-1 flex-col gap-2">
                                                 {/* Title skeleton */}
-                                                <div className="bg-hero h-5 w-48 animate-pulse rounded" />
+                                                <div className="h-5 w-48 animate-pulse rounded bg-hero" />
 
                                                 {/* Time skeleton */}
-                                                <div className="bg-hero h-3 w-32 animate-pulse rounded" />
+                                                <div className="h-3 w-32 animate-pulse rounded bg-hero" />
 
                                                 {/* Description skeleton */}
                                                 <div className="mt-2 space-y-1.5">
-                                                    <div className="bg-hero h-3 w-full animate-pulse rounded" />
-                                                    <div className="bg-hero h-3 w-3/4 animate-pulse rounded" />
+                                                    <div className="h-3 w-full animate-pulse rounded bg-hero" />
+                                                    <div className="h-3 w-3/4 animate-pulse rounded bg-hero" />
                                                 </div>
                                             </div>
 
                                             {/* Profile picture skeleton */}
-                                            <div className="bg-hero h-10 w-10 animate-pulse rounded-full" />
+                                            <div className="size-10 animate-pulse rounded-full bg-hero" />
                                         </div>
 
                                         {/* Tags row */}
                                         <div className="flex items-center justify-between">
                                             <div className="flex gap-2">
-                                                <div className="bg-hero h-6 w-16 animate-pulse rounded-full" />
-                                                <div className="bg-hero h-6 w-20 animate-pulse rounded-full" />
-                                                <div className="bg-hero hidden h-6 w-14 animate-pulse rounded-full sm:block" />
+                                                <div className="h-6 w-16 animate-pulse rounded-full bg-hero" />
+                                                <div className="h-6 w-20 animate-pulse rounded-full bg-hero" />
+                                                <div className="hidden h-6 w-14 animate-pulse rounded-full bg-hero sm:block" />
                                             </div>
 
-                                            <div className="bg-hero h-6 w-24 animate-pulse rounded-full" />
+                                            <div className="h-6 w-24 animate-pulse rounded-full bg-hero" />
                                         </div>
                                     </div>
                                 </div>
@@ -336,8 +336,8 @@ export default function Browse() {
 
                     {!isLoading && isFetching ? (
                         <div className="mb-4 text-right">
-                            <span className="border-info/30 bg-info/10 text-info inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium">
-                                <Loader2 className="h-3 w-3 animate-spin" />
+                            <span className="inline-flex items-center gap-2 rounded-full border border-info/30 bg-info/10 px-3 py-1.5 text-xs font-medium text-info">
+                                <Loader2 className="size-3 animate-spin" />
                                 Updating…
                             </span>
                         </div>
@@ -345,12 +345,12 @@ export default function Browse() {
 
                     {/* no search results */}
                     {!isLoading && groupedByDate.length === 0 && (
-                        <div className="border-primary/20 bg-card text-text rounded-2xl border p-6 shadow-sm">
+                        <div className="rounded-2xl border border-primary/20 bg-card p-6 text-text shadow-sm">
                             <p className="text-sm font-medium">
                                 No Burrows match your filters.
                             </p>
 
-                            <p className="text-text/70 mt-1 text-xs">
+                            <p className="mt-1 text-xs text-text/70">
                                 Try adjusting your search or picking a different
                                 date.
                             </p>
@@ -379,21 +379,21 @@ export default function Browse() {
                                                         onClick={() =>
                                                             toggleWeek(week)
                                                         }
-                                                        className="group text-text/60 hover:text-text mb-6 flex w-full cursor-pointer items-center gap-3 text-xs font-semibold tracking-wider uppercase transition-colors"
+                                                        className="group mb-6 flex w-full cursor-pointer items-center gap-3 text-xs font-semibold tracking-wider text-text/60 uppercase transition-colors hover:text-text"
                                                         aria-expanded={
                                                             isExpanded
                                                         }
                                                     >
                                                         <ChevronRight
                                                             className={clsx(
-                                                                "h-4 w-4 transition-transform duration-200",
+                                                                "size-4 transition-transform duration-200",
                                                                 isExpanded
                                                                     ? "rotate-90"
                                                                     : "rotate-0"
                                                             )}
                                                         />
                                                         <span>{week}</span>
-                                                        <span className="bg-text/20 h-px flex-1" />
+                                                        <span className="h-px flex-1 bg-text/20" />
                                                     </button>
                                                 )}
 
@@ -423,11 +423,11 @@ export default function Browse() {
                                                             className="space-y-4 overflow-hidden"
                                                         >
                                                             {/* Day label */}
-                                                            <h3 className="text-text mb-4 flex items-center gap-3 text-base font-semibold">
+                                                            <h3 className="mb-4 flex items-center gap-3 text-base font-semibold text-text">
                                                                 {humanDateLabel(
                                                                     dateKey
                                                                 )}
-                                                                <span className="bg-text/10 h-px flex-1" />
+                                                                <span className="h-px flex-1 bg-text/10" />
                                                             </h3>
 
                                                             {/* Meetings for this day */}

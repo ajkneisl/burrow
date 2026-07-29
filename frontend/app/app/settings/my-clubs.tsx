@@ -80,7 +80,7 @@ export default function MyClubsScreen() {
                             style={{ opacity: 0.3 }}
                         />
                         <Text className="text-text text-opacity-60 text-center mt-4">
-                            You're not in any clubs yet
+                            You&apos;re not in any clubs yet
                         </Text>
                         <Text className="text-text text-opacity-40 text-center text-sm mt-2">
                             Browse clubs to find one to join

@@ -67,14 +67,14 @@ export default function ProjectBurrow() {
                             {/* Header skeleton */}
                             <Card className="order-first col-span-1 p-6 lg:col-span-3">
                                 <div className="animate-pulse space-y-4">
-                                    <div className="bg-text/10 h-8 w-3/4 rounded-lg" />
+                                    <div className="h-8 w-3/4 rounded-lg bg-text/10" />
                                     <div className="flex items-center gap-2">
-                                        <div className="bg-text/10 h-10 w-10 rounded-full" />
-                                        <div className="bg-text/10 h-4 w-48 rounded" />
+                                        <div className="size-10 rounded-full bg-text/10" />
+                                        <div className="h-4 w-48 rounded bg-text/10" />
                                     </div>
                                     <div className="flex gap-2">
-                                        <div className="bg-text/10 h-6 w-20 rounded-full" />
-                                        <div className="bg-text/10 h-6 w-20 rounded-full" />
+                                        <div className="h-6 w-20 rounded-full bg-text/10" />
+                                        <div className="h-6 w-20 rounded-full bg-text/10" />
                                     </div>
                                 </div>
                             </Card>
@@ -83,22 +83,22 @@ export default function ProjectBurrow() {
                             <div className="col-span-1 space-y-6 lg:col-span-2">
                                 <Card className="p-6">
                                     <div className="animate-pulse">
-                                        <div className="bg-text/10 mb-3 h-5 w-32 rounded" />
+                                        <div className="mb-3 h-5 w-32 rounded bg-text/10" />
                                         <div className="space-y-2">
-                                            <div className="bg-text/10 h-4 w-full rounded" />
-                                            <div className="bg-text/10 h-4 w-full rounded" />
-                                            <div className="bg-text/10 h-4 w-3/4 rounded" />
+                                            <div className="h-4 w-full rounded bg-text/10" />
+                                            <div className="h-4 w-full rounded bg-text/10" />
+                                            <div className="h-4 w-3/4 rounded bg-text/10" />
                                         </div>
                                     </div>
                                 </Card>
                             </div>
 
                             {/* Sidebar skeleton */}
-                            <div className="order-[-1] col-span-1 space-y-6 md:order-2">
+                            <div className="-order-1 col-span-1 space-y-6 md:order-2">
                                 <Card className="p-6">
                                     <div className="animate-pulse">
-                                        <div className="bg-text/10 mb-3 h-5 w-24 rounded" />
-                                        <div className="bg-text/10 h-4 w-full rounded" />
+                                        <div className="mb-3 h-5 w-24 rounded bg-text/10" />
+                                        <div className="h-4 w-full rounded bg-text/10" />
                                     </div>
                                 </Card>
                             </div>
@@ -123,13 +123,13 @@ export default function ProjectBurrow() {
         <main className="min-h-screen">
             {/* memo to join burrow */}
             {isLoggedOut && (
-                <div className="text-text bg-primary mt-4 w-full rounded-2xl px-4 py-3 text-center shadow-md">
+                <div className="mt-4 w-full rounded-2xl bg-primary px-4 py-3 text-center text-text shadow-md">
                     <p className="text-sm font-medium sm:text-base">
                         Interested in this Project?
                         <br />
                         <Link
                             to="/welcome"
-                            className="hover:text-text/40 mt-4 font-semibold underline underline-offset-4 transition-colors"
+                            className="mt-4 font-semibold underline underline-offset-4 transition-colors hover:text-text/40"
                         >
                             Join Burrow Today
                         </Link>
@@ -151,8 +151,8 @@ export default function ProjectBurrow() {
                                                 "This project is past its due date."
                                             }
                                         >
-                                            <div className="bg-text/10 text-text/80 mt-2 inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-1 text-sm font-medium">
-                                                <Archive className="h-4 w-4" />
+                                            <div className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-md bg-text/10 px-3 py-1 text-sm font-medium text-text/80">
+                                                <Archive className="size-4" />
 
                                                 <span>
                                                     This project is past due.
@@ -162,7 +162,7 @@ export default function ProjectBurrow() {
                                     )}
 
                                     {/* title */}
-                                    <h1 className="text-text mt-3 truncate text-xl font-bold tracking-tight md:text-3xl">
+                                    <h1 className="mt-3 truncate text-xl font-bold tracking-tight text-text md:text-3xl">
                                         {burrow.title}
                                     </h1>
 
@@ -180,9 +180,9 @@ export default function ProjectBurrow() {
                                                     clubName={data.clubName}
                                                     size="sm"
                                                 />
-                                                <p className="text-text/60 text-sm">
+                                                <p className="text-sm text-text/60">
                                                     Created by{" "}
-                                                    <span className="text-text/80 font-medium">
+                                                    <span className="font-medium text-text/80">
                                                         {data.clubDisplayName}
                                                     </span>
                                                 </p>
@@ -208,9 +208,9 @@ export default function ProjectBurrow() {
                                                     size={"sm"}
                                                 />
 
-                                                <p className="text-text/60 text-sm">
+                                                <p className="text-sm text-text/60">
                                                     Created by{" "}
-                                                    <span className="text-text/80 font-medium">
+                                                    <span className="font-medium text-text/80">
                                                         {data.burrowAuthorProfile
                                                             ?.name || burrowAuthor}
                                                     </span>
@@ -218,13 +218,13 @@ export default function ProjectBurrow() {
                                             </div>
                                         )}
 
-                                        <span className="text-text/50 hidden md:block">
+                                        <span className="hidden text-text/50 md:block">
                                             —
                                         </span>
 
                                         {/* due date */}
-                                        <div className="text-text/60 flex items-center gap-1.5 text-sm">
-                                            <Calendar className="h-4 w-4" />
+                                        <div className="flex items-center gap-1.5 text-sm text-text/60">
+                                            <Calendar className="size-4" />
                                             <span>
                                                 Due {dayLabel(burrow.endTime)}
                                             </span>
@@ -288,7 +288,7 @@ export default function ProjectBurrow() {
                             )}
                         </div>
 
-                        <div className="order-[-1] col-span-1 space-y-6 md:order-2">
+                        <div className="-order-1 col-span-1 space-y-6 md:order-2">
                             {inProject && <ViewAttendees term="Members" />}
                         </div>
                     </div>

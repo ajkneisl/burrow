@@ -12,7 +12,7 @@ export default function ClubDetails({ description, links }: ClubDetailsProps) {
 
     return (
         <Card title="About">
-            <p className="text-text/80 whitespace-pre-wrap">
+            <p className="whitespace-pre-wrap text-text/80">
                 {description || "No description provided."}
             </p>
 
@@ -30,9 +30,9 @@ export default function ClubDetails({ description, links }: ClubDetailsProps) {
                                 href={config.toUrl(value)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="border-border bg-hero/30 hover:bg-hero/60 text-text/70 hover:text-text flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors"
+                                className="border-border flex items-center gap-1.5 rounded-full border bg-hero/30 px-3 py-1.5 text-xs font-medium text-text/70 transition-colors hover:bg-hero/60 hover:text-text"
                             >
-                                <Icon className="h-3.5 w-3.5" />
+                                <Icon className="size-3.5" />
                                 {config.label}
                             </a>
                         )

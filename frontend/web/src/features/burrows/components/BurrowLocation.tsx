@@ -511,7 +511,7 @@ export default function BurrowLocation({ location }: BurrowLocationProps) {
     }
 
     return (
-        <section className="border-primary/30 bg-card/80 rounded-2xl border shadow-sm">
+        <section className="rounded-2xl border border-primary/30 bg-card/80 shadow-sm">
             <div className="p-4">
                 <h3 className="text-maroon-800 mb-2 text-sm font-semibold">
                     Location
@@ -523,7 +523,7 @@ export default function BurrowLocation({ location }: BurrowLocationProps) {
             {hit && (
                 <iframe
                     title="map"
-                    className="border-primary/20 h-64 w-full rounded-b-2xl border-t"
+                    className="h-64 w-full rounded-b-2xl border-t border-primary/20"
                     src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GMAP_API_KEY}&q=${encodeURIComponent(
                         hit
                     )}&maptype=roadmap`}

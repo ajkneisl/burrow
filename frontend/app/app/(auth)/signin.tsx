@@ -96,9 +96,9 @@ export default function SignInScreen() {
                         </Text>
 
                         <Text className="text-text text-opacity-80 text-sm">
-                            If you're a student, please use the{" "}
+                            If you&apos;re a student, please use the{" "}
                             <Text className="font-semibold">
-                                "Sign in with Google"
+                                &quot;Sign in with Google&quot;
                             </Text>{" "}
                             button on the welcome page.
                         </Text>

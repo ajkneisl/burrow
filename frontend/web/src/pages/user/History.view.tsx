@@ -93,9 +93,9 @@ export default function History() {
     return (
         <section className="mx-auto w-full max-w-4xl p-4 sm:p-6">
             <div className="mb-6">
-                <h1 className="text-text text-2xl font-bold">History</h1>
+                <h1 className="text-2xl font-bold text-text">History</h1>
 
-                <p className="text-text/60 text-sm">
+                <p className="text-sm text-text/60">
                     View your Burrows and recreate past ones.
                 </p>
             </div>
@@ -106,26 +106,26 @@ export default function History() {
                     {Array.from({ length: 5 }).map((_, i) => (
                         <div
                             key={i}
-                            className="bg-card border-card-border rounded-2xl border p-4 shadow-sm"
+                            className="rounded-2xl border border-card-border bg-card p-4 shadow-sm"
                         >
                             <div className="flex flex-col gap-4">
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="flex flex-1 flex-col gap-2">
-                                        <div className="bg-hero h-5 w-48 animate-pulse rounded" />
-                                        <div className="bg-hero h-3 w-32 animate-pulse rounded" />
+                                        <div className="h-5 w-48 animate-pulse rounded bg-hero" />
+                                        <div className="h-3 w-32 animate-pulse rounded bg-hero" />
                                         <div className="mt-2 space-y-1.5">
-                                            <div className="bg-hero h-3 w-full animate-pulse rounded" />
-                                            <div className="bg-hero h-3 w-3/4 animate-pulse rounded" />
+                                            <div className="h-3 w-full animate-pulse rounded bg-hero" />
+                                            <div className="h-3 w-3/4 animate-pulse rounded bg-hero" />
                                         </div>
                                     </div>
-                                    <div className="bg-hero h-10 w-10 animate-pulse rounded-full" />
+                                    <div className="size-10 animate-pulse rounded-full bg-hero" />
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <div className="flex gap-2">
-                                        <div className="bg-hero h-6 w-16 animate-pulse rounded-full" />
-                                        <div className="bg-hero h-6 w-20 animate-pulse rounded-full" />
+                                        <div className="h-6 w-16 animate-pulse rounded-full bg-hero" />
+                                        <div className="h-6 w-20 animate-pulse rounded-full bg-hero" />
                                     </div>
-                                    <div className="bg-hero h-6 w-24 animate-pulse rounded-full" />
+                                    <div className="h-6 w-24 animate-pulse rounded-full bg-hero" />
                                 </div>
                             </div>
                         </div>
@@ -136,8 +136,8 @@ export default function History() {
             {!isLoading && isFetching ? (
                 // loading
                 <div className="mb-4 text-right">
-                    <span className="border-info/30 bg-info/10 text-info inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium">
-                        <Loader2 className="h-3 w-3 animate-spin" />
+                    <span className="inline-flex items-center gap-2 rounded-full border border-info/30 bg-info/10 px-3 py-1.5 text-xs font-medium text-info">
+                        <Loader2 className="size-3 animate-spin" />
                         Updating…
                     </span>
                 </div>
@@ -145,11 +145,11 @@ export default function History() {
 
             {!isLoading && groupedByDate.length === 0 && (
                 // empty history
-                <div className="border-primary/20 bg-card text-text rounded-2xl border p-6 shadow-sm">
+                <div className="rounded-2xl border border-primary/20 bg-card p-6 text-text shadow-sm">
                     <p className="text-sm font-medium">
                         No Burrows in your history yet.
                     </p>
-                    <p className="text-text/70 mt-1 text-xs">
+                    <p className="mt-1 text-xs text-text/70">
                         Create a Burrow to get started!
                     </p>
                 </div>
@@ -162,9 +162,9 @@ export default function History() {
                         {groupedByDate.map(
                             ({ key: dateKey, list: burrows }) => (
                                 <div key={dateKey}>
-                                    <h3 className="text-text mb-4 flex items-center gap-3 text-base font-semibold">
+                                    <h3 className="mb-4 flex items-center gap-3 text-base font-semibold text-text">
                                         {humanDateLabel(dateKey)}
-                                        <span className="bg-text/10 h-px flex-1" />
+                                        <span className="h-px flex-1 bg-text/10" />
                                     </h3>
 
                                     <div className="space-y-3">
@@ -186,9 +186,9 @@ export default function History() {
                                                                     m
                                                                 )
                                                             }}
-                                                            className="bg-secondary/10 text-secondary ring-secondary/30 hover:bg-secondary/20 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ring-1 transition-colors ring-inset"
+                                                            className="inline-flex items-center gap-1 rounded-full bg-secondary/10 px-3 py-1 text-xs font-medium text-secondary ring-1 ring-secondary/30 transition-colors ring-inset hover:bg-secondary/20"
                                                         >
-                                                            <RotateCcw className="h-3.5 w-3.5" />
+                                                            <RotateCcw className="size-3.5" />
                                                             Recreate
                                                         </button>
                                                     ) : undefined

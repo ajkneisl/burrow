@@ -15,8 +15,8 @@ export default function NewUserIntro() {
     )
 
     return (
-        <section className="bg-card text-text/80 max-w-content col-span-4 max-w-4xl rounded-2xl p-6 shadow">
-            <h1 className="text-text mb-4 text-2xl font-bold">
+        <section className="max-w-content col-span-4 max-w-4xl rounded-2xl bg-card p-6 text-text/80 shadow">
+            <h1 className="mb-4 text-2xl font-bold text-text">
                 Welcome to Burrow, {firstName}!
             </h1>
 
@@ -35,7 +35,7 @@ export default function NewUserIntro() {
                 details, and see how many people join your Burrow.
             </p>
 
-            <p className="text-text/40 mb-4 text-xs">
+            <p className="mb-4 text-xs text-text/40">
                 Your name was imported from Google. If you'd like to change it,
                 please press the top right menu button and Settings.
             </p>

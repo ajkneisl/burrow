@@ -77,7 +77,7 @@ export default function RootLayout() {
     }, [computedTheme])
 
     return (
-        <div className="gopher-stand text-text flex min-h-screen w-full flex-col bg-transparent transition-colors duration-300">
+        <div className="gopher-stand flex min-h-screen w-full flex-col bg-transparent text-text transition-colors duration-300">
             {/* meta helmet*/}
             <MetaTags />
 

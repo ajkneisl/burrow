@@ -112,7 +112,7 @@ export default function AboutView() {
                         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
                             <h1 className="figtree mb-4 text-5xl font-extrabold tracking-tight text-white drop-shadow-lg sm:text-6xl md:text-7xl lg:text-8xl">
                                 About{" "}
-                                <span className="from-secondary via-error to-secondary bg-gradient-to-r bg-clip-text text-transparent">
+                                <span className="bg-gradient-to-r from-secondary via-error to-secondary bg-clip-text text-transparent">
                                     Burrow
                                 </span>
                             </h1>
@@ -124,11 +124,11 @@ export default function AboutView() {
                     </div>
 
                     <div className="mt-6 flex justify-center">
-                        <div className="bg-secondary/10 text-secondary inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
+                        <div className="inline-flex items-center gap-2 rounded-full bg-secondary/10 px-4 py-2 text-sm font-medium text-secondary">
                             <img
                                 src="/image/M_gold.svg"
                                 alt="University of Minnesota"
-                                className="h-5 w-5"
+                                className="size-5"
                             />
                             Made by Gophers, for Gophers
                         </div>
@@ -140,10 +140,10 @@ export default function AboutView() {
             <section className="bg-card/30 px-4 py-24 sm:px-6">
                 <div className="mx-auto max-w-6xl">
                     <div className="mb-16 text-center">
-                        <h2 className="text-text mb-4 text-3xl font-bold sm:text-4xl md:text-5xl">
+                        <h2 className="mb-4 text-3xl font-bold text-text sm:text-4xl md:text-5xl">
                             Our Mission
                         </h2>
-                        <p className="text-text/80 mx-auto max-w-2xl text-lg font-medium">
+                        <p className="mx-auto max-w-2xl text-lg font-medium text-text/80">
                             Making it easier for students to connect, study, and
                             collaborate — one Burrow at a time.
                         </p>
@@ -171,13 +171,13 @@ export default function AboutView() {
                                 key={item.title}
                                 className="flex flex-col items-center text-center"
                             >
-                                <div className="from-secondary/20 to-secondary/10 mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br">
-                                    <item.icon className="text-secondary h-7 w-7" />
+                                <div className="mb-6 flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-secondary/20 to-secondary/10">
+                                    <item.icon className="size-7 text-secondary" />
                                 </div>
-                                <h3 className="text-text mb-3 text-xl font-bold">
+                                <h3 className="mb-3 text-xl font-bold text-text">
                                     {item.title}
                                 </h3>
-                                <p className="text-text/80 text-base">
+                                <p className="text-base text-text/80">
                                     {item.desc}
                                 </p>
                             </div>
@@ -190,10 +190,10 @@ export default function AboutView() {
             <section className="px-4 py-24 sm:px-6">
                 <div className="mx-auto max-w-6xl">
                     <div className="mb-16 text-center">
-                        <h2 className="text-text mb-4 text-3xl font-bold sm:text-4xl md:text-5xl">
+                        <h2 className="mb-4 text-3xl font-bold text-text sm:text-4xl md:text-5xl">
                             Meet the Team
                         </h2>
-                        <p className="text-text/80 mx-auto max-w-2xl text-lg font-medium">
+                        <p className="mx-auto max-w-2xl text-lg font-medium text-text/80">
                             The people behind Burrow
                         </p>
                     </div>
@@ -210,19 +210,19 @@ export default function AboutView() {
                                 <img
                                     src={lead.image}
                                     alt={lead.name}
-                                    className="ring-secondary/40 h-32 w-32 rounded-full object-cover ring-4 transition-all duration-300 group-hover:ring-8"
+                                    className="size-32 rounded-full object-cover ring-4 ring-secondary/40 transition-all duration-300 group-hover:ring-8"
                                 />
-                                <div className="bg-secondary absolute -right-1 -bottom-1 flex h-8 w-8 items-center justify-center rounded-full shadow-lg transition-transform group-hover:scale-110">
-                                    <ExternalLink className="h-4 w-4 text-white" />
+                                <div className="absolute -right-1 -bottom-1 flex size-8 items-center justify-center rounded-full bg-secondary shadow-lg transition-transform group-hover:scale-110">
+                                    <ExternalLink className="size-4 text-white" />
                                 </div>
                             </div>
-                            <h3 className="text-text text-xl font-bold">
+                            <h3 className="text-xl font-bold text-text">
                                 {lead.name}
                             </h3>
-                            <p className="text-text/60 text-sm font-medium">
+                            <p className="text-sm font-medium text-text/60">
                                 {lead.role}
                             </p>
-                            <span className="bg-secondary/15 text-secondary mt-2 rounded-full px-3 py-1 text-xs font-bold">
+                            <span className="mt-2 rounded-full bg-secondary/15 px-3 py-1 text-xs font-bold text-secondary">
                                 Project Lead
                             </span>
                         </a>
@@ -242,16 +242,16 @@ export default function AboutView() {
                                     <img
                                         src={member.image}
                                         alt={member.name}
-                                        className="ring-card-border h-24 w-24 rounded-full object-cover ring-2 transition-all duration-300 group-hover:ring-4"
+                                        className="size-24 rounded-full object-cover ring-2 ring-card-border transition-all duration-300 group-hover:ring-4"
                                     />
-                                    <div className="bg-primary absolute -right-1 -bottom-1 flex h-7 w-7 items-center justify-center rounded-full opacity-0 shadow-lg transition-all group-hover:opacity-100">
-                                        <ExternalLink className="h-3.5 w-3.5 text-white" />
+                                    <div className="absolute -right-1 -bottom-1 flex size-7 items-center justify-center rounded-full bg-primary opacity-0 shadow-lg transition-all group-hover:opacity-100">
+                                        <ExternalLink className="size-3.5 text-white" />
                                     </div>
                                 </div>
-                                <h3 className="text-text font-semibold">
+                                <h3 className="font-semibold text-text">
                                     {member.name}
                                 </h3>
-                                <p className="text-text/60 text-sm">
+                                <p className="text-sm text-text/60">
                                     {member.role}
                                 </p>
                             </a>
@@ -264,16 +264,16 @@ export default function AboutView() {
             <section className="bg-card/30 px-4 py-24 sm:px-6">
                 <div className="mx-auto max-w-6xl">
                     <div className="mb-16 text-center">
-                        <h2 className="text-text mb-4 text-3xl font-bold sm:text-4xl md:text-5xl">
+                        <h2 className="mb-4 text-3xl font-bold text-text sm:text-4xl md:text-5xl">
                             How it's built
                         </h2>
-                        <p className="text-text/80 mx-auto max-w-2xl text-lg font-medium">
+                        <p className="mx-auto max-w-2xl text-lg font-medium text-text/80">
                             Open source and built with modern tools.{" "}
                             <a
                                 href="https://github.com/ajkneisl/burrow"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-secondary font-semibold hover:underline"
+                                className="font-semibold text-secondary hover:underline"
                             >
                                 View on GitHub
                             </a>
@@ -284,12 +284,12 @@ export default function AboutView() {
                         {techStack.map((tech) => (
                             <div
                                 key={tech.name}
-                                className="border-card-border bg-card flex flex-col items-center rounded-xl border p-4 text-center"
+                                className="flex flex-col items-center rounded-xl border border-card-border bg-card p-4 text-center"
                             >
-                                <span className="text-text text-sm font-semibold">
+                                <span className="text-sm font-semibold text-text">
                                     {tech.name}
                                 </span>
-                                <span className="text-text/50 text-xs">
+                                <span className="text-xs text-text/50">
                                     {tech.desc}
                                 </span>
                             </div>
@@ -302,10 +302,10 @@ export default function AboutView() {
             <section className="px-4 py-24 sm:px-6">
                 <div className="mx-auto max-w-6xl">
                     <div className="mb-16 text-center">
-                        <h2 className="text-text mb-4 text-3xl font-bold sm:text-4xl md:text-5xl">
+                        <h2 className="mb-4 text-3xl font-bold text-text sm:text-4xl md:text-5xl">
                             Frequently Asked Questions
                         </h2>
-                        <p className="text-text/80 text-lg font-medium">
+                        <p className="text-lg font-medium text-text/80">
                             Everything you need to know about Burrow
                         </p>
                     </div>
@@ -316,7 +316,7 @@ export default function AboutView() {
                             return (
                                 <div
                                     key={item.id}
-                                    className={`border-card-border overflow-hidden rounded-xl border transition-colors ${isOpen ? "bg-card" : "bg-card/50 hover:bg-card"}`}
+                                    className={`overflow-hidden rounded-xl border border-card-border transition-colors ${isOpen ? "bg-card" : "bg-card/50 hover:bg-card"}`}
                                 >
                                     <button
                                         onClick={() =>
@@ -324,23 +324,23 @@ export default function AboutView() {
                                                 isOpen ? null : item.id
                                             )
                                         }
-                                        className="text-text flex w-full cursor-pointer items-center gap-4 px-6 py-5 text-left"
+                                        className="flex w-full cursor-pointer items-center gap-4 px-6 py-5 text-left text-text"
                                     >
-                                        <div className="bg-secondary/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg">
-                                            <item.icon className="text-secondary h-4 w-4" />
+                                        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary/10">
+                                            <item.icon className="size-4 text-secondary" />
                                         </div>
                                         <span className="flex-1 font-medium">
                                             {item.question}
                                         </span>
                                         <ChevronDown
-                                            className={`text-text/40 h-5 w-5 shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                                            className={`size-5 shrink-0 text-text/40 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
                                         />
                                     </button>
                                     <div
                                         className={`grid transition-all duration-300 ease-out ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
                                     >
                                         <div className="overflow-hidden">
-                                            <div className="text-text/70 px-6 pb-5 pl-[4.75rem] leading-relaxed">
+                                            <div className="px-6 pb-5 pl-19 leading-relaxed text-text/70">
                                                 {item.answer}
                                             </div>
                                         </div>
@@ -355,23 +355,23 @@ export default function AboutView() {
             {/* CTA */}
             <section className="bg-card/30 px-4 py-24 sm:px-6">
                 <div className="mx-auto max-w-3xl text-center">
-                    <h2 className="text-text mb-6 text-3xl font-bold sm:text-4xl md:text-5xl">
+                    <h2 className="mb-6 text-3xl font-bold text-text sm:text-4xl md:text-5xl">
                         Have questions or feedback?
                     </h2>
-                    <p className="text-text/80 mb-8 text-lg font-medium">
+                    <p className="mb-8 text-lg font-medium text-text/80">
                         We'd love to hear from you. Reach out anytime.
                     </p>
                     <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                         <a
                             href="mailto:support@umn.app"
-                            className="bg-primary hover:bg-primary-hover inline-flex items-center gap-2 rounded-full px-8 py-3 font-semibold text-white transition-colors"
+                            className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 font-semibold text-white transition-colors hover:bg-primary-hover"
                         >
-                            <MessageSquare className="h-4 w-4" />
+                            <MessageSquare className="size-4" />
                             Contact Us
                         </a>
                         <Link
                             to="/browse"
-                            className="text-text/80 hover:text-text inline-flex items-center gap-2 font-medium transition-colors"
+                            className="inline-flex items-center gap-2 font-medium text-text/80 transition-colors hover:text-text"
                         >
                             Browse Burrows →
                         </Link>

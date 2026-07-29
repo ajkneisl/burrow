@@ -74,7 +74,7 @@ function ReceivedInviteItem({ invite }: { invite: InviteWithUsers }) {
                                     {invite.inviterProfile?.name ||
                                         invite.inviterUsername}
                                 </span>
-                                <span className="text-text/70 text-xs">
+                                <span className="text-xs text-text/70">
                                     {invite.inviterUsername}
                                 </span>
                             </div>
@@ -87,16 +87,16 @@ function ReceivedInviteItem({ invite }: { invite: InviteWithUsers }) {
                                     nav(`/burrow/${invite.invite.burrowID}`)
                                 }
                             >
-                                <p className="text-text text-sm font-semibold">
+                                <p className="text-sm font-semibold text-text">
                                     {burrowData.burrow.title}
                                 </p>
-                                <p className="text-text/70 line-clamp-2 text-xs">
+                                <p className="line-clamp-2 text-xs text-text/70">
                                     {burrowData.burrow.description}
                                 </p>
                             </div>
                         )}
 
-                        <div className="text-text/50 text-xs">
+                        <div className="text-xs text-text/50">
                             Invited {formatTimeAgo(invite.invite.createdAt)}
                             {invite.invite.expiresAt && (
                                 <>
@@ -176,7 +176,7 @@ export default function MyInvitesModal() {
         >
             <div className="flex flex-col gap-4">
                 {isLoading && (
-                    <p className="text-text/70 text-sm">Loading invites...</p>
+                    <p className="text-sm text-text/70">Loading invites...</p>
                 )}
 
                 {isError && (
@@ -186,7 +186,7 @@ export default function MyInvitesModal() {
                 )}
 
                 {!isLoading && !isError && (!data || data.length === 0) && (
-                    <p className="text-text/70 text-sm">
+                    <p className="text-sm text-text/70">
                         You don't have any pending invites.
                     </p>
                 )}

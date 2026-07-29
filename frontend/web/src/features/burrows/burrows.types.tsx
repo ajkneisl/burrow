@@ -142,7 +142,7 @@ export const MONTHLY = 2
  * @param slim If `This Burrow reoccurs` should not be included
  */
 export function getReoccurringText(timeframe: number, slim?: boolean): string {
-    let word = ""
+    let word: string
 
     switch (timeframe) {
         case DAILY:

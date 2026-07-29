@@ -24,7 +24,7 @@ const THEME_OPTIONS: ThemeOption[] = [
     {
         value: "AUTO",
         label: "Auto",
-        icon: <Monitor className="h-5 w-5" />,
+        icon: <Monitor className="size-5" />,
         colors: {
             bg: "linear-gradient(135deg, #ffffff 50%, #1a1a1a 50%)",
             card: "#f9fafb",
@@ -36,7 +36,7 @@ const THEME_OPTIONS: ThemeOption[] = [
     {
         value: "LIGHT",
         label: "Light",
-        icon: <Sun className="h-5 w-5" />,
+        icon: <Sun className="size-5" />,
         colors: {
             bg: "#ffffff",
             card: "#f9fafb",
@@ -48,7 +48,7 @@ const THEME_OPTIONS: ThemeOption[] = [
     {
         value: "DARK",
         label: "Dark",
-        icon: <Moon className="h-5 w-5" />,
+        icon: <Moon className="size-5" />,
         colors: {
             bg: "#1a1a1a",
             card: "#2a2a2a",
@@ -60,7 +60,7 @@ const THEME_OPTIONS: ThemeOption[] = [
     {
         value: "EARTH",
         label: "Earth",
-        icon: <Leaf className="h-5 w-5" />,
+        icon: <Leaf className="size-5" />,
         colors: {
             bg: "#faf6f1",
             card: "#f5ede3",
@@ -91,8 +91,8 @@ export default function ThemeSection() {
     return (
         <Card className="flex flex-col gap-6">
             <div>
-                <h3 className="text-text text-lg font-semibold">Appearance</h3>
-                <p className="text-text/60 text-sm">
+                <h3 className="text-lg font-semibold text-text">Appearance</h3>
+                <p className="text-sm text-text/60">
                     Choose how Burrow looks to you
                 </p>
             </div>
@@ -112,7 +112,7 @@ export default function ThemeSection() {
                             onClick={() => selectTheme(option.value)}
                             className={`group relative flex flex-col overflow-hidden rounded-xl border-2 transition-all ${
                                 isSelected
-                                    ? "border-secondary ring-secondary/20 ring-4"
+                                    ? "border-secondary ring-4 ring-secondary/20"
                                     : "border-card-border hover:border-secondary/50"
                             }`}
                         >
@@ -123,7 +123,7 @@ export default function ThemeSection() {
                             >
                                 {/* Mini card preview */}
                                 <div
-                                    className="absolute top-3 right-3 left-3 h-10 rounded-md shadow-sm"
+                                    className="absolute inset-x-3 top-3 h-10 rounded-md shadow-sm"
                                     style={{
                                         backgroundColor: option.colors.card,
                                         border: `1px solid ${option.colors.text}20`
@@ -131,7 +131,7 @@ export default function ThemeSection() {
                                 >
                                     <div className="flex items-center gap-2 p-2">
                                         <div
-                                            className="h-3 w-3 rounded-full"
+                                            className="size-3 rounded-full"
                                             style={{
                                                 backgroundColor:
                                                     option.colors.primary
@@ -149,14 +149,14 @@ export default function ThemeSection() {
                                 {/* Accent dots */}
                                 <div className="absolute bottom-2 left-3 flex gap-1.5">
                                     <div
-                                        className="h-2 w-2 rounded-full"
+                                        className="size-2 rounded-full"
                                         style={{
                                             backgroundColor:
                                                 option.colors.secondary
                                         }}
                                     />
                                     <div
-                                        className="h-2 w-2 rounded-full"
+                                        className="size-2 rounded-full"
                                         style={{
                                             backgroundColor:
                                                 option.colors.primary
@@ -166,7 +166,7 @@ export default function ThemeSection() {
                             </div>
 
                             {/* Label area */}
-                            <div className="bg-card flex items-center justify-center gap-2 p-3">
+                            <div className="flex items-center justify-center gap-2 bg-card p-3">
                                 <span
                                     className={`${isSelected ? "text-secondary" : "text-text/60"}`}
                                 >
@@ -181,9 +181,9 @@ export default function ThemeSection() {
 
                             {/* Selected checkmark */}
                             {isSelected && (
-                                <div className="bg-secondary absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full">
+                                <div className="absolute top-2 right-2 flex size-5 items-center justify-center rounded-full bg-secondary">
                                     <svg
-                                        className="h-3 w-3 text-white"
+                                        className="size-3 text-white"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"

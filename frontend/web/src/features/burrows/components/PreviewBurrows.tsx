@@ -29,11 +29,11 @@ export default function PreviewBurrows({ amount }: PreviewGroupsProps) {
     return (
         <div className="flex flex-col items-center justify-center gap-2 overflow-auto">
             <div className="flex w-full items-center gap-3">
-                <h3 className="text-text/60 text-sm font-semibold tracking-wide uppercase">
+                <h3 className="text-sm font-semibold tracking-wide text-text/60 uppercase">
                     Upcoming Burrows
                 </h3>
 
-                <span className="border-card-border flex-1 border-t" />
+                <span className="flex-1 border-t border-card-border" />
             </div>
 
             {/* error */}
@@ -51,11 +51,11 @@ export default function PreviewBurrows({ amount }: PreviewGroupsProps) {
                         <div className="animate-pulse space-y-4">
                             <div className="flex flex-row justify-between gap-4">
                                 <div className="animate-pulse space-y-4">
-                                    <div className="bg-text/10 h-4 w-48 rounded" />
-                                    <div className="bg-text/10 h-3 w-32 rounded" />
+                                    <div className="h-4 w-48 rounded bg-text/10" />
+                                    <div className="h-3 w-32 rounded bg-text/10" />
                                 </div>
 
-                                <div className="bg-text/10 size-8 rounded-full" />
+                                <div className="size-8 rounded-full bg-text/10" />
                             </div>
 
                             <div className="flex gap-2">
@@ -88,9 +88,9 @@ export default function PreviewBurrows({ amount }: PreviewGroupsProps) {
                 <Card
                     aria-live="polite"
                     aria-label="No upcoming meetings"
-                    className="border-card-border flex h-24 w-full items-center justify-center border-2 border-dashed"
+                    className="flex h-24 w-full items-center justify-center border-2 border-dashed border-card-border"
                 >
-                    <p className="text-text/50 text-center text-sm tracking-wide">
+                    <p className="text-center text-sm tracking-wide text-text/50">
                         No upcoming Burrows.
                     </p>
                 </Card>

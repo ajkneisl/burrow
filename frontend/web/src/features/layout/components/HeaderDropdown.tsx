@@ -45,7 +45,7 @@ export default function HeaderDropdown() {
                 aria-haspopup="true"
                 aria-expanded={open}
                 onClick={() => setOpen((prev) => !prev)}
-                icon={<MenuIcon className="h-5 w-5" />}
+                icon={<MenuIcon className="size-5" />}
             />
 
             <div className="absolute top-full right-0">

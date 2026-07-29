@@ -172,7 +172,7 @@ export default function PrivacyScreen() {
                     <SectionText>
                         We may update this Privacy Policy from time to time. We
                         will notify you of any changes by posting the new Privacy
-                        Policy on this page and updating the "Last updated" date.
+                        Policy on this page and updating the &quot;Last updated&quot; date.
                     </SectionText>
                 </Section>
 

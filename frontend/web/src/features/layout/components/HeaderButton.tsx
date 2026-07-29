@@ -42,8 +42,8 @@ export default function HeaderButton({
                 disabled={auth === null}
                 className={clsx(
                     "border-white/15 bg-white/5 text-white hover:bg-white/10",
-                    "focus-visible:ring-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
-                    "inline-flex h-10 w-10 items-center justify-center rounded-full border",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+                    "inline-flex size-10 items-center justify-center rounded-full border",
                     auth === null ? "cursor-not-allowed" : "cursor-pointer",
                     props.className
                 )}
@@ -80,7 +80,7 @@ export default function HeaderButton({
                         className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 rounded-md bg-black/90 px-2.5 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow-lg"
                     >
                         {description}
-                        <div className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-black/90" />
+                        <div className="absolute -top-1 left-1/2 size-2 -translate-x-1/2 rotate-45 bg-black/90" />
                     </motion.div>
                 )}
             </AnimatePresence>

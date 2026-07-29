@@ -85,13 +85,13 @@ export default function ReportUserModal({
                 onSubmit={handleSubmit}
                 className="min-w-xs space-y-4 md:min-w-md"
             >
-                <p className="text-text/80 text-sm">
+                <p className="text-sm text-text/80">
                     Why are you reporting{" "}
                     <span className="font-semibold">{username}</span>?
                 </p>
 
                 {error && (
-                    <div className="border-error/20 bg-error/5 text-error rounded-lg border px-3 py-2 text-sm">
+                    <div className="rounded-lg border border-error/20 bg-error/5 px-3 py-2 text-sm text-error">
                         {error}
                     </div>
                 )}
@@ -108,7 +108,7 @@ export default function ReportUserModal({
                 />
 
                 <TextArea
-                    className="max-h-[256px] min-h-[100px] w-full resize-y"
+                    className="max-h-64 min-h-25 w-full resize-y"
                     text="Details"
                     placeholder="Please describe the issue in detail..."
                     value={details}

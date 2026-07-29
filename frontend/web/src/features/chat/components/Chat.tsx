@@ -80,13 +80,13 @@ export default function Chat({
             key={`${message.id}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className={`group hover:bg-background/30 relative px-4 transition-colors duration-75 ${
-                isConsecutive ? "mt-0.5 py-0.5" : "mt-4 pt-1 pb-1 first:mt-1"
+            className={`group relative px-4 transition-colors duration-75 hover:bg-background/30 ${
+                isConsecutive ? "mt-0.5 py-0.5" : "mt-4 py-1 first:mt-1"
             }`}
         >
             <div className="flex w-full items-start gap-4">
                 {/* Avatar column - always present for alignment */}
-                <div className="flex min-w-[52px] flex-shrink-0 items-start justify-center pt-0.5">
+                <div className="flex min-w-13 flex-shrink-0 items-start justify-center pt-0.5">
                     {!isConsecutive ? (
                         <ProfilePicture
                             name={members[message.senderID]?.name}
@@ -95,7 +95,7 @@ export default function Chat({
                         />
                     ) : (
                         isHovered && (
-                            <span className="text-text/40 text-[10px] leading-[22px] font-medium whitespace-nowrap">
+                            <span className="text-[10px] leading-[22px] font-medium whitespace-nowrap text-text/40">
                                 {dateStr}
                             </span>
                         )
@@ -112,7 +112,7 @@ export default function Chat({
                                 {members[message.senderID]?.name ||
                                     "Unknown User"}
                             </span>
-                            <span className="text-text/40 text-[11px] leading-[22px] font-medium">
+                            <span className="text-[11px] leading-[22px] font-medium text-text/40">
                                 {new Date(message.createdAt).toLocaleString(
                                     [],
                                     {
@@ -126,22 +126,22 @@ export default function Chat({
                         </div>
                     )}
 
-                    <div className="text-text text-[15px] leading-[22px] break-words">
+                    <div className="text-[15px] leading-[22px] break-words text-text">
                         {message.message}
                     </div>
                 </div>
 
                 {/* Action buttons */}
                 {(canEdit || canDelete || canPin) && (
-                    <div className="bg-hero border-background/60 absolute -top-3 right-4 hidden items-center gap-0.5 rounded border px-0.5 py-0.5 shadow-md group-hover:flex">
+                    <div className="absolute -top-3 right-4 hidden items-center gap-0.5 rounded border border-background/60 bg-hero p-0.5 shadow-md group-hover:flex">
                         {canPin && pinButton && (
                             <button
                                 onClick={pinButton}
                                 aria-label="Pin message"
-                                className="text-text/60 hover:text-primary hover:bg-primary/10 rounded p-1 transition-colors"
+                                className="rounded p-1 text-text/60 transition-colors hover:bg-primary/10 hover:text-primary"
                                 title="Pin"
                             >
-                                <Pin className="h-4 w-4" />
+                                <Pin className="size-4" />
                             </button>
                         )}
 
@@ -149,10 +149,10 @@ export default function Chat({
                             <button
                                 onClick={() => editButton("debug")}
                                 aria-label="Edit message"
-                                className="text-text/60 hover:text-text hover:bg-background/50 rounded p-1 transition-colors"
+                                className="rounded p-1 text-text/60 transition-colors hover:bg-background/50 hover:text-text"
                                 title="Edit"
                             >
-                                <Pencil className="h-4 w-4" />
+                                <Pencil className="size-4" />
                             </button>
                         )}
 
@@ -160,10 +160,10 @@ export default function Chat({
                             <button
                                 onClick={deleteButton}
                                 aria-label="Delete message"
-                                className="text-text/60 hover:text-error hover:bg-error/10 rounded p-1 transition-colors"
+                                className="rounded p-1 text-text/60 transition-colors hover:bg-error/10 hover:text-error"
                                 title="Delete"
                             >
-                                <X className="h-4 w-4" />
+                                <X className="size-4" />
                             </button>
                         )}
                     </div>

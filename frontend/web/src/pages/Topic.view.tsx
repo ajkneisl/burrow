@@ -76,18 +76,18 @@ export default function TopicView() {
             <header className="mb-4 flex items-center gap-4">
                 <button
                     onClick={handleBack}
-                    className="text-text/60 hover:text-text hover:bg-background cursor-pointer rounded-lg p-2 transition-colors"
+                    className="cursor-pointer rounded-lg p-2 text-text/60 transition-colors hover:bg-background hover:text-text"
                 >
-                    <ArrowLeft className="h-5 w-5" />
+                    <ArrowLeft className="size-5" />
                 </button>
 
                 <div className="min-w-0 flex-1">
-                    <h1 className="text-text truncate text-xl font-bold">
+                    <h1 className="truncate text-xl font-bold text-text">
                         {topic?.name || "Loading..."}
                     </h1>
 
                     {topic?.description && (
-                        <p className="text-text/60 truncate text-sm">
+                        <p className="truncate text-sm text-text/60">
                             {topic.description}
                         </p>
                     )}
@@ -95,11 +95,11 @@ export default function TopicView() {
 
                 <div className="flex items-center gap-2">
                     <div
-                        className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                        className={`size-2 rounded-full transition-all duration-300 ${
                             status === "LIVE"
-                                ? "bg-success animate-pulse"
+                                ? "animate-pulse bg-success"
                                 : status === "CONNECTING"
-                                  ? "bg-warn animate-pulse"
+                                  ? "animate-pulse bg-warn"
                                   : "bg-error"
                         }`}
                     />

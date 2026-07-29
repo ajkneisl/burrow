@@ -134,29 +134,29 @@ export default function Search() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
                     transition={{ duration: 0.16 }}
-                    className="border-card-border bg-card absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-lg border shadow-lg"
+                    className="absolute inset-x-0 top-full z-50 mt-2 overflow-hidden rounded-lg border border-card-border bg-card shadow-lg"
                 >
                     {loading && (
-                        <div className="text-text/60 px-3 py-2 text-sm">
+                        <div className="px-3 py-2 text-sm text-text/60">
                             Searching…
                         </div>
                     )}
 
                     {err && !loading && (
-                        <div className="text-error px-3 py-2 text-sm">
+                        <div className="px-3 py-2 text-sm text-error">
                             {err}
                         </div>
                     )}
 
                     {!loading && !err && results?.length === 0 && (
-                        <div className="text-text/60 px-3 py-2 text-sm">
+                        <div className="px-3 py-2 text-sm text-text/60">
                             No results found for "{query}"
                         </div>
                     )}
 
                     {!loading && !err && hasResults && (
                         <>
-                            <div className="divide-background max-h-72 divide-y overflow-auto">
+                            <div className="max-h-72 divide-y divide-background overflow-auto">
                                 <ul>
                                     {results.map((result) => {
                                         if (isUserResult(result)) {
@@ -227,10 +227,10 @@ export default function Search() {
                             </div>
 
                             {showPagination && (
-                                <div className="border-card-border bg-card border-t px-3 py-2">
+                                <div className="border-t border-card-border bg-card px-3 py-2">
                                     <div className="flex items-center justify-between gap-2">
                                         {/* Results info */}
-                                        <span className="text-text/60 text-xs">
+                                        <span className="text-xs text-text/60">
                                             Page {currentPage} of{" "}
                                             {paginatedResults.totalPages} (
                                             {paginatedResults.totalResults}{" "}
@@ -246,7 +246,7 @@ export default function Search() {
                                                 disabled={
                                                     currentPage === 1 || loading
                                                 }
-                                                className="text-text hover:bg-background rounded px-2 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                                className="rounded px-2 py-1 text-xs font-medium text-text transition-colors hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
                                                 aria-label="Previous page"
                                             >
                                                 ← Prev
@@ -260,7 +260,7 @@ export default function Search() {
                                                         paginatedResults.totalPages ||
                                                     loading
                                                 }
-                                                className="text-text hover:bg-background rounded px-2 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                                className="rounded px-2 py-1 text-xs font-medium text-text transition-colors hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
                                                 aria-label="Next page"
                                             >
                                                 Next →

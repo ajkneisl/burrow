@@ -71,7 +71,7 @@ export default function InviteUser({ burrowID, onInvite }: InviteUserProps) {
                 onClick={() => setIsInviting(true)}
                 aria-live="polite"
                 aria-label="No upcoming meetings"
-                className="invite-border-dashed border-text/40 text-text/50 hover:border-text/60 hover:bg-background/60 mt-4 flex h-8 w-full cursor-pointer items-center justify-center border-2 opacity-50 transition-all hover:opacity-75"
+                className="invite-border-dashed mt-4 flex h-8 w-full cursor-pointer items-center justify-center border-2 border-text/40 text-text/50 opacity-50 transition-all hover:border-text/60 hover:bg-background/60 hover:opacity-75"
             >
                 <p className="text-center text-sm tracking-wide">Invite</p>
             </Card>
@@ -85,10 +85,10 @@ export default function InviteUser({ burrowID, onInvite }: InviteUserProps) {
                 setInviteUsername("")
                 setInviteError(null)
             }}
-            className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-gray-200 text-gray-600 transition hover:bg-gray-300"
+            className="flex size-5 cursor-pointer items-center justify-center rounded-full bg-gray-200 text-gray-600 transition hover:bg-gray-300"
             aria-label="Cancel invite"
         >
-            <X className="h-3 w-3" />
+            <X className="size-3" />
         </button>
     )
 
@@ -96,7 +96,7 @@ export default function InviteUser({ burrowID, onInvite }: InviteUserProps) {
         <div className="mt-4">
             <div className="flex flex-row items-center gap-2 md:min-w-xs">
                 <Input
-                    className="w-1/2 !py-1.5"
+                    className="w-1/2 py-1.5!"
                     placeholder="invite username..."
                     value={inviteUsername}
                     onChange={(e) => setInviteUsername(e.target.value)}

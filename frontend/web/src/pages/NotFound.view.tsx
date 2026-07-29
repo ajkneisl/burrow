@@ -22,9 +22,9 @@ export default function NotFound() {
     }
 
     return (
-        <main className="text-text w-full">
+        <main className="w-full text-text">
             <div className="mx-auto w-full max-w-2xl px-6 py-12">
-                <div className="bg-card border-card-border relative overflow-hidden rounded-2xl border p-8 shadow-sm">
+                <div className="relative overflow-hidden rounded-2xl border border-card-border bg-card p-8 shadow-sm">
                     <img
                         src="/image/not_found.jpg"
                         className="mb-4 rounded-lg grayscale"
@@ -37,7 +37,7 @@ export default function NotFound() {
                         We couldn't find that page
                     </h1>
 
-                    <p className="text-text/70 mt-2 text-sm">
+                    <p className="mt-2 text-sm text-text/70">
                         It may have moved, or the link is incorrect.
                     </p>
 

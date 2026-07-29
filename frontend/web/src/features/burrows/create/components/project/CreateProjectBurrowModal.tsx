@@ -171,7 +171,7 @@ export default function CreateProjectBurrowModal({
             ? addTime(dateMs, formState.endTime)
             : dateMs + 23 * 60 * 60 * 1000 + 59 * 60 * 1000
 
-        let memberIDs: string[] = []
+        let memberIDs: string[]
         try {
             const members = JSON.parse(formState.tags)
             memberIDs = members.map((m: { id: string }) => m.id)
@@ -247,7 +247,7 @@ export default function CreateProjectBurrowModal({
     const footer = useMemo(() => {
         return (
             <div className="flex w-full items-center justify-between">
-                <div className="text-text/60 text-sm">
+                <div className="text-sm text-text/60">
                     Step {currentStep} of 3
                 </div>
 

@@ -1,7 +1,6 @@
 import { defineConfig, type Plugin } from "vite"
 import react from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
-import tsconfigPaths from "vite-tsconfig-paths"
 
 type AppEnv = "dev" | "staging" | "prod"
 

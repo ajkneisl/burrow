@@ -7,36 +7,36 @@ import { Link } from "react-router"
  */
 export default function Footer() {
     return (
-        <footer className="border-card-border mt-auto border-t py-6">
+        <footer className="mt-auto border-t border-card-border py-6">
             <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm sm:flex-row">
                 <p className="text-text/40">
                     &copy; {new Date().getFullYear()} Burrow
                 </p>
 
-                <nav className="text-text/50 flex flex-wrap justify-center gap-x-6 gap-y-2">
+                <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-text/50">
                     <Link
                         to="/articles"
-                        className="hover:text-text transition-colors"
+                        className="transition-colors hover:text-text"
                     >
                         Articles
                     </Link>
 
                     <Link
                         to="/about"
-                        className="hover:text-text transition-colors"
+                        className="transition-colors hover:text-text"
                     >
                         About
                     </Link>
                     <Link
                         to="/privacy"
-                        className="hover:text-text transition-colors"
+                        className="transition-colors hover:text-text"
                     >
                         Privacy
                     </Link>
 
                     <Link
                         to="/tos"
-                        className="hover:text-text transition-colors"
+                        className="transition-colors hover:text-text"
                     >
                         Terms
                     </Link>
@@ -45,7 +45,7 @@ export default function Footer() {
                         href="https://apps.apple.com/us/app/burrow-at-umn/id6757548307"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:text-text transition-colors"
+                        className="transition-colors hover:text-text"
                     >
                         App Store
                     </a>

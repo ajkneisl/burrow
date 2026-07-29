@@ -64,7 +64,7 @@ export function BurrowMapModal() {
                 <MapView
                     ref={mapRef}
                     provider={PROVIDER_GOOGLE}
-                    style={StyleSheet.absoluteFillObject}
+                    style={StyleSheet.absoluteFill}
                     initialRegion={UMN_COORDS}
                     showsUserLocation={hasPermission}
                     showsMyLocationButton={false}

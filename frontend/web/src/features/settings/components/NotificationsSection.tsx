@@ -243,7 +243,7 @@ export default function NotificationsSection() {
                 className="space-y-6"
             >
                 {/* overall toggle */}
-                <div className="bg-background/80 border-background rounded-lg px-3">
+                <div className="rounded-lg border-background bg-background/80 px-3">
                     <Toggle
                         title="Enable Notifications"
                         checked={notificationsEnabled}
@@ -267,7 +267,7 @@ export default function NotificationsSection() {
                                 </h3>
 
                                 <div className="w-full space-y-3">
-                                    <div className="bg-background/80 border-background rounded-lg px-3">
+                                    <div className="rounded-lg border-background bg-background/80 px-3">
                                         <Toggle
                                             title="Email"
                                             description="Receive notifications via email"
@@ -276,7 +276,7 @@ export default function NotificationsSection() {
                                         />
                                     </div>
 
-                                    <div className="bg-background/80 border-background rounded-lg px-3">
+                                    <div className="rounded-lg border-background bg-background/80 px-3">
                                         <Toggle
                                             title="Push Notifications"
                                             description={

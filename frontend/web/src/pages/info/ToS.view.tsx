@@ -5,18 +5,18 @@
  */
 export default function ToS() {
     return (
-        <main className="bg-background text-text min-h-screen">
+        <main className="min-h-screen bg-background text-text">
             <section className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
                 <header className="mb-8">
-                    <h1 className="text-secondary text-3xl font-extrabold tracking-tight">
+                    <h1 className="text-3xl font-extrabold tracking-tight text-secondary">
                         Terms of Service
                     </h1>
-                    <p className="text-text/0.75 mt-2 text-sm">
+                    <p className="mt-2 text-sm text-text/0.75">
                         Effective Date: October 7, 2025
                     </p>
                 </header>
 
-                <div className="border-text/0.12 bg-background rounded-2xl border p-6 shadow-sm">
+                <div className="border-text/0.12 rounded-2xl border bg-background p-6 shadow-sm">
                     <p className="mb-6">
                         Welcome to <span className="font-semibold">Burrow</span>
                         , a study group and meeting platform designed to help
@@ -28,7 +28,7 @@ export default function ToS() {
 
                     {/* Section 1 */}
                     <section className="mb-6">
-                        <h2 className="text-secondary text-xl font-bold">
+                        <h2 className="text-xl font-bold text-secondary">
                             1. Purpose of the Service
                         </h2>
                         <p className="mt-3">
@@ -54,7 +54,7 @@ export default function ToS() {
 
                     {/* Section 2 */}
                     <section className="mb-6">
-                        <h2 className="text-secondary text-xl font-bold">
+                        <h2 className="text-xl font-bold text-secondary">
                             2. User Conduct
                         </h2>
                         <p className="mt-3">
@@ -95,7 +95,7 @@ export default function ToS() {
 
                     {/* Section 3 */}
                     <section className="mb-6">
-                        <h2 className="text-secondary text-xl font-bold">
+                        <h2 className="text-xl font-bold text-secondary">
                             3. Account Information
                         </h2>
                         <p className="mt-3">
@@ -107,7 +107,7 @@ export default function ToS() {
 
                     {/* Section 4 */}
                     <section className="mb-6">
-                        <h2 className="text-secondary text-xl font-bold">
+                        <h2 className="text-xl font-bold text-secondary">
                             4. Content Guidelines
                         </h2>
                         <p className="mt-3">
@@ -137,7 +137,7 @@ export default function ToS() {
 
                     {/* Section 5 */}
                     <section className="mb-6">
-                        <h2 className="text-secondary text-xl font-bold">
+                        <h2 className="text-xl font-bold text-secondary">
                             5. Termination of Use
                         </h2>
                         <p className="mt-3">
@@ -150,7 +150,7 @@ export default function ToS() {
 
                     {/* Section 6 */}
                     <section className="mb-6">
-                        <h2 className="text-secondary text-xl font-bold">
+                        <h2 className="text-xl font-bold text-secondary">
                             6. Relationship to the University of Minnesota
                         </h2>
                         <p className="mt-3">
@@ -167,7 +167,7 @@ export default function ToS() {
 
                     {/* Section 7 */}
                     <section className="mb-6">
-                        <h2 className="text-secondary text-xl font-bold">
+                        <h2 className="text-xl font-bold text-secondary">
                             7. Limitation of Liability
                         </h2>
                         <p className="mt-3">
@@ -180,7 +180,7 @@ export default function ToS() {
 
                     {/* Section 8 */}
                     <section>
-                        <h2 className="text-secondary text-xl font-bold">
+                        <h2 className="text-xl font-bold text-secondary">
                             8. Contact
                         </h2>
                         <p className="mt-3">
@@ -188,7 +188,7 @@ export default function ToS() {
                             us at{" "}
                             <a
                                 href="mailto:privacy@umn.app"
-                                className="text-info hover:text-info-hover underline"
+                                className="text-info underline hover:text-info-hover"
                             >
                                 privacy@umn.app
                             </a>
