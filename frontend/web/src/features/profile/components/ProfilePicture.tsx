@@ -1,6 +1,7 @@
 import { useMemo, useState, useRef, useEffect } from "react"
 import clsx from "clsx"
-import { CDN_URL, BASE_URL } from "@api/util.ts"
+import { uploadUserPhoto } from "@umnburrow/core/api"
+import { CDN_URL } from "@api/util.ts"
 import useToken from "@features/auth/hooks/useToken"
 import toast from "react-hot-toast"
 
@@ -175,27 +176,16 @@ export default function ProfilePicture({
         setUploading(true)
 
         try {
-            const response = await fetch(`${BASE_URL}/user/photo`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": file.type,
-                    Authorization: `Bearer ${token}`
-                },
-                body: file
-            })
-
-            if (!response.ok) {
-                const error = await response.json()
-                toast.error(error.message || "Failed to upload image")
-                return
-            }
+            await uploadUserPhoto(file, file.type)
 
             // clear the image error to reload the image
             setImageError(false)
             toast.success("Profile picture updated!")
             onUploadSuccess?.()
         } catch (error) {
-            toast.error("Failed to upload image")
+            toast.error(
+                typeof error === "string" ? error : "Failed to upload image"
+            )
         } finally {
             setUploading(false)
             // Reset file input

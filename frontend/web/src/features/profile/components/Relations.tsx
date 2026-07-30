@@ -1,10 +1,7 @@
+import type { UserResponse } from "@umnburrow/core/api"
 import useUser from "@features/auth/hooks/useUser.ts"
-import type { UserResponse } from "@features/profile/profile.model.ts"
 import { Button } from "@umnburrow/core"
-import {
-    FOLLOWERS_VIEW,
-    FOLLOWING_VIEW
-} from "@features/profile/profile.api.ts"
+import { FOLLOWERS_VIEW, FOLLOWING_VIEW } from "@features/profile/profile.util.ts"
 import useRelations from "@features/profile/hooks/useRelations.ts"
 
 /**

@@ -1,12 +1,14 @@
+import { get } from "@umnburrow/core/api"
+import type { MyClubResponse } from "@umnburrow/core/api"
 import { useState, useMemo } from "react"
 import { View, ScrollView, Pressable, Image, ActivityIndicator } from "react-native"
 import { Text } from "@components/core"
 import { useQuery } from "@tanstack/react-query"
 import { Users, Check } from "lucide-react-native"
-import { get } from "@api/api"
+
 import { CDN_URL } from "@api/util"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import type { MyClubResponse } from "@features/clubs/club.types"
+
 import type { CreateStepProps } from "../create.types"
 
 /**

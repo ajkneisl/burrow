@@ -2,10 +2,15 @@ import {
     type BurrowKind,
     type BurrowVisibility,
     NOT_REOCCURRING
-} from "@features/burrows/burrows.types.tsx"
+} from "@umnburrow/core/api"
 
 /**
- * The props for a {@link CreateBurrow} step.
+ * The form state backing the create/edit Burrow wizard. The submitted payloads
+ * themselves ({@link SubmittedBurrow}) live in `@umnburrow/core/api`.
+ */
+
+/**
+ * The props for a create Burrow step.
  */
 export type CreateStepProps = {
     formState: SubmittedBurrowFormState
@@ -94,38 +99,3 @@ export const initialFormState: SubmittedBurrowFormState = {
     requestToJoin: false,
     reoccurring: NOT_REOCCURRING
 }
-
-/**
- * A project burrow submission.
- */
-export type SubmittedProjectBurrow = {
-    kind: "PROJECT"
-    name: string
-    objective: string
-    className: string
-    teamMembers: string[] // array of user IDs
-    dueDate: number // epoch millis
-}
-
-/**
- * A study/event burrow submission.
- */
-export type SubmittedStudyEventBurrow = {
-    kind: "STUDY" | "EVENT" | "CLUB"
-    title: string
-    description: string
-    location: string
-    beginningTime: number // epoch millis
-    endTime: number // epoch millis
-    tags: string[]
-    capacity: number
-    visibility: BurrowVisibility
-    requestToJoin: boolean
-    reoccurring: number
-    clubID?: string
-}
-
-/**
- * A group meeting created by a form - can be either project or study/event.
- */
-export type SubmittedBurrow = SubmittedProjectBurrow | SubmittedStudyEventBurrow

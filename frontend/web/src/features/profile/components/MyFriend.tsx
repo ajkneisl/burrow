@@ -1,4 +1,4 @@
-import type { Relation } from "@features/auth/user.types.ts"
+import type { Relation } from "@umnburrow/core/api"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useNavigate } from "react-router"
 import { useAtom } from "jotai"

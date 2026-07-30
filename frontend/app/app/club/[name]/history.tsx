@@ -1,12 +1,13 @@
+import { getClubHistory, humanDateLabel } from "@umnburrow/core/api"
+import type { BurrowResponse } from "@umnburrow/core/api"
 import { useMemo, useState, useCallback } from "react"
 import { View, SectionList, RefreshControl } from "react-native"
 import { useQuery } from "@tanstack/react-query"
 import { Calendar, ChevronLeft, ChevronRight, Lock } from "lucide-react-native"
-import { getClubHistory } from "@features/clubs/clubs.api"
+
 import useClubRole from "@features/clubs/hooks/useClubRole"
 import { UpcomingBurrowCard } from "@features/burrows/components/UpcomingBurrowCard"
-import { humanDateLabel } from "@api/util"
-import type { BurrowResponse } from "@features/burrows/burrows.types"
+
 import { Button, Skeleton, Text } from "@components/core"
 import { useClubContext } from "./_layout"
 
@@ -87,7 +88,7 @@ export default function ClubHistoryTab() {
                 </Text>
 
                 <Text className="text-text opacity-40 text-sm mt-1 text-center">
-                    Only moderators and administrators can view this club's
+                    Only moderators and administrators can view this club&apos;s
                     history.
                 </Text>
             </View>
@@ -136,7 +137,7 @@ export default function ClubHistoryTab() {
                 </Text>
 
                 <Text className="text-text opacity-40 text-sm mt-1">
-                    This club hasn't held any Burrows.
+                    This club hasn&apos;t held any Burrows.
                 </Text>
             </View>
         )

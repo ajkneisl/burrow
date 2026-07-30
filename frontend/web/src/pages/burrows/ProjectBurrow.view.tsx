@@ -1,11 +1,10 @@
+import { dayLabel, getBurrow } from "@umnburrow/core/api"
 import { Link, useNavigate, useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { Archive, Calendar } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
-import { getBurrow } from "@features/burrows/burrows.api.ts"
 import DeleteBurrow from "@features/burrows/controls/DeleteBurrow.tsx"
-import { dayLabel } from "@api/util.ts"
 import ChatBox from "@features/chat/components/ChatBox.tsx"
 import ViewAttendees from "@features/burrows/attendees/components/ViewAttendees.tsx"
 import useSync from "@features/sync/hooks/useSync.tsx"
@@ -254,6 +253,8 @@ export default function ProjectBurrow() {
                                             <BurrowCapacity
                                                 enforceCapacity={10}
                                                 burrow={burrow}
+                                                joined={data.joined}
+                                                waiting={data.waiting}
                                             />
                                         </div>
                                     </div>

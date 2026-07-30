@@ -1,3 +1,12 @@
+import {
+    EMAIL_CHANNEL,
+    MOBILE_CHANNEL,
+    disableChannel,
+    enableChannel,
+    isChannelEnabled
+} from "@umnburrow/core/api"
+import type { NotificationKind } from "@umnburrow/core/api"
+import type { NotificationPreferences } from "@umnburrow/core/api"
 import { View, Switch, ActivityIndicator } from "react-native"
 import { Card, Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
@@ -5,17 +14,7 @@ import {
     useNotificationPreferences,
     useSaveNotificationPreferences
 } from "@features/settings/settings.queries"
-import {
-    isChannelEnabled,
-    enableChannel,
-    disableChannel
-} from "@features/settings/settings.api"
-import {
-    MOBILE_CHANNEL,
-    EMAIL_CHANNEL,
-    NotificationKind,
-    type NotificationPreferences
-} from "@features/settings/settings.types"
+
 import { Mail, Smartphone, AlertCircle } from "lucide-react-native"
 import ThemedIcon from "@components/core/ThemedIcon"
 import { useState, useEffect } from "react"
@@ -24,27 +23,27 @@ import { usePushNotifications } from "@features/notifications/hooks/usePushNotif
 import clsx from "clsx"
 
 const NOTIFICATION_LABELS: Record<NotificationKind, { title: string; description: string }> = {
-    [NotificationKind.UPCOMING_MEETING]: {
+    UPCOMING_MEETING: {
         title: "Upcoming Burrows",
         description: "Reminders before burrows you've joined"
     },
-    [NotificationKind.NEW_MEETING]: {
+    NEW_MEETING: {
         title: "New Burrows",
         description: "When new burrows are created near you"
     },
-    [NotificationKind.MEETING_MESSAGE]: {
+    MEETING_MESSAGE: {
         title: "Burrow Messages",
         description: "Messages in burrows you're part of"
     },
-    [NotificationKind.INVITE_RECEIVED]: {
+    INVITE_RECEIVED: {
         title: "Invites Received",
         description: "When someone invites you to a burrow"
     },
-    [NotificationKind.NEWSLETTER]: {
+    NEWSLETTER: {
         title: "Newsletter",
         description: "Weekly updates and highlights"
     },
-    [NotificationKind.RECOMMENDED]: {
+    RECOMMENDED: {
         title: "Recommendations",
         description: "Suggested burrows based on your interests"
     }

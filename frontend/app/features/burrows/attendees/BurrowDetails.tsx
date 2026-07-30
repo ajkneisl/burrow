@@ -1,3 +1,4 @@
+import { BurrowResponse, NOT_REOCCURRING, dayLabel, formatDateTime, getReoccurringText } from "@umnburrow/core/api"
 import { View } from "react-native"
 import { Text } from "@components/core"
 import type { LucideIcon } from "lucide-react-native"
@@ -10,12 +11,7 @@ import {
     Users
 } from "lucide-react-native"
 import clsx from "clsx"
-import { dayLabel, formatDateTime } from "@api/util"
-import {
-    NOT_REOCCURRING,
-    getReoccurringText,
-    BurrowResponse
-} from "@features/burrows/burrows.types"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**
@@ -50,11 +46,11 @@ export default function BurrowDetails({ burrowResponse }: BurrowDetailsProps) {
     const rows: DetailRow[] =
         burrow.kind === "PROJECT"
             ? [
-                  ...(burrow.className
+                  ...(burrow.location
                       ? [
                             {
                                 icon: BookOpen,
-                                value: burrow.className,
+                                value: burrow.location,
                                 subtitle: "Course"
                             }
                         ]

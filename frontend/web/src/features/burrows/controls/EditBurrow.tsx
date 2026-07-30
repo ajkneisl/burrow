@@ -1,7 +1,7 @@
-import type { Burrow } from "@features/burrows/burrows.types.tsx"
+import { updateBurrow } from "@umnburrow/core/api"
+import type { Burrow } from "@umnburrow/core/api"
 import { useMemo, useState } from "react"
 import { Button } from "@umnburrow/core"
-import { updateBurrow } from "@features/burrows/create/create.api.ts"
 import CreateStudyBurrowModal from "@features/burrows/create/components/CreateStudyBurrowModal.tsx"
 import CreateProjectBurrowModal from "@features/burrows/create/components/project/CreateProjectBurrowModal.tsx"
 

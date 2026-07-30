@@ -160,7 +160,7 @@ export default function SettingsView() {
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 96, opacity: 0 }}
                         transition={{ duration: 0.3, ease: "easeOut" }}
-                        className="border-card-border bg-background fixed inset-x-0 bottom-0 z-[900] border-t p-4 shadow-lg lg:hidden"
+                        className="fixed inset-x-0 bottom-0 z-900 border-t border-card-border bg-background p-4 shadow-lg lg:hidden"
                     >
                         <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3">
                             <p className="text-sm opacity-70">

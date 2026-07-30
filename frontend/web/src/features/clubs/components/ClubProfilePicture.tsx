@@ -1,7 +1,7 @@
+import { uploadClubPhoto } from "@umnburrow/core/api"
 import { useMemo, useRef, useState } from "react"
 import clsx from "clsx"
 import { CDN_URL } from "@api/util.ts"
-import { uploadClubPhoto } from "@features/clubs/clubs.api.ts"
 import useClubRole from "@features/clubs/hooks/useClubRole.ts"
 import toast from "react-hot-toast"
 
@@ -74,7 +74,7 @@ export default function ClubProfilePicture({
 
         setUploading(true)
         try {
-            await uploadClubPhoto(clubName, file)
+            await uploadClubPhoto(clubName, file, file.type)
             setImageError(false)
             setCacheBust(Date.now())
             toast.success("Club avatar updated!")

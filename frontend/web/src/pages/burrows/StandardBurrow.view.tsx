@@ -1,12 +1,11 @@
+import { NOT_REOCCURRING, formatDateTime, getBurrow, getReoccurringText } from "@umnburrow/core/api"
 import { Link, Navigate, useNavigate, useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { Archive, Clock, GraduationCap, Repeat } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
-import { getBurrow } from "@features/burrows/burrows.api.ts"
 import BurrowLocation from "@features/burrows/components/BurrowLocation.tsx"
 import DeleteBurrow from "@features/burrows/controls/DeleteBurrow.tsx"
-import { formatDateTime } from "@api/util.ts"
 import JoinBurrow from "@features/burrows/components/JoinBurrow.tsx"
 import BurrowCapacity from "@features/burrows/components/BurrowCapacity.tsx"
 import EditBurrow from "@features/burrows/controls/EditBurrow.tsx"
@@ -24,11 +23,6 @@ import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.ts
 import ShareMeeting from "@features/burrows/controls/ShareMeeting.tsx"
 import BookmarkMeeting from "@features/burrows/controls/BookmarkMeeting.tsx"
 import ReportBurrow from "@features/burrows/controls/ReportBurrow.tsx"
-import {
-    getReoccurringText,
-    NOT_REOCCURRING
-} from "@features/burrows/burrows.types.tsx"
-
 /**
  * View an individual meeting.
  *
@@ -333,7 +327,11 @@ export default function StandardBurrow() {
                                                 inPast={inPast}
                                             />
 
-                                            <BurrowCapacity burrow={burrow} />
+                                            <BurrowCapacity
+                                                burrow={burrow}
+                                                joined={data.joined}
+                                                waiting={data.waiting}
+                                            />
                                         </div>
                                     </div>
                                 </div>

@@ -1,7 +1,7 @@
-import type { DiscoveredUser } from "@features/auth/user.types.ts"
+import { followUser, unfollowUser } from "@umnburrow/core/api"
+import type { DiscoveredUser } from "@umnburrow/core/api"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
-import { followUser, unFollowUser } from "@features/profile/profile.api.ts"
 import toast from "react-hot-toast"
 import { getReasoningLabel } from "@features/profile/profile.util.ts"
 import { Button, Card } from "@umnburrow/core"
@@ -33,7 +33,7 @@ export default function DiscoveredUserCard({ user }: { user: DiscoveredUser }) {
     })
 
     const unfollowMutation = useMutation({
-        mutationFn: () => unFollowUser(user.userID),
+        mutationFn: () => unfollowUser(user.userID),
         onSuccess: () => {
             setIsFollowing(false)
 

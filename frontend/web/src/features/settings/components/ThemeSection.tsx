@@ -1,11 +1,13 @@
+import { saveTheme } from "@umnburrow/core/api"
+import type { Theme } from "@umnburrow/core/api"
 import { useAtom, useSetAtom } from "jotai"
 import { themeAtom } from "@api/theme/theme.atom.ts"
-import { saveTheme } from "@api/theme/theme.api.ts"
-import type { Theme } from "@api/theme/theme.types.ts"
 import { Card } from "@umnburrow/core"
 import { Sun, Moon, Monitor, Leaf } from "lucide-react"
-import type {FormEvent} from "react";
-import {settingsSaveLoading} from "@features/settings/settings.atom.ts";
+import type {FormEvent} from "react"
+;
+import {settingsSaveLoading} from "@features/settings/settings.atom.ts"
+;
 
 type ThemeOption = {
     value: Theme

@@ -1,4 +1,5 @@
-import {useRouteError} from "react-router";
+import {useRouteError} from "react-router"
+;
 
 /**
  * When there's an error

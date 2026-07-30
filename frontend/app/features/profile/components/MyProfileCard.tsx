@@ -1,3 +1,4 @@
+import { convertGraduationYear } from "@umnburrow/core/api"
 import { View, Pressable } from "react-native"
 import { useRouter } from "expo-router"
 import { Settings, History } from "lucide-react-native"
@@ -5,7 +6,7 @@ import { Card, Text } from "@components/core"
 import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import useUser from "@features/auth/hooks/useUser"
 import useProfile from "@features/auth/hooks/useProfile"
-import { convertGraduationYear } from "@api/util"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**

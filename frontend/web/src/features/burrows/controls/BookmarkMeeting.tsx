@@ -1,8 +1,5 @@
+import { createBookmark, deleteBookmark } from "@umnburrow/core/api"
 import { useQueryClient } from "@tanstack/react-query"
-import {
-    createBookmark,
-    deleteBookmark
-} from "@features/burrows/burrows.api.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
 import MeetingButton from "@features/burrows/controls/MeetingButton.tsx"
 import { Bookmark } from "lucide-react"
@@ -41,9 +38,9 @@ export default function BookmarkMeeting({
         })
 
         if (!isBookmarked) {
-            await createBookmark(auth, meetingId)
+            await createBookmark(meetingId)
         } else {
-            await deleteBookmark(auth, meetingId)
+            await deleteBookmark(meetingId)
         }
     }
 

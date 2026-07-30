@@ -1,8 +1,7 @@
+import { createInvite, getUserByUsername } from "@umnburrow/core/api"
 import { Button, Card, Input } from "@umnburrow/core"
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { getUserByUsername } from "@features/profile/profile.api.ts"
-import { createInvite } from "@features/burrows/attendees/attendees.api.ts"
 import toast from "react-hot-toast"
 import { X } from "lucide-react"
 

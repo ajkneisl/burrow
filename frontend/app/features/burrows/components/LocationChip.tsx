@@ -1,6 +1,7 @@
 import {Chip } from "@components/core"
 import { MapPin } from "lucide-react-native"
-import {useMemo} from "react";
+import {useMemo} from "react"
+;
 
 /**
  * {@link LocationChip}

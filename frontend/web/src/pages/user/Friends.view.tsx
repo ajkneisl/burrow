@@ -1,5 +1,5 @@
+import { getDiscoveredUsers, getRelations } from "@umnburrow/core/api"
 import { useQuery } from "@tanstack/react-query"
-import { getDiscoveredUsers, getRelations } from "@features/auth/user.api.ts"
 import { Card } from "@umnburrow/core"
 import { UserPlus } from "lucide-react"
 import FriendCard from "@features/profile/components/FriendCard.tsx"

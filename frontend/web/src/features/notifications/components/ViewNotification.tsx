@@ -1,6 +1,6 @@
-import type { Notification } from "@features/notifications/notifications.types.ts"
+import { formatTimeAgo } from "@umnburrow/core/api"
+import type { Notification } from "@umnburrow/core/api"
 import clsx from "clsx"
-import { formatTimeAgo } from "@api/util.ts"
 import { Button } from "@umnburrow/core"
 
 /**

@@ -3,12 +3,7 @@ import { BASE_URL } from "@api/util.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
 import { useAtom, useSetAtom } from "jotai"
 import { blockStatus, syncRetry, syncStatus } from "@features/sync/sync.atom.ts"
-import {
-    type Response,
-    SyncIncomingEvent,
-    type SyncOutgoingEvent
-} from "../sync.types.ts"
-
+import { type Response, SyncIncomingEvent, type SyncOutgoingEvent } from "../sync.types.ts"
 /**
  * Sync to a Burrow.
  * This enables Chat and other meeting features.

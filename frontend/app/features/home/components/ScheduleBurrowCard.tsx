@@ -1,11 +1,13 @@
+import { formatDateTime, humanDateLabel } from "@umnburrow/core/api"
+import type { ScheduleBurrowResponse } from "@umnburrow/core/api"
 import { View, Pressable } from "react-native"
 import { Text } from "@components/core"
 import { useRouter } from "expo-router"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { MessageSquare, Pin } from "lucide-react-native"
-import type { ScheduleBurrowResponse } from "@features/burrows/burrows.types"
+
 import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
-import { formatDateTime, humanDateLabel } from "@api/util"
+
 import { Card } from "@components/core"
 
 /**

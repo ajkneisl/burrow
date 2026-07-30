@@ -1,10 +1,10 @@
+import { updateUsername } from "@umnburrow/core/api"
 import { useState } from "react"
 import { View } from "react-native"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
 import { Input, Button, Text, Modal } from "@components/core"
 import useUser from "@features/auth/hooks/useUser"
-import { updateUsername } from "@features/auth/user.api"
 
 type ChangeUsernameModalProps = {
     visible: boolean

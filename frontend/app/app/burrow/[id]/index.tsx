@@ -1,9 +1,10 @@
+import { dayLabel } from "@umnburrow/core/api"
 import { View, ScrollView, RefreshControl } from "react-native"
 import { useState, useCallback } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { CircleCheck, Clock } from "lucide-react-native"
 import { Card, Chip, Text } from "@components/core"
-import { dayLabel } from "@api/util"
+
 import BurrowDetails from "@features/burrows/attendees/BurrowDetails"
 import { useBurrowContext } from "@features/burrows/context/burrows.context"
 import { useThemeColors } from "@api/theme/useThemeColors"

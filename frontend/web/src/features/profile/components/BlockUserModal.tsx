@@ -1,5 +1,5 @@
+import { put } from "@umnburrow/core/api"
 import { Button, Modal } from "@umnburrow/core"
-import { put } from "@api/api.ts"
 import { useMutation } from "@tanstack/react-query"
 import toast from "react-hot-toast"
 import { useState } from "react"

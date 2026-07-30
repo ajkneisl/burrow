@@ -1,8 +1,7 @@
+import { capitalizeFirstLetter } from "@umnburrow/core/api"
+import type { BurrowVisibility } from "@umnburrow/core/api"
 import { SelectInput, Toggle } from "@umnburrow/core"
 import type { CreateStepProps } from "@features/burrows/create/create.types.ts"
-import type { BurrowVisibility } from "@features/burrows/burrows.types.tsx"
-import { capitalizeFirstLetter } from "@api/util.ts"
-
 /**
  * {@link PrivacyStep}
  */

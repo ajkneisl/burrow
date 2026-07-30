@@ -1,3 +1,5 @@
+import { deleteClub } from "@umnburrow/core/api"
+import type { ClubResponse } from "@umnburrow/core/api"
 import { useState } from "react"
 import { Pressable, Alert } from "react-native"
 import { useRouter } from "expo-router"
@@ -5,10 +7,9 @@ import { useQueryClient } from "@tanstack/react-query"
 import { Pencil, Trash2 } from "lucide-react-native"
 import Toast from "react-native-toast-message"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import type { ClubResponse } from "@features/clubs/club.types"
+
 import EditClubModal from "@features/clubs/components/EditClubModal"
 import useClubRole from "@features/clubs/hooks/useClubRole"
-import { deleteClub } from "@features/clubs/clubs.api"
 
 type ClubModerationProps = {
     clubResponse: ClubResponse

@@ -1,7 +1,7 @@
+import { getArticle } from "@umnburrow/core/api"
 import { Link, useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
-import { getArticle } from "@features/articles/articles.api.ts"
 import ArticleContent from "@features/articles/components/ArticleContent.tsx"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 

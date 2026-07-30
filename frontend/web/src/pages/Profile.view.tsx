@@ -1,12 +1,7 @@
+import { followUser, getUserByUsername, unblockUser, unfollowUser } from "@umnburrow/core/api"
 import { useParams } from "react-router"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button, Card, ViewErrors } from "@umnburrow/core"
-import {
-    followUser,
-    getUserByUsername,
-    unblockUser,
-    unFollowUser
-} from "@features/profile/profile.api.ts"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useMemo, useState } from "react"
@@ -59,7 +54,7 @@ export default function ProfileView() {
             setIsSubmitting(true)
 
             if (wasFollowing) {
-                await unFollowUser(targetUserId)
+                await unfollowUser(targetUserId)
             } else {
                 await followUser(targetUserId)
             }
@@ -287,7 +282,7 @@ export default function ProfileView() {
                     <div className="grid grid-cols-1 items-start gap-6 px-4 pb-12 lg:grid-cols-[1fr_320px]">
                         {/* left: about */}
                         <About
-                            user={data.user}
+                            email={data.email}
                             profile={data.profile}
                             isTa={data.isTa}
                         />

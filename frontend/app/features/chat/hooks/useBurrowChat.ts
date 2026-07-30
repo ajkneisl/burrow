@@ -1,8 +1,9 @@
+import type { ChatMember, ChatMessage, ChatSyncStatus } from "@umnburrow/core/api"
 import { useEffect, useRef, useState, useCallback } from "react"
 import { BASE_URL } from "@api/util"
 import useToken from "@features/auth/hooks/useToken"
-import type { ChatMessage, ChatMember, ChatSyncStatus } from "../chat.types"
-import type { Response, Action } from "@features/chat/sync.types"
+
+import type { Response, Action } from "@features/sync/sync.types"
 
 /**
  * Hook for syncing with burrow chat via WebSocket.

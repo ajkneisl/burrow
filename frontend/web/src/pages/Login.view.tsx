@@ -1,3 +1,4 @@
+import { altLogin } from "@umnburrow/core/api"
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import { useAtom, useSetAtom } from "jotai"
@@ -9,7 +10,6 @@ import {
     refreshTokenAtom,
     userDetails
 } from "@features/auth/auth.atom.ts"
-import { altLogin } from "@features/auth/user.api.ts"
 import { Link } from "react-router"
 
 /**

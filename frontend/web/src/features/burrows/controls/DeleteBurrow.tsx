@@ -1,8 +1,8 @@
+import { deleteBurrow } from "@umnburrow/core/api"
+import type { Burrow } from "@umnburrow/core/api"
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import { toast } from "react-hot-toast"
-import type { Burrow } from "@features/burrows/burrows.types.tsx"
-import { deleteMeeting } from "@features/burrows/burrows.api.ts"
 import { Button, Modal } from "@umnburrow/core"
 
 /**
@@ -26,7 +26,7 @@ export default function DeleteBurrow({ burrow }: DeleteMeetingProps) {
         const loadingID = toast.loading("Deleting meeting…")
 
         try {
-            await deleteMeeting(burrow.id)
+            await deleteBurrow(burrow.id)
             toast.success("Meeting deleted")
             nav("/")
         } catch {

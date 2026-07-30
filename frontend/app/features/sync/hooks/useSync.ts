@@ -4,7 +4,7 @@ import { authToken } from "@features/auth/auth.atom"
 import { blockStatus, syncRetry, syncStatus } from "../sync.atom"
 import { SyncIncomingEvent, type Response, type SyncOutgoingEvent } from "../sync.types"
 import { eventBus } from "../eventBus"
-import {BASE_URL} from "@api/util";
+import { BASE_URL } from "@api/util"
 
 const WS_BASE_URL = (BASE_URL as string).replace("http", "ws")
 
@@ -58,7 +58,6 @@ export default function useSync(burrowID: string | null, isJoined: boolean) {
             console.log(`${logPrefix} Status set to CONNECTING`)
 
             connectedElsewhereRef.current = false
-
 
             ws.onopen = () => {
                 console.log(`${logPrefix} WebSocket connection opened`)

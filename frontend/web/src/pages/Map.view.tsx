@@ -1,13 +1,11 @@
+import { capitalizeFirstLetter, formatDateTime, getMap } from "@umnburrow/core/api"
+import type { BurrowLocation } from "@umnburrow/core/api"
 import { useState } from "react"
 import { Map as GMap, AdvancedMarker } from "@vis.gl/react-google-maps"
 import { useQuery } from "@tanstack/react-query"
 import { X, MapPin } from "lucide-react"
 import { Button } from "@umnburrow/core"
 import { useNavigate } from "react-router"
-import { capitalizeFirstLetter, formatDateTime } from "@api/util.ts"
-import type { BurrowLocation } from "@features/burrows/burrows.types.tsx"
-import { getMap } from "@features/burrows/burrows.api.ts"
-
 // center of campus
 const UMN_CENTER = {
     lat: 44.9744,

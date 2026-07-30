@@ -1,3 +1,4 @@
+import { createClub } from "@umnburrow/core/api"
 import { useState, useCallback } from "react"
 import { View, Pressable, KeyboardAvoidingView, Platform, FlatList } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -9,11 +10,8 @@ import { X, ChevronLeft } from "lucide-react-native"
 import { Card, Modal, Text } from "@components/core"
 import ThemedIcon from "@components/core/ThemedIcon"
 import { createClubModalOpen } from "@features/layout/layout.atom"
-import { createClub } from "@features/clubs/clubs.api"
-import {
-    CreateClubFormState,
-    initialFormState
-} from "@features/clubs/club.types"
+
+import { CreateClubFormState, initialFormState } from "@features/clubs/club.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import useFormState from "@api/useFormState"
 import ClubPrivacyStep from "@features/clubs/components/ClubPrivacyStep"

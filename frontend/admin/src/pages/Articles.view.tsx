@@ -1,15 +1,9 @@
+import { createArticle, deleteArticle, getAllArticles, updateArticle } from "@umnburrow/core/api"
+import type { Article } from "@umnburrow/core/api"
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useAtom } from "jotai"
 import { Button, Card, Input, TextArea, Toggle } from "@umnburrow/core"
-import {
-    getArticles,
-    createArticle,
-    updateArticle,
-    deleteArticle
-} from "../features/articles/article.api.ts"
-import { adminTokenAtom } from "../features/auth/admin.atom.ts"
-import type { Article } from "../features/articles/article.models.ts"
+
 
 /** An empty editor state. */
 const EMPTY_DRAFT = {
@@ -26,12 +20,11 @@ const EMPTY_DRAFT = {
  * @author AJ Kneisl
  */
 export default function ArticlesView() {
-    const [token] = useAtom(adminTokenAtom)
     const queryClient = useQueryClient()
 
     const { data: articles, isLoading, isError, error, refetch, isFetching } = useQuery({
         queryKey: ["admin", "articles"],
-        queryFn: () => getArticles(token ?? ""),
+        queryFn: () => getAllArticles(),
         refetchOnWindowFocus: true
     })
 
@@ -66,8 +59,8 @@ export default function ArticlesView() {
             }
 
             return editingSlug === null
-                ? createArticle(token ?? "", payload)
-                : updateArticle(token ?? "", editingSlug, payload)
+                ? createArticle(payload)
+                : updateArticle(editingSlug, payload)
         },
 
         onSuccess: (article) => {
@@ -77,7 +70,7 @@ export default function ArticlesView() {
     })
 
     const deleteMutation = useMutation({
-        mutationFn: (slug: string) => deleteArticle(token ?? "", slug),
+        mutationFn: (slug: string) => deleteArticle(slug),
 
         onSuccess: (_, slug) => {
             if (editingSlug === slug) startCreate()

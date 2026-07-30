@@ -1,13 +1,7 @@
+import type { ChatMember, ChatMessage, ChatSyncResponse, ChatSyncStatus, Topic } from "@umnburrow/core/api"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { BASE_URL } from "@api/util"
 import useToken from "@features/auth/hooks/useToken"
-import type {
-    ChatSyncStatus,
-    ChatSyncResponse,
-    Topic,
-    ChatMember,
-    ChatMessage
-} from "@features/chat/chat.types"
 
 const WS_BASE = BASE_URL.replace("http", "ws")
 

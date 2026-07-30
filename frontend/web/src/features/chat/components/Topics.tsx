@@ -1,5 +1,5 @@
+import { getTopics } from "@umnburrow/core/api"
 import { useQuery } from "@tanstack/react-query"
-import { getTopics } from "@features/chat/chat.api.ts"
 import { Card, ViewErrors } from "@umnburrow/core"
 import { ArrowRight, MessageSquare, Pin } from "lucide-react"
 import { useNavigate } from "react-router"

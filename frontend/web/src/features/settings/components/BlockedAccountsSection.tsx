@@ -1,10 +1,9 @@
-import { getBlockedAccounts } from "@features/settings/settings.api.ts"
+import { getBlockedUsers, unblockUser } from "@umnburrow/core/api"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button, Card } from "@umnburrow/core"
 import { ShieldOff, UserCircle } from "lucide-react"
 import toast from "react-hot-toast"
 import { Link } from "react-router"
-import {unblockUser} from "@features/profile/profile.api.ts";
 
 /**
  * View blocked accounts on settings.
@@ -16,7 +15,7 @@ export default function BlockedAccountsSection() {
 
     const { data, isLoading } = useQuery({
         queryKey: ["settings", "blocked"],
-        queryFn: getBlockedAccounts
+        queryFn: getBlockedUsers
     })
 
     const unblockMutation = useMutation({

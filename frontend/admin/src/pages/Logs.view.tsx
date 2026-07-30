@@ -1,16 +1,14 @@
+import { getLogs } from "@umnburrow/core/api"
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { useAtom } from "jotai"
 import { Button, Card, Input, SelectInput } from "@umnburrow/core"
-import { getLogs } from "../features/logs/log.api.ts"
+
 import LogEntry from "../features/logs/components/LogEntry.tsx"
-import { adminTokenAtom } from "../features/auth/admin.atom.ts"
 
 /**
  * View logs.
  */
 export default function LogsView() {
-    const [token] = useAtom(adminTokenAtom)
     const [page, setPage] = useState(1)
     const [levelFilter, setLevelFilter] = useState("")
     const [sourceFilter, setSourceFilter] = useState("")
@@ -26,9 +24,7 @@ export default function LogsView() {
             userIDFilter
         ],
         queryFn: () =>
-            getLogs(
-                token ?? "",
-                page,
+            getLogs(page,
                 levelFilter || undefined,
                 sourceFilter || undefined,
                 userIDFilter || undefined

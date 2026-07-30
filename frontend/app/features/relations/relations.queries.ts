@@ -1,11 +1,6 @@
+import { followUser, getDiscoveredUsers, getRelations, unfollowUser } from "@umnburrow/core/api"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
-import {
-    getRelations,
-    getDiscoveredUsers,
-    followUser,
-    unfollowUser
-} from "@features/auth/user.api"
 
 export function useFriendsQuery() {
     return useQuery({

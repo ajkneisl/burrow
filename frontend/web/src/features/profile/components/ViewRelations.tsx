@@ -1,3 +1,5 @@
+import { getRelations } from "@umnburrow/core/api"
+import type { Relation } from "@umnburrow/core/api"
 import { Modal } from "@umnburrow/core"
 import { useQuery } from "@tanstack/react-query"
 import MyFriend from "./MyFriend"
@@ -7,9 +9,6 @@ import {
     isRelationsVisible,
     relationType
 } from "@features/profile/profile.atom.ts"
-import type { Relation } from "@features/auth/user.types.ts"
-import { getRelations } from "@features/auth/user.api.ts"
-
 /**
  * View a certain type of relation, like friends, followers, following.
  *

@@ -1,3 +1,4 @@
+import { getBlockedUsers, unblockUser } from "@umnburrow/core/api"
 import { View, ScrollView, Pressable, ActivityIndicator } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack } from "expo-router"
@@ -5,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
 import { ArrowLeft, ShieldOff, UserCircle } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { getBlockedUsers, unblockUser } from "@features/profile/profile.api"
+
 import { Button, Text } from "@components/core"
 
 /**

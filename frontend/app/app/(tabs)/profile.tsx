@@ -1,3 +1,4 @@
+import { getUser } from "@umnburrow/core/api"
 import { useState, useCallback } from "react"
 import { View, RefreshControl, ScrollView, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -5,7 +6,7 @@ import { useRouter } from "expo-router"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import useUser from "@features/auth/hooks/useUser"
 import useProfile from "@features/auth/hooks/useProfile"
-import { getUser } from "@features/auth/user.api"
+
 import { Header } from "@features/layout/components"
 import { Button, Text } from "@components/core"
 import { Settings, Edit } from "lucide-react-native"

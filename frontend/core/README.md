@@ -1,75 +1,66 @@
-# React + TypeScript + Vite
+# @umnburrow/core
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Shared code for the three Burrow clients — the web app (`frontend/web`), the
+mobile app (`frontend/app`) and the admin panel (`frontend/admin`).
 
-Currently, two official plugins are available:
+The package has two entry points.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## `@umnburrow/core`
 
-## React Compiler
+The React component library: `Button`, `Card`, `Modal`, `Input`, `Paginator`
+and friends. Web only — it depends on `react-aria-components` and
+`lucide-react`.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```ts
+import { Button, Card } from "@umnburrow/core"
+import "@umnburrow/core/style.css"
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## `@umnburrow/core/api`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Every call the clients make to the backend, the models those calls return, and
+the formatting helpers shared between them. This entry point touches no React,
+no DOM and no React Native, so the mobile app consumes it too.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Configure it once at startup, before anything renders:
+
+```ts
+import { configureApi } from "@umnburrow/core/api"
+
+configureApi({
+    baseUrl: import.meta.env.VITE_BASE_URL,
+    cdnUrl: import.meta.env.VITE_CDN_URL,
+    getToken: () => store.get(authToken),
+    getRefreshToken: () => store.get(refreshTokenAtom),
+    setToken: (token) => store.set(authToken, token),
+    setRefreshToken: (token) => store.set(refreshTokenAtom, token)
+})
 ```
+
+Each client keeps its own session storage — cookies on web, AsyncStorage on
+mobile, `localStorage` on admin — and hands the API layer the accessors. The
+client attaches the bearer token, refreshes it once on a `401` and retries the
+original request.
+
+Then call the endpoints directly; the token is never passed by hand:
+
+```ts
+import { getBurrow, joinBurrow, type BurrowResponse } from "@umnburrow/core/api"
+
+const response: BurrowResponse = await getBurrow(id)
+await joinBurrow(id)
+```
+
+The models mirror the Kotlin models in `backend/src/main/kotlin`. When a route
+or a payload changes on the backend, change it here — not in the clients.
+
+## Development
+
+```sh
+bun run build   # type check, bundle both entries, emit .d.ts
+bun run dev     # rebuild on change
+./bump_publish.sh
+```
+
+The clients depend on a published version, so a change here has to be
+published before they can pick it up.

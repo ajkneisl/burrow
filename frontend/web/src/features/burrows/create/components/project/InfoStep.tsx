@@ -1,7 +1,6 @@
 import Field from "@features/burrows/create/components/Field.tsx"
 import { Input, TextArea } from "@umnburrow/core"
 import type { CreateStepProps } from "@features/burrows/create/create.types.ts"
-
 /**
  * Info step for creating a project.
  *

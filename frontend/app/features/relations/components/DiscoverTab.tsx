@@ -1,10 +1,10 @@
+import type { DiscoverReasoning } from "@umnburrow/core/api"
 import { View, FlatList, ScrollView, RefreshControl } from "react-native"
 import { Users, UserPlus } from "lucide-react-native"
 import { Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { useDiscoverQuery, useFollowMutation } from "../relations.queries"
 import UserCard from "./UserCard"
-import type { DiscoverReasoning } from "@features/auth/user.types"
 
 function getReasoningText(reasoning?: DiscoverReasoning) {
     switch (reasoning) {

@@ -1,9 +1,5 @@
+import { deleteAccount, getUser, updateUsername } from "@umnburrow/core/api"
 import { useEffect, useState } from "react"
-import {
-    deleteAccount,
-    getUser,
-    updateUsername
-} from "@features/auth/user.api.ts"
 import { useSetAtom } from "jotai"
 import {
     settingsChanged,

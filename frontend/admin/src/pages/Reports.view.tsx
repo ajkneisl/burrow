@@ -1,19 +1,17 @@
+import { getReports } from "@umnburrow/core/api"
 import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { useAtom } from "jotai"
 import { Button, Card, Input, SelectInput } from "@umnburrow/core"
-import { getReports } from "../features/reports/report.api.ts"
+
 import ReportView from "../features/reports/component/ReportView.tsx"
-import { adminTokenAtom } from "../features/auth/admin.atom.ts"
 
 /**
  * View reports.
  */
 export default function ReportsView() {
-    const [token] = useAtom(adminTokenAtom)
     const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
         queryKey: ["admin", "reports"],
-        queryFn: () => getReports(token ?? ""),
+        queryFn: () => getReports(),
         refetchOnWindowFocus: true
     })
 
@@ -31,7 +29,7 @@ export default function ReportsView() {
             if (!inCat) return false
             if (!query) return true
             const hay =
-                `${r.summary}\n${r.details}\n${r.path}\n${r.userAgent}\n${r.userId}`.toLowerCase()
+                `${r.summary}\n${r.details}\n${r.path}\n${r.userAgent}\n${r.userID}`.toLowerCase()
             return hay.includes(query)
         })
 

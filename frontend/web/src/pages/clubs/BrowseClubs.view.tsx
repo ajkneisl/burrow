@@ -1,3 +1,5 @@
+import { discoverClubs, getMyClubs } from "@umnburrow/core/api"
+import type { Club, ClubCategory } from "@umnburrow/core/api"
 import {useState, useMemo} from "react"
 import {useNavigate} from "react-router"
 import {useQuery} from "@tanstack/react-query"
@@ -5,10 +7,8 @@ import {Compass} from "lucide-react"
 import clsx from "clsx"
 import useToken from "@features/auth/hooks/useToken.ts"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
-import {discoverClubs, getMyClubs} from "@features/clubs/clubs.api.ts"
-import type {Club, ClubCategory} from "@features/clubs/clubs.types.tsx"
 import {Card, Chip, Paginator, ViewErrors} from "@umnburrow/core"
-import {CDN_URL} from "@api/util.ts"
+import { CDN_URL } from "@api/util.ts"
 import BrowseTabs from "@features/browse/components/BrowseTabs.tsx"
 
 const CATEGORIES: { label: string; value: ClubCategory | null }[] = [

@@ -1,4 +1,4 @@
-import { Button } from "@umnburrow/core"
+import Button from "./Button"
 
 /**
  * Props for {@link Paginator}

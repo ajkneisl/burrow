@@ -1,14 +1,16 @@
+import { get } from "@umnburrow/core/api"
+import type { ClubResponse } from "@umnburrow/core/api"
 import { View, Pressable, ActivityIndicator } from "react-native"
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter, Tabs } from "expo-router"
 import { useQuery } from "@tanstack/react-query"
 import { createContext, useContext } from "react"
 import { ChevronLeft, Users, Info, Calendar, History } from "lucide-react-native"
-import { get } from "@api/api"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { Button, Text } from "@components/core"
 import ThemedIcon from "@components/core/ThemedIcon"
-import type { ClubResponse } from "@features/clubs/club.types"
+
 import ClubBannerPicture from "@features/clubs/components/ClubBannerPicture"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture"
 import ClubModeration from "@features/clubs/view/ClubModeration"

@@ -1,15 +1,11 @@
+import { isBurrowResult, isClubResult, isUserResult } from "@umnburrow/core/api"
+import type { SearchResult } from "@umnburrow/core/api"
 import { View, Pressable } from "react-native"
 import { Text } from "@components/core"
 import { MapPin, Users } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture"
-import {
-    isUserResult,
-    isBurrowResult,
-    isClubResult,
-    type SearchResult
-} from "./search.api"
 
 type SearchResultItemProps = {
     item: SearchResult

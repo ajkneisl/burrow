@@ -1,3 +1,4 @@
+import { acceptInvite, declineInvite } from "@umnburrow/core/api"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import useNotifications from "@features/notifications/hooks/UseNotifications.tsx"
@@ -9,10 +10,6 @@ import {
     useToggleReadNotification,
     useClearAllNotifications
 } from "@features/notifications/notifications.queries.ts"
-import {
-    acceptInvite,
-    declineInvite
-} from "@features/burrows/attendees/attendees.api.ts"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import toast from "react-hot-toast"
 import ViewNotification from "@features/notifications/components/ViewNotification.tsx"

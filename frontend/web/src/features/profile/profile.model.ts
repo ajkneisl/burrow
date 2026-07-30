@@ -1,54 +1,8 @@
-import type { User } from "@features/auth/user.types.ts"
-import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
-
-/**
- * A user's profile.
- */
-export type Profile = {
-    userID: string
-    name: string
-    visibility: "PUBLIC" | "FRIENDS" | "PRIVATE"
-    gradYear: number | null
-    classes: string[] | null
-    school: string | null
-    major: string | null
-    bio: string | null
-    instagram: string | null
-    linkedIn: string | null
-    phoneNumber: string | null
-    badges: { id: string; description: string }[]
-}
-
-/**
- * A user's following information.
- */
-export type Following = {
-    following: number
-    followers: number
-    mutuals: number
-    theyFollow: boolean
-    youFollow: boolean
-}
-
-/**
- * A response from retrieving a user.
- */
-export type UserResponse = {
-    user: User
-    profile: Profile
-    following: Following
-    recentJoinedBurrows: BurrowResponse[]
-    recentHostedBurrows: BurrowResponse[]
-    email?: string
-    isTa?: boolean
-    isBlocked?: boolean
-}
-
 /**
  * A view for the relations modal.
  *
  * @param title The title of the modal.
- * @param func The function to retrieve the data. This is some-sort of user relation.
+ * @param key The relation to retrieve, like `followers`.
  * @param forUserID The user ID to retrieve these relations for.
  */
 export type RelationView = {

@@ -1,17 +1,8 @@
+import { BROWSER_CHANNEL, EMAIL_CHANNEL, disableChannel, enableChannel, isChannelEnabled } from "@umnburrow/core/api"
+import type { NotificationPreferences } from "@umnburrow/core/api"
 import { SelectInput, Toggle } from "@umnburrow/core"
 import { motion, AnimatePresence } from "framer-motion"
 import clsx from "clsx"
-import type { NotificationPreferences } from "@features/settings/settings.types.ts"
-import {
-    BROWSER_CHANNEL,
-    EMAIL_CHANNEL
-} from "@features/settings/settings.types.ts"
-import {
-    disableChannel,
-    enableChannel,
-    isChannelEnabled
-} from "@features/settings/settings.api.ts"
-
 /**
  * @see NotificationKindSettings
  */

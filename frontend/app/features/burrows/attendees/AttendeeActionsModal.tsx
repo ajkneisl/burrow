@@ -1,3 +1,5 @@
+import { changeRole, toggleBanMember } from "@umnburrow/core/api"
+import type { BurrowMembershipResponse, BurrowRole } from "@umnburrow/core/api"
 import { View, Pressable, Alert } from "react-native"
 import { Text } from "@components/core"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -8,11 +10,7 @@ import {
     User as UserIcon
 } from "lucide-react-native"
 import ThemedIcon from "@components/core/ThemedIcon"
-import { changeRole, toggleBanMember } from "@features/burrows/burrows.api"
-import type {
-    BurrowMembershipResponse,
-    BurrowRole
-} from "@features/burrows/burrows.types"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
 import Toast from "react-native-toast-message"
 import { useRouter } from "expo-router"

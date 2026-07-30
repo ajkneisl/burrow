@@ -1,10 +1,11 @@
+import { saveBlocks } from "@umnburrow/core/api"
+import type { Blocks } from "@umnburrow/core/api"
 import { View, Switch, Pressable } from "react-native"
 import { useState, useEffect } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { X, MessageSquare, Timer } from "lucide-react-native"
 import { Button, Card, Text } from "@components/core"
-import { saveBlocks } from "@features/sync/blocks.api"
-import type { Blocks } from "@features/sync/sync.types"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
 import Toast from "react-native-toast-message"
 

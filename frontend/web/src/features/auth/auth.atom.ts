@@ -1,7 +1,6 @@
+import type { User } from "@umnburrow/core/api"
 import { atom } from "jotai"
-import type { User } from "./user.types.ts"
 import { atomWithCookie } from "@api/util.ts"
-
 /**
  * The authorization token for the backend.
  */

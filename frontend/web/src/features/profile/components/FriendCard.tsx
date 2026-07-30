@@ -1,8 +1,8 @@
-import type { Relation } from "@features/auth/user.types.ts"
+import { unfollowUser } from "@umnburrow/core/api"
+import type { Relation } from "@umnburrow/core/api"
 import { useNavigate } from "react-router"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRef, useState } from "react"
-import { unFollowUser } from "@features/profile/profile.api.ts"
 import toast from "react-hot-toast"
 import { Card, Dropdown, DropdownItem } from "@umnburrow/core"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
@@ -21,7 +21,7 @@ export default function FriendCard({ friend }: { friend: Relation }) {
     const dropdownBtnRef = useRef<HTMLButtonElement>(null)
 
     const unfollowMutation = useMutation({
-        mutationFn: () => unFollowUser(friend.userID),
+        mutationFn: () => unfollowUser(friend.userID),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["friends"] })
             toast.success(`Unfollowed ${friend.name}`)

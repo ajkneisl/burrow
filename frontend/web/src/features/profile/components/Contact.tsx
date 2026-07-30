@@ -1,6 +1,5 @@
-import type {Profile} from "@features/profile/profile.model.ts"
+import type { Profile } from "@umnburrow/core/api"
 import {Card, Chip, Input, SelectInput} from "@umnburrow/core"
-import type {User} from "@features/auth/user.types.ts"
 import {useAtom} from "jotai"
 import {
     isEditingProfile,
@@ -9,16 +8,17 @@ import {
 import {Instagram, Linkedin, Mail, Phone} from "lucide-react"
 
 type ContactProps = {
-    user: User
+    /** The viewer's own email, only present when viewing yourself. */
+    email?: string
     profile: Profile
 }
 
-export default function Contact({user, profile}: ContactProps) {
+export default function Contact({ email, profile }: ContactProps) {
     const [editing] = useAtom(isEditingProfile)
     const [edits, setEdits] = useAtom(profileEdits)
 
     const hasContactInfo =
-        user.email || profile.phoneNumber || profile.instagram || profile.linkedIn
+        email || profile.phoneNumber || profile.instagram || profile.linkedIn
 
     if (editing) {
         return (
@@ -81,8 +81,8 @@ export default function Contact({user, profile}: ContactProps) {
 
     return (
         <div className="mt-4 flex flex-wrap gap-2">
-            {user.email && (
-                <a href={`mailto:${user.email}`}>
+            {email && (
+                <a href={`mailto:${email}`}>
                     <Chip size="lg" icon={Mail}>
                         Email
                     </Chip>

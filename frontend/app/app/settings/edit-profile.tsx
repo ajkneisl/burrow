@@ -1,3 +1,4 @@
+import { saveProfile } from "@umnburrow/core/api"
 import { useState, useMemo } from "react"
 import {
     View,
@@ -20,7 +21,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
 import { Input, Button, Card, Text, Modal } from "@components/core"
 import useProfile from "@features/auth/hooks/useProfile"
-import { saveProfile } from "@features/auth/user.api"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
 import useFormState from "@api/useFormState"
 import { majorInfo } from "@features/profile/schools"

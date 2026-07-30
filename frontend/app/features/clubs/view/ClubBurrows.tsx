@@ -1,10 +1,7 @@
-import { ClubResponse } from "@features/clubs/club.types"
+
+import { BurrowResponse, ClubResponse, NOT_REOCCURRING, get } from "@umnburrow/core/api"
 import { useQuery } from "@tanstack/react-query"
-import {
-    BurrowResponse,
-    NOT_REOCCURRING
-} from "@features/burrows/burrows.types"
-import { get } from "@api/api"
+
 import { useMemo, useState } from "react"
 import { Pressable, View } from "react-native"
 import { Calendar, CalendarClock, Plus } from "lucide-react-native"

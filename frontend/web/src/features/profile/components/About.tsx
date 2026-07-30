@@ -1,3 +1,5 @@
+import { convertGraduationYear } from "@umnburrow/core/api"
+import type { Profile } from "@umnburrow/core/api"
 import {
     AutocompleteInput,
     Card,
@@ -5,8 +7,6 @@ import {
     TextArea,
     type AutocompleteOption
 } from "@umnburrow/core"
-import type { Profile } from "@features/profile/profile.model.ts"
-import type { User } from "@features/auth/user.types.ts"
 import { useAtom } from "jotai"
 import { useMemo } from "react"
 import {
@@ -15,18 +15,17 @@ import {
 } from "@features/profile/profile.atom.ts"
 import { Link } from "react-router"
 import { BookOpen, Calendar, GraduationCap, School } from "lucide-react"
-import { convertGraduationYear } from "@api/util.ts"
 import { majorInfo, type SchoolInfo } from "@features/profile/schools.ts"
 import Contact from "./Contact.tsx"
 import ProfileInfoRow from "./ProfileInfoRow.tsx"
 
 type AboutProps = {
-    user: User
+    email?: string
     profile: Profile
     isTa?: boolean
 }
 
-export default function AboutView({ user, profile, isTa }: AboutProps) {
+export default function AboutView({ email, profile, isTa }: AboutProps) {
     const [isEditing] = useAtom(isEditingProfile)
     const [edits, setEdits] = useAtom(profileEdits)
 
@@ -173,7 +172,7 @@ export default function AboutView({ user, profile, isTa }: AboutProps) {
                     </form>
                 </Card>
 
-                <Contact user={user} profile={profile} />
+                <Contact email={email} profile={profile} />
             </div>
         )
     }
@@ -204,7 +203,7 @@ export default function AboutView({ user, profile, isTa }: AboutProps) {
                 )}
 
                 {/* contact */}
-                <Contact user={user} profile={profile} />
+                <Contact email={email} profile={profile} />
             </Card>
 
             {/* info */}

@@ -1,7 +1,6 @@
+import type { ClubLink } from "@umnburrow/core/api"
 import { Card } from "@umnburrow/core"
-import type { ClubLink } from "@features/clubs/clubs.types.tsx"
 import { CLUB_LINK_CONFIG } from "@features/clubs/clubs.types.tsx"
-
 type ClubDetailsProps = {
     description: string
     links: Partial<Record<ClubLink, string>>

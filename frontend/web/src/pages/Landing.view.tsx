@@ -1,3 +1,4 @@
+import { login } from "@umnburrow/core/api"
 import {GoogleLogin, GoogleOAuthProvider} from "@react-oauth/google"
 import {useEffect, useState, type ReactNode} from "react"
 import {Link, useNavigate} from "react-router"
@@ -22,11 +23,13 @@ import {
     userDetails
 } from "@features/auth/auth.atom.ts"
 import {ViewErrors} from "@umnburrow/core"
-import {login} from "@features/auth/user.api.ts"
-
 /** UMN maroon gradient used on the bottom CTA card. */
 const MAROON_GRADIENT =
     "bg-[linear-gradient(165deg,#96233c_0%,#7a0019_45%,#45000e_100%)]"
+
+/** Soft gold glow layered on top of the maroon surface. */
+const GOLD_GLOW =
+    "bg-[radial-gradient(circle_at_50%_30%,rgba(255,204,0,0.22)_0%,rgba(255,204,0,0)_60%)]"
 
 /** Brand maroon accent that flips to gold in the dark theme. */
 const ACCENT_TEXT = "text-[#7a0019] [[data-theme=DARK]_&]:text-secondary"
@@ -256,7 +259,7 @@ export default function LandingView() {
                             >
                                 Features
                             </p>
-                            <h2 className="figtree text-text text-4xl tracking-tight sm:text-5xl">
+                            <h2 className="figtree text-4xl tracking-tight text-text sm:text-5xl">
                                 One app for your
                                 <br/>
                                 whole campus life.
@@ -292,17 +295,17 @@ export default function LandingView() {
 
                         <FadeIn className="grid gap-6 sm:grid-cols-3">
                             <FeatureCard
-                                icon={<Megaphone className="h-5 w-5"/>}
+                                icon={<Megaphone className="size-5"/>}
                                 title="Clubs, beyond the fair"
                                 description="Browse every club on campus and keep up with announcements without digging through email."
                             />
                             <FeatureCard
-                                icon={<MessageSquare className="h-5 w-5"/>}
+                                icon={<MessageSquare className="size-5"/>}
                                 title="Chat where the plans are"
                                 description="Every burrow and club comes with built-in chat, right where the conversation belongs."
                             />
                             <FeatureCard
-                                icon={<Users className="h-5 w-5"/>}
+                                icon={<Users className="size-5"/>}
                                 title="Keep the people you meet"
                                 description="Add friends from a study session and make the next plan together."
                             />
@@ -487,14 +490,14 @@ function FeatureCard({
     description: string
 }) {
     return (
-        <div className="border-card-border bg-card rounded-2xl border p-6">
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[#7a0019] text-white">
+        <div className="rounded-2xl border border-card-border bg-card p-6">
+            <div className="mb-4 flex size-10 items-center justify-center rounded-xl bg-[#7a0019] text-white">
                 {icon}
             </div>
-            <h3 className="text-text mb-1.5 text-lg font-semibold">
+            <h3 className="mb-1.5 text-lg font-semibold text-text">
                 {title}
             </h3>
-            <p className="text-text/60 text-sm">{description}</p>
+            <p className="text-sm text-text/60">{description}</p>
         </div>
     )
 }

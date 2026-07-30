@@ -1,25 +1,22 @@
-export type Blocks = "POMODORO" | "CHAT" | "SYNC"
+import type { SyncAction, SyncResponse } from "@umnburrow/core/api"
 
-export type SyncStatus = "LIVE" | "DISCONNECTED" | "ERROR" | "CONNECTING"
+export type {
+    Blocks,
+    PomodoroState,
+    SyncStatus,
+    SyncAction as Action,
+    SyncResponse as Response
+} from "@umnburrow/core/api"
 
-export type Response = {
-    burrowID: string;
-    block: string;
-    type: string;
-    payload: any
-}
-
-export type Action = {
-    block: string
-    action: string
-    data: Record<string, string>
-}
-
+/**
+ * The DOM events the web client uses to move sync traffic around. The payloads
+ * themselves live in `@umnburrow/core/api`.
+ */
 export class SyncOutgoingEvent extends Event {
     static readonly NAME = "SYNC_OUTGOING"
-    readonly action: Action
+    readonly action: SyncAction
 
-    constructor(action: Action) {
+    constructor(action: SyncAction) {
         super(SyncOutgoingEvent.NAME, { bubbles: true, composed: true })
 
         this.action = action
@@ -27,9 +24,9 @@ export class SyncOutgoingEvent extends Event {
 }
 
 export class SyncIncomingEvent extends Event {
-    readonly response: Response
+    readonly response: SyncResponse
 
-    constructor(response: Response) {
+    constructor(response: SyncResponse) {
         super(`${response.block}_INCOMING`, { bubbles: true, composed: true })
 
         this.response = response

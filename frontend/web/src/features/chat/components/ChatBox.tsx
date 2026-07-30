@@ -1,11 +1,7 @@
+import type { BurrowResponse, ChatMember, ChatMessage } from "@umnburrow/core/api"
 import { useEffect, useState } from "react"
 import useUser from "@features/auth/hooks/useUser.ts"
-import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
-import type { ChatMember, ChatMessage } from "@features/chat/chat.types.ts"
-import {
-    type SyncIncomingEvent,
-    SyncOutgoingEvent
-} from "@features/sync/sync.types.ts"
+import { type SyncIncomingEvent, SyncOutgoingEvent } from "@features/sync/sync.types.ts"
 import { useAtomValue } from "jotai"
 import { syncRetry, syncStatus } from "@features/sync/sync.atom.ts"
 import { Card } from "@umnburrow/core"

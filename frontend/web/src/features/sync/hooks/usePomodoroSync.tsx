@@ -1,10 +1,6 @@
+import type { PomodoroState } from "@umnburrow/core/api"
 import { useCallback, useEffect, useState } from "react"
-import {
-    type SyncIncomingEvent,
-    SyncOutgoingEvent
-} from "@features/sync/sync.types.ts"
-import type { PomodoroState } from "@features/sync/blocks.types.ts"
-
+import { type SyncIncomingEvent, SyncOutgoingEvent } from "@features/sync/sync.types.ts"
 /**
  * Sync the Pomodoro state.
  *

@@ -1,3 +1,5 @@
+import { blockUser, reportUser } from "@umnburrow/core/api"
+import type { BurrowReportCategory, UserReportCategory } from "@umnburrow/core/api"
 import { useState } from "react"
 import { View, Pressable } from "react-native"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -5,11 +7,6 @@ import Toast from "react-native-toast-message"
 import { Check } from "lucide-react-native"
 import { Modal, Button, Input, Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { reportUser, blockUser } from "@features/profile/profile.api"
-import type {
-    BurrowReportCategory,
-    UserReportCategory
-} from "@features/profile/profile.types"
 
 const REPORT_CATEGORIES: UserReportCategory[] = [
     "Spam",
