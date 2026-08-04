@@ -1,8 +1,9 @@
-import type { User } from "../user.types"
+
+import { getUser } from "@umnburrow/core/api"
+import type { User } from "@umnburrow/core/api"
 import { useAtom } from "jotai"
 import { authToken } from "../auth.atom"
 import { useQuery } from "@tanstack/react-query"
-import { getUser } from "@features/auth/user.api"
 
 /**
  * Retrieve the `User` object.

@@ -1,10 +1,10 @@
+import { getClub } from "@umnburrow/core/api"
+import type { ClubResponse } from "@umnburrow/core/api"
 import { useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { Users } from "lucide-react"
 import useToken from "@features/auth/hooks/useToken.ts"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
-import { getClub } from "@features/clubs/clubs.api.ts"
-import type { ClubResponse } from "@features/clubs/clubs.types.tsx"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.tsx"
 import ClubBanner from "@features/clubs/components/ClubBanner.tsx"
 import { Card, ViewErrors } from "@umnburrow/core"
@@ -80,15 +80,15 @@ export default function ClubView() {
                                             {club.category}
                                         </span>
 
-                                        <h1 className="text-text mt-1 truncate text-xl font-bold tracking-tight md:text-3xl">
+                                        <h1 className="mt-1 truncate text-xl font-bold tracking-tight text-text md:text-3xl">
                                             {club.displayName}
                                         </h1>
-                                        <p className="text-text/40 text-sm font-medium">
+                                        <p className="text-sm font-medium text-text/40">
                                             /club/{club.name}
                                         </p>
 
-                                        <div className="text-text/60 mt-1 flex items-center gap-1.5 text-sm">
-                                            <Users className="h-4 w-4" />
+                                        <div className="mt-1 flex items-center gap-1.5 text-sm text-text/60">
+                                            <Users className="size-4" />
                                             <span>
                                                 {data.memberCount} member
                                                 {data.memberCount !== 1
@@ -100,7 +100,7 @@ export default function ClubView() {
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex flex-row items-center gap-2">
+                                <div className="flex flex-row flex-wrap items-center gap-2">
                                     <JoinClubButton
                                         clubName={name}
                                     />
@@ -128,7 +128,7 @@ export default function ClubView() {
                         </div>
 
                         {/* Sidebar — Members */}
-                        <div className="order-[-1] col-span-1 space-y-6 md:order-2">
+                        <div className="-order-1 col-span-1 space-y-6 md:order-2">
                             <ClubMembers
                                 clubName={name!}
                             />

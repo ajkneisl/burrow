@@ -1,10 +1,11 @@
+import { createInvite } from "@umnburrow/core/api"
 import { View, ScrollView } from "react-native"
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Send } from "lucide-react-native"
 import { Button, Text } from "@components/core"
 import { UserPicker } from "@components/core/UserPicker"
-import { createInvite } from "@features/burrows/attendees/attendees.api"
+
 import Toast from "react-native-toast-message"
 
 /**

@@ -1,11 +1,13 @@
+import { msToClock } from "@umnburrow/core/api"
+import type { BurrowRole } from "@umnburrow/core/api"
 import { View, Pressable } from "react-native"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Svg, { Circle } from "react-native-svg"
 import { Play, Pause, RotateCcw, RefreshCw } from "lucide-react-native"
 import { Button, Card, Text } from "@components/core"
-import type { BurrowRole } from "@features/burrows/burrows.types"
+
 import { usePomodoroSync } from "@features/sync/hooks/usePomodoroSync"
-import { msToClock } from "@api/util"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 type PomodoroProps = {

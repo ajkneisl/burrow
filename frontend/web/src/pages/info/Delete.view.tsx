@@ -7,7 +7,7 @@ export default function Delete() {
     return (
         <div className="flex flex-col items-center justify-center">
             <div className="mt-4 flex max-w-lg flex-col">
-                <h1 className="text-secondary text-3xl font-extrabold tracking-tight">
+                <h1 className="text-3xl font-extrabold tracking-tight text-secondary">
                     Account Deletion Request
                 </h1>
                 <p>
@@ -15,7 +15,7 @@ export default function Delete() {
                     send an email to{" "}
                     <a
                         href="mailto:privacy@umn.app"
-                        className="text-info hover:text-info-hover underline"
+                        className="text-info underline hover:text-info-hover"
                     >
                         deletion@umn.app
                     </a>{" "}

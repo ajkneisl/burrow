@@ -44,11 +44,11 @@ export function SearchInput({
                 className={clsx(
                     "relative flex h-9 items-center rounded-lg border bg-white/5 px-3 shadow-sm backdrop-blur-sm transition-all duration-200",
                     "border-primary hover:border-secondary/30",
-                    "focus-within:ring-primary/20 focus-within:bg-white/5 focus-within:shadow-md focus-within:ring-2",
+                    "focus-within:bg-white/5 focus-within:shadow-md focus-within:ring-2 focus-within:ring-primary/20",
                     auth === "" && "cursor-not-allowed opacity-50"
                 )}
             >
-                <Search className="group-focus-within:text-primary mr-2.5 h-4 w-4 flex-shrink-0 text-white/50 transition-colors duration-200" />
+                <Search className="mr-2.5 size-4 flex-shrink-0 text-white/50 transition-colors duration-200 group-focus-within:text-primary" />
 
                 <input
                     type="text"
@@ -57,7 +57,7 @@ export function SearchInput({
                     placeholder="Search Burrows, clubs, or tags..."
                     disabled={auth === ""}
                     className={clsx(
-                        "h-full w-full flex-1 bg-transparent text-sm leading-none text-white transition-colors outline-none placeholder:text-white/40",
+                        "size-full flex-1 bg-transparent text-sm leading-none text-white transition-colors outline-none placeholder:text-white/40",
                         "disabled:cursor-not-allowed disabled:text-white/50"
                     )}
                 />
@@ -66,11 +66,11 @@ export function SearchInput({
                     <button
                         type="button"
                         onClick={() => setQuery("")}
-                        className="hover:bg-background/60 ml-2 rounded-md p-1 text-white/40 transition-colors hover:text-white"
+                        className="ml-2 rounded-md p-1 text-white/40 transition-colors hover:bg-background/60 hover:text-white"
                         aria-label="Clear search"
                     >
                         <svg
-                            className="h-4 w-4"
+                            className="size-4"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"

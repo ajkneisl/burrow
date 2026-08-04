@@ -1,11 +1,7 @@
+import { getGeneralSettings, getNotificationPreferences, saveGeneralSettings, saveNotificationPreferences } from "@umnburrow/core/api"
+import type { GeneralSettings, NotificationPreferences } from "@umnburrow/core/api"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import {
-    getNotificationPreferences,
-    saveNotificationPreferences,
-    getGeneralSettings,
-    saveGeneralSettings
-} from "./settings.api"
-import type { NotificationPreferences, GeneralSettings } from "./settings.types"
+
 import Toast from "react-native-toast-message"
 
 /**

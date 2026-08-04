@@ -6,7 +6,7 @@ import { useBurrowContext } from "@features/burrows/context/burrows.context"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { useAtomValue } from "jotai"
 import { syncStatus, syncRetry } from "@features/sync/sync.atom"
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs"
+import { useBottomTabBarHeight } from "expo-router/js-tabs"
 import { glassAvailable } from "@components/core"
 
 export default function ChatTab() {

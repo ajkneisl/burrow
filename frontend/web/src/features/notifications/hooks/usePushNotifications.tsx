@@ -1,8 +1,4 @@
-import {
-    getVapidPublicKey,
-    subscribeToPush,
-    unsubscribeFromPush
-} from "@features/notifications/notifications.api.ts"
+import { getVapidPublicKey, subscribeToPush, unsubscribeFromPush } from "@umnburrow/core/api"
 import { useCallback, useEffect, useState } from "react"
 import toast from "react-hot-toast"
 
@@ -113,7 +109,17 @@ export function usePushNotifications() {
                 applicationServerKey
             })
 
-            await subscribeToPush(subscription)
+            const p256dh = subscription.getKey("p256dh")
+            const authKey = subscription.getKey("auth")
+
+            if (!p256dh || !authKey) {
+                throw new Error("Missing push subscription keys")
+            }
+
+            await subscribeToPush(subscription.endpoint, {
+                p256dh: btoa(String.fromCharCode(...new Uint8Array(p256dh))),
+                auth: btoa(String.fromCharCode(...new Uint8Array(authKey)))
+            })
 
             setIsSubscribed(true)
             toast.success("Successfully subscribed to push notifications")

@@ -1,11 +1,11 @@
+import { deleteClub } from "@umnburrow/core/api"
+import type { Club } from "@umnburrow/core/api"
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import { useQueryClient } from "@tanstack/react-query"
-import { Pencil, UserPlus, Trash2 } from "lucide-react"
+import { Pencil, UserPlus, Trash2, History } from "lucide-react"
 import { toast } from "react-hot-toast"
 import { Button, Modal } from "@umnburrow/core"
-import { deleteClub } from "@features/clubs/clubs.api.ts"
-import type { Club } from "@features/clubs/clubs.types.tsx"
 import EditClubModal from "@features/clubs/components/EditClubModal.tsx"
 import InviteClubMemberModal from "@features/clubs/components/InviteClubMemberModal.tsx"
 import useClubRole from "@features/clubs/hooks/useClubRole.ts"
@@ -48,21 +48,31 @@ export default function ClubModeration({
         <>
             {isAdmin && (
                 <Button color="SECONDARY" onClick={() => setEditOpen(true)}>
-                    <Pencil className="h-3.5 w-3.5" />
+                    <Pencil className="size-3.5" />
                     Edit
                 </Button>
             )}
 
             {isMod && (
+                <Button
+                    color="SECONDARY"
+                    onClick={() => nav(`/club/${clubName}/history`)}
+                >
+                    <History className="size-3.5" />
+                    History
+                </Button>
+            )}
+
+            {isMod && (
                 <Button color="INFO" onClick={() => setInviteOpen(true)}>
-                    <UserPlus className="h-3.5 w-3.5" />
+                    <UserPlus className="size-3.5" />
                     Invite
                 </Button>
             )}
 
             {isOwner && (
                 <Button color="ERROR" onClick={() => setDeleteOpen(true)}>
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="size-3.5" />
                     Delete
                 </Button>
             )}
@@ -109,11 +119,11 @@ export default function ClubModeration({
                     }
                 >
                     <div className="space-y-3">
-                        <p className="text-text/80 text-sm">
+                        <p className="text-sm text-text/80">
                             Are you sure you want to delete <strong>{club.displayName}</strong>?
                             This action cannot be undone.
                         </p>
-                        <p className="text-text/60 text-xs">
+                        <p className="text-xs text-text/60">
                             All members will be removed and all club data will be permanently deleted.
                         </p>
                     </div>

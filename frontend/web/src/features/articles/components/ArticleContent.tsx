@@ -22,37 +22,37 @@ export default function ArticleContent({ content }: { content: string }) {
             components={{
                 h1: (props) => (
                     <h1
-                        className="text-text mt-10 mb-4 text-3xl font-bold first:mt-0 sm:text-4xl"
+                        className="mt-10 mb-4 text-3xl font-bold text-text first:mt-0 sm:text-4xl"
                         {...clean(props)}
                     />
                 ),
                 h2: (props) => (
                     <h2
-                        className="text-text mt-8 mb-3 text-2xl font-bold first:mt-0"
+                        className="mt-8 mb-3 text-2xl font-bold text-text first:mt-0"
                         {...clean(props)}
                     />
                 ),
                 h3: (props) => (
                     <h3
-                        className="text-text mt-6 mb-2 text-xl font-semibold first:mt-0"
+                        className="mt-6 mb-2 text-xl font-semibold text-text first:mt-0"
                         {...clean(props)}
                     />
                 ),
                 h4: (props) => (
                     <h4
-                        className="text-text mt-4 mb-2 text-lg font-semibold first:mt-0"
+                        className="mt-4 mb-2 text-lg font-semibold text-text first:mt-0"
                         {...clean(props)}
                     />
                 ),
                 p: (props) => (
                     <p
-                        className="text-text/80 mb-4 leading-relaxed"
+                        className="mb-4 leading-relaxed text-text/80"
                         {...clean(props)}
                     />
                 ),
                 a: (props) => (
                     <a
-                        className="text-secondary font-medium hover:underline"
+                        className="font-medium text-secondary hover:underline"
                         target={
                             props.href?.startsWith("/") ? undefined : "_blank"
                         }
@@ -62,13 +62,13 @@ export default function ArticleContent({ content }: { content: string }) {
                 ),
                 ul: (props) => (
                     <ul
-                        className="text-text/80 mb-4 list-disc space-y-1 pl-6"
+                        className="mb-4 list-disc space-y-1 pl-6 text-text/80"
                         {...clean(props)}
                     />
                 ),
                 ol: (props) => (
                     <ol
-                        className="text-text/80 mb-4 list-decimal space-y-1 pl-6"
+                        className="mb-4 list-decimal space-y-1 pl-6 text-text/80"
                         {...clean(props)}
                     />
                 ),
@@ -77,52 +77,52 @@ export default function ArticleContent({ content }: { content: string }) {
                 ),
                 blockquote: (props) => (
                     <blockquote
-                        className="border-secondary/40 text-text/70 mb-4 border-l-4 pl-4 italic"
+                        className="mb-4 border-l-4 border-secondary/40 pl-4 text-text/70 italic"
                         {...clean(props)}
                     />
                 ),
                 code: (props) => (
                     <code
-                        className="bg-card border-card-border rounded border px-1.5 py-0.5 font-mono text-sm"
+                        className="rounded border border-card-border bg-card px-1.5 py-0.5 font-mono text-sm"
                         {...clean(props)}
                     />
                 ),
                 pre: (props) => (
                     <pre
-                        className="bg-card border-card-border mb-4 overflow-x-auto rounded-xl border p-4 text-sm [&>code]:border-0 [&>code]:bg-transparent [&>code]:p-0"
+                        className="mb-4 overflow-x-auto rounded-xl border border-card-border bg-card p-4 text-sm [&>code]:border-0 [&>code]:bg-transparent [&>code]:p-0"
                         {...clean(props)}
                     />
                 ),
-                hr: () => <hr className="border-card-border my-8" />,
+                hr: () => <hr className="my-8 border-card-border" />,
                 table: (props) => (
                     <div className="mb-4 overflow-x-auto">
                         <table
-                            className="border-card-border w-full border-collapse border text-left text-sm"
+                            className="w-full border-collapse border border-card-border text-left text-sm"
                             {...clean(props)}
                         />
                     </div>
                 ),
                 th: (props) => (
                     <th
-                        className="border-card-border bg-card text-text border px-3 py-2 font-semibold"
+                        className="border border-card-border bg-card px-3 py-2 font-semibold text-text"
                         {...clean(props)}
                     />
                 ),
                 td: (props) => (
                     <td
-                        className="border-card-border text-text/80 border px-3 py-2"
+                        className="border border-card-border px-3 py-2 text-text/80"
                         {...clean(props)}
                     />
                 ),
                 img: (props) => (
                     <img
-                        className="border-card-border mb-4 max-w-full rounded-xl border"
+                        className="mb-4 max-w-full rounded-xl border border-card-border"
                         loading="lazy"
                         {...clean(props)}
                     />
                 ),
                 strong: (props) => (
-                    <strong className="text-text font-semibold" {...clean(props)} />
+                    <strong className="font-semibold text-text" {...clean(props)} />
                 )
             }}
         >

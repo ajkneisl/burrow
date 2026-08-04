@@ -1,8 +1,5 @@
-import type {
-    BurrowKind,
-    BurrowVisibility
-} from "@features/burrows/burrows.types"
-import { NOT_REOCCURRING } from "@features/burrows/burrows.types"
+import { NOT_REOCCURRING } from "@umnburrow/core/api"
+import type { BurrowKind, BurrowVisibility } from "@umnburrow/core/api"
 
 /**
  * The props for a CreateBurrow step component.

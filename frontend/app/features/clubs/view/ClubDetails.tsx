@@ -1,8 +1,6 @@
-import {
-    type ClubLink,
-    ClubResponse,
-    LINK_CONFIG
-} from "@features/clubs/club.types"
+import { ClubResponse } from "@umnburrow/core/api"
+import type { ClubLink } from "@umnburrow/core/api"
+import { LINK_CONFIG } from "@features/clubs/club.types"
 import { Linking, Pressable, View } from "react-native"
 import { Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"

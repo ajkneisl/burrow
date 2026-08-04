@@ -1,9 +1,5 @@
 import { atom } from "jotai"
-import {
-    defaultMetaTags,
-    type MetaTagsState
-} from "@features/layout/layout.type.ts"
-
+import { defaultMetaTags, type MetaTagsState } from "@features/layout/layout.type.ts"
 /**
  * The current page meta state.
  */

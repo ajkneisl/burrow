@@ -28,10 +28,10 @@ export default function Header() {
     const input = <Search />
 
     return (
-        <div className="relative z-[1000]">
+        <div className="relative z-1000">
             <header
                 className={clsx(
-                    "bg-primary text-text sticky top-0 w-full flex-col",
+                    "sticky top-0 w-full flex-col bg-primary text-text",
                     !open && "shadow-md"
                 )}
             >
@@ -41,11 +41,11 @@ export default function Header() {
                         className="flex cursor-pointer flex-row items-center justify-center gap-3"
                         onClick={() => nav("/")}
                     >
-                        <div className="relative -top-3 h-8 w-8">
-                            <div className="absolute inset-0 h-16 w-16 bg-[url('/image/burrow.png')] bg-contain bg-center bg-no-repeat" />
+                        <div className="relative -top-3 size-8">
+                            <div className="absolute inset-0 size-16 bg-[url('/image/burrow.png')] bg-contain bg-center bg-no-repeat" />
                         </div>
 
-                        <h1 className="text-secondary hover:text-secondary-hover figtree ml-6 hidden text-3xl font-extrabold tracking-tight underline-offset-4 drop-shadow-sm transition-colors hover:underline md:block md:text-4xl">
+                        <h1 className="figtree ml-6 hidden text-3xl font-extrabold tracking-tight text-secondary underline-offset-4 drop-shadow-sm transition-colors hover:text-secondary-hover hover:underline md:block md:text-4xl">
                             Burrow
                         </h1>
                     </div>
@@ -69,14 +69,14 @@ export default function Header() {
                                 onClick={() =>
                                     setMobileSearchOpen((prev) => !prev)
                                 }
-                                icon={<SearchIcon className="h-5 w-5" />}
+                                icon={<SearchIcon className="size-5" />}
                             />
                         </div>
 
                         {/* browse */}
                         <HeaderButton
                             description="Browse"
-                            icon={<CompassIcon className="h-5 w-5" />}
+                            icon={<CompassIcon className="size-5" />}
                             onClick={() => nav("/browse")}
                         />
 

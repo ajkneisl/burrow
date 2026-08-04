@@ -9,11 +9,11 @@ export default function ProfileInfoRow({
 }) {
     return (
         <div className="flex items-center gap-3">
-            <div className="text-secondary mt-0.5">{icon}</div>
+            <div className="mt-0.5 text-secondary">{icon}</div>
 
             <div>
-                <span className="text-text/50 text-xs">{label}</span>
-                <div className="text-text text-sm">{value}</div>
+                <span className="text-xs text-text/50">{label}</span>
+                <div className="text-sm text-text">{value}</div>
             </div>
         </div>
     )

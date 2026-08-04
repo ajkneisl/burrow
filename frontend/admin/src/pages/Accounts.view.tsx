@@ -1,13 +1,10 @@
+import { getAdminAccounts, setAccountType } from "@umnburrow/core/api"
+import type { AdminAccount } from "@umnburrow/core/api"
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useAtom } from "jotai"
 import { Button, Card, Input } from "@umnburrow/core"
-import {
-    getAdminAccounts,
-    setAccountType
-} from "../features/accounts/account.api.ts"
-import { adminTokenAtom } from "../features/auth/admin.atom.ts"
-import type { AdminAccount } from "../features/auth/admin.models.ts"
+
+
 import useAdmin from "../features/auth/hooks/useAdmin.ts"
 
 /**
@@ -16,13 +13,12 @@ import useAdmin from "../features/auth/hooks/useAdmin.ts"
  * @author AJ Kneisl
  */
 export default function AccountsView() {
-    const [token] = useAtom(adminTokenAtom)
     const self = useAdmin()
     const queryClient = useQueryClient()
 
     const { data: admins, isLoading, isError, error, refetch, isFetching } = useQuery({
         queryKey: ["admin", "accounts"],
-        queryFn: () => getAdminAccounts(token ?? ""),
+        queryFn: () => getAdminAccounts(),
         refetchOnWindowFocus: true
     })
 
@@ -30,7 +26,7 @@ export default function AccountsView() {
     const [promoteID, setPromoteID] = useState("")
 
     const promoteMutation = useMutation({
-        mutationFn: () => setAccountType(token ?? "", promoteID, "ADMIN"),
+        mutationFn: () => setAccountType(promoteID, "ADMIN"),
 
         onSuccess: () => {
             setPromoteID("")
@@ -39,7 +35,7 @@ export default function AccountsView() {
     })
 
     const demoteMutation = useMutation({
-        mutationFn: (id: string) => setAccountType(token ?? "", id, "USER"),
+        mutationFn: (id: string) => setAccountType(id, "USER"),
 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["admin", "accounts"] })

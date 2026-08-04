@@ -1,11 +1,10 @@
+import { DAILY, MONTHLY, NOT_REOCCURRING, WEEKLY } from "@umnburrow/core/api"
 import { Input, SelectInput, TimeInput, Toggle } from "@umnburrow/core"
 import Field from "@features/burrows/create/components/Field.tsx"
 import type { CreateStepProps } from "@features/burrows/create/create.types.ts"
 import { Time } from "@internationalized/date"
 import type { TimeValue } from "react-aria-components"
 import { useState } from "react"
-import { DAILY, MONTHLY, NOT_REOCCURRING, WEEKLY } from "@features/burrows/burrows.types.tsx"
-
 type Timeframe = "Daily" | "Weekly" | "Monthly"
 
 /**
@@ -25,11 +24,11 @@ export default function ScheduleStep({
 
     return (
         <div className="space-y-6">
-            <div className="border-card-border bg-card rounded-lg border p-4">
-                <p className="text-text mb-2 text-sm font-medium">
+            <div className="rounded-lg border border-card-border bg-card p-4">
+                <p className="mb-2 text-sm font-medium text-text">
                     Schedule Your Burrow
                 </p>
-                <p className="text-text/60 text-xs">
+                <p className="text-xs text-text/60">
                     Choose when your Burrow will take place.
                 </p>
             </div>

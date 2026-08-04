@@ -1,6 +1,7 @@
-import type { Report } from "../report.models.ts"
+
+import type { Report } from "@umnburrow/core/api"
 import { useState } from "react"
-import { timeAgo } from "../../../utils.ts"
+import { formatTimeAgo } from "@umnburrow/core/api"
 import ClipboardButton from "../../../components/ClipboardButton.tsx"
 
 type ReportViewProps = {
@@ -33,7 +34,7 @@ export default function ReportView({ report }: ReportViewProps) {
                 </div>
 
                 <div className="shrink-0 text-xs text-muted-foreground">
-                    {timeAgo(report.createdAt)}
+                    {formatTimeAgo(report.createdAt)}
                 </div>
             </button>
 
@@ -70,7 +71,7 @@ export default function ReportView({ report }: ReportViewProps) {
                                             User
                                         </div>
                                         <div className="col-span-2 truncate">
-                                            {report.userId}
+                                            {report.userID}
                                         </div>
 
                                         <div className="text-muted-foreground">
@@ -81,10 +82,10 @@ export default function ReportView({ report }: ReportViewProps) {
                                         </div>
 
                                         <div className="text-muted-foreground">
-                                            Burrow
+                                            Attached
                                         </div>
                                         <div className="col-span-2 truncate">
-                                            {report.burrowInfo}
+                                            {report.attachedID}
                                         </div>
 
                                         <div className="text-muted-foreground">
@@ -109,12 +110,12 @@ export default function ReportView({ report }: ReportViewProps) {
                             <div className="flex gap-2">
                                 <ClipboardButton
                                     label="Copy UA"
-                                    text={report.userAgent}
+                                    text={report.userAgent ?? ""}
                                 />
 
                                 <ClipboardButton
                                     label="Copy Path"
-                                    text={report.path}
+                                    text={report.path ?? ""}
                                 />
                             </div>
                         </div>

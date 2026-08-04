@@ -1,3 +1,5 @@
+import { BURROW_REPORT_CATEGORIES, reportBurrow } from "@umnburrow/core/api"
+import type { BurrowReportCategory } from "@umnburrow/core/api"
 import { useState } from "react"
 import { View, Pressable } from "react-native"
 import { useMutation } from "@tanstack/react-query"
@@ -5,16 +7,8 @@ import Toast from "react-native-toast-message"
 import { Check } from "lucide-react-native"
 import { Modal, Button, Input, Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { reportBurrow } from "@features/profile/profile.api"
-import type { BurrowReportCategory } from "@features/profile/profile.types"
 
-const REPORT_CATEGORIES: BurrowReportCategory[] = [
-    "Spam",
-    "Inappropriate Content",
-    "Misleading Information",
-    "Harassment",
-    "Other"
-]
+const REPORT_CATEGORIES: BurrowReportCategory[] = BURROW_REPORT_CATEGORIES
 
 /**
  * {@link ReportBurrowModal}

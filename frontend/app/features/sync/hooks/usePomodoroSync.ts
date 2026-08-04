@@ -1,9 +1,7 @@
+import type { PomodoroState } from "@umnburrow/core/api"
 import { useCallback, useEffect, useState } from "react"
-import {
-    type SyncIncomingEvent,
-    SyncOutgoingEvent
-} from "@features/sync/sync.types"
-import type { PomodoroState } from "@features/sync/blocks.types"
+import { type SyncIncomingEvent, SyncOutgoingEvent } from "@features/sync/sync.types"
+
 import { eventBus } from "../eventBus"
 
 /**

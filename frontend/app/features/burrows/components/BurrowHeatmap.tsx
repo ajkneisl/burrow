@@ -1,7 +1,8 @@
+import { getBurrowHeatmap } from "@umnburrow/core/api"
 import { View, ScrollView, Pressable, Dimensions } from "react-native"
 import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { getBurrowHeatmap } from "../burrows.api"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { themeColors } from "@api/theme/theme.types"
 import { Card, Text } from "@components/core"

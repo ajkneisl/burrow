@@ -1,4 +1,5 @@
-import type { User } from "../user.types.ts"
+import { getUser } from "@umnburrow/core/api"
+import type { User } from "@umnburrow/core/api"
 import { useAtom, useSetAtom } from "jotai"
 import { authToken, refreshTokenAtom } from "../auth.atom.ts"
 import {
@@ -6,7 +7,6 @@ import {
     useQueryClient,
     useQueryErrorResetBoundary
 } from "@tanstack/react-query"
-import { getUser } from "@features/auth/user.api.ts"
 import { useNavigate } from "react-router"
 
 /**

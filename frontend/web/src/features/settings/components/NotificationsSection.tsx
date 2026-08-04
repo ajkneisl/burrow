@@ -1,3 +1,5 @@
+import { BROWSER_CHANNEL, EMAIL_CHANNEL, EMPTY_NOTIFICATION_PREFERENCES, getGeneralSettings, getNotificationPreferences, isChannelEnabled, saveGeneralSettings, saveNotificationPreferences } from "@umnburrow/core/api"
+import type { NotificationKind, NotificationPreferences } from "@umnburrow/core/api"
 import { Card, Toggle } from "@umnburrow/core"
 import {
     settingsChanged,
@@ -7,21 +9,7 @@ import toast from "react-hot-toast"
 import { useSetAtom } from "jotai"
 import { motion, AnimatePresence } from "framer-motion"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import {
-    BROWSER_CHANNEL,
-    EMAIL_CHANNEL,
-    EMPTY_NOTIFICATION_PREFERENCES,
-    type NotificationPreferences
-} from "@features/settings/settings.types.ts"
 import NotificationKindSettings from "./NotificationKindSettings.tsx"
-import {
-    getGeneralSettings,
-    getNotificationPreferences,
-    isChannelEnabled,
-    saveGeneralSettings,
-    saveNotificationPreferences
-} from "@features/settings/settings.api.ts"
-import type { NotificationKind } from "@features/notifications/notifications.types.ts"
 import type { FormEvent } from "react"
 import { usePushNotifications } from "@features/notifications/hooks/usePushNotifications.tsx"
 
@@ -243,7 +231,7 @@ export default function NotificationsSection() {
                 className="space-y-6"
             >
                 {/* overall toggle */}
-                <div className="bg-background/80 border-background rounded-lg px-3">
+                <div className="rounded-lg border-background bg-background/80 px-3">
                     <Toggle
                         title="Enable Notifications"
                         checked={notificationsEnabled}
@@ -267,7 +255,7 @@ export default function NotificationsSection() {
                                 </h3>
 
                                 <div className="w-full space-y-3">
-                                    <div className="bg-background/80 border-background rounded-lg px-3">
+                                    <div className="rounded-lg border-background bg-background/80 px-3">
                                         <Toggle
                                             title="Email"
                                             description="Receive notifications via email"
@@ -276,7 +264,7 @@ export default function NotificationsSection() {
                                         />
                                     </div>
 
-                                    <div className="bg-background/80 border-background rounded-lg px-3">
+                                    <div className="rounded-lg border-background bg-background/80 px-3">
                                         <Toggle
                                             title="Push Notifications"
                                             description={

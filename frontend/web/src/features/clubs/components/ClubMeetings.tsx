@@ -1,15 +1,12 @@
+import { NOT_REOCCURRING, getClubBurrows } from "@umnburrow/core/api"
+import type { BurrowResponse, ClubRole } from "@umnburrow/core/api"
 import { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { CalendarClock, Calendar, Plus } from "lucide-react"
-import { getClubBurrows } from "@features/clubs/clubs.api.ts"
-import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
-import { NOT_REOCCURRING } from "@features/burrows/burrows.types.tsx"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import useToken from "@features/auth/hooks/useToken.ts"
 import { useSetAtom } from "jotai"
 import { createBurrowModal, selectedClubIDAtom } from "@features/burrows/create/create.atom.ts"
-import type { ClubRole } from "@features/clubs/clubs.types.tsx"
-
 /**
  * {@link ClubMeetings}
  */
@@ -58,14 +55,14 @@ export default function ClubMeetings({ clubName, clubID, role }: ClubMeetingsPro
         <>
             {/* Reoccurring Burrows */}
             <div>
-                <h3 className="text-text mb-3 text-sm font-semibold">
+                <h3 className="mb-3 text-sm font-semibold text-text">
                     Reoccurring Burrows
                 </h3>
 
                 {reoccurringBurrows.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 py-4 text-center">
-                        <CalendarClock className="text-text/30 h-8 w-8" />
-                        <p className="text-text/50 text-sm">
+                        <CalendarClock className="size-8 text-text/30" />
+                        <p className="text-sm text-text/50">
                             No reoccurring Burrows.
                         </p>
                     </div>
@@ -81,7 +78,7 @@ export default function ClubMeetings({ clubName, clubID, role }: ClubMeetingsPro
             {/* Upcoming Burrows */}
             <div>
                 <div className="mb-3 flex items-center justify-between">
-                    <h3 className="text-text text-sm font-semibold">Burrows</h3>
+                    <h3 className="text-sm font-semibold text-text">Burrows</h3>
 
                     {canCreate && (
                         <button
@@ -90,17 +87,17 @@ export default function ClubMeetings({ clubName, clubID, role }: ClubMeetingsPro
                                 setSelectedClubID(clubID)
                                 setCreateModal("CLUB_EVENT")
                             }}
-                            className="bg-secondary hover:bg-secondary-hover inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-neutral-900 transition-colors"
+                            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-neutral-900 transition-colors hover:bg-secondary-hover"
                         >
-                            <Plus className="h-3.5 w-3.5" />
+                            <Plus className="size-3.5" />
                             Create Burrow
                         </button>
                     )}
                 </div>
                 {upcomingBurrows.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 py-4 text-center">
-                        <Calendar className="text-text/30 h-8 w-8" />
-                        <p className="text-text/50 text-sm">No Burrows.</p>
+                        <Calendar className="size-8 text-text/30" />
+                        <p className="text-sm text-text/50">No Burrows.</p>
                     </div>
                 ) : (
                     <div className="space-y-3">

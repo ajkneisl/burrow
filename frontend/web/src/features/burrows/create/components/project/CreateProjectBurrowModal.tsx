@@ -1,21 +1,14 @@
+import { addTime } from "@umnburrow/core/api"
+import type { Burrow, SubmittedBurrow, SubmittedProjectBurrow } from "@umnburrow/core/api"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router"
-import type { Burrow } from "@features/burrows/burrows.types.tsx"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button, Modal, ViewErrors } from "@umnburrow/core"
 import useFormState from "@api/useFormState.ts"
 import DueDateStep from "@features/burrows/create/components/project/DueDateStep.tsx"
-import {
-    defaultTimes,
-    initialFormState,
-    type SubmittedBurrow,
-    type SubmittedProjectBurrow,
-    type SubmittedBurrowFormState
-} from "@features/burrows/create/create.types.ts"
+import { defaultTimes, initialFormState, type SubmittedBurrowFormState } from "@features/burrows/create/create.types.ts"
 import MembersStep from "@features/burrows/create/components/project/MembersStep.tsx"
 import InfoStep from "@features/burrows/create/components/project/InfoStep.tsx"
-import { addTime } from "@api/util.ts"
-
 const INITIAL_ERRORS: string[] = []
 
 /**
@@ -171,7 +164,7 @@ export default function CreateProjectBurrowModal({
             ? addTime(dateMs, formState.endTime)
             : dateMs + 23 * 60 * 60 * 1000 + 59 * 60 * 1000
 
-        let memberIDs: string[] = []
+        let memberIDs: string[]
         try {
             const members = JSON.parse(formState.tags)
             memberIDs = members.map((m: { id: string }) => m.id)
@@ -247,7 +240,7 @@ export default function CreateProjectBurrowModal({
     const footer = useMemo(() => {
         return (
             <div className="flex w-full items-center justify-between">
-                <div className="text-text/60 text-sm">
+                <div className="text-sm text-text/60">
                     Step {currentStep} of 3
                 </div>
 

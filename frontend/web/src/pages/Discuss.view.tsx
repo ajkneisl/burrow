@@ -1,11 +1,11 @@
+import { createTopic, getTopics } from "@umnburrow/core/api"
+import type { Topic } from "@umnburrow/core/api"
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import { MessageSquare, Pin, Plus, Users } from "lucide-react"
-import type { Topic } from "@features/chat/chat.types.ts"
 import { Button, Input, TextArea, ViewErrors } from "@umnburrow/core"
 import clsx from "clsx"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createTopic, getTopics } from "@features/chat/chat.api.ts"
 import { motion, AnimatePresence } from "framer-motion"
 
 /**
@@ -57,14 +57,14 @@ export default function Discuss() {
             {/* header */}
             <div className="mb-8 flex items-center justify-between">
                 <div>
-                    <h1 className="text-text text-3xl font-bold">Discuss</h1>
-                    <p className="text-text/60 mt-1">
+                    <h1 className="text-3xl font-bold text-text">Discuss</h1>
+                    <p className="mt-1 text-text/60">
                         Join discussions on Burrow.
                     </p>
                 </div>
 
                 <Button onClick={() => setShowCreate(!showCreate)}>
-                    <Plus className="h-5 w-5" />
+                    <Plus className="size-5" />
                     New Topic
                 </Button>
             </div>
@@ -79,8 +79,8 @@ export default function Discuss() {
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                         className="overflow-hidden"
                     >
-                        <div className="bg-card border-background rounded-xl border p-6">
-                            <h2 className="text-text mb-4 text-lg font-semibold">
+                        <div className="rounded-xl border border-background bg-card p-6">
+                            <h2 className="mb-4 text-lg font-semibold text-text">
                                 Create a new topic
                             </h2>
 
@@ -149,23 +149,23 @@ export default function Discuss() {
                     Array.from({ length: 3 }).map((_, i) => (
                         <div
                             key={i}
-                            className="bg-card border-background w-full rounded-xl border p-4"
+                            className="w-full rounded-xl border border-background bg-card p-4"
                         >
                             <div className="flex items-start gap-4">
-                                <div className="bg-text/10 h-12 w-12 shrink-0 animate-pulse rounded-lg" />
+                                <div className="size-12 shrink-0 animate-pulse rounded-lg bg-text/10" />
                                 <div className="min-w-0 flex-1 space-y-3">
-                                    <div className="bg-text/10 h-5 w-48 animate-pulse rounded" />
-                                    <div className="bg-text/10 h-4 w-full animate-pulse rounded" />
-                                    <div className="bg-text/10 h-4 w-3/4 animate-pulse rounded" />
-                                    <div className="bg-text/10 h-3 w-32 animate-pulse rounded" />
+                                    <div className="h-5 w-48 animate-pulse rounded bg-text/10" />
+                                    <div className="h-4 w-full animate-pulse rounded bg-text/10" />
+                                    <div className="h-4 w-3/4 animate-pulse rounded bg-text/10" />
+                                    <div className="h-3 w-32 animate-pulse rounded bg-text/10" />
                                 </div>
                             </div>
                         </div>
                     ))}
 
                 {!isLoading && data && data.length === 0 && (
-                    <div className="text-text/50 py-12 text-center">
-                        <MessageSquare className="mx-auto mb-3 h-12 w-12 opacity-50" />
+                    <div className="py-12 text-center text-text/50">
+                        <MessageSquare className="mx-auto mb-3 size-12 opacity-50" />
                         <p>No topics yet.</p>
                     </div>
                 )}
@@ -178,41 +178,41 @@ export default function Discuss() {
                             key={topic.id}
                             onClick={() => handleTopicClick(topic)}
                             className={clsx(
-                                "bg-card hover:bg-card/80 border-background group w-full cursor-pointer rounded-xl border p-4 text-left transition-all hover:shadow-md",
-                                topic.pinned && "ring-primary ring-2"
+                                "group w-full cursor-pointer rounded-xl border border-background bg-card p-4 text-left transition-all hover:bg-card/80 hover:shadow-md",
+                                topic.pinned && "ring-2 ring-primary"
                             )}
                         >
                             <div className="flex items-start gap-4">
                                 <div
                                     className={clsx(
-                                        "flex h-12 w-12 shrink-0 items-center justify-center rounded-lg",
+                                        "flex size-12 shrink-0 items-center justify-center rounded-lg",
                                         topic.pinned
                                             ? "bg-primary text-text"
                                             : "bg-secondary/10 text-secondary"
                                     )}
                                 >
                                     {topic.pinned ? (
-                                        <Pin className="h-6 w-6" />
+                                        <Pin className="size-6" />
                                     ) : (
-                                        <MessageSquare className="h-6 w-6" />
+                                        <MessageSquare className="size-6" />
                                     )}
                                 </div>
 
                                 <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-2">
-                                        <h3 className="text-text group-hover:text-secondary truncate text-lg font-semibold transition-colors">
+                                        <h3 className="truncate text-lg font-semibold text-text transition-colors group-hover:text-secondary">
                                             {topic.name}
                                         </h3>
                                     </div>
 
                                     {topic.description && (
-                                        <p className="text-text/60 mt-1 line-clamp-2 text-sm">
+                                        <p className="mt-1 line-clamp-2 text-sm text-text/60">
                                             {topic.description}
                                         </p>
                                     )}
 
                                     {topic.createdAt !== -1 && (
-                                        <div className="text-text/40 mt-2 flex items-center gap-4 text-xs">
+                                        <div className="mt-2 flex items-center gap-4 text-xs text-text/40">
                                             <span>
                                                 Created{" "}
                                                 {new Date(
@@ -223,8 +223,8 @@ export default function Discuss() {
                                     )}
                                 </div>
 
-                                <div className="text-text/30 group-hover:text-secondary/50 transition-colors">
-                                    <Users className="h-5 w-5" />
+                                <div className="text-text/30 transition-colors group-hover:text-secondary/50">
+                                    <Users className="size-5" />
                                 </div>
                             </div>
                         </button>

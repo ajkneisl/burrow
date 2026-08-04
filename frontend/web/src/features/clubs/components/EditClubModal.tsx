@@ -1,11 +1,12 @@
+import { capitalizeFirstLetter, updateClub } from "@umnburrow/core/api"
+import type { Club, ClubCategory, ClubLink, ClubPrivacy } from "@umnburrow/core/api"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
+import { Link } from "react-router"
+import { ChevronRight, History } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button, Input, Modal, SelectInput, TextArea, Toggle, ViewErrors } from "@umnburrow/core"
-import { updateClub } from "@features/clubs/clubs.api.ts"
-import type { Club, ClubCategory, ClubLink, ClubPrivacy } from "@features/clubs/clubs.types.tsx"
 import Field from "@features/burrows/create/components/Field.tsx"
 import ClubLinksEditor from "@features/clubs/components/ClubLinksEditor.tsx"
-import { capitalizeFirstLetter } from "@api/util.ts"
 import { toast } from "react-hot-toast"
 
 type EditClubFormState = {
@@ -126,7 +127,7 @@ export default function EditClubModal({ open, onClose, club }: EditClubModalProp
     const footer = useMemo(() => {
         return (
             <div className="flex w-full items-center justify-between">
-                <div className="text-text/60 text-sm">Step {currentStep} of 2</div>
+                <div className="text-sm text-text/60">Step {currentStep} of 2</div>
 
                 <div className="flex items-center gap-3">
                     {currentStep > 1 && (
@@ -162,9 +163,9 @@ export default function EditClubModal({ open, onClose, club }: EditClubModalProp
 
                 {currentStep === 1 && (
                     <div className="space-y-6">
-                        <div className="bg-card border-card-border rounded-lg border p-4">
-                            <p className="text-text mb-2 text-sm font-medium">Club Details</p>
-                            <p className="text-text/60 text-xs">
+                        <div className="rounded-lg border border-card-border bg-card p-4">
+                            <p className="mb-2 text-sm font-medium text-text">Club Details</p>
+                            <p className="text-xs text-text/60">
                                 Update your club's details. The club URL name cannot be changed.
                             </p>
                         </div>
@@ -214,9 +215,9 @@ export default function EditClubModal({ open, onClose, club }: EditClubModalProp
 
                 {currentStep === 2 && (
                     <div className="space-y-6">
-                        <div className="border-card-border bg-card rounded-lg border p-4">
-                            <p className="text-text mb-2 text-sm font-medium">Privacy Settings</p>
-                            <p className="text-text/60 text-xs">
+                        <div className="rounded-lg border border-card-border bg-card p-4">
+                            <p className="mb-2 text-sm font-medium text-text">Privacy Settings</p>
+                            <p className="text-xs text-text/60">
                                 Control who can see and join your club.
                             </p>
                         </div>
@@ -240,6 +241,26 @@ export default function EditClubModal({ open, onClose, club }: EditClubModalProp
                                 checked={formState.requestToJoin}
                                 onChange={(checked) => updateField("requestToJoin", checked)}
                             />
+                        </div>
+
+                        <div className="min-w-0 border-t border-neutral-200 pt-4">
+                            <Link
+                                to={`/club/${club.name}/history`}
+                                onClick={onClose}
+                                className="flex items-center gap-3 rounded-lg border border-card-border p-4 transition-colors hover:bg-hero"
+                            >
+                                <History className="size-5 shrink-0 text-text/60" />
+
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-medium text-text">Burrow History</p>
+                                    <p className="text-xs text-text/60">
+                                        Every Burrow this club has held. Unsaved changes will be
+                                        lost.
+                                    </p>
+                                </div>
+
+                                <ChevronRight className="size-4 shrink-0 text-text/40" />
+                            </Link>
                         </div>
                     </div>
                 )}

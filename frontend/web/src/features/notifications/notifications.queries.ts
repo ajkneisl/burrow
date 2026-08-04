@@ -1,17 +1,11 @@
+import { clearNotifications, deleteNotification, getNotifications, toggleReadNotification } from "@umnburrow/core/api"
+import type { Notification, PaginatedResponse } from "@umnburrow/core/api"
 import {
     useMutation,
     useQueryClient,
     useInfiniteQuery,
     type InfiniteData
 } from "@tanstack/react-query"
-import {
-    getNotifications,
-    deleteNotification,
-    clearNotifications,
-    toggleReadNotification
-} from "@features/notifications/notifications.api.ts"
-import type { PaginatedResponse } from "@api/api.types.ts"
-import type { Notification } from "@features/notifications/notifications.types.ts"
 import toast from "react-hot-toast"
 
 /**

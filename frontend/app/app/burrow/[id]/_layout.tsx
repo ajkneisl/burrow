@@ -1,3 +1,4 @@
+import { cancelJoinRequest, deleteBurrow, getBurrow, joinBurrow, leaveBurrow } from "@umnburrow/core/api"
 import { View, Pressable, ActivityIndicator, Alert } from "react-native"
 import { useGlassTabOptions } from "@features/layout/components"
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
@@ -21,13 +22,7 @@ import {
     ListChecks
 } from "lucide-react-native"
 import { Button, Modal, Text } from "@components/core"
-import {
-    getBurrow,
-    joinBurrow,
-    leaveBurrow,
-    deleteMeeting
-} from "@features/burrows/burrows.api"
-import { cancelJoinRequest } from "@features/burrows/attendees/attendees.api"
+
 import useUser from "@features/auth/hooks/useUser"
 import Toast from "react-native-toast-message"
 import { CreateBurrowWizard } from "@features/burrows/create/CreateBurrowWizard"
@@ -152,7 +147,7 @@ export default function BurrowLayout() {
 
     // delete burrow mutation
     const deleteMutation = useMutation({
-        mutationFn: async () => await deleteMeeting(id!),
+        mutationFn: async () => await deleteBurrow(id!),
 
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ["burrows"] })
@@ -187,7 +182,7 @@ export default function BurrowLayout() {
                 kind: "PROJECT",
                 name: burrow.title,
                 objective: burrow.description,
-                className: burrow.className || "",
+                className: burrow.location || "",
                 teamMembers: [],
                 dueDate: new Date(burrow.endTime)
             }

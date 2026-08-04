@@ -1,9 +1,10 @@
+import type { BurrowResponse } from "@umnburrow/core/api"
 import { View, ActivityIndicator } from "react-native"
 import { useRouter } from "expo-router"
 import { Calendar } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { Button, Text } from "@components/core"
-import type { BurrowResponse } from "@features/burrows/burrows.types"
+
 import { UpcomingBurrowCard } from "../../burrows/components/UpcomingBurrowCard"
 
 /**

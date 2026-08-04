@@ -1,12 +1,11 @@
+import { NOT_REOCCURRING, formatDateTime, getBurrow, getReoccurringText } from "@umnburrow/core/api"
 import { Link, Navigate, useNavigate, useParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { Archive, Clock, GraduationCap, Repeat } from "lucide-react"
 import useUser from "@features/auth/hooks/useUser.ts"
-import { getBurrow } from "@features/burrows/burrows.api.ts"
 import BurrowLocation from "@features/burrows/components/BurrowLocation.tsx"
 import DeleteBurrow from "@features/burrows/controls/DeleteBurrow.tsx"
-import { formatDateTime } from "@api/util.ts"
 import JoinBurrow from "@features/burrows/components/JoinBurrow.tsx"
 import BurrowCapacity from "@features/burrows/components/BurrowCapacity.tsx"
 import EditBurrow from "@features/burrows/controls/EditBurrow.tsx"
@@ -24,11 +23,6 @@ import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.ts
 import ShareMeeting from "@features/burrows/controls/ShareMeeting.tsx"
 import BookmarkMeeting from "@features/burrows/controls/BookmarkMeeting.tsx"
 import ReportBurrow from "@features/burrows/controls/ReportBurrow.tsx"
-import {
-    getReoccurringText,
-    NOT_REOCCURRING
-} from "@features/burrows/burrows.types.tsx"
-
 /**
  * View an individual meeting.
  *
@@ -75,15 +69,15 @@ export default function StandardBurrow() {
                             {/* Header skeleton */}
                             <Card className="order-first col-span-1 p-6 lg:col-span-3">
                                 <div className="animate-pulse space-y-4">
-                                    <div className="bg-text/10 h-8 w-3/4 rounded-lg" />
+                                    <div className="h-8 w-3/4 rounded-lg bg-text/10" />
                                     <div className="flex items-center gap-2">
-                                        <div className="bg-text/10 h-10 w-10 rounded-full" />
-                                        <div className="bg-text/10 h-4 w-48 rounded" />
+                                        <div className="size-10 rounded-full bg-text/10" />
+                                        <div className="h-4 w-48 rounded bg-text/10" />
                                     </div>
                                     <div className="flex gap-2">
-                                        <div className="bg-text/10 h-6 w-20 rounded-full" />
-                                        <div className="bg-text/10 h-6 w-20 rounded-full" />
-                                        <div className="bg-text/10 h-6 w-20 rounded-full" />
+                                        <div className="h-6 w-20 rounded-full bg-text/10" />
+                                        <div className="h-6 w-20 rounded-full bg-text/10" />
+                                        <div className="h-6 w-20 rounded-full bg-text/10" />
                                     </div>
                                 </div>
                             </Card>
@@ -92,39 +86,39 @@ export default function StandardBurrow() {
                             <div className="col-span-1 space-y-6 lg:col-span-2">
                                 <Card className="p-6">
                                     <div className="animate-pulse">
-                                        <div className="bg-text/10 mb-3 h-5 w-32 rounded" />
+                                        <div className="mb-3 h-5 w-32 rounded bg-text/10" />
                                         <div className="space-y-2">
-                                            <div className="bg-text/10 h-4 w-full rounded" />
-                                            <div className="bg-text/10 h-4 w-full rounded" />
-                                            <div className="bg-text/10 h-4 w-3/4 rounded" />
+                                            <div className="h-4 w-full rounded bg-text/10" />
+                                            <div className="h-4 w-full rounded bg-text/10" />
+                                            <div className="h-4 w-3/4 rounded bg-text/10" />
                                         </div>
                                     </div>
                                 </Card>
                             </div>
 
                             {/* Sidebar skeleton */}
-                            <div className="order-[-1] col-span-1 space-y-6 md:order-2">
+                            <div className="-order-1 col-span-1 space-y-6 md:order-2">
                                 <Card className="p-6">
                                     <div className="animate-pulse">
-                                        <div className="bg-text/10 mb-3 h-5 w-24 rounded" />
-                                        <div className="bg-text/10 h-4 w-full rounded" />
+                                        <div className="mb-3 h-5 w-24 rounded bg-text/10" />
+                                        <div className="h-4 w-full rounded bg-text/10" />
                                     </div>
                                 </Card>
                                 <Card className="p-6">
                                     <div className="animate-pulse">
-                                        <div className="bg-text/10 mb-3 h-5 w-32 rounded" />
+                                        <div className="mb-3 h-5 w-32 rounded bg-text/10" />
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-2">
-                                                <div className="bg-text/10 h-10 w-10 rounded-full" />
-                                                <div className="bg-text/10 h-4 w-32 rounded" />
+                                                <div className="size-10 rounded-full bg-text/10" />
+                                                <div className="h-4 w-32 rounded bg-text/10" />
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <div className="bg-text/10 h-10 w-10 rounded-full" />
-                                                <div className="bg-text/10 h-4 w-32 rounded" />
+                                                <div className="size-10 rounded-full bg-text/10" />
+                                                <div className="h-4 w-32 rounded bg-text/10" />
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <div className="bg-text/10 h-10 w-10 rounded-full" />
-                                                <div className="bg-text/10 h-4 w-32 rounded" />
+                                                <div className="size-10 rounded-full bg-text/10" />
+                                                <div className="h-4 w-32 rounded bg-text/10" />
                                             </div>
                                         </div>
                                     </div>
@@ -158,13 +152,13 @@ export default function StandardBurrow() {
         <main className="min-h-screen">
             {/* memo to join burrow */}
             {isLoggedOut && (
-                <div className="text-text bg-primary mt-4 w-full rounded-2xl px-4 py-3 text-center shadow-md">
+                <div className="mt-4 w-full rounded-2xl bg-primary px-4 py-3 text-center text-text shadow-md">
                     <p className="text-sm font-medium sm:text-base">
                         Interested in this Burrow?
                         <br />
                         <Link
                             to="/welcome"
-                            className="hover:text-text/40 mt-4 font-semibold underline underline-offset-4 transition-colors"
+                            className="mt-4 font-semibold underline underline-offset-4 transition-colors hover:text-text/40"
                         >
                             Join Burrow Today
                         </Link>
@@ -186,8 +180,8 @@ export default function StandardBurrow() {
                                                 "You may not edit or interact with this meeting."
                                             }
                                         >
-                                            <div className="bg-text/10 text-text/80 mt-2 inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-1 text-sm font-medium">
-                                                <Archive className="h-4 w-4" />
+                                            <div className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-md bg-text/10 px-3 py-1 text-sm font-medium text-text/80">
+                                                <Archive className="size-4" />
                                                 <span>
                                                     This meeting is archived
                                                 </span>
@@ -196,7 +190,7 @@ export default function StandardBurrow() {
                                     )}
 
                                     {/* title */}
-                                    <h1 className="text-text mt-3 truncate text-xl font-bold tracking-tight md:text-3xl">
+                                    <h1 className="mt-3 truncate text-xl font-bold tracking-tight text-text md:text-3xl">
                                         {burrow.title}
                                     </h1>
 
@@ -221,9 +215,9 @@ export default function StandardBurrow() {
                                                     clubName={data.clubName}
                                                     size="sm"
                                                 />
-                                                <p className="text-text/60 text-sm">
+                                                <p className="text-sm text-text/60">
                                                     Hosted by{" "}
-                                                    <span className="text-text/80 font-medium">
+                                                    <span className="font-medium text-text/80">
                                                         {data.clubDisplayName}
                                                     </span>
                                                 </p>
@@ -248,9 +242,9 @@ export default function StandardBurrow() {
                                                     userID={burrow.ownerID}
                                                     size={"sm"}
                                                 />
-                                                <p className="text-text/60 text-sm">
+                                                <p className="text-sm text-text/60">
                                                     Hosted by{" "}
-                                                    <span className="text-text/80 font-medium">
+                                                    <span className="font-medium text-text/80">
                                                         {data
                                                             .burrowAuthorProfile
                                                             ?.name ||
@@ -260,24 +254,24 @@ export default function StandardBurrow() {
 
                                                 {/* TA badge */}
                                                 {data.hostedByTa && (
-                                                    <span className="bg-info/10 text-info ring-info/30 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset">
-                                                        <GraduationCap className="h-3 w-3" />
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-info/10 px-2.5 py-0.5 text-xs font-medium text-info ring-1 ring-info/30 ring-inset">
+                                                        <GraduationCap className="size-3" />
                                                         TA
                                                     </span>
                                                 )}
                                             </div>
                                         )}
 
-                                        <span className="text-text/50 hidden md:block">
+                                        <span className="hidden text-text/50 md:block">
                                             —
                                         </span>
 
                                         {/* date */}
-                                        <div className="text-text/60 flex items-center gap-1.5 text-sm">
+                                        <div className="flex items-center gap-1.5 text-sm text-text/60">
                                             {isReoccurring ? (
-                                                <Repeat className="h-4 w-4" />
+                                                <Repeat className="size-4" />
                                             ) : (
-                                                <Clock className="h-4 w-4" />
+                                                <Clock className="size-4" />
                                             )}
 
                                             <Hover
@@ -333,7 +327,11 @@ export default function StandardBurrow() {
                                                 inPast={inPast}
                                             />
 
-                                            <BurrowCapacity burrow={burrow} />
+                                            <BurrowCapacity
+                                                burrow={burrow}
+                                                joined={data.joined}
+                                                waiting={data.waiting}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -373,7 +371,7 @@ export default function StandardBurrow() {
                             )}
                         </div>
 
-                        <div className="order-[-1] col-span-1 space-y-6 md:order-2">
+                        <div className="-order-1 col-span-1 space-y-6 md:order-2">
                             {!isLoggedOut && (
                                 <BurrowLocation location={burrow.location} />
                             )}

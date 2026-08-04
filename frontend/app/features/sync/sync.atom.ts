@@ -1,5 +1,5 @@
+import type { Blocks, SyncStatus } from "@umnburrow/core/api"
 import { atom } from "jotai"
-import type { Blocks, SyncStatus } from "./sync.types"
 
 /**
  * The sync status of the focused burrow.

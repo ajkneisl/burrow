@@ -13,6 +13,7 @@ RUN apt-get -y update && apt-get -y install --no-install-recommends ca-certifica
 ARG BWS_ORG_ID
 ARG BWS_PROJECT_ID
 ARG BWS_TOKEN
+ARG VITE_APP_ENV
 
 RUN bun install
 RUN bun run build
@@ -26,6 +27,7 @@ RUN apt-get -y update && apt-get -y install --no-install-recommends ca-certifica
 ARG BWS_ORG_ID
 ARG BWS_PROJECT_ID
 ARG BWS_TOKEN
+ARG VITE_APP_ENV
 ENV CI=true
 
 RUN bun install

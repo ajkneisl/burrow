@@ -1,6 +1,5 @@
+import type { Blocks, SyncStatus } from "@umnburrow/core/api"
 import { atom } from "jotai"
-import type { Blocks, SyncStatus } from "@features/sync/sync.types.ts"
-
 /**
  * The sync status of the focused meeting.
  */

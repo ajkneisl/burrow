@@ -1,9 +1,7 @@
-import {
-    type Burrow,
-    BURROW_KIND_CONFIG
-} from "@features/burrows/burrows.types.tsx"
+import { formatDateTime } from "@umnburrow/core/api"
+import type { Burrow } from "@umnburrow/core/api"
+import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types.tsx"
 import { useNavigate } from "react-router"
-import { formatDateTime } from "@api/util.ts"
 import clsx from "clsx"
 import { Badge, Chip } from "@umnburrow/core"
 import { MapPin } from "lucide-react"
@@ -36,11 +34,11 @@ export default function SearchPreview({ burrow, onClick }: PreviewProps) {
             }}
             className={clsx(
                 "flex w-full flex-row items-center justify-between px-3 py-2 text-left",
-                "text-text bg-hero/20 hover:bg-hero/40 cursor-pointer transition-all"
+                "cursor-pointer bg-hero/20 text-text transition-all hover:bg-hero/40"
             )}
         >
             <div className="flex flex-col">
-                <div className="text-text text-sm font-medium">
+                <div className="text-sm font-medium text-text">
                     {burrow.title}
                 </div>
 
@@ -65,9 +63,9 @@ export default function SearchPreview({ burrow, onClick }: PreviewProps) {
             </div>
 
             <div>
-                <div className=" text-text/80 flex items-center justify-end gap-1 text-xs">
+                <div className=" flex items-center justify-end gap-1 text-xs text-text/80">
                     {/* location pin icon */}
-                    <MapPin className="h-4 w-4 shrink-0" />
+                    <MapPin className="size-4 shrink-0" />
                     <p className="truncate">
                         {burrow.location
                             ?.split(" ")[0]
@@ -81,7 +79,7 @@ export default function SearchPreview({ burrow, onClick }: PreviewProps) {
                 </div>
 
                 <time
-                    className="text-text/60 text-xs"
+                    className="text-xs text-text/60"
                     aria-label="Time Occurring"
                 >
                     {formatDateTime(burrow.beginningTime, burrow.endTime)}

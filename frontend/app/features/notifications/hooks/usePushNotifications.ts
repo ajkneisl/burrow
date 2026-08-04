@@ -1,13 +1,10 @@
+import { getMobileSubscriptionStatus, subscribeToPushMobile, unsubscribeFromPushMobile } from "@umnburrow/core/api"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Platform } from "react-native"
 import * as Device from "expo-device"
 import * as Notifications from "expo-notifications"
 import { useRouter } from "expo-router"
-import {
-    getMobileSubscriptionStatus,
-    subscribeToPushMobile,
-    unsubscribeFromPushMobile
-} from "@features/notifications/notifications.api"
+
 import Toast from "react-native-toast-message"
 import { NotificationBehavior } from "expo-notifications"
 

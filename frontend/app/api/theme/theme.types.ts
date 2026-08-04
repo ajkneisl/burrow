@@ -1,9 +1,7 @@
-import {vars} from "nativewind";
+import {vars} from "nativewind"
+;
 
-/**
- * The different types of themes.
- */
-export type Theme = "DARK" | "LIGHT" | "AUTO" | "EARTH"
+export type { Theme } from "@umnburrow/core/api"
 
 /**
  * Type for theme color palette.
@@ -71,7 +69,6 @@ export const themeColors: { light: ThemeColors; dark: ThemeColors } = {
         errorHover: "#fa6e6e"
     }
 }
-
 
 /**
  * The theme variables

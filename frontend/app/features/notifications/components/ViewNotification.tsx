@@ -1,6 +1,7 @@
+import { formatTimeAgo } from "@umnburrow/core/api"
+import type { Notification } from "@umnburrow/core/api"
 import { View } from "react-native"
-import type { Notification } from "@features/notifications/notifications.types"
-import { formatTimeAgo } from "@api/util"
+
 import { Button, Text } from "@components/core"
 import { Check, X, Trash2 } from "lucide-react-native"
 

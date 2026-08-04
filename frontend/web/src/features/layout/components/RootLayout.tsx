@@ -1,15 +1,14 @@
+import { createBurrow, getTheme } from "@umnburrow/core/api"
 import { useAtom, useSetAtom } from "jotai"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { createBurrowModal, selectedClubIDAtom } from "@features/burrows/create/create.atom.ts"
 import { themeAtom } from "@api/theme/theme.atom.ts"
-import { getTheme } from "@api/theme/theme.api.ts"
 import { useEffect, useMemo } from "react"
 import { Outlet, useLocation } from "react-router"
 import MetaTags from "@features/layout/components/MetaTags.tsx"
 import Header from "@features/layout/components/Header.tsx"
 import { Toaster } from "react-hot-toast"
 import CreateStudyBurrowModal from "@features/burrows/create/components/CreateStudyBurrowModal.tsx"
-import { createBurrow } from "@features/burrows/create/create.api.ts"
 import CreateEventBurrowModal from "@features/burrows/create/components/CreateEventBurrowModal.tsx"
 import CreateProjectBurrowModal from "@features/burrows/create/components/project/CreateProjectBurrowModal.tsx"
 import SelectClubModal from "@features/clubs/components/SelectClubModal.tsx"
@@ -77,7 +76,7 @@ export default function RootLayout() {
     }, [computedTheme])
 
     return (
-        <div className="gopher-stand text-text flex min-h-screen w-full flex-col bg-transparent transition-colors duration-300">
+        <div className="gopher-stand flex min-h-screen w-full flex-col bg-transparent text-text transition-colors duration-300">
             {/* meta helmet*/}
             <MetaTags />
 

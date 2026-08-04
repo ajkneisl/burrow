@@ -1,5 +1,5 @@
+import { getTopics } from "@umnburrow/core/api"
 import { useQuery } from "@tanstack/react-query"
-import { getTopics } from "@features/chat/chat.api.ts"
 import { Card, ViewErrors } from "@umnburrow/core"
 import { ArrowRight, MessageSquare, Pin } from "lucide-react"
 import { useNavigate } from "react-router"
@@ -43,13 +43,13 @@ export default function Topics() {
                                 role="button"
                                 onClick={() => nav(`/discuss/${topic.id}`)}
                                 key={topic.id}
-                                className="hover:bg-background/50 flex cursor-pointer items-center gap-2 rounded p-2"
+                                className="flex cursor-pointer items-center gap-2 rounded p-2 hover:bg-background/50"
                             >
                                 {topic.pinned && (
-                                    <Pin className="text-text/40 h-3 w-3 shrink-0" />
+                                    <Pin className="size-3 shrink-0 text-text/40" />
                                 )}
 
-                                <h3 className="text-text truncate text-sm">
+                                <h3 className="truncate text-sm text-text">
                                     {topic?.name || "Loading..."}
                                 </h3>
                             </li>
@@ -64,16 +64,16 @@ export default function Topics() {
                             key={i}
                             className="flex items-center gap-2 rounded p-2"
                         >
-                            <div className="bg-text/10 h-3 flex-1 animate-pulse rounded" />
+                            <div className="h-3 flex-1 animate-pulse rounded bg-text/10" />
                         </div>
                     ))}
 
                 {/* Empty state */}
                 {!isLoading && data && data.length === 0 && (
-                    <div className="text-text/50 flex flex-col items-center justify-center py-8 text-center">
-                        <MessageSquare className="mb-3 h-10 w-10 opacity-30" />
+                    <div className="flex flex-col items-center justify-center py-8 text-center text-text/50">
+                        <MessageSquare className="mb-3 size-10 opacity-30" />
                         <p className="text-sm font-medium">No topics yet</p>
-                        <p className="text-text/40 mt-1 text-xs">
+                        <p className="mt-1 text-xs text-text/40">
                             Be the first to start a discussion
                         </p>
                     </div>
@@ -83,10 +83,10 @@ export default function Topics() {
                 {topicsToShow.length > 0 && (
                     <button
                         onClick={() => nav("/discuss")}
-                        className="text-secondary hover:text-secondary/80 mt-1 flex cursor-pointer items-center justify-center gap-1 text-sm font-medium transition-colors"
+                        className="mt-1 flex cursor-pointer items-center justify-center gap-1 text-sm font-medium text-secondary transition-colors hover:text-secondary/80"
                     >
                         View all discussions
-                        <ArrowRight className="h-4 w-4" />
+                        <ArrowRight className="size-4" />
                     </button>
                 )}
             </div>

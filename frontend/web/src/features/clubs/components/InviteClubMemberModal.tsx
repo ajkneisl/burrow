@@ -1,6 +1,6 @@
+import { inviteToClub } from "@umnburrow/core/api"
 import React, { useEffect, useState } from "react"
 import { Button, Modal, ViewErrors } from "@umnburrow/core"
-import { inviteToClub } from "@features/clubs/clubs.api.ts"
 import Field from "@features/burrows/create/components/Field.tsx"
 import { toast } from "react-hot-toast"
 import SelectUser from "@features/profile/components/SelectUser.tsx"

@@ -1,12 +1,10 @@
-import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
+import { cancelJoinRequest, joinBurrow, leaveBurrow } from "@umnburrow/core/api"
+import type { BurrowResponse } from "@umnburrow/core/api"
 import { toast } from "react-hot-toast"
-import { joinMeeting, leaveMeeting } from "@features/burrows/burrows.api.ts"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button } from "@umnburrow/core"
 import { useMemo, useState } from "react"
-import { cancelJoinRequest } from "@features/burrows/attendees/attendees.api.ts"
-
 /**
  * {@see JoinBurrow}
  */
@@ -57,7 +55,7 @@ export default function JoinBurrow({ data, inPast }: JoinMeetingProps) {
         try {
             // Handle leave
             if (data.membership?.status === "JOINED") {
-                await leaveMeeting(burrowID)
+                await leaveBurrow(burrowID)
 
                 void queryClient.invalidateQueries({
                     queryKey: ["burrow", burrowID]
@@ -76,7 +74,7 @@ export default function JoinBurrow({ data, inPast }: JoinMeetingProps) {
             }
 
             // Handle join
-            await joinMeeting(burrowID)
+            await joinBurrow(burrowID)
 
             if (!data.burrow.requestToJoin) {
                 // join successfully

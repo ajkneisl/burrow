@@ -1,9 +1,9 @@
+import { uploadClubBanner } from "@umnburrow/core/api"
 import { useRef, useState, useMemo } from "react"
 import clsx from "clsx"
 import { Camera } from "lucide-react"
 import { CDN_URL } from "@api/util.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
-import { uploadClubBanner } from "@features/clubs/clubs.api.ts"
 import useClubRole from "@features/clubs/hooks/useClubRole.ts"
 import toast from "react-hot-toast"
 
@@ -67,7 +67,7 @@ export default function ClubBanner({
 
         setUploading(true)
         try {
-            await uploadClubBanner(clubName, file)
+            await uploadClubBanner(clubName, file, file.type)
             setImageError(false)
             setCacheBust(Date.now())
             toast.success("Club banner updated!")
@@ -95,17 +95,17 @@ export default function ClubBanner({
                 <img
                     src={bannerUrl}
                     alt="Club banner"
-                    className="h-full w-full object-cover"
+                    className="size-full object-cover"
                     onError={() => setImageError(true)}
                 />
             ) : (
-                <div className="from-primary/20 to-primary/5 h-full w-full bg-gradient-to-br" />
+                <div className="size-full bg-gradient-to-br from-primary/20 to-primary/5" />
             )}
 
             {editable && showHover && !uploading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity">
                     <div className="flex flex-col items-center gap-1 text-white">
-                        <Camera className="h-6 w-6" />
+                        <Camera className="size-6" />
                         <span className="text-xs font-medium">
                             Change Banner
                         </span>
@@ -115,7 +115,7 @@ export default function ClubBanner({
 
             {editable && uploading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                    <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
+                    <div className="size-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                 </div>
             )}
 

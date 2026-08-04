@@ -1,10 +1,9 @@
+import { convertGraduationYear } from "@umnburrow/core/api"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { Badge, Card } from "@umnburrow/core"
 import { Link } from "react-router"
 import useUser from "@features/auth/hooks/useUser.ts"
 import useProfile from "@features/auth/hooks/useProfile.ts"
-import { convertGraduationYear } from "@api/util.ts"
-
 /**
  * A view of My Profile on the homepage.
  *
@@ -15,20 +14,20 @@ export default function MyProfile() {
     const profile = useProfile()
 
     return (
-        <Card className="border-text/10 flex flex-col rounded-xl border p-4 shadow-md">
+        <Card className="flex flex-col rounded-xl border border-text/10 p-4 shadow-md">
             {/* header */}
             <div className="flex flex-row items-center justify-evenly gap-3">
                 {/* profile / user loading */}
                 {(!profile || !user) && (
                     <>
-                        <div className="bg-text/10 size-24 animate-pulse rounded-full" />
+                        <div className="size-24 animate-pulse rounded-full bg-text/10" />
                         <div className="min-w-0 flex-1">
-                            <div className="bg-text/10 mx-auto mb-2 h-5 w-30 animate-pulse rounded" />
+                            <div className="mx-auto mb-2 h-5 w-30 animate-pulse rounded bg-text/10" />
                             <div className="flex flex-col items-center gap-2">
                                 <Badge>
-                                    <div className="bg-text/10 h-5 w-16 animate-pulse rounded" />
+                                    <div className="h-5 w-16 animate-pulse rounded bg-text/10" />
                                 </Badge>
-                                <div className="bg-text/10 h-3 w-24 animate-pulse rounded" />
+                                <div className="h-3 w-24 animate-pulse rounded bg-text/10" />
                             </div>
                         </div>
                     </>
@@ -61,14 +60,14 @@ export default function MyProfile() {
                                 <div className="flex flex-row gap-2">
                                     <Link
                                         to={`/user/${user?.username}`}
-                                        className="text-text/60 hover:text-text text-xs underline-offset-2 transition-all hover:underline"
+                                        className="text-xs text-text/60 underline-offset-2 transition-all hover:text-text hover:underline"
                                     >
                                         View profile
                                     </Link>
 
                                     <Link
                                         to={`/friends`}
-                                        className="text-text/60 hover:text-text block text-xs underline-offset-2 transition-all hover:underline lg:hidden"
+                                        className="block text-xs text-text/60 underline-offset-2 transition-all hover:text-text hover:underline lg:hidden"
                                     >
                                         View friends
                                     </Link>

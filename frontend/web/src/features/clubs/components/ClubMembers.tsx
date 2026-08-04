@@ -1,12 +1,8 @@
+import { ROLE_ORDER, getClubMembers } from "@umnburrow/core/api"
+import type { ClubMemberResponse, PaginatedResponse } from "@umnburrow/core/api"
 import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Button, Card } from "@umnburrow/core"
-import { getClubMembers } from "@features/clubs/clubs.api.ts"
-import {
-    type ClubMemberResponse,
-    ROLE_ORDER
-} from "@features/clubs/clubs.types.tsx"
-import type { PaginatedResponse } from "@api/api.types.ts"
 import ClubMemberCard from "@features/clubs/components/ClubMemberCard.tsx"
 import useToken from "@features/auth/hooks/useToken.ts"
 
@@ -48,11 +44,11 @@ export default function ClubMembers({ clubName }: ClubMembersProps) {
             <h3 className="mb-3 text-sm font-semibold">Members</h3>
 
             {membersLoading && (
-                <div className="text-text/60 text-sm">Loading members...</div>
+                <div className="text-sm text-text/60">Loading members...</div>
             )}
 
             {!membersLoading && sortedMembers.length === 0 && (
-                <div className="text-text/50 text-sm">No members yet.</div>
+                <div className="text-sm text-text/50">No members yet.</div>
             )}
 
             {!membersLoading && sortedMembers.length > 0 && (

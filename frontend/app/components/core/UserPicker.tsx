@@ -1,9 +1,10 @@
+import { get } from "@umnburrow/core/api"
 import { useState, useEffect } from "react"
 import { View, TextInput, FlatList, Pressable, ActivityIndicator } from "react-native"
 import { Text } from "@components/core"
 import { Search, X, UserPlus } from "lucide-react-native"
 import ThemedIcon from "@components/core/ThemedIcon"
-import { get } from "@api/api"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 

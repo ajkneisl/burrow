@@ -1,14 +1,11 @@
+import { ClubResponse, ROLE_ORDER, get } from "@umnburrow/core/api"
+import type { ClubMemberResponse, PaginatedResponse } from "@umnburrow/core/api"
 import { View } from "react-native"
 import ClubMember from "@features/clubs/components/ClubMember"
 import { Text } from "@components/core"
-import {
-    type ClubMemberResponse,
-    ClubResponse,
-    ROLE_ORDER
-} from "@features/clubs/club.types"
+
 import { useQuery } from "@tanstack/react-query"
-import type { PaginatedResponse } from "@api/api.types"
-import { get } from "@api/api"
+
 import { useMemo } from "react"
 import useUser from "@features/auth/hooks/useUser"
 

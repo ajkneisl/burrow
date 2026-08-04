@@ -1,3 +1,5 @@
+import { get } from "@umnburrow/core/api"
+import type { Club, ClubCategory, MyClubResponse, PaginatedResponse } from "@umnburrow/core/api"
 import {
     View,
     FlatList,
@@ -10,18 +12,12 @@ import { useState, useMemo } from "react"
 import { useRouter } from "expo-router"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
-import { get } from "@api/api"
+
 import { Compass, Users, Plus } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { FilterChip, Text } from "@components/core"
 import { createClubModalOpen } from "@features/layout/layout.atom"
 import ClubCard from "@features/clubs/components/ClubCard"
-import type { PaginatedResponse } from "@api/api.types"
-import type {
-    Club,
-    ClubCategory,
-    MyClubResponse
-} from "@features/clubs/club.types"
 
 type ClubTab = "discover" | "my-clubs"
 

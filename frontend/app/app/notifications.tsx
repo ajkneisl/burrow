@@ -1,3 +1,5 @@
+import { acceptInvite, declineInvite } from "@umnburrow/core/api"
+import type { Notification } from "@umnburrow/core/api"
 import { useMemo, useCallback } from "react"
 import { View, FlatList, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -10,15 +12,12 @@ import {
     useToggleReadNotification,
     useClearAllNotifications
 } from "@features/notifications/notifications.queries"
-import {
-    acceptInvite,
-    declineInvite
-} from "@features/burrows/attendees/attendees.api"
+
 import ViewNotification from "@features/notifications/components/ViewNotification"
 import { Header } from "@features/layout/components"
 import { Button, Text } from "@components/core"
 import Toast from "react-native-toast-message"
-import type { Notification } from "@features/notifications/notifications.types"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**

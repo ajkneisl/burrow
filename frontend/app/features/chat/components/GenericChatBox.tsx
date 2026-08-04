@@ -1,10 +1,11 @@
+import type { ChatMember, ChatMessage } from "@umnburrow/core/api"
 import { useRef, useEffect, type ReactNode } from "react"
 import { View, FlatList, Keyboard } from "react-native"
 import { Text } from "@components/core"
 import { MessageSquare } from "lucide-react-native"
 import Chat from "@features/chat/components/Chat"
 import ChatInput from "@features/chat/components/ChatInput"
-import type { ChatMember, ChatMessage } from "@features/chat/chat.types"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 /**

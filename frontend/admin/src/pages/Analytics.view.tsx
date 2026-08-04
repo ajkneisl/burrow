@@ -1,20 +1,17 @@
+import { getAnalytics } from "@umnburrow/core/api"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useAtom } from "jotai"
 import { Card } from "@umnburrow/core"
-import { fetchAnalytics } from "../features/analytics/analytics.api.ts"
 import Statistic from "../features/analytics/components/Statistic.tsx"
-import { adminTokenAtom } from "../features/auth/admin.atom.ts"
 
 /**
  * View analytics.
  */
 export default function AnalyticsView() {
-    const [token] = useAtom(adminTokenAtom)
     const qc = useQueryClient()
 
     const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
         queryKey: ["admin", "analytics"],
-        queryFn: () => fetchAnalytics(token ?? undefined),
+        queryFn: () => getAnalytics(),
         refetchOnWindowFocus: true
     })
 

@@ -1,12 +1,7 @@
-import { formatTimeAgo } from "@api/util.ts"
-import type {
-    BurrowMembershipResponse,
-    BurrowMemberStatus,
-    BurrowRole
-} from "@features/burrows/burrows.types.tsx"
+import { changeRole, formatTimeAgo, toggleBanMember } from "@umnburrow/core/api"
+import type { BurrowMemberStatus, BurrowMembershipResponse, BurrowRole } from "@umnburrow/core/api"
 import useUser from "@features/auth/hooks/useUser.ts"
 import { useMemo } from "react"
-import { toggleBanMember, changeRole } from "@features/burrows/burrows.api.ts"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import DisplayMember from "@features/burrows/attendees/components/DisplayMember.tsx"
 

@@ -1,3 +1,5 @@
+import { convertGraduationYear } from "@umnburrow/core/api"
+import type { Profile } from "@umnburrow/core/api"
 import {
     AutocompleteInput,
     Card,
@@ -5,8 +7,6 @@ import {
     TextArea,
     type AutocompleteOption
 } from "@umnburrow/core"
-import type { Profile } from "@features/profile/profile.model.ts"
-import type { User } from "@features/auth/user.types.ts"
 import { useAtom } from "jotai"
 import { useMemo } from "react"
 import {
@@ -15,18 +15,17 @@ import {
 } from "@features/profile/profile.atom.ts"
 import { Link } from "react-router"
 import { BookOpen, Calendar, GraduationCap, School } from "lucide-react"
-import { convertGraduationYear } from "@api/util.ts"
 import { majorInfo, type SchoolInfo } from "@features/profile/schools.ts"
 import Contact from "./Contact.tsx"
 import ProfileInfoRow from "./ProfileInfoRow.tsx"
 
 type AboutProps = {
-    user: User
+    email?: string
     profile: Profile
     isTa?: boolean
 }
 
-export default function AboutView({ user, profile, isTa }: AboutProps) {
+export default function AboutView({ email, profile, isTa }: AboutProps) {
     const [isEditing] = useAtom(isEditingProfile)
     const [edits, setEdits] = useAtom(profileEdits)
 
@@ -144,7 +143,7 @@ export default function AboutView({ user, profile, isTa }: AboutProps) {
                             renderOption={(option) => (
                                 <div className="flex items-center justify-between">
                                     <span>{option.value.name}</span>
-                                    <span className="text-text/50 text-xs">
+                                    <span className="text-xs text-text/50">
                                         {option.value.shorthand}
                                     </span>
                                 </div>
@@ -173,7 +172,7 @@ export default function AboutView({ user, profile, isTa }: AboutProps) {
                     </form>
                 </Card>
 
-                <Contact user={user} profile={profile} />
+                <Contact email={email} profile={profile} />
             </div>
         )
     }
@@ -184,18 +183,18 @@ export default function AboutView({ user, profile, isTa }: AboutProps) {
             <Card>
                 <div className="flex flex-row items-center justify-between">
                     <div className="mb-2 flex items-center justify-between">
-                        <h3 className="text-text/50 text-sm font-semibold">
+                        <h3 className="text-sm font-semibold text-text/50">
                             About
                         </h3>
                     </div>
                 </div>
 
-                <p className="text-text mt-1 text-sm">
+                <p className="mt-1 text-sm text-text">
                     {profile.bio || "No bio provided."}
                 </p>
 
                 {isTa && (
-                    <p className="text-text/50 mt-4 text-xs">
+                    <p className="mt-4 text-xs text-text/50">
                         This user is a TA.{" "}
                         <Link to="/ta" className="underline">
                             Learn more about what this means.
@@ -204,7 +203,7 @@ export default function AboutView({ user, profile, isTa }: AboutProps) {
                 )}
 
                 {/* contact */}
-                <Contact user={user} profile={profile} />
+                <Contact email={email} profile={profile} />
             </Card>
 
             {/* info */}
@@ -213,7 +212,7 @@ export default function AboutView({ user, profile, isTa }: AboutProps) {
                     <div className="mt-2 flex flex-col gap-3">
                         {profile.school && (
                             <ProfileInfoRow
-                                icon={<School className="h-4 w-4" />}
+                                icon={<School className="size-4" />}
                                 label="School"
                                 value={profile.school}
                             />
@@ -221,7 +220,7 @@ export default function AboutView({ user, profile, isTa }: AboutProps) {
 
                         {profile.major && (
                             <ProfileInfoRow
-                                icon={<GraduationCap className="h-4 w-4" />}
+                                icon={<GraduationCap className="size-4" />}
                                 label="Major"
                                 value={profile.major}
                             />
@@ -229,7 +228,7 @@ export default function AboutView({ user, profile, isTa }: AboutProps) {
 
                         {profile.gradYear !== null && (
                             <ProfileInfoRow
-                                icon={<Calendar className="h-4 w-4" />}
+                                icon={<Calendar className="size-4" />}
                                 label="Year"
                                 value={convertGraduationYear(profile.gradYear)}
                             />
@@ -237,7 +236,7 @@ export default function AboutView({ user, profile, isTa }: AboutProps) {
 
                         {profile.classes && profile.classes.length > 0 && (
                             <ProfileInfoRow
-                                icon={<BookOpen className="h-4 w-4" />}
+                                icon={<BookOpen className="size-4" />}
                                 label="Classes"
                                 value={
                                     <div className="flex flex-wrap gap-1.5">
@@ -246,7 +245,7 @@ export default function AboutView({ user, profile, isTa }: AboutProps) {
                                                 key={cls}
                                                 target="_blank"
                                                 to={`https://umn.lol/class/${cls}`}
-                                                className="hover:text-text/70 bg-card rounded-md py-0.5 font-mono text-xs underline"
+                                                className="rounded-md bg-card py-0.5 font-mono text-xs underline hover:text-text/70"
                                             >
                                                 {cls}
                                             </Link>

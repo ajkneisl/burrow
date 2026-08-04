@@ -1,9 +1,5 @@
+import { deleteAccount, getUser, updateUsername } from "@umnburrow/core/api"
 import { useEffect, useState } from "react"
-import {
-    deleteAccount,
-    getUser,
-    updateUsername
-} from "@features/auth/user.api.ts"
 import { useSetAtom } from "jotai"
 import {
     settingsChanged,
@@ -71,7 +67,7 @@ export default function AccountSection() {
                 <div className="flex flex-col gap-3">
                     <div>
                         <p className="font-semibold">Delete Account</p>
-                        <p className="text-text/60 text-sm">
+                        <p className="text-sm text-text/60">
                             Are you sure? This action cannot be undone.
                         </p>
                     </div>
@@ -113,7 +109,7 @@ export default function AccountSection() {
         <Card className="flex flex-col gap-4">
             {/* errors provided by backend */}
             {errors.length > 0 && (
-                <div className="border-error/30 bg-error/10 text-error mb-2 rounded-lg border p-3 text-sm">
+                <div className="mb-2 rounded-lg border border-error/30 bg-error/10 p-3 text-sm text-error">
                     <p className="mb-1 font-medium">
                         Please fix the following:
                     </p>
@@ -165,9 +161,9 @@ export default function AccountSection() {
                     </form>
 
                     {/* delete account section */}
-                    <div className="border-error/20 mt-6 border-t pt-6">
+                    <div className="mt-6 border-t border-error/20 pt-6">
                         <Button color="ERROR" onClick={handleDeleteAccount}>
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="size-4" />
                             Delete Account
                         </Button>
                     </div>

@@ -1,6 +1,6 @@
+import { get } from "@umnburrow/core/api"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { Input } from "@umnburrow/core"
-import { get } from "@api/api.ts"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { authToken } from "@features/auth/auth.atom.ts"
@@ -78,7 +78,7 @@ export default function SelectUser({ value, onChange, placeholder = "Search for 
 
     if (value) {
         return (
-            <div className="border-border bg-hero/30 flex items-center justify-between rounded-lg border px-4 py-3">
+            <div className="border-border flex items-center justify-between rounded-lg border bg-hero/30 px-4 py-3">
                 <div className="flex min-w-0 flex-1 items-center gap-3">
                     <ProfilePicture
                         name={value.name || value.username}
@@ -86,10 +86,10 @@ export default function SelectUser({ value, onChange, placeholder = "Search for 
                         size="sm"
                     />
                     <div className="min-w-0 flex-1">
-                        <div className="text-text truncate text-sm font-medium">
+                        <div className="truncate text-sm font-medium text-text">
                             {value.name || value.username}
                         </div>
-                        <div className="text-text/50 truncate text-xs">
+                        <div className="truncate text-xs text-text/50">
                             @{value.username}
                         </div>
                     </div>
@@ -97,10 +97,10 @@ export default function SelectUser({ value, onChange, placeholder = "Search for 
                 <button
                     type="button"
                     onClick={() => onChange(null)}
-                    className="text-text/40 hover:bg-error/20 hover:text-error ml-2 rounded-md p-1.5 transition-all duration-150"
+                    className="ml-2 rounded-md p-1.5 text-text/40 transition-all duration-150 hover:bg-error/20 hover:text-error"
                     aria-label={`Remove ${value.name || value.username}`}
                 >
-                    <X className="h-4 w-4" />
+                    <X className="size-4" />
                 </button>
             </div>
         )
@@ -118,9 +118,9 @@ export default function SelectUser({ value, onChange, placeholder = "Search for 
             />
 
             {showDropdown && (
-                <div className="border-border bg-background animate-in fade-in slide-in-from-top-2 absolute z-10 mt-1 w-full rounded-lg border shadow-lg duration-200">
+                <div className="border-border animate-in fade-in slide-in-from-top-2 absolute z-10 mt-1 w-full rounded-lg border bg-background shadow-lg duration-200">
                     {isSearching ? (
-                        <div className="text-text/60 p-3 text-center text-sm">
+                        <div className="p-3 text-center text-sm text-text/60">
                             Searching...
                         </div>
                     ) : filteredResults.length > 0 ? (
@@ -130,7 +130,7 @@ export default function SelectUser({ value, onChange, placeholder = "Search for 
                                     key={user.id}
                                     type="button"
                                     onClick={() => selectUser(user)}
-                                    className="hover:bg-hero/60 animate-in fade-in slide-in-from-top-1 flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors duration-150"
+                                    className="animate-in fade-in slide-in-from-top-1 flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors duration-150 hover:bg-hero/60"
                                     style={{
                                         animationDelay: `${index * 50}ms`,
                                         animationFillMode: "backwards"
@@ -142,10 +142,10 @@ export default function SelectUser({ value, onChange, placeholder = "Search for 
                                         size="sm"
                                     />
                                     <div className="min-w-0 flex-1">
-                                        <div className="text-text truncate text-sm font-medium">
+                                        <div className="truncate text-sm font-medium text-text">
                                             {user.name || user.username}
                                         </div>
-                                        <div className="text-text/50 truncate text-xs">
+                                        <div className="truncate text-xs text-text/50">
                                             @{user.username}
                                         </div>
                                     </div>
@@ -153,7 +153,7 @@ export default function SelectUser({ value, onChange, placeholder = "Search for 
                             ))}
                         </div>
                     ) : (
-                        <div className="text-text/60 p-3 text-center text-sm">
+                        <div className="p-3 text-center text-sm text-text/60">
                             No users found
                         </div>
                     )}

@@ -4,16 +4,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
     name: "Burrow",
     slug: "burrow",
-    version: "0.5.1",
+    version: "0.6.0",
     orientation: "portrait",
     icon: "./assets/images/burrow.png",
     scheme: "app.umn.burrow",
     userInterfaceStyle: "automatic",
-    splash: {
-        image: "./assets/images/burrow.png",
-        resizeMode: "contain",
-        backgroundColor: "#7A0019"
-    },
     ios: {
         supportsTablet: false,
         bundleIdentifier: "app.umn.burrow",
@@ -137,7 +132,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
                 iosUrlScheme:
                     "com.googleusercontent.apps.808386876282-51cc5ue6pkbplbhtbugko3hhhometbq4"
             }
-        ]
+        ],
+        "@react-native-community/datetimepicker",
+        "expo-image",
+        "expo-sharing",
+        "expo-status-bar"
     ],
     experiments: {
         typedRoutes: true,

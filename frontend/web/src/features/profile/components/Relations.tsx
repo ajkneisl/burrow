@@ -1,10 +1,7 @@
+import type { UserResponse } from "@umnburrow/core/api"
 import useUser from "@features/auth/hooks/useUser.ts"
-import type { UserResponse } from "@features/profile/profile.model.ts"
 import { Button } from "@umnburrow/core"
-import {
-    FOLLOWERS_VIEW,
-    FOLLOWING_VIEW
-} from "@features/profile/profile.api.ts"
+import { FOLLOWERS_VIEW, FOLLOWING_VIEW } from "@features/profile/profile.util.ts"
 import useRelations from "@features/profile/hooks/useRelations.ts"
 
 /**
@@ -27,7 +24,7 @@ export default function Relations({ data, isFriends }: RelationsProps) {
     // not viewing their own profile or friends
     if (user?.id !== data.user.id && !isFriends) {
         return (
-            <div className="text-text/80 mt-1 text-sm">
+            <div className="mt-1 text-sm text-text/80">
                 <span>
                     {data.following.followers} follower
                     {data.following.followers === 1 ? "" : "s"}
@@ -40,7 +37,7 @@ export default function Relations({ data, isFriends }: RelationsProps) {
 
     // viewing their own profile
     return (
-        <div className="text-text/80 mt-1 text-sm">
+        <div className="mt-1 text-sm text-text/80">
             <Button
                 color="LINK"
                 onClick={() => rel(FOLLOWERS_VIEW(data.user.id))}

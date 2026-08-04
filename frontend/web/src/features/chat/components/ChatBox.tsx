@@ -1,11 +1,7 @@
+import type { BurrowResponse, ChatMember, ChatMessage } from "@umnburrow/core/api"
 import { useEffect, useState } from "react"
 import useUser from "@features/auth/hooks/useUser.ts"
-import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
-import type { ChatMember, ChatMessage } from "@features/chat/chat.types.ts"
-import {
-    type SyncIncomingEvent,
-    SyncOutgoingEvent
-} from "@features/sync/sync.types.ts"
+import { type SyncIncomingEvent, SyncOutgoingEvent } from "@features/sync/sync.types.ts"
 import { useAtomValue } from "jotai"
 import { syncRetry, syncStatus } from "@features/sync/sync.atom.ts"
 import { Card } from "@umnburrow/core"
@@ -247,18 +243,18 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
 
     // Header component
     const header = (
-        <header className="border-background/60 flex items-center justify-between border-b pb-4">
+        <header className="flex items-center justify-between border-b border-background/60 pb-4">
             <div className="flex items-center gap-2">
                 <h3 className="text-lg font-semibold">Chat</h3>
             </div>
 
             <div className="flex items-center gap-2">
                 <div
-                    className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                    className={`size-2 rounded-full transition-all duration-300 ${
                         status === "LIVE"
-                            ? "bg-success animate-pulse"
+                            ? "animate-pulse bg-success"
                             : status === "CONNECTING"
-                              ? "bg-warn animate-pulse"
+                              ? "animate-pulse bg-warn"
                               : "bg-error"
                     }`}
                 />
@@ -284,26 +280,26 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
 
     // Pinned message component
     const pinnedContent = pinnedMessage ? (
-        <div className="bg-background/60 border-background mt-4 rounded-lg border shadow-sm">
+        <div className="mt-4 rounded-lg border border-background bg-background/60 shadow-sm">
             <div className="flex items-start gap-3 p-3">
-                <div className="bg-warn/15 mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md">
-                    <Pin className="text-warn h-4 w-4" />
+                <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-warn/15">
+                    <Pin className="size-4 text-warn" />
                 </div>
 
                 <div className="min-w-0 flex-1">
                     <div className="mb-1.5 flex items-center gap-2">
-                        <Pin className="text-warn h-3 w-3" />
-                        <span className="text-warn text-xs font-semibold uppercase tracking-wide">
+                        <Pin className="size-3 text-warn" />
+                        <span className="text-xs font-semibold tracking-wide text-warn uppercase">
                             Pinned Message
                         </span>
-                        <span className="text-text/40 text-xs">
+                        <span className="text-xs text-text/40">
                             by{" "}
                             {members[pinnedMessage.senderID]?.name ||
                                 "Unknown"}
                         </span>
                     </div>
 
-                    <p className="text-text line-clamp-2 text-sm leading-relaxed break-words">
+                    <p className="line-clamp-2 text-sm leading-relaxed break-words text-text">
                         {pinnedMessage.message}
                     </p>
                 </div>
@@ -311,11 +307,11 @@ export default function ChatBox({ burrow }: ChatBoxProps) {
                 {isModerator && (
                     <button
                         onClick={unpinMessage}
-                        className="text-text/40 hover:bg-error/10 hover:text-error mt-1 shrink-0 rounded-md p-1.5 transition-all"
+                        className="mt-1 shrink-0 rounded-md p-1.5 text-text/40 transition-all hover:bg-error/10 hover:text-error"
                         title="Unpin message"
                         aria-label="Unpin message"
                     >
-                        <X className="h-4 w-4" />
+                        <X className="size-4" />
                     </button>
                 )}
             </div>

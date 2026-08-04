@@ -1,7 +1,6 @@
+import type { Article } from "@umnburrow/core/api"
 import { Link } from "react-router"
 import { ArrowRight } from "lucide-react"
-import type { Article } from "@features/articles/articles.types.ts"
-
 /**
  * A card previewing a single article, linking to its full page.
  *
@@ -17,23 +16,23 @@ export default function ArticleCard({ article }: { article: Article }) {
     return (
         <Link
             to={`/article/${article.slug}`}
-            className="group border-card-border bg-card hover:border-secondary/40 flex flex-col rounded-2xl border p-5 shadow-sm transition-colors"
+            className="group flex flex-col rounded-2xl border border-card-border bg-card p-5 shadow-sm transition-colors hover:border-secondary/40"
         >
-            <p className="text-text/50 text-xs font-medium">{date}</p>
+            <p className="text-xs font-medium text-text/50">{date}</p>
 
-            <h2 className="text-text group-hover:text-secondary mt-1 text-xl font-bold tracking-tight transition-colors">
+            <h2 className="mt-1 text-xl font-bold tracking-tight text-text transition-colors group-hover:text-secondary">
                 {article.title}
             </h2>
 
             {article.description && (
-                <p className="text-text/70 mt-2 line-clamp-3 text-sm leading-relaxed">
+                <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-text/70">
                     {article.description}
                 </p>
             )}
 
-            <span className="text-secondary mt-4 inline-flex items-center gap-1 text-sm font-semibold">
+            <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-secondary">
                 Read
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
             </span>
         </Link>
     )

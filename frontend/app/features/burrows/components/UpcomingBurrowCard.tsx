@@ -1,3 +1,5 @@
+import { getReoccurUnit } from "@umnburrow/core/api"
+import { BurrowResponse, NOT_REOCCURRING, formatDateTime } from "@umnburrow/core/api"
 import { View, Pressable } from "react-native"
 import { Chip, Text } from "@components/core"
 import { useRouter } from "expo-router"
@@ -6,12 +8,7 @@ import { useThemeColors } from "@api/theme/useThemeColors"
 import useUser from "@features/auth/hooks/useUser"
 import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import { CapacityBadge } from "@features/burrows/components/CapacityBadge"
-import {
-    BurrowResponse,
-    getReoccurText,
-    NOT_REOCCURRING
-} from "@features/burrows/burrows.types"
-import { formatDateTime } from "@api/util"
+
 import KindChip from "@features/burrows/components/KindChip"
 import TABadge from "@features/burrows/components/TABadge"
 import LocationChip from "@features/burrows/components/LocationChip"
@@ -121,7 +118,7 @@ export function UpcomingBurrowCard({
                                     )}
 
                                     {verbose &&
-                                        ` every ${getReoccurText(burrow.reoccurring)}`}
+                                        ` every ${getReoccurUnit(burrow.reoccurring)}`}
                                 </Text>
                             </View>
                         )}

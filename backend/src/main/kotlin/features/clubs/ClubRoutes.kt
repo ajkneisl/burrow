@@ -143,6 +143,23 @@ val CLUB_ROUTES: Route.() -> Unit = {
             call.respond(result.contents)
         }
 
+        // GET /clubs/{name}/history
+        // paginated history of every burrow this club has held (moderators only)
+        get("/history") {
+            val club = getClubByName(call.urlParameter("name")).throwIfNull()
+            val page = call.optionalIntQueryParameter("page") ?: 1
+
+            call.requireClubModerator(club.id)
+
+            val history = searchBurrows(page) {
+                clubID = club.id
+                requestingUserID = call.userID
+                newestFirst = true
+            }
+
+            call.respond(history)
+        }
+
         CLUB_MEMBERSHIP_ROUTES()
         CLUB_INVITE_ROUTES()
         CLUB_JOIN_REQUEST_ROUTES()

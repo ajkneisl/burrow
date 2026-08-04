@@ -1,4 +1,5 @@
-import type { ClubRole } from "@features/clubs/club.types"
+
+import type { ClubRole } from "@umnburrow/core/api"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { Crown, Shield, UserRound } from "lucide-react-native"
 import { View } from "react-native"

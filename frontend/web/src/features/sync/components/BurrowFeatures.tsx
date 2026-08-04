@@ -1,9 +1,9 @@
+import { saveBlocks } from "@umnburrow/core/api"
+import type { Blocks } from "@umnburrow/core/api"
 import { useCallback, useState } from "react"
 import { Button, Modal, Toggle } from "@umnburrow/core"
-import { type Blocks } from "@features/sync/sync.types.ts"
 import { blockStatus } from "@features/sync/sync.atom.ts"
 import { useAtom } from "jotai"
-import { saveBlocks } from "@features/sync/blocks.api.ts"
 import { useParams } from "react-router"
 
 /**
@@ -78,7 +78,7 @@ export function BurrowFeatures({ inPast }: MeetingFeaturesProps) {
                     </>
                 }
             >
-                <div className="divide-y divide-base-300">
+                <div className="divide-base-300 divide-y">
                     <Toggle
                         title="Meeting Chat"
                         description="A live chat for meeting members."

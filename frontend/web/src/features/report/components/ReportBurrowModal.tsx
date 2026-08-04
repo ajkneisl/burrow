@@ -1,9 +1,6 @@
+import { BURROW_REPORT_CATEGORIES, post } from "@umnburrow/core/api"
+import type { BurrowReportCategory } from "@umnburrow/core/api"
 import { useState, type FormEvent } from "react"
-import { post } from "@api/api.ts"
-import {
-    BURROW_REPORT_CATEGORIES,
-    type BurrowReportCategory
-} from "@features/report/report.types.ts"
 import { Button, TextArea, SelectInput, Modal } from "@umnburrow/core"
 import { useMutation } from "@tanstack/react-query"
 import toast from "react-hot-toast"
@@ -86,13 +83,13 @@ export default function ReportBurrowModal({
                 onSubmit={handleSubmit}
                 className="min-w-xs space-y-4 md:min-w-md"
             >
-                <p className="text-text/80 text-sm">
+                <p className="text-sm text-text/80">
                     Why are you reporting{" "}
                     <span className="font-semibold">{burrowTitle}</span>?
                 </p>
 
                 {error && (
-                    <div className="border-error/20 bg-error/5 text-error rounded-lg border px-3 py-2 text-sm">
+                    <div className="rounded-lg border border-error/20 bg-error/5 px-3 py-2 text-sm text-error">
                         {error}
                     </div>
                 )}
@@ -109,7 +106,7 @@ export default function ReportBurrowModal({
                 />
 
                 <TextArea
-                    className="max-h-[256px] min-h-[100px] w-full resize-y"
+                    className="max-h-64 min-h-25 w-full resize-y"
                     text="Details"
                     placeholder="Please describe the issue in detail..."
                     value={details}

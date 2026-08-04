@@ -1,13 +1,15 @@
+import { get } from "@umnburrow/core/api"
 import { useState, useRef, useEffect, useMemo } from "react"
 import { Input } from "@umnburrow/core"
 import Field from "@features/burrows/create/components/Field.tsx"
 import type { CreateStepProps } from "@features/burrows/create/create.types.ts"
-import { get } from "@api/api.ts"
 import { X } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
-import {useAtom} from "jotai";
-import {authToken} from "@features/auth/auth.atom.ts";
+import {useAtom} from "jotai"
+;
+import {authToken} from "@features/auth/auth.atom.ts"
+;
 
 import type { UserSearchResult } from "@features/profile/components/SelectUser.tsx"
 export type { UserSearchResult }
@@ -153,18 +155,18 @@ export default function MembersStep({
         <div className="space-y-6">
             {/* Update mode message */}
             {mode === "update" ? (
-                <div className="border-info/30 bg-info/10 text-info rounded-lg border p-4">
+                <div className="rounded-lg border border-info/30 bg-info/10 p-4 text-info">
                     <p className="text-sm font-medium">
                         To add or remove team members, please visit the project
                         page after saving your changes.
                     </p>
                 </div>
             ) : (
-                <div className="border-border bg-hero/50 rounded-lg border p-4">
-                    <p className="text-text mb-2 text-sm font-medium">
+                <div className="border-border rounded-lg border bg-hero/50 p-4">
+                    <p className="mb-2 text-sm font-medium text-text">
                         Add Team Members
                     </p>
-                    <p className="text-text/60 text-xs">
+                    <p className="text-xs text-text/60">
                         Add up to {MAX_MEMBERS} team members for this project. Start
                         typing a username to search.
                     </p>
@@ -195,9 +197,9 @@ export default function MembersStep({
 
                 {/* Dropdown results */}
                 {showDropdown && (
-                    <div className="border-border bg-background animate-in fade-in slide-in-from-top-2 absolute z-10 mt-1 w-full rounded-lg border shadow-lg duration-200">
+                    <div className="border-border animate-in fade-in slide-in-from-top-2 absolute z-10 mt-1 w-full rounded-lg border bg-background shadow-lg duration-200">
                         {isSearching ? (
-                            <div className="text-text/60 p-3 text-center text-sm">
+                            <div className="p-3 text-center text-sm text-text/60">
                                 Searching...
                             </div>
                         ) : filteredResults.length > 0 ? (
@@ -207,7 +209,7 @@ export default function MembersStep({
                                         key={user.id}
                                         type="button"
                                         onClick={() => addMember(user)}
-                                        className="hover:bg-hero/60 animate-in fade-in slide-in-from-top-1 flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors duration-150"
+                                        className="animate-in fade-in slide-in-from-top-1 flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors duration-150 hover:bg-hero/60"
                                         style={{
                                             animationDelay: `${index * 50}ms`,
                                             animationFillMode: "backwards"
@@ -220,11 +222,11 @@ export default function MembersStep({
                                         />
 
                                         <div className="min-w-0 flex-1">
-                                            <div className="text-text truncate text-sm font-medium">
+                                            <div className="truncate text-sm font-medium text-text">
                                                 {user.name || user.username}
                                             </div>
 
-                                            <div className="text-text/50 truncate text-xs">
+                                            <div className="truncate text-xs text-text/50">
                                                 @{user.username}
                                             </div>
                                         </div>
@@ -232,7 +234,7 @@ export default function MembersStep({
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-text/60 p-3 text-center text-sm">
+                            <div className="p-3 text-center text-sm text-text/60">
                                 No users found
                             </div>
                         )}
@@ -243,14 +245,14 @@ export default function MembersStep({
             {/* Selected members */}
             {selectedMembers.length > 0 && (
                 <div className="space-y-3">
-                    <p className="text-text text-sm font-semibold">
+                    <p className="text-sm font-semibold text-text">
                         Team Members ({selectedMembers.length}/{MAX_MEMBERS})
                     </p>
                     <div className="space-y-2">
                         {selectedMembers.map((member, index) => (
                             <div
                                 key={member.id}
-                                className="border-border bg-hero/30 hover:bg-hero/50 animate-in fade-in slide-in-from-left-2 group flex items-center justify-between rounded-lg border px-4 py-3 transition-all duration-200"
+                                className="border-border animate-in fade-in slide-in-from-left-2 group flex items-center justify-between rounded-lg border bg-hero/30 px-4 py-3 transition-all duration-200 hover:bg-hero/50"
                                 style={{
                                     animationDelay: `${index * 75}ms`,
                                     animationFillMode: "backwards"
@@ -264,11 +266,11 @@ export default function MembersStep({
                                     />
 
                                     <div className="min-w-0 flex-1">
-                                        <div className="text-text truncate text-sm font-medium">
+                                        <div className="truncate text-sm font-medium text-text">
                                             {member.name || member.username}
                                         </div>
                                         {member.name && member.username && (
-                                            <div className="text-text/50 truncate text-xs">
+                                            <div className="truncate text-xs text-text/50">
                                                 @{member.username}
                                             </div>
                                         )}
@@ -278,10 +280,10 @@ export default function MembersStep({
                                     <button
                                         type="button"
                                         onClick={() => removeMember(member.id)}
-                                        className="text-text/40 hover:bg-error/20 hover:text-error ml-2 rounded-md p-1.5 transition-all duration-150"
+                                        className="ml-2 rounded-md p-1.5 text-text/40 transition-all duration-150 hover:bg-error/20 hover:text-error"
                                         aria-label={`Remove ${member.name || member.username}`}
                                     >
-                                        <X className="h-4 w-4" />
+                                        <X className="size-4" />
                                     </button>
                                 )}
                             </div>
@@ -291,8 +293,8 @@ export default function MembersStep({
             )}
 
             {selectedMemberIDs.length === 0 && (
-                <div className="border-border bg-hero/20 rounded-lg border border-dashed p-8 text-center">
-                    <p className="text-text/50 text-sm">
+                <div className="border-border rounded-lg border border-dashed bg-hero/20 p-8 text-center">
+                    <p className="text-sm text-text/50">
                         No members added yet. Search and add teammates above.
                     </p>
                 </div>

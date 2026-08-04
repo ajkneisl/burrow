@@ -1,3 +1,4 @@
+import { getMap } from "@umnburrow/core/api"
 import { View, StyleSheet, Pressable, ActivityIndicator } from "react-native"
 import { Text } from "@components/core"
 import { useState, useEffect, useRef } from "react"
@@ -10,7 +11,7 @@ import { MapPin, RefreshCw, Navigation } from "lucide-react-native"
 import Toast from "react-native-toast-message"
 import { Modal } from "@components/core/Modal"
 import { mapModalOpen } from "@features/layout/layout.atom"
-import { getMap } from "@features/burrows/burrows.api"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 // University of Minnesota coordinates
@@ -64,7 +65,7 @@ export function BurrowMapModal() {
                 <MapView
                     ref={mapRef}
                     provider={PROVIDER_GOOGLE}
-                    style={StyleSheet.absoluteFillObject}
+                    style={StyleSheet.absoluteFill}
                     initialRegion={UMN_COORDS}
                     showsUserLocation={hasPermission}
                     showsMyLocationButton={false}

@@ -1,8 +1,8 @@
+import { getArticles } from "@umnburrow/core/api"
 import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Input, ViewErrors } from "@umnburrow/core"
 import { BookOpen } from "lucide-react"
-import { getArticles } from "@features/articles/articles.api.ts"
 import ArticleCard from "@features/articles/components/ArticleCard.tsx"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 
@@ -44,12 +44,12 @@ export default function ArticlesView() {
         <main className="mx-auto w-full max-w-5xl p-4 sm:p-6">
             {/* header */}
             <div className="mb-6">
-                <h1 className="figtree text-text flex items-center gap-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-                    <BookOpen className="text-secondary h-8 w-8" />
+                <h1 className="figtree flex items-center gap-3 text-3xl font-extrabold tracking-tight text-text sm:text-4xl">
+                    <BookOpen className="size-8 text-secondary" />
                     Articles
                 </h1>
 
-                <p className="text-text/70 mt-2">
+                <p className="mt-2 text-text/70">
                     Guides, updates, and stories from the Burrow team.
                 </p>
             </div>
@@ -70,19 +70,19 @@ export default function ArticlesView() {
                     {Array.from({ length: 4 }).map((_, i) => (
                         <div
                             key={i}
-                            className="bg-card border-card-border rounded-2xl border p-5 shadow-sm"
+                            className="rounded-2xl border border-card-border bg-card p-5 shadow-sm"
                         >
-                            <div className="bg-hero h-3 w-24 animate-pulse rounded" />
-                            <div className="bg-hero mt-2 h-5 w-48 animate-pulse rounded" />
+                            <div className="h-3 w-24 animate-pulse rounded bg-hero" />
+                            <div className="mt-2 h-5 w-48 animate-pulse rounded bg-hero" />
                             <div className="mt-3 space-y-1.5">
-                                <div className="bg-hero h-3 w-full animate-pulse rounded" />
-                                <div className="bg-hero h-3 w-3/4 animate-pulse rounded" />
+                                <div className="h-3 w-full animate-pulse rounded bg-hero" />
+                                <div className="h-3 w-3/4 animate-pulse rounded bg-hero" />
                             </div>
                         </div>
                     ))}
                 </div>
             ) : filtered.length === 0 ? (
-                <div className="border-card-border text-text/60 rounded-2xl border border-dashed p-12 text-center">
+                <div className="rounded-2xl border border-dashed border-card-border p-12 text-center text-text/60">
                     {query.trim()
                         ? `No articles match "${query.trim()}".`
                         : "No articles have been published yet."}

@@ -1,9 +1,9 @@
+import type { Article } from "@umnburrow/core/api"
 import { Pressable, View } from "react-native"
 import { useRouter } from "expo-router"
 import { ArrowRight } from "lucide-react-native"
 import { Card, Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import type { Article } from "@features/articles/articles.types"
 
 /**
  * A card previewing a single article, linking to its full page.

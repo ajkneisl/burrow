@@ -1,17 +1,8 @@
+import { BROWSER_CHANNEL, EMAIL_CHANNEL, disableChannel, enableChannel, isChannelEnabled } from "@umnburrow/core/api"
+import type { NotificationPreferences } from "@umnburrow/core/api"
 import { SelectInput, Toggle } from "@umnburrow/core"
 import { motion, AnimatePresence } from "framer-motion"
 import clsx from "clsx"
-import type { NotificationPreferences } from "@features/settings/settings.types.ts"
-import {
-    BROWSER_CHANNEL,
-    EMAIL_CHANNEL
-} from "@features/settings/settings.types.ts"
-import {
-    disableChannel,
-    enableChannel,
-    isChannelEnabled
-} from "@features/settings/settings.api.ts"
-
 /**
  * @see NotificationKindSettings
  */
@@ -85,8 +76,8 @@ export default function NotificationKindSettings({
 
     return (
         <div
-            className="border-card-border bg-background
-         w-full space-y-3 rounded-lg border px-3"
+            className="w-full space-y-3
+         rounded-lg border border-card-border bg-background px-3"
         >
             {/* main toggle for the certain kind */}
             <Toggle

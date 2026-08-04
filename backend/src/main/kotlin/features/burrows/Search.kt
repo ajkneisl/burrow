@@ -147,6 +147,9 @@ data class SearchBurrowsBuilder(
 
     /** Filter by club ID. When set, skips date and privacy filters. */
     var clubID: String? = null,
+
+    /** Return the most recent Burrows first instead of the soonest. */
+    var newestFirst: Boolean = false,
 )
 
 /**
@@ -184,6 +187,7 @@ suspend fun searchBurrows(
         context
 
     val clubID = context.clubID
+    val newestFirst = context.newestFirst
 
     // ensure the meeting is on the proper day (skip when filtering by club)
     val dateExpr: Op<Boolean> =
@@ -402,7 +406,10 @@ suspend fun searchBurrows(
                         Users.username,
                         Users.id,
                     )
-                    .orderBy(Burrows.beginningTime, SortOrder.ASC)
+                    .orderBy(
+                        Burrows.beginningTime,
+                        if (newestFirst) SortOrder.DESC else SortOrder.ASC,
+                    )
                     .toList()
                     .associateBy { row ->
                         val joinedCount = row[joinedCountExpr]

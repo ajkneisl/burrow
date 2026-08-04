@@ -1,3 +1,5 @@
+import { saveProfileForm } from "@features/profile/profile.util.ts"
+import type { Profile, User } from "@umnburrow/core/api"
 import { Button } from "@umnburrow/core"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
@@ -7,10 +9,6 @@ import {
     profileEditErrors,
     profileEdits
 } from "@features/profile/profile.atom.ts"
-import { saveProfile } from "@features/profile/profile.api.ts"
-import type { User } from "@features/auth/user.types.ts"
-import type { Profile } from "@features/profile/profile.model.ts"
-
 /**
  * {@see EditProfile}
  */
@@ -72,7 +70,7 @@ export default function EditProfile({ user, profile }: EditProfileProps) {
         setIsSubmitting(true)
 
         try {
-            await saveProfile(edits)
+            await saveProfileForm(edits)
 
             // invalidate since backend may do some fixes
             await queryClient.invalidateQueries({

@@ -1,9 +1,10 @@
+import { dayLabel } from "@umnburrow/core/api"
+import type { ScheduleBurrowResponse } from "@umnburrow/core/api"
 import { View, ActivityIndicator, Pressable } from "react-native"
 import { Text } from "@components/core"
 import { Calendar, ChevronDown } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import type { ScheduleBurrowResponse } from "@features/burrows/burrows.types"
-import { dayLabel } from "@api/util"
+
 import { ScheduleBurrowCard } from "./ScheduleBurrowCard"
 import { useMemo, useState, useEffect } from "react"
 import Animated, {

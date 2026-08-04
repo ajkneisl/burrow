@@ -1,3 +1,4 @@
+import { MyClubResponse, get } from "@umnburrow/core/api"
 import { View, ScrollView, Pressable, ActivityIndicator } from "react-native"
 import { Text } from "@components/core"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -6,8 +7,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { ArrowLeft, Users, Plus } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { get } from "@api/api"
-import { MyClubResponse } from "@features/clubs/club.types"
+
 import CreateClubModal from "@features/clubs/components/CreateClubModal"
 import { createClubModalOpen } from "@features/layout/layout.atom"
 import ClubCard from "@features/clubs/components/ClubCard"
@@ -80,7 +80,7 @@ export default function MyClubsScreen() {
                             style={{ opacity: 0.3 }}
                         />
                         <Text className="text-text text-opacity-60 text-center mt-4">
-                            You're not in any clubs yet
+                            You&apos;re not in any clubs yet
                         </Text>
                         <Text className="text-text text-opacity-40 text-center text-sm mt-2">
                             Browse clubs to find one to join

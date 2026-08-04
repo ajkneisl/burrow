@@ -1,7 +1,7 @@
+import { uploadClubPhoto } from "@umnburrow/core/api"
 import { useMemo, useRef, useState } from "react"
 import clsx from "clsx"
 import { CDN_URL } from "@api/util.ts"
-import { uploadClubPhoto } from "@features/clubs/clubs.api.ts"
 import useClubRole from "@features/clubs/hooks/useClubRole.ts"
 import toast from "react-hot-toast"
 
@@ -45,9 +45,9 @@ export default function ClubProfilePicture({
     const sizeClasses = useMemo(() => {
         return {
             container: clsx(
-                size === "sm" ? "h-10 w-10 ring-1" :
-                size === "md" ? "h-12 w-12 ring-2" :
-                "h-24 w-24 ring-4"
+                size === "sm" ? "size-10 ring-1" :
+                size === "md" ? "size-12 ring-2" :
+                "size-24 ring-4"
             ),
             text: clsx(
                 size === "sm" ? "text-sm" :
@@ -74,7 +74,7 @@ export default function ClubProfilePicture({
 
         setUploading(true)
         try {
-            await uploadClubPhoto(clubName, file)
+            await uploadClubPhoto(clubName, file, file.type)
             setImageError(false)
             setCacheBust(Date.now())
             toast.success("Club avatar updated!")
@@ -90,7 +90,7 @@ export default function ClubProfilePicture({
         <div className="relative">
             <div
                 className={clsx(
-                    "ring-primary ring-offset-base-100 overflow-hidden rounded-full shadow",
+                    "ring-offset-base-100 overflow-hidden rounded-full shadow ring-primary",
                     sizeClasses.container,
                     editable && "cursor-pointer"
                 )}
@@ -102,13 +102,13 @@ export default function ClubProfilePicture({
                     <img
                         src={avatarUrl}
                         alt={`${displayName} avatar`}
-                        className="h-full w-full object-cover"
+                        className="size-full object-cover"
                         onError={() => setImageError(true)}
                     />
                 ) : (
                     <div
                         className={clsx(
-                            "bg-hero flex h-full w-full items-center justify-center font-bold",
+                            "flex size-full items-center justify-center bg-hero font-bold",
                             sizeClasses.text
                         )}
                     >
@@ -121,9 +121,9 @@ export default function ClubProfilePicture({
                         <svg
                             className={clsx(
                                 "text-white",
-                                size === "sm" ? "h-4 w-4" :
-                                size === "md" ? "h-6 w-6" :
-                                "h-8 w-8"
+                                size === "sm" ? "size-4" :
+                                size === "md" ? "size-6" :
+                                "size-8"
                             )}
                             fill="none"
                             stroke="currentColor"
@@ -141,7 +141,7 @@ export default function ClubProfilePicture({
 
                 {editable && uploading && (
                     <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
-                        <div className="border-primary h-6 w-6 animate-spin rounded-full border-4 border-t-transparent" />
+                        <div className="size-6 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                     </div>
                 )}
             </div>

@@ -1,8 +1,9 @@
+import type { BurrowKind } from "@umnburrow/core/api"
 import { useState } from "react"
 import { useAtom } from "jotai"
 import { Modal } from "@components/core"
 import { createModalOpen } from "@features/layout/layout.atom"
-import type { BurrowKind } from "../burrows.types"
+
 import { BurrowTypeSelector } from "./BurrowTypeSelector"
 import { CreateBurrowWizard } from "./CreateBurrowWizard"
 

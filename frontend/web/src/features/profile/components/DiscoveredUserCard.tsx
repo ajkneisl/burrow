@@ -1,7 +1,7 @@
-import type { DiscoveredUser } from "@features/auth/user.types.ts"
+import { followUser, unfollowUser } from "@umnburrow/core/api"
+import type { DiscoveredUser } from "@umnburrow/core/api"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
-import { followUser, unFollowUser } from "@features/profile/profile.api.ts"
 import toast from "react-hot-toast"
 import { getReasoningLabel } from "@features/profile/profile.util.ts"
 import { Button, Card } from "@umnburrow/core"
@@ -33,7 +33,7 @@ export default function DiscoveredUserCard({ user }: { user: DiscoveredUser }) {
     })
 
     const unfollowMutation = useMutation({
-        mutationFn: () => unFollowUser(user.userID),
+        mutationFn: () => unfollowUser(user.userID),
         onSuccess: () => {
             setIsFollowing(false)
 
@@ -48,15 +48,15 @@ export default function DiscoveredUserCard({ user }: { user: DiscoveredUser }) {
     })
 
     return (
-        <Card className="bg-background! flex flex-row items-start gap-2">
+        <Card className="flex flex-row items-start gap-2 bg-background!">
             {/* profile picture */}
             <ProfilePicture name={user.name} userID={user.userID} size="md" />
 
             <div className="flex-1">
-                <h4 className="text-text text-sm font-semibold">{user.name}</h4>
-                <p className="text-text/60 text-xs">@{user.username}</p>
+                <h4 className="text-sm font-semibold text-text">{user.name}</h4>
+                <p className="text-xs text-text/60">@{user.username}</p>
 
-                <p className="text-text/40 text-xs mt-2">
+                <p className="mt-2 text-xs text-text/40">
                     {getReasoningLabel(user.reasoning)}
                 </p>
             </div>
@@ -82,7 +82,7 @@ export default function DiscoveredUserCard({ user }: { user: DiscoveredUser }) {
                         "Following"
                     ) : (
                         <>
-                            <Plus className="h-4 w-4" />
+                            <Plus className="size-4" />
                             Follow
                         </>
                     )}

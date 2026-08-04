@@ -1,11 +1,11 @@
+import { getMyClubs } from "@umnburrow/core/api"
+import type { ClubRole, MyClubResponse } from "@umnburrow/core/api"
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { Compass, Crown, Plus, Shield, UserRound, Users } from "lucide-react"
 import useToken from "@features/auth/hooks/useToken.ts"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
-import { getMyClubs } from "@features/clubs/clubs.api.ts"
-import type { ClubRole, MyClubResponse } from "@features/clubs/clubs.types.tsx"
 import { Button, Card, ListItem, ViewErrors } from "@umnburrow/core"
 import CreateClubModal from "@features/clubs/components/CreateClubModal.tsx"
 import clsx from "clsx"
@@ -24,11 +24,11 @@ function roleBadgeColor(role: ClubRole): string {
 function roleIcon(role: ClubRole) {
     switch (role) {
         case "ADMINISTRATOR":
-            return <Crown className="h-3 w-3" />
+            return <Crown className="size-3" />
         case "MODERATOR":
-            return <Shield className="h-3 w-3" />
+            return <Shield className="size-3" />
         default:
-            return <UserRound className="h-3 w-3" />
+            return <UserRound className="size-3" />
     }
 }
 
@@ -55,18 +55,18 @@ export default function MyClubs() {
             <main className="min-h-screen">
                 <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
                     <div className="mb-6">
-                        <div className="bg-text/10 h-8 w-40 animate-pulse rounded-lg" />
-                        <div className="bg-text/10 mt-2 h-4 w-24 animate-pulse rounded" />
+                        <div className="h-8 w-40 animate-pulse rounded-lg bg-text/10" />
+                        <div className="mt-2 h-4 w-24 animate-pulse rounded bg-text/10" />
                     </div>
                     <div className="space-y-4">
                         {Array.from({ length: 3 }).map((_, i) => (
                             <Card key={i} className="p-4">
                                 <div className="flex items-center justify-between">
                                     <div className="space-y-2">
-                                        <div className="bg-text/10 h-5 w-48 animate-pulse rounded" />
-                                        <div className="bg-text/10 h-3 w-32 animate-pulse rounded" />
+                                        <div className="h-5 w-48 animate-pulse rounded bg-text/10" />
+                                        <div className="h-3 w-32 animate-pulse rounded bg-text/10" />
                                     </div>
-                                    <div className="bg-text/10 h-6 w-20 animate-pulse rounded-full" />
+                                    <div className="h-6 w-20 animate-pulse rounded-full bg-text/10" />
                                 </div>
                             </Card>
                         ))}
@@ -91,20 +91,20 @@ export default function MyClubs() {
             <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
                 <div className="mb-6 flex items-center justify-between">
                     <div>
-                        <h1 className="text-text text-3xl font-bold">My Clubs</h1>
-                        <p className="text-text/60 mt-1 text-sm">
+                        <h1 className="text-3xl font-bold text-text">My Clubs</h1>
+                        <p className="mt-1 text-sm text-text/60">
                             {clubs.length} club{clubs.length !== 1 ? "s" : ""}
                         </p>
                     </div>
 
                     <div className="flex items-center gap-2">
                         <Button thin onClick={() => nav("/clubs/browse")}>
-                            <Compass className="h-4 w-4" />
+                            <Compass className="size-4" />
                             Browse
                         </Button>
 
                         <Button thin onClick={() => setCreateOpen(true)} color="SUCCESS">
-                            <Plus className="h-4 w-4" />
+                            <Plus className="size-4" />
                             Create Club
                         </Button>
                     </div>
@@ -113,8 +113,8 @@ export default function MyClubs() {
                 {clubs.length === 0 && (
                     <Card className="p-6">
                         <div className="flex flex-col items-center gap-2 text-center">
-                            <Users className="text-text/30 h-10 w-10" />
-                            <p className="text-text/60 text-sm">
+                            <Users className="size-10 text-text/30" />
+                            <p className="text-sm text-text/60">
                                 You are not a member of any clubs yet.
                             </p>
                         </div>
@@ -130,11 +130,11 @@ export default function MyClubs() {
                                 title={item.club.displayName}
                                 subtitle={
                                     <>
-                                        <p className="text-text/40 text-xs font-medium">
+                                        <p className="text-xs font-medium text-text/40">
                                             /club/{item.club.name}
                                         </p>
                                         {item.club.description && (
-                                            <p className="text-text/60 mt-0.5 line-clamp-1 text-sm">
+                                            <p className="mt-0.5 line-clamp-1 text-sm text-text/60">
                                                 {item.club.description}
                                             </p>
                                         )}

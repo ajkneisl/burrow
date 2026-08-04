@@ -1,7 +1,7 @@
+import { getMyClubs } from "@umnburrow/core/api"
+import type { MyClubResponse } from "@umnburrow/core/api"
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { getMyClubs } from "@features/clubs/clubs.api.ts"
-import type { MyClubResponse } from "@features/clubs/clubs.types.tsx"
 import { Modal, Card, Button } from "@umnburrow/core"
 import { Plus, Users } from "lucide-react"
 import CreateClubModal from "@features/clubs/components/CreateClubModal.tsx"
@@ -48,12 +48,12 @@ export default function SelectClubModal({
 
                     <AriaButton
                         onPress={onClose}
-                        className="text-text/60 hover:text-text hover:bg-text/10 focus-visible:ring-primary -mr-2 grid h-9 w-9 cursor-pointer place-items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                        className="-mr-2 grid size-9 cursor-pointer place-items-center rounded-full text-text/60 transition-colors hover:bg-text/10 hover:text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         aria-label="Close modal"
                     >
                         <svg
                             viewBox="0 0 24 24"
-                            className="h-5 w-5"
+                            className="size-5"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth={2.5}
@@ -69,8 +69,8 @@ export default function SelectClubModal({
                 <div className="space-y-3">
                     {Array.from({ length: 2 }).map((_, i) => (
                         <Card key={i} className="p-4">
-                            <div className="bg-text/10 h-5 w-40 animate-pulse rounded" />
-                            <div className="bg-text/10 mt-2 h-3 w-24 animate-pulse rounded" />
+                            <div className="h-5 w-40 animate-pulse rounded bg-text/10" />
+                            <div className="mt-2 h-3 w-24 animate-pulse rounded bg-text/10" />
                         </Card>
                     ))}
                 </div>
@@ -78,8 +78,8 @@ export default function SelectClubModal({
 
             {!isLoading && adminClubs.length === 0 && (
                 <div className="flex flex-col items-center gap-2 py-6 text-center">
-                    <Users className="text-text/30 h-10 w-10" />
-                    <p className="text-text/60 text-sm">
+                    <Users className="size-10 text-text/30" />
+                    <p className="text-sm text-text/60">
                         You must be an administrator of a club to create a club
                         meeting.
                     </p>
@@ -94,10 +94,10 @@ export default function SelectClubModal({
                             className="cursor-pointer p-4 transition-shadow hover:shadow-md"
                             onClick={() => onSelect(item.club.id)}
                         >
-                            <h3 className="text-text text-sm font-semibold">
+                            <h3 className="text-sm font-semibold text-text">
                                 {item.club.displayName}
                             </h3>
-                            <p className="text-text/50 mt-0.5 text-xs">
+                            <p className="mt-0.5 text-xs text-text/50">
                                 {item.club.category.charAt(0) +
                                     item.club.category.slice(1).toLowerCase()}
                             </p>

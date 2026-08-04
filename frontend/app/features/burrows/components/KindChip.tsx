@@ -1,10 +1,12 @@
-import { BURROW_KIND_CONFIG, BurrowKind } from "@features/burrows/burrows.types"
+import { BurrowKind } from "@umnburrow/core/api"
+import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { View } from "react-native"
 import { Chip, Text } from "@components/core"
 import ThemedIcon from "@components/core/ThemedIcon"
 import { MapPin } from "lucide-react-native"
-import {ChipColor} from "@components/core/Chip";
+import {ChipColor} from "@components/core/Chip"
+;
 
 /**
  * {@link KindChip}

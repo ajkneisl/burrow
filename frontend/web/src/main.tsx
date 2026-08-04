@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client"
+import "@api/api.config.ts"
 import App from "./App.tsx"
 import "./index.css"
 

@@ -4,7 +4,6 @@ import {
 } from "@features/profile/profile.atom.ts"
 import { useAtom } from "jotai"
 import type { RelationView } from "@features/profile/profile.model.ts"
-
 /**
  * A quick way to both open and instantiate a view into the relations modal.
  *

@@ -1,4 +1,5 @@
-import {useRouteError} from "react-router";
+import {useRouteError} from "react-router"
+;
 
 /**
  * When there's an error
@@ -10,7 +11,7 @@ export default function ErrorElement() {
 
     return (
         <div className="p-8 text-center">
-            <h1 className="text-error text-2xl font-bold">
+            <h1 className="text-2xl font-bold text-error">
                 Something went wrong
             </h1>
 

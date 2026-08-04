@@ -1,10 +1,6 @@
-import type {
-    ClubMemberResponse,
-    ClubRole
-} from "@features/clubs/clubs.types.tsx"
-import { changeClubRole } from "@features/clubs/clubs.api.ts"
+import { changeClubRole, formatTimeAgo } from "@umnburrow/core/api"
+import type { ClubMemberResponse, ClubRole } from "@umnburrow/core/api"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
-import { formatTimeAgo } from "@api/util.ts"
 import { useNavigate } from "react-router"
 import { useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
@@ -28,11 +24,11 @@ function roleBadgeColor(role: ClubRole): string {
 function roleIcon(role: ClubRole) {
     switch (role) {
         case "ADMINISTRATOR":
-            return <Crown className="h-3 w-3" />
+            return <Crown className="size-3" />
         case "MODERATOR":
-            return <Shield className="h-3 w-3" />
+            return <Shield className="size-3" />
         default:
-            return <UserRound className="h-3 w-3" />
+            return <UserRound className="size-3" />
     }
 }
 
@@ -101,7 +97,7 @@ export default function ClubMemberCard({
     }
 
     return (
-        <li className="bg-background/60 border-background/80 rounded-2xl border p-4">
+        <li className="rounded-2xl border border-background/80 bg-background/60 p-4">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div>
@@ -118,18 +114,18 @@ export default function ClubMemberCard({
                                 <span className="text-sm font-semibold">
                                     {profile.name}
                                     {isSelf && (
-                                        <span className="text-text/60 ml-1 text-[10px] font-normal">
+                                        <span className="ml-1 text-[10px] font-normal text-text/60">
                                             (you)
                                         </span>
                                     )}
                                 </span>
-                                <span className="text-text/70 text-xs">
+                                <span className="text-xs text-text/70">
                                     @{user.username}
                                 </span>
                             </div>
                         </div>
 
-                        <div className="text-text/50 text-xs">
+                        <div className="text-xs text-text/50">
                             Joined {formatTimeAgo(member.joinedAt)}
                         </div>
                     </div>
@@ -145,7 +141,7 @@ export default function ClubMemberCard({
                     >
                         {roleIcon(member.role)}
                         {roleLabel}
-                        <ChevronDown className="h-3 w-3 opacity-50" />
+                        <ChevronDown className="size-3 opacity-50" />
                     </button>
                 ) : (
                     <span
@@ -161,7 +157,7 @@ export default function ClubMemberCard({
             </div>
 
             {editing && (
-                <div className="border-text/10 mt-3 space-y-3 border-t pt-3">
+                <div className="mt-3 space-y-3 border-t border-text/10 pt-3">
                     {canEdit && (
                         <div className="flex flex-wrap gap-1.5">
                             {(
@@ -190,7 +186,7 @@ export default function ClubMemberCard({
                     )}
 
                     <div>
-                        <label className="text-text/60 mb-1 block text-xs">
+                        <label className="mb-1 block text-xs text-text/60">
                             Custom role name (optional)
                         </label>
                         <Input
@@ -198,7 +194,7 @@ export default function ClubMemberCard({
                             onChange={(e) => setCustomRoleName(e.target.value)}
                             placeholder="e.g. Vice President"
                         />
-                        <p className="text-text/40 mt-1 text-[10px]">
+                        <p className="mt-1 text-[10px] text-text/40">
                             3-16 characters,
                             letters/numbers/spaces/hyphens/underscores
                         </p>
@@ -206,7 +202,7 @@ export default function ClubMemberCard({
 
                     <div className="flex items-center justify-end gap-2">
                         <Button thin onClick={handleCancel} disabled={saving}>
-                            <X className="h-3.5 w-3.5" />
+                            <X className="size-3.5" />
                             Cancel
                         </Button>
                         <Button
@@ -215,7 +211,7 @@ export default function ClubMemberCard({
                             onClick={handleSave}
                             loading={saving}
                         >
-                            <Check className="h-3.5 w-3.5" />
+                            <Check className="size-3.5" />
                             Save
                         </Button>
                     </div>

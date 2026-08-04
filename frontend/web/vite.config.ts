@@ -1,7 +1,42 @@
-import { defineConfig } from "vite"
+import { defineConfig, type Plugin } from "vite"
 import react from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
-import tsconfigPaths from "vite-tsconfig-paths"
+
+type AppEnv = "dev" | "staging" | "prod"
+
+const FAVICONS: Record<AppEnv, string> = {
+    dev: "/image/burrow-dev.png",
+    staging: "/image/burrow-staging.png",
+    prod: "/image/burrow.png"
+}
+
+function resolveAppEnv(command: "serve" | "build"): AppEnv {
+    const raw = (process.env.VITE_APP_ENV ?? "").trim().toLowerCase()
+
+    if (["dev", "development", "local"].includes(raw)) return "dev"
+    if (["staging", "stage"].includes(raw)) return "staging"
+    if (["prod", "production"].includes(raw)) return "prod"
+
+    if (raw) {
+        console.warn(`[env] unrecognized VITE_APP_ENV "${raw}", ignoring`)
+    }
+
+    return command === "serve" ? "dev" : "prod"
+}
+
+/** Swaps the favicon so dev and staging tabs are distinguishable from prod. */
+function environmentFavicon(appEnv: AppEnv): Plugin {
+    return {
+        name: "burrow-environment-favicon",
+        enforce: "pre",
+        transformIndexHtml(html) {
+            return html.replace(
+                /(<link[^>]*rel="icon"[^>]*href=")[^"]*(")/,
+                `$1${FAVICONS[appEnv]}$2`
+            )
+        }
+    }
+}
 
 async function loadBitwardenSecrets() {
     const accessToken = process.env.BWS_TOKEN
@@ -44,10 +79,18 @@ async function loadBitwardenSecrets() {
 }
 
 // https://vite.dev/config/
-export default defineConfig(async () => {
+export default defineConfig(async ({ command }) => {
     await loadBitwardenSecrets()
 
+    const appEnv = resolveAppEnv(command)
+    console.log(`[env] building for ${appEnv}`)
+
     return {
-        plugins: [react(), tailwindcss(), tsconfigPaths()]
+        // Vite 8 resolves tsconfig `paths` natively, replacing vite-tsconfig-paths
+        resolve: { tsconfigPaths: true },
+        plugins: [environmentFavicon(appEnv), react(), tailwindcss()],
+        define: {
+            "import.meta.env.VITE_APP_ENV": JSON.stringify(appEnv)
+        }
     }
 })

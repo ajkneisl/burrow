@@ -26,7 +26,7 @@ export default function ClubSearchPreview({
             }}
             className={clsx(
                 "flex w-full cursor-pointer flex-row items-center gap-3 px-3 py-2 text-left",
-                "bg-hero/20 text-text hover:bg-hero/40 transition-all"
+                "bg-hero/20 text-text transition-all hover:bg-hero/40"
             )}
         >
             <ClubProfilePicture
@@ -37,11 +37,11 @@ export default function ClubSearchPreview({
             />
 
             <div className="flex min-w-0 flex-col">
-                <div className="text-text truncate text-sm font-medium">
+                <div className="truncate text-sm font-medium text-text">
                     {displayName}
                 </div>
 
-                <div className="text-text/60 truncate text-xs">
+                <div className="truncate text-xs text-text/60">
                     @{name}
                 </div>
             </div>

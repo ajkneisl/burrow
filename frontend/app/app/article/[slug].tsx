@@ -1,3 +1,4 @@
+import { getArticle } from "@umnburrow/core/api"
 import { View, ScrollView, Pressable, ActivityIndicator } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter, Stack } from "expo-router"
@@ -5,7 +6,7 @@ import { useQuery } from "@tanstack/react-query"
 import { ArrowLeft } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { Button, Text } from "@components/core"
-import { getArticle } from "@features/articles/articles.api"
+
 import ArticleContent from "@features/articles/components/ArticleContent"
 
 /**
@@ -67,7 +68,7 @@ export default function ArticleScreen() {
                     </Text>
 
                     <Text className="text-text text-opacity-60 text-center mb-6">
-                        This article doesn't exist or is no longer available.
+                        This article doesn&apos;t exist or is no longer available.
                     </Text>
 
                     <Button onPress={() => router.back()}>Go back</Button>

@@ -1,3 +1,4 @@
+import { acceptInvite, declineInvite } from "@umnburrow/core/api"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import useNotifications from "@features/notifications/hooks/UseNotifications.tsx"
@@ -9,10 +10,6 @@ import {
     useToggleReadNotification,
     useClearAllNotifications
 } from "@features/notifications/notifications.queries.ts"
-import {
-    acceptInvite,
-    declineInvite
-} from "@features/burrows/attendees/attendees.api.ts"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import toast from "react-hot-toast"
 import ViewNotification from "@features/notifications/components/ViewNotification.tsx"
@@ -164,7 +161,7 @@ export default function ViewNotifications() {
                 aria-haspopup="true"
                 aria-expanded={open}
                 onClick={() => setOpen((v) => !v)}
-                icon={<BellIcon className="h-5 w-5" />}
+                icon={<BellIcon className="size-5" />}
             >
                 {unreadCount > 0 && (
                     <span
@@ -184,7 +181,7 @@ export default function ViewNotifications() {
                             ref={panelRef}
                             role="dialog"
                             aria-label="Notifications"
-                            className="bg-card border-card-border/30 absolute left-1/2 z-50 mt-2 w-[18rem] max-w-[92vw] origin-top-right -translate-x-3/4 rounded-2xl border shadow-2xl md:right-0 md:left-auto md:w-[28rem] md:translate-x-0"
+                            className="absolute left-1/2 z-50 mt-2 w-2xs max-w-[92vw] origin-top-right -translate-x-3/4 rounded-2xl border border-card-border/30 bg-card shadow-2xl md:right-0 md:left-auto md:w-md md:translate-x-0"
                             initial={{ opacity: 0, y: -8, scale: 0.98 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -6, scale: 0.98 }}
@@ -195,7 +192,7 @@ export default function ViewNotifications() {
                                 mass: 0.6
                             }}
                         >
-                            <div className="text-text border-card-border/20 flex items-center justify-between gap-3 border-b px-5 py-4">
+                            <div className="flex items-center justify-between gap-3 border-b border-card-border/20 px-5 py-4 text-text">
                                 {/* header */}
                                 <div className="flex items-center gap-2">
                                     <h2 className="text-base font-bold">
@@ -203,7 +200,7 @@ export default function ViewNotifications() {
                                     </h2>
 
                                     {items.length > 0 && (
-                                        <span className="bg-primary/20 text-text/70 rounded-full px-2 py-0.5 text-xs font-semibold">
+                                        <span className="rounded-full bg-primary/20 px-2 py-0.5 text-xs font-semibold text-text/70">
                                             {items.length}
                                         </span>
                                     )}
@@ -227,7 +224,7 @@ export default function ViewNotifications() {
                             {/* notifications */}
                             <div
                                 ref={scrollRef}
-                                className="text-text max-h-[60vh] overflow-y-auto px-3 py-3"
+                                className="max-h-[60vh] overflow-y-auto p-3 text-text"
                             >
                                 {items.length === 0 ? (
                                     <EmptyNotifications />
@@ -274,7 +271,7 @@ export default function ViewNotifications() {
 
                                         {/* load more */}
                                         {isFetchingNextPage && (
-                                            <div className="text-text/60 mt-4 text-center text-sm">
+                                            <div className="mt-4 text-center text-sm text-text/60">
                                                 Loading more...
                                             </div>
                                         )}

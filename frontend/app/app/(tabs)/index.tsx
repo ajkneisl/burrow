@@ -1,9 +1,10 @@
+import { getBurrows, getSchedule } from "@umnburrow/core/api"
 import { ScrollView, RefreshControl } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useState, useCallback } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Header } from "@features/layout/components"
-import { getSchedule, getBurrows } from "@features/burrows/burrows.api"
+
 import { MyProfileCard } from "@features/profile/components/MyProfileCard"
 import {
     ScheduleSection,

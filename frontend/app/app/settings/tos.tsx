@@ -182,7 +182,7 @@ export default function TermsOfServiceScreen() {
                 {/* Disclaimer of Warranties */}
                 <Section title="9. Disclaimer of Warranties">
                     <SectionText>
-                        Burrow is provided "as is" without warranties of any
+                        Burrow is provided &quot;as is&quot; without warranties of any
                         kind. We do not guarantee that the service will be
                         error-free, secure, or always available. Use at your own
                         risk.

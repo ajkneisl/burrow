@@ -48,7 +48,7 @@ export default function Home() {
                 </div>
             )}
 
-            <div className="mx-auto flex w-full max-w-[2000px] grid-cols-3 flex-col gap-6 px-4 py-6 md:grid md:px-6 lg:grid-cols-4">
+            <div className="mx-auto flex w-full max-w-500 grid-cols-3 flex-col gap-6 px-4 py-6 md:grid md:px-6 lg:grid-cols-4">
                 {/* profile */}
                 <aside className="flex flex-col gap-6 md:col-span-2 md:row-start-1 lg:col-span-1 lg:row-start-1">
                     <MyProfile />
@@ -61,7 +61,7 @@ export default function Home() {
                 </aside>
 
                 {/* small border displayed on mobile */}
-                <div className="border-card-border block border-t md:hidden" />
+                <div className="block border-t border-card-border md:hidden" />
 
                 {/* schedule */}
                 <section className="md:col-span-2 md:row-start-2 lg:col-span-2 lg:row-start-1">

@@ -1,4 +1,5 @@
-import type { LogEntry as LogEntryType } from "../log.models.ts"
+
+import type { LogEntry as LogEntryType } from "@umnburrow/core/api"
 import { useState } from "react"
 import ClipboardButton from "../../../components/ClipboardButton.tsx"
 

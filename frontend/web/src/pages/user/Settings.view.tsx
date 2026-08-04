@@ -13,6 +13,7 @@ import { Bell, Palette, User, UserRoundX } from "lucide-react"
 import { useMemo } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import BlockedAccountsSection from "@features/settings/components/BlockedAccountsSection.tsx"
+import clsx from "clsx"
 
 /**
  * The settings page.
@@ -44,7 +45,7 @@ export default function SettingsView() {
             default:
                 return <></>
         }
-    }, [section])
+    }, [section, setHasChanged])
 
     // attempt to submit the curent pane
     function submit() {
@@ -110,7 +111,9 @@ export default function SettingsView() {
                                 </div>
                             </nav>
 
-                            {/* save button*/}
+                            {/* save button (desktop) — sticky so it stays in view
+                                while scrolling a long pane like Notifications,
+                                instead of scrolling out of reach above the fold */}
                             <AnimatePresence>
                                 {hasChanged && (
                                     <motion.div
@@ -118,12 +121,13 @@ export default function SettingsView() {
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.4 }}
-                                        className="mt-4 flex w-full items-center justify-evenly"
+                                        className="mt-4 hidden w-full items-center justify-evenly lg:sticky lg:top-24 lg:flex"
                                     >
                                         <Button
                                             onClick={submit}
                                             color="SUCCESS"
                                             loading={loading}
+                                            className="w-full"
                                         >
                                             Save Changes
                                         </Button>
@@ -133,10 +137,47 @@ export default function SettingsView() {
                         </aside>
 
                         {/* content pane */}
-                        <main className="w-full flex-1">{pane}</main>
+                        <main
+                            className={clsx(
+                                "w-full flex-1",
+                                hasChanged && "pb-24 lg:pb-0"
+                            )}
+                        >
+                            {pane}
+                        </main>
                     </div>
                 </div>
             </div>
+
+            {/* save button (mobile/tablet) — the aside stacks above this pane on
+                narrow viewports, so once the user scrolls into the content the
+                button scrolls out of view; float it above the content instead
+                of relying on them to notice and scroll back up */}
+            <AnimatePresence>
+                {hasChanged && (
+                    <motion.div
+                        initial={{ y: 96, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 96, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                        className="fixed inset-x-0 bottom-0 z-900 border-t border-card-border bg-background p-4 shadow-lg lg:hidden"
+                    >
+                        <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3">
+                            <p className="text-sm opacity-70">
+                                You have unsaved changes
+                            </p>
+
+                            <Button
+                                onClick={submit}
+                                color="SUCCESS"
+                                loading={loading}
+                            >
+                                Save Changes
+                            </Button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }

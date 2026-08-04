@@ -1,21 +1,13 @@
+import { acceptJoinRequest, cancelInvite, denyJoinRequest, formatDateTime, getInvites, getJoinRequests } from "@umnburrow/core/api"
+import type { InviteWithUsers, JoinRequestWithUser } from "@umnburrow/core/api"
 import { View, Pressable, FlatList } from "react-native"
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { X, Check, XCircle, Mail, UserPlus, Clock } from "lucide-react-native"
 import { Button, Card, Text } from "@components/core"
-import {
-    getInvites,
-    cancelInvite,
-    getJoinRequests,
-    acceptJoinRequest,
-    denyJoinRequest
-} from "@features/burrows/attendees/attendees.api"
-import type {
-    InviteWithUsers,
-    JoinRequestWithUser
-} from "@features/burrows/burrows.types"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
-import { formatDateTime } from "@api/util"
+
 import Toast from "react-native-toast-message"
 
 type ManageInvitesModalProps = {

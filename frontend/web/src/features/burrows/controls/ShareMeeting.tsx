@@ -1,5 +1,5 @@
+import type { Burrow } from "@umnburrow/core/api"
 import { useEffect, useRef, useState } from "react"
-import type { Burrow } from "@features/burrows/burrows.types.tsx"
 import { QRCodeSVG } from "qrcode.react"
 import MeetingButton from "@features/burrows/controls/MeetingButton.tsx"
 import { Dropdown, DropdownItem, Modal } from "@umnburrow/core"
@@ -118,7 +118,7 @@ export default function ShareMeeting({ meeting }: ShareMeetingProps) {
                             excavate: true
                         }}
                     />
-                    <p className="text-text/70 mt-3 max-w-[32ch] text-center text-xs break-words">
+                    <p className="mt-3 max-w-[32ch] text-center text-xs break-words text-text/70">
                         {shareData.url}
                     </p>
                 </div>

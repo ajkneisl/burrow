@@ -1,5 +1,5 @@
+import { post } from "@umnburrow/core/api"
 import { useCallback, useState } from "react"
-import { post } from "@api/api"
 
 type UseFormStateOptions<T, E> = {
     initial: T
