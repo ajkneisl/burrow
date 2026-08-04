@@ -1,9 +1,8 @@
-import {
-    type BurrowMembershipResponse,
-    BurrowResponse
-} from "@features/burrows/burrows.types"
+
+import { BurrowResponse, getAttendees } from "@umnburrow/core/api"
+import type { BurrowMembershipResponse } from "@umnburrow/core/api"
 import { useQuery } from "@tanstack/react-query"
-import { getAttendees } from "@features/burrows/burrows.api"
+
 import { Pressable, View } from "react-native"
 import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import { Card, Chip, Modal, Button, Text } from "@components/core"

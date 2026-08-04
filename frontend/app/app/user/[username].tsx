@@ -1,14 +1,11 @@
+import { followUser, getUserByUsername, unblockUser, unfollowUser } from "@umnburrow/core/api"
 import { useCallback, useEffect, useState } from "react"
 import { View, ScrollView, RefreshControl, ActivityIndicator, Pressable } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
-import {
-    getUserByUsername,
-    followUser,
-    unfollowUser
-} from "@features/auth/user.api"
+
 import { Header } from "@features/layout/components"
 import { Button, Modal, Text } from "@components/core"
 import {
@@ -25,7 +22,6 @@ import useUser from "@features/auth/hooks/useUser"
 import { UserProfileView } from "@features/profile/components/UserProfileView"
 import { BlockUserModal } from "@features/profile/components/BlockUserModal"
 import { ReportUserModal } from "@features/profile/components/ReportUserModal"
-import { unblockUser } from "@features/profile/profile.api"
 
 /**
  * User profile screen

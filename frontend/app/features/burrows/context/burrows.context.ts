@@ -1,5 +1,5 @@
+import { BurrowResponse } from "@umnburrow/core/api"
 import { createContext, useContext } from "react"
-import { BurrowResponse } from "@features/burrows/burrows.types"
 
 export type BurrowContextType = {
     id: string

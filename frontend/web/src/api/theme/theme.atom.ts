@@ -1,6 +1,5 @@
+import type { Theme } from "@umnburrow/core/api"
 import { atomWithStorage } from "jotai/utils"
-import type { Theme } from "@api/theme/theme.types.ts"
-
 /**
  * The theme of the website. Stored locally and synced with backend.
  */

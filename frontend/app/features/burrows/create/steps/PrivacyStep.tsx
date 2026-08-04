@@ -1,8 +1,9 @@
+import type { BurrowVisibility } from "@umnburrow/core/api"
 import { View, ScrollView, Pressable, Switch } from "react-native"
 import { Text } from "@components/core"
 import { Globe, Link2, Lock } from "lucide-react-native"
 import type { CreateStepProps } from "../create.types"
-import type { BurrowVisibility } from "@features/burrows/burrows.types"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 // the visibility options

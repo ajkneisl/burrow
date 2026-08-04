@@ -1,15 +1,11 @@
-import type { User } from "@features/auth/user.types.ts"
-import type { Profile } from "@features/profile/profile.model.ts"
+import type { ClubLink } from "@umnburrow/core/api"
+import { clubLinkToUrl } from "@umnburrow/core/api"
 import { Globe } from "lucide-react"
 
-export type ClubCategory = "SPORTS" | "SOCIAL" | "CREATIVE" | "EDUCATIONAL"
-
-export type ClubPrivacy = "PUBLIC" | "UNLISTED" | "PRIVATE"
-
-export type ClubLink = "INSTAGRAM" | "X" | "WEBSITE" | "LINKED_IN"
-
-export type ClubRole = "ADMINISTRATOR" | "MODERATOR" | "MEMBER"
-
+/**
+ * How each {@link ClubLink} is presented on the web. The club models
+ * themselves live in `@umnburrow/core/api`.
+ */
 export type IconComponent = (props: { className?: string }) => React.ReactNode
 
 function InstagramIcon({ className }: { className?: string }) {
@@ -48,80 +44,24 @@ export const CLUB_LINK_CONFIG: Record<ClubLink, ClubLinkConfig> = {
         icon: InstagramIcon,
         label: "Instagram",
         placeholder: "@handle",
-        toUrl: (handle) => `https://instagram.com/${handle.replace(/^@/, "")}`
+        toUrl: (handle) => clubLinkToUrl("INSTAGRAM", handle)
     },
     X: {
         icon: XIcon,
         label: "X",
         placeholder: "@handle",
-        toUrl: (handle) => `https://x.com/${handle.replace(/^@/, "")}`
+        toUrl: (handle) => clubLinkToUrl("X", handle)
     },
     WEBSITE: {
         icon: Globe,
         label: "Website",
         placeholder: "https://example.com",
-        toUrl: (url) => url
+        toUrl: (url) => clubLinkToUrl("WEBSITE", url)
     },
     LINKED_IN: {
         icon: LinkedInIcon,
         label: "LinkedIn",
         placeholder: "profile-slug",
-        toUrl: (handle) => `https://linkedin.com/in/${handle}`
+        toUrl: (handle) => clubLinkToUrl("LINKED_IN", handle)
     }
-}
-
-export interface Club {
-    id: string
-    ownerID: string
-    name: string
-    displayName: string
-    description: string
-    links: Partial<Record<ClubLink, string>>
-    category: ClubCategory
-    privacy: ClubPrivacy
-    requestToJoin: boolean
-    createdAt: number
-}
-
-export interface ClubMember {
-    userID: string
-    clubID: string
-    joinedAt: number
-    role: ClubRole
-    roleName: string
-}
-
-export interface ClubMemberResponse {
-    member: ClubMember
-    user: User
-    profile: Profile
-}
-
-export interface ClubResponse {
-    club: Club
-    membership: ClubMember | null
-    memberCount: number
-    requestedToJoin: boolean | null
-}
-
-export interface MyClubResponse {
-    club: Club
-    membership: ClubMember
-}
-
-export interface SubmittedClub {
-    name: string
-    displayName: string
-    description: string
-    links: Partial<Record<ClubLink, string>>
-    category: ClubCategory
-    privacy: ClubPrivacy
-    requestToJoin: boolean
-    members: string[]
-}
-
-export const ROLE_ORDER: Record<ClubRole, number> = {
-    ADMINISTRATOR: 0,
-    MODERATOR: 1,
-    MEMBER: 2
 }

@@ -1,3 +1,4 @@
+import { altLogin } from "@umnburrow/core/api"
 import { View, ScrollView, Alert } from "react-native"
 import { useRouter } from "expo-router"
 import { useAtom, useSetAtom } from "jotai"
@@ -7,7 +8,7 @@ import { useState, useEffect } from "react"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { ArrowLeft } from "lucide-react-native"
 import * as Device from "expo-device"
-import { altLogin } from "@features/auth/user.api"
+
 import { store } from "@api/api.atom"
 import Toast from "react-native-toast-message"
 

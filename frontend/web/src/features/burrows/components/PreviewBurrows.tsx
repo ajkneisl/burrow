@@ -1,7 +1,7 @@
+import { getBurrows } from "@umnburrow/core/api"
 import { useQuery } from "@tanstack/react-query"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
 import { useNavigate } from "react-router"
-import { getBurrows } from "@features/burrows/burrows.api.ts"
 import { Badge, Button, Card, ViewErrors } from "@umnburrow/core"
 
 /**

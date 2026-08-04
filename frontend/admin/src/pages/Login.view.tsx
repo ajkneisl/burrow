@@ -1,8 +1,8 @@
+import { getAdmin, login } from "@umnburrow/core/api"
 import { useState } from "react"
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google"
 import { useSetAtom } from "jotai"
 import { useNavigate } from "react-router"
-import { getAdmin, loginWithGoogle } from "../features/auth/admin.api.ts"
 import {
     adminRefreshTokenAtom,
     adminTokenAtom
@@ -22,10 +22,10 @@ export default function LoginView() {
         setSubmitting(true)
 
         try {
-            const result = await loginWithGoogle(credential)
+            const result = await login(credential, "Admin Panel")
 
             // ensure the account actually has admin access before storing
-            await getAdmin(result.token).catch(() => {
+            await getAdmin().catch(() => {
                 throw new Error(
                     "This account does not have administrator access."
                 )

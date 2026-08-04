@@ -1,23 +1,16 @@
-export type Blocks = "POMODORO" | "CHAT" | "SYNC"
+import type { SyncAction, SyncResponse } from "@umnburrow/core/api"
 
-export type SyncStatus = "LIVE" | "DISCONNECTED" | "ERROR" | "CONNECTING"
-
-export type Response = {
-    burrowID: string
-    block: string
-    type: string
-    payload: any
-}
-
-export type Action = {
-    block: string
-    action: string
-    data: Record<string, string>
-}
+export type {
+    Blocks,
+    PomodoroState,
+    SyncStatus,
+    SyncAction as Action,
+    SyncResponse as Response
+} from "@umnburrow/core/api"
 
 /**
- * Custom event implementation for React Native.
- * Replaces DOM Event which doesn't exist in React Native.
+ * Custom event implementation for React Native, which has no DOM `Event`. The
+ * payloads themselves live in `@umnburrow/core/api`.
  */
 class CustomEvent {
     readonly type: string
@@ -29,9 +22,9 @@ class CustomEvent {
 
 export class SyncOutgoingEvent extends CustomEvent {
     static readonly NAME = "SYNC_OUTGOING"
-    readonly action: Action
+    readonly action: SyncAction
 
-    constructor(action: Action) {
+    constructor(action: SyncAction) {
         super(SyncOutgoingEvent.NAME)
 
         this.action = action
@@ -39,9 +32,9 @@ export class SyncOutgoingEvent extends CustomEvent {
 }
 
 export class SyncIncomingEvent extends CustomEvent {
-    readonly response: Response
+    readonly response: SyncResponse
 
-    constructor(response: Response) {
+    constructor(response: SyncResponse) {
         super(`${response.block}_INCOMING`)
 
         this.response = response

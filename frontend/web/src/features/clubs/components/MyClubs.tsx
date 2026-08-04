@@ -1,9 +1,9 @@
+import { getMyClubs } from "@umnburrow/core/api"
+import type { ClubRole, MyClubResponse } from "@umnburrow/core/api"
 import { useNavigate } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { Crown, Shield, Users } from "lucide-react"
 import { Card, ListItem } from "@umnburrow/core"
-import { getMyClubs } from "@features/clubs/clubs.api.ts"
-import type { ClubRole, MyClubResponse } from "@features/clubs/clubs.types.tsx"
 import ClubProfilePicture from "@features/clubs/components/ClubProfilePicture.tsx"
 
 /**

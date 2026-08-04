@@ -1,13 +1,9 @@
+import { DAILY, MONTHLY, NOT_REOCCURRING, WEEKLY } from "@umnburrow/core/api"
 import { View, ScrollView, Pressable } from "react-native"
 import { CustomDateTimePicker, LabeledSwitch, Text } from "@components/core"
 import type { CreateStepProps } from "../create.types"
 import { useState } from "react"
-import {
-    NOT_REOCCURRING,
-    DAILY,
-    WEEKLY,
-    MONTHLY
-} from "@features/burrows/burrows.types"
+
 import { useThemeColors } from "@api/theme/useThemeColors"
 
 type Timeframe = "Daily" | "Weekly" | "Monthly"

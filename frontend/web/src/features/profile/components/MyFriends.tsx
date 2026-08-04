@@ -1,8 +1,8 @@
+import { getRelations } from "@umnburrow/core/api"
 import { useNavigate } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { Users } from "lucide-react"
 import { Card } from "@umnburrow/core"
-import { getRelations } from "@features/auth/user.api.ts"
 import MyFriend from "@features/profile/components/MyFriend.tsx"
 
 /**

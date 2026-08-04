@@ -1,3 +1,4 @@
+import { getArticles } from "@umnburrow/core/api"
 import { useCallback, useMemo, useState } from "react"
 import {
     View,
@@ -12,7 +13,7 @@ import { useQuery } from "@tanstack/react-query"
 import { ArrowLeft, BookOpen, Search } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { Input, Text, ViewErrors } from "@components/core"
-import { getArticles } from "@features/articles/articles.api"
+
 import ArticleCard from "@features/articles/components/ArticleCard"
 
 /**

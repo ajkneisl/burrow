@@ -1,3 +1,5 @@
+import { submitReport } from "@umnburrow/core/api"
+import type { ReportCategory } from "@umnburrow/core/api"
 import { View, ScrollView, Pressable, KeyboardAvoidingView, Platform } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter, Stack, usePathname } from "expo-router"
@@ -15,8 +17,7 @@ import {
 } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import { Card, Button, Input, Text } from "@components/core"
-import { submitReport } from "@features/problem/problem.api"
-import type { ReportCategory } from "@features/problem/problem.types"
+
 import Toast from "react-native-toast-message"
 import * as Application from "expo-application"
 
@@ -76,12 +77,12 @@ export default function ReportProblemScreen() {
         const userAgent = `${Platform.OS} ${Platform.Version} / App ${Application.nativeApplicationVersion || "Unknown"}`
 
         submitMutation.mutate({
+            reportType: "GENERAL",
             summary: summary.trim(),
             details: details.trim(),
             category,
             path: pathname,
-            userAgent,
-            burrowInfo: ""
+            userAgent
         })
     }
 

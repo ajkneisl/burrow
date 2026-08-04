@@ -86,12 +86,9 @@ export default defineConfig(async ({ command }) => {
     console.log(`[env] building for ${appEnv}`)
 
     return {
-        plugins: [
-            environmentFavicon(appEnv),
-            react(),
-            tailwindcss(),
-            tsconfigPaths()
-        ],
+        // Vite 8 resolves tsconfig `paths` natively, replacing vite-tsconfig-paths
+        resolve: { tsconfigPaths: true },
+        plugins: [environmentFavicon(appEnv), react(), tailwindcss()],
         define: {
             "import.meta.env.VITE_APP_ENV": JSON.stringify(appEnv)
         }

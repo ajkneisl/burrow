@@ -1,8 +1,8 @@
+import { getArticles } from "@umnburrow/core/api"
 import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Input, ViewErrors } from "@umnburrow/core"
 import { BookOpen } from "lucide-react"
-import { getArticles } from "@features/articles/articles.api.ts"
 import ArticleCard from "@features/articles/components/ArticleCard.tsx"
 import useMetaTags from "@features/layout/hooks/useMetaTags.ts"
 

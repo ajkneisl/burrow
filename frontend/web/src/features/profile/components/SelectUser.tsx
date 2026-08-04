@@ -1,6 +1,6 @@
+import { get } from "@umnburrow/core/api"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { Input } from "@umnburrow/core"
-import { get } from "@api/api.ts"
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { authToken } from "@features/auth/auth.atom.ts"

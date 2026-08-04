@@ -1,8 +1,8 @@
+import { msToClock } from "@umnburrow/core/api"
+import type { BurrowMembership } from "@umnburrow/core/api"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Button, Card } from "@umnburrow/core"
-import type { BurrowMembership } from "@features/burrows/burrows.types.tsx"
 import usePomodoroSync from "@features/sync/hooks/usePomodoroSync.tsx"
-import { msToClock } from "@api/util.ts"
 import { PauseCircleIcon, PlayCircleIcon, RefreshCwIcon } from "lucide-react"
 
 /**

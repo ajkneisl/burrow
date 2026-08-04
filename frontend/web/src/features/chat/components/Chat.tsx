@@ -1,6 +1,6 @@
+import type { ChatMember, ChatMessage } from "@umnburrow/core/api"
 import { useMemo, useState } from "react"
 import { Pencil, Pin, X } from "lucide-react"
-import type { ChatMember, ChatMessage } from "@features/chat/chat.types.ts"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 
 function getUserColor(userID: string): string {

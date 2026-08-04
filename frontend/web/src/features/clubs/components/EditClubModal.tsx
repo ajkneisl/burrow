@@ -1,13 +1,12 @@
+import { capitalizeFirstLetter, updateClub } from "@umnburrow/core/api"
+import type { Club, ClubCategory, ClubLink, ClubPrivacy } from "@umnburrow/core/api"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { Link } from "react-router"
 import { ChevronRight, History } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button, Input, Modal, SelectInput, TextArea, Toggle, ViewErrors } from "@umnburrow/core"
-import { updateClub } from "@features/clubs/clubs.api.ts"
-import type { Club, ClubCategory, ClubLink, ClubPrivacy } from "@features/clubs/clubs.types.tsx"
 import Field from "@features/burrows/create/components/Field.tsx"
 import ClubLinksEditor from "@features/clubs/components/ClubLinksEditor.tsx"
-import { capitalizeFirstLetter } from "@api/util.ts"
 import { toast } from "react-hot-toast"
 
 type EditClubFormState = {
@@ -248,19 +247,19 @@ export default function EditClubModal({ open, onClose, club }: EditClubModalProp
                             <Link
                                 to={`/club/${club.name}/history`}
                                 onClick={onClose}
-                                className="border-card-border hover:bg-hero flex items-center gap-3 rounded-lg border p-4 transition-colors"
+                                className="flex items-center gap-3 rounded-lg border border-card-border p-4 transition-colors hover:bg-hero"
                             >
-                                <History className="text-text/60 h-5 w-5 shrink-0" />
+                                <History className="size-5 shrink-0 text-text/60" />
 
                                 <div className="min-w-0 flex-1">
-                                    <p className="text-text text-sm font-medium">Burrow History</p>
-                                    <p className="text-text/60 text-xs">
+                                    <p className="text-sm font-medium text-text">Burrow History</p>
+                                    <p className="text-xs text-text/60">
                                         Every Burrow this club has held. Unsaved changes will be
                                         lost.
                                     </p>
                                 </div>
 
-                                <ChevronRight className="text-text/40 h-4 w-4 shrink-0" />
+                                <ChevronRight className="size-4 shrink-0 text-text/40" />
                             </Link>
                         </div>
                     </div>

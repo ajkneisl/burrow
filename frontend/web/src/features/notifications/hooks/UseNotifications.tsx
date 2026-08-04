@@ -1,10 +1,9 @@
+import type { Notification, PaginatedResponse } from "@umnburrow/core/api"
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import toast from "react-hot-toast"
 import { BASE_URL } from "@api/util.ts"
-import type { Notification } from "@features/notifications/notifications.types.ts"
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query"
-import type { PaginatedResponse } from "@api/api.types.ts"
 import { Bell } from "lucide-react"
 
 /**

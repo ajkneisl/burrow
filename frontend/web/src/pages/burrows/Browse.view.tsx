@@ -1,9 +1,9 @@
+import { humanDateLabel, searchBurrows, weekRangeLabel } from "@umnburrow/core/api"
+import type { BurrowResponse } from "@umnburrow/core/api"
 import { AnimatePresence, motion } from "framer-motion"
 import React, { useMemo, useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
-import type { BurrowResponse } from "@features/burrows/burrows.types.tsx"
 import { BurrowCard } from "@features/burrows/components/BurrowCard.tsx"
-import { searchMeetings } from "@features/burrows/burrows.api.ts"
 import BurrowHeatmap from "@features/burrows/components/BurrowHeatmap.tsx"
 import {
     Input,
@@ -12,7 +12,6 @@ import {
     Paginator
 } from "@umnburrow/core"
 import clsx from "clsx"
-import { humanDateLabel, weekRangeLabel } from "@api/util.ts"
 import { Loader2, ChevronRight, SlidersHorizontal } from "lucide-react"
 import BrowseTabs from "@features/browse/components/BrowseTabs.tsx"
 
@@ -66,7 +65,7 @@ export default function Browse() {
             isTa
         ],
         queryFn: async () =>
-            await searchMeetings(
+            await searchBurrows(
                 null,
                 query || "",
                 currentPage,

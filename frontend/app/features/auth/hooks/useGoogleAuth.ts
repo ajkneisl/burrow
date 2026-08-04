@@ -1,3 +1,4 @@
+import { login } from "@umnburrow/core/api"
 import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "expo-router"
 import { useAtom } from "jotai"
@@ -8,7 +9,7 @@ import {
 } from "@react-native-google-signin/google-signin"
 import * as Device from "expo-device"
 import { authToken, newUser as newUserAtom, refreshTokenAtom, userDetails } from "../auth.atom"
-import { login } from "../user.api"
+
 import { store } from "@api/api.atom"
 
 // OAuth client IDs

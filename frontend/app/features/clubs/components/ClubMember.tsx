@@ -1,9 +1,11 @@
-import type { ClubMemberResponse } from "@features/clubs/club.types"
+
+import { formatTimeAgo } from "@umnburrow/core/api"
+import type { ClubMemberResponse } from "@umnburrow/core/api"
 import { useRouter } from "expo-router"
 import { Pressable, View } from "react-native"
 import { Text } from "@components/core"
 import { ProfilePicture } from "@features/profile/components/ProfilePicture"
-import { formatTimeAgo } from "@api/util"
+
 import ClubRoleBadge from "@features/clubs/components/ClubRoleBadge"
 
 type ClubMemberProps = {

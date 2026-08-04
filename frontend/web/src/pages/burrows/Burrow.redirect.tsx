@@ -1,6 +1,9 @@
-import {useParams} from "react-router";
-import StandardBurrow from "@pages/burrows/StandardBurrow.view.tsx";
-import NotFound from "@pages/NotFound.view.tsx";
+import {useParams} from "react-router"
+;
+import StandardBurrow from "@pages/burrows/StandardBurrow.view.tsx"
+;
+import NotFound from "@pages/NotFound.view.tsx"
+;
 
 /**
  * When visiting /:id, redirect to /burrow/:id

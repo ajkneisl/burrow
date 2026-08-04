@@ -1,9 +1,10 @@
+import type { Relation } from "@umnburrow/core/api"
 import { View, SectionList, ScrollView, RefreshControl } from "react-native"
 import { useMemo } from "react"
 import { Users, UserMinus, UserPlus } from "lucide-react-native"
 import { Text } from "@components/core"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import type { Relation } from "@features/auth/user.types"
+
 import {
     useFriendsQuery,
     useFollowingQuery,

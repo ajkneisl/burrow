@@ -1,11 +1,7 @@
 import { useEffect } from "react"
 import { useSetAtom } from "jotai"
 import { metaTagsAtom } from "@features/layout/layout.atom.ts"
-import {
-    defaultMetaTags,
-    type MetaTagsState
-} from "@features/layout/layout.type.ts"
-
+import { defaultMetaTags, type MetaTagsState } from "@features/layout/layout.type.ts"
 /**
  * Hook to set meta tags for SEO and social media sharing.
  * Automatically resets to default tags when the component unmounts.

@@ -1,4 +1,4 @@
-import type { Burrow } from "@features/burrows/burrows.types.tsx"
+import type { Burrow } from "@umnburrow/core/api"
 import { useMemo } from "react"
 import clsx from "clsx"
 import { User } from "lucide-react"
@@ -8,6 +8,10 @@ import { User } from "lucide-react"
  */
 type MeetingCapacityProps = {
     burrow: Burrow
+    /** How many people have joined, from the enclosing {@link BurrowResponse}. */
+    joined: number
+    /** How many people are waitlisted, from the enclosing {@link BurrowResponse}. */
+    waiting: number
     enforceCapacity?: number
 }
 
@@ -17,9 +21,10 @@ type MeetingCapacityProps = {
  */
 export default function BurrowCapacity({
     burrow,
+    joined,
+    waiting,
     enforceCapacity
 }: MeetingCapacityProps) {
-    const joined = burrow.joined ?? 0
     const capacity = enforceCapacity ? enforceCapacity : (burrow.capacity ?? 0)
     const hasLimit = capacity > 0
 
@@ -71,7 +76,7 @@ export default function BurrowCapacity({
             </span>
 
             {/* waitlist */}
-            {burrow.waiting > 0 && (
+            {waiting > 0 && (
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-warn bg-warn/10 px-2.5 py-1 text-xs font-medium text-warn">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -82,7 +87,7 @@ export default function BurrowCapacity({
                     >
                         <path d="M7.5 6a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm9 0a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM2 20c0-2.5 2-4.5 4.5-4.5h3c2.5 0 4.5 2 4.5 4.5v1H2v-1Zm12.5 0c0-2.5 2-4.5 4.5-4.5h3c2.5 0 4.5 2 4.5 4.5v1h-12v-1Z" />
                     </svg>
-                    {burrow.waiting}
+                    {waiting}
                 </span>
             )}
         </>

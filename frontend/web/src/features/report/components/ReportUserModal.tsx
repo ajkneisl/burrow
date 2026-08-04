@@ -1,8 +1,5 @@
-import { post } from "@api/api.ts"
-import {
-    USER_REPORT_CATEGORIES,
-    type UserReportCategory
-} from "@features/report/report.types.ts"
+import { USER_REPORT_CATEGORIES, post } from "@umnburrow/core/api"
+import type { UserReportCategory } from "@umnburrow/core/api"
 import { useMutation } from "@tanstack/react-query"
 import { Button, Modal, SelectInput, TextArea } from "@umnburrow/core"
 import { useState, type FormEvent } from "react"

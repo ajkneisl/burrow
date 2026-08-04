@@ -1,14 +1,8 @@
+import { acceptInvite, declineInvite, formatTimeAgo, getBurrow, getReceivedInvites, humanDateLabel } from "@umnburrow/core/api"
+import type { InviteWithUsers } from "@umnburrow/core/api"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useAtom } from "jotai"
-import {
-    getReceivedInvites,
-    acceptInvite,
-    declineInvite
-} from "@features/burrows/attendees/attendees.api.ts"
-import { getBurrow } from "@features/burrows/burrows.api.ts"
-import type { InviteWithUsers } from "@features/burrows/burrows.types.tsx"
 import { Button, Card, Modal } from "@umnburrow/core"
-import { formatTimeAgo, humanDateLabel } from "@api/util.ts"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { useNavigate } from "react-router"
 import { myInvitesModalOpen } from "@features/layout/layout.atom.ts"

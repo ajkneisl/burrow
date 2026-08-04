@@ -1,11 +1,9 @@
-import type { InviteWithUsers } from "@features/burrows/burrows.types.tsx"
+import { cancelInvite, formatTimeAgo } from "@umnburrow/core/api"
+import type { InviteWithUsers } from "@umnburrow/core/api"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { cancelInvite } from "@features/burrows/attendees/attendees.api.ts"
 import { useParams } from "react-router"
 import DisplayMember from "@features/burrows/attendees/components/DisplayMember.tsx"
 import { Hover } from "@umnburrow/core"
-import { formatTimeAgo } from "@api/util.ts"
-
 /**
  * A representation of a sent invite.
  *

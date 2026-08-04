@@ -1,9 +1,8 @@
+import { get } from "@umnburrow/core/api"
 import { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Card, Hover } from "@umnburrow/core"
 import clsx from "clsx"
-import { get } from "@api/api.ts"
-
 type MonthCounts = Record<number, number>
 type HeatmapData = Record<string, MonthCounts> // { "YYYY-MM": { day: count } }
 

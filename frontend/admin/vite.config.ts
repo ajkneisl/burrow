@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from "vite"
-import react from "@vitejs/plugin-react"
+import react, { reactCompilerPreset } from "@vitejs/plugin-react"
+import babel from "@rolldown/plugin-babel"
 import tailwindcss from "@tailwindcss/vite"
 
 type AppEnv = "dev" | "staging" | "prod"
@@ -90,15 +91,14 @@ export default defineConfig(async ({ command }) => {
 
     return {
         base: BASE,
+        // Vite 8 resolves tsconfig `paths` natively, replacing vite-tsconfig-paths
+        resolve: { tsconfigPaths: true },
         plugins: [
             environmentFavicon(appEnv),
             tailwindcss(),
-            tsconfigPaths(),
-            react({
-                babel: {
-                    plugins: [["babel-plugin-react-compiler"]]
-                }
-            })
+            react(),
+            // React Compiler moved out of plugin-react's options in v6
+            babel({ presets: [reactCompilerPreset()] })
         ],
         define: {
             "import.meta.env.VITE_APP_ENV": JSON.stringify(appEnv)

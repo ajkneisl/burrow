@@ -1,8 +1,5 @@
-import {
-    type Club,
-    type MyClubResponse,
-    type ClubRole
-} from "@features/clubs/club.types"
+
+import type { Club, ClubRole, MyClubResponse } from "@umnburrow/core/api"
 import { Pressable, View } from "react-native"
 import { Chip, Text } from "@components/core"
 import ClubProfilePicture from "./ClubProfilePicture"

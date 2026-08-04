@@ -1,12 +1,8 @@
+import { NOT_REOCCURRING, formatDateTime, getReoccurringText } from "@umnburrow/core/api"
+import type { BurrowResponse } from "@umnburrow/core/api"
 import {useNavigate} from "react-router"
-import {
-    BURROW_KIND_CONFIG,
-    type BurrowResponse,
-    getReoccurringText,
-    NOT_REOCCURRING
-} from "@features/burrows/burrows.types.tsx"
+import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types.tsx"
 import useUser from "@features/auth/hooks/useUser.ts"
-import {formatDateTime} from "@api/util.ts"
 import {Card, Chip, Hover} from "@umnburrow/core"
 import clsx from "clsx"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
@@ -184,7 +180,11 @@ export function BurrowCard({
 
                         {/* capacity */}
                         {burrow.capacity > 0 && (
-                            <BurrowCapacity burrow={burrow}/>
+                            <BurrowCapacity
+                                burrow={burrow}
+                                joined={meetingResponse.joined}
+                                waiting={meetingResponse.waiting}
+                            />
                         )}
 
                         {/* is bookmarked :o */}

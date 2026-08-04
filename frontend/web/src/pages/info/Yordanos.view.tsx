@@ -1,7 +1,7 @@
+import { get } from "@umnburrow/core/api"
 import { useState } from "react"
 import { Button, Card } from "@umnburrow/core"
 import clsx from "clsx"
-import {get} from "@api/api.ts";
 
 /**
  * Debug utilities

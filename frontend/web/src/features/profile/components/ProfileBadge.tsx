@@ -1,6 +1,5 @@
 import { Hover } from "@umnburrow/core"
 import { CDN_URL } from "@api/util.ts"
-
 /**
  * {@link ProfileBadge}
  */

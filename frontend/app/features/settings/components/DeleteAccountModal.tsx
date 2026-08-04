@@ -1,8 +1,8 @@
+import { deleteAccount } from "@umnburrow/core/api"
 import { View } from "react-native"
 import { useMutation } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
 import { Modal, Button, Text } from "@components/core"
-import { deleteAccount } from "@features/auth/user.api"
 
 /**
  * {@link DeleteAccountModal}

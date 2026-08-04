@@ -1,9 +1,9 @@
+import { saveBlocks } from "@umnburrow/core/api"
+import type { Blocks } from "@umnburrow/core/api"
 import { useCallback, useState } from "react"
 import { Button, Modal, Toggle } from "@umnburrow/core"
-import { type Blocks } from "@features/sync/sync.types.ts"
 import { blockStatus } from "@features/sync/sync.atom.ts"
 import { useAtom } from "jotai"
-import { saveBlocks } from "@features/sync/blocks.api.ts"
 import { useParams } from "react-router"
 
 /**

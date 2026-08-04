@@ -1,6 +1,6 @@
+import type { ClubLink } from "@umnburrow/core/api"
 import { Input } from "@umnburrow/core"
 import { Plus, X } from "lucide-react"
-import type { ClubLink } from "@features/clubs/clubs.types.tsx"
 import { CLUB_LINK_CONFIG } from "@features/clubs/clubs.types.tsx"
 import Field from "@features/burrows/create/components/Field.tsx"
 

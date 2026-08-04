@@ -1,9 +1,8 @@
+import { getClub } from "@umnburrow/core/api"
+import type { ClubResponse } from "@umnburrow/core/api"
 import { useQuery } from "@tanstack/react-query"
 import useUser from "@features/auth/hooks/useUser.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
-import { getClub } from "@features/clubs/clubs.api.ts"
-import type { ClubResponse } from "@features/clubs/clubs.types.tsx"
-
 /**
  * Derive club role booleans from the club query cache.
  * Shares the same query key as the club page, so no extra fetch occurs.

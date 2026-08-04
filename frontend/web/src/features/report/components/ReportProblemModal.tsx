@@ -1,12 +1,11 @@
+import { submitReport } from "@umnburrow/core/api"
+import type { ReportCategory } from "@umnburrow/core/api"
 import { type FormEvent, useEffect, useMemo, useState } from "react"
 import { Button, Input, Modal, SelectInput, TextArea } from "@umnburrow/core"
 import { useAtom } from "jotai"
 import { problemModalOpen } from "@features/report/report.atom.ts"
-import { submitReport } from "@features/report/report.api.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
 import toast from "react-hot-toast"
-import type { ReportCategory } from "@features/report/report.types.ts"
-
 /**
  * A modal to report a problem.
  *

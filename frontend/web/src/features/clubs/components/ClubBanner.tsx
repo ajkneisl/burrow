@@ -1,9 +1,9 @@
+import { uploadClubBanner } from "@umnburrow/core/api"
 import { useRef, useState, useMemo } from "react"
 import clsx from "clsx"
 import { Camera } from "lucide-react"
 import { CDN_URL } from "@api/util.ts"
 import useToken from "@features/auth/hooks/useToken.ts"
-import { uploadClubBanner } from "@features/clubs/clubs.api.ts"
 import useClubRole from "@features/clubs/hooks/useClubRole.ts"
 import toast from "react-hot-toast"
 
@@ -67,7 +67,7 @@ export default function ClubBanner({
 
         setUploading(true)
         try {
-            await uploadClubBanner(clubName, file)
+            await uploadClubBanner(clubName, file, file.type)
             setImageError(false)
             setCacheBust(Date.now())
             toast.success("Club banner updated!")

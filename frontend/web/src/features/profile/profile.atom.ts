@@ -1,6 +1,6 @@
+import type { Profile } from "@umnburrow/core/api"
 import { atom } from "jotai"
-import type { Profile, RelationView } from "@features/profile/profile.model.ts"
-
+import type { RelationView } from "@features/profile/profile.model.ts"
 /**
  * If the user is currently editing.
  */

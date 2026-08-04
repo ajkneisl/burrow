@@ -1,3 +1,5 @@
+import { capitalizeFirstLetter, createClub } from "@umnburrow/core/api"
+import type { ClubCategory, ClubLink, ClubPrivacy } from "@umnburrow/core/api"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router"
 import { useQueryClient } from "@tanstack/react-query"
@@ -11,12 +13,8 @@ import {
     ViewErrors
 } from "@umnburrow/core"
 import useFormState from "@api/useFormState.ts"
-import { createClub } from "@features/clubs/clubs.api.ts"
-import type { ClubCategory, ClubLink, ClubPrivacy } from "@features/clubs/clubs.types.tsx"
 import Field from "@features/burrows/create/components/Field.tsx"
 import ClubLinksEditor from "@features/clubs/components/ClubLinksEditor.tsx"
-import { capitalizeFirstLetter } from "@api/util.ts"
-
 type CreateClubFormState = {
     name: string
     displayName: string

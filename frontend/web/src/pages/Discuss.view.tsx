@@ -1,11 +1,11 @@
+import { createTopic, getTopics } from "@umnburrow/core/api"
+import type { Topic } from "@umnburrow/core/api"
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import { MessageSquare, Pin, Plus, Users } from "lucide-react"
-import type { Topic } from "@features/chat/chat.types.ts"
 import { Button, Input, TextArea, ViewErrors } from "@umnburrow/core"
 import clsx from "clsx"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createTopic, getTopics } from "@features/chat/chat.api.ts"
 import { motion, AnimatePresence } from "framer-motion"
 
 /**

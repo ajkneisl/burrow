@@ -1,3 +1,4 @@
+import type { BurrowResponse, Following, Profile, User } from "@umnburrow/core/api"
 import { View } from "react-native"
 import { useRouter } from "expo-router"
 import {
@@ -13,9 +14,7 @@ import { ProfilePicture } from "@features/profile/components/ProfilePicture"
 import { UserBadge } from "@features/profile/components/UserBadge"
 import { UpcomingBurrowCard } from "@features/burrows/components/UpcomingBurrowCard"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import type { User } from "@features/auth/user.types"
-import type { Profile, Following } from "@features/profile/profile.model"
-import type { BurrowResponse } from "@features/burrows/burrows.types"
+
 import {
     formatInstagramUrl,
     formatLinkedInUrl

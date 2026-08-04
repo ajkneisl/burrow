@@ -1,9 +1,7 @@
-import {
-    type Burrow,
-    BURROW_KIND_CONFIG
-} from "@features/burrows/burrows.types.tsx"
+import { formatDateTime } from "@umnburrow/core/api"
+import type { Burrow } from "@umnburrow/core/api"
+import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types.tsx"
 import { useNavigate } from "react-router"
-import { formatDateTime } from "@api/util.ts"
 import clsx from "clsx"
 import { Badge, Chip } from "@umnburrow/core"
 import { MapPin } from "lucide-react"

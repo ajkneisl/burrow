@@ -1,9 +1,10 @@
-import { ClubResponse } from "@features/clubs/club.types"
+
+import { ClubResponse, del, getUser, post } from "@umnburrow/core/api"
 import { Button } from "@components/core"
 import { useMemo, useState } from "react"
-import { getUser } from "@features/auth/user.api"
+
 import useClubRole from "@features/clubs/hooks/useClubRole"
-import { del, post } from "@api/api"
+
 import { useQueryClient } from "@tanstack/react-query"
 import Toast from "react-native-toast-message"
 

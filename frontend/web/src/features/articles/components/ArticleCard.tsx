@@ -1,7 +1,6 @@
+import type { Article } from "@umnburrow/core/api"
 import { Link } from "react-router"
 import { ArrowRight } from "lucide-react"
-import type { Article } from "@features/articles/articles.types.ts"
-
 /**
  * A card previewing a single article, linking to its full page.
  *

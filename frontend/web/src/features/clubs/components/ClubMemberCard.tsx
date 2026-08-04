@@ -1,10 +1,6 @@
-import type {
-    ClubMemberResponse,
-    ClubRole
-} from "@features/clubs/clubs.types.tsx"
-import { changeClubRole } from "@features/clubs/clubs.api.ts"
+import { changeClubRole, formatTimeAgo } from "@umnburrow/core/api"
+import type { ClubMemberResponse, ClubRole } from "@umnburrow/core/api"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
-import { formatTimeAgo } from "@api/util.ts"
 import { useNavigate } from "react-router"
 import { useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"

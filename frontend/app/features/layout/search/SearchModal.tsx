@@ -1,3 +1,5 @@
+import { isBurrowResult, isClubResult, isUserResult, search } from "@umnburrow/core/api"
+import type { SearchResult } from "@umnburrow/core/api"
 import { useState, useMemo } from "react"
 import {
     View,
@@ -13,13 +15,7 @@ import { Modal, Text } from "@components/core"
 import { searchModalOpen } from "../layout.atom"
 import { Search, X } from "lucide-react-native"
 import { useThemeColors } from "@api/theme/useThemeColors"
-import {
-    search,
-    isUserResult,
-    isBurrowResult,
-    isClubResult,
-    type SearchResult
-} from "./search.api"
+
 import { SearchEmptyState } from "./SearchEmptyState"
 import { SearchNoResults } from "./SearchNoResults"
 import { SearchResultItem } from "./SearchResultItem"

@@ -1,10 +1,9 @@
+import { convertGraduationYear } from "@umnburrow/core/api"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { Badge, Card } from "@umnburrow/core"
 import { Link } from "react-router"
 import useUser from "@features/auth/hooks/useUser.ts"
 import useProfile from "@features/auth/hooks/useProfile.ts"
-import { convertGraduationYear } from "@api/util.ts"
-
 /**
  * A view of My Profile on the homepage.
  *

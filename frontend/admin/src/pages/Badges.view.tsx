@@ -1,16 +1,10 @@
+import { createBadge, deleteBadge, getBadges, getUserBadges, updateUserBadges } from "@umnburrow/core/api"
+import type { Badge } from "@umnburrow/core/api"
 import { useRef, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useAtom } from "jotai"
 import { Button, Card, Input } from "@umnburrow/core"
-import {
-    getBadges,
-    createBadge,
-    deleteBadge,
-    getUserBadges,
-    updateUserBadges
-} from "../features/badges/badge.api.ts"
-import { adminTokenAtom, CDN_URL } from "../features/auth/admin.atom.ts"
-import type { Badge } from "../features/badges/badge.models.ts"
+
+import { CDN_URL } from "../features/auth/admin.atom.ts"
 
 /**
  * Manage badges.
@@ -18,12 +12,11 @@ import type { Badge } from "../features/badges/badge.models.ts"
  * @author AJ Kneisl
  */
 export default function BadgesView() {
-    const [token] = useAtom(adminTokenAtom)
     const queryClient = useQueryClient()
 
     const { data: badges, isLoading, isError, error, refetch, isFetching } = useQuery({
         queryKey: ["admin", "badges"],
-        queryFn: () => getBadges(token ?? ""),
+        queryFn: () => getBadges(),
         refetchOnWindowFocus: true
     })
 
@@ -42,7 +35,7 @@ export default function BadgesView() {
         mutationFn: () => {
             if (!newImage) throw new Error("Image is required")
 
-            return createBadge(token ?? "", newID, newDescription, newImage)
+            return createBadge(newID, newDescription, newImage, newImage.type)
         },
 
         onSuccess: () => {
@@ -57,7 +50,7 @@ export default function BadgesView() {
     })
 
     const deleteMutation = useMutation({
-        mutationFn: (id: string) => deleteBadge(token ?? "", id),
+        mutationFn: (id: string) => deleteBadge(id),
 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["admin", "badges"] })
@@ -65,7 +58,7 @@ export default function BadgesView() {
     })
 
     const loadUserBadgesMutation = useMutation({
-        mutationFn: (id: string) => getUserBadges(token ?? "", id),
+        mutationFn: (id: string) => getUserBadges(id),
 
         onSuccess: (data) => {
             setUserBadges(data)
@@ -74,7 +67,7 @@ export default function BadgesView() {
     })
 
     const updateUserBadgesMutation = useMutation({
-        mutationFn: () => updateUserBadges(token ?? "", userID, userBadges),
+        mutationFn: () => updateUserBadges(userID, userBadges),
 
         onSuccess: () => {
             setUserBadgesLoaded(false)

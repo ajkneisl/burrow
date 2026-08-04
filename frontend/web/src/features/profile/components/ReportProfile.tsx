@@ -2,7 +2,8 @@ import { useRef, useState } from "react"
 import { Flag, User, UserRoundX } from "lucide-react"
 import { Button, Dropdown, DropdownItem } from "@umnburrow/core"
 import ReportUserModal from "@features/report/components/ReportUserModal.tsx"
-import BlockUserModal from "@features/profile/components/BlockUserModal.tsx";
+import BlockUserModal from "@features/profile/components/BlockUserModal.tsx"
+;
 
 /**
  * {@link ReportProfile}

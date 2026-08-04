@@ -1,4 +1,4 @@
-import type { Profile } from "@features/profile/profile.model.ts"
+import type { Profile } from "@umnburrow/core/api"
 import ProfilePicture from "@features/profile/components/ProfilePicture.tsx"
 import { Button } from "@umnburrow/core"
 import { useNavigate } from "react-router"

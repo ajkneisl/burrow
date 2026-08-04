@@ -1,13 +1,11 @@
+import { getBurrows, humanDateLabel, searchBurrows, weekRangeLabel } from "@umnburrow/core/api"
+import type { BurrowKind, BurrowResponse } from "@umnburrow/core/api"
 import { View, SectionList, RefreshControl, Pressable } from "react-native"
 import { useState, useMemo, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { UpcomingBurrowCard } from "@features/burrows/components/UpcomingBurrowCard"
 import { BurrowCardSkeleton } from "@features/burrows/components/BurrowCardSkeleton"
-import { getBurrows, searchMeetings } from "@features/burrows/burrows.api"
-import type {
-    BurrowKind,
-    BurrowResponse
-} from "@features/burrows/burrows.types"
+
 import { Search, Filter, ChevronRight, MapPinned } from "lucide-react-native"
 import { useAtom } from "jotai"
 import { mapModalOpen } from "@features/layout/layout.atom"
@@ -20,7 +18,7 @@ import {
     Skeleton,
     Text
 } from "@components/core"
-import { humanDateLabel, weekRangeLabel } from "@api/util"
+
 import Animated, {
     useAnimatedStyle,
     withTiming,
@@ -72,7 +70,7 @@ export function ExploreBurrows() {
         ],
         queryFn: async () => {
             if (hasAdvancedFilters) {
-                return await searchMeetings(
+                return await searchBurrows(
                     selectedType,
                     "",
                     1,

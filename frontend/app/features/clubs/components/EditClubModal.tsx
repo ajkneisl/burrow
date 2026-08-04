@@ -1,3 +1,5 @@
+import { updateClub } from "@umnburrow/core/api"
+import type { Club, ClubCategory, ClubLink, ClubPrivacy } from "@umnburrow/core/api"
 import { useState, useCallback } from "react"
 import { View, Pressable, ScrollView, Switch, KeyboardAvoidingView, Platform, FlatList } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -7,13 +9,7 @@ import { X, ChevronLeft, ChevronRight, History } from "lucide-react-native"
 import { useRouter } from "expo-router"
 import { Card, Input, Modal, Text } from "@components/core"
 import ThemedIcon from "@components/core/ThemedIcon"
-import { updateClub } from "@features/clubs/clubs.api"
-import type {
-    Club,
-    ClubCategory,
-    ClubLink,
-    ClubPrivacy
-} from "@features/clubs/club.types"
+
 import { CLUB_CATEGORIES, CLUB_PRIVACY_OPTIONS } from "@features/clubs/club.types"
 import { useThemeColors } from "@api/theme/useThemeColors"
 import ClubLinksEditor from "@features/clubs/components/ClubLinksEditor"

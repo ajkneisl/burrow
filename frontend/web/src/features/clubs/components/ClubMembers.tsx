@@ -1,12 +1,8 @@
+import { ROLE_ORDER, getClubMembers } from "@umnburrow/core/api"
+import type { ClubMemberResponse, PaginatedResponse } from "@umnburrow/core/api"
 import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Button, Card } from "@umnburrow/core"
-import { getClubMembers } from "@features/clubs/clubs.api.ts"
-import {
-    type ClubMemberResponse,
-    ROLE_ORDER
-} from "@features/clubs/clubs.types.tsx"
-import type { PaginatedResponse } from "@api/api.types.ts"
 import ClubMemberCard from "@features/clubs/components/ClubMemberCard.tsx"
 import useToken from "@features/auth/hooks/useToken.ts"
 

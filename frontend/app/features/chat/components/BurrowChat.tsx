@@ -1,14 +1,12 @@
+import type { ChatMember, ChatMessage } from "@umnburrow/core/api"
 import { View } from "react-native"
 import { useState, useEffect } from "react"
 import { useAtomValue } from "jotai"
 import { Card, Text } from "@components/core"
 import GenericChatBox from "./GenericChatBox"
-import type { ChatMessage, ChatMember } from "../chat.types"
+
 import { syncStatus } from "@features/sync/sync.atom"
-import {
-    type SyncIncomingEvent,
-    SyncOutgoingEvent
-} from "@features/sync/sync.types"
+import { type SyncIncomingEvent, SyncOutgoingEvent } from "@features/sync/sync.types"
 import { eventBus } from "@features/sync/eventBus"
 import useUser from "@features/auth/hooks/useUser"
 

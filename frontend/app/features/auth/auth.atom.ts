@@ -1,5 +1,6 @@
+import type { User } from "@umnburrow/core/api"
 import { atom } from "jotai"
-import type { User } from "./user.types"
+
 import { atomWithAsyncStorage } from "@api/util"
 
 /**

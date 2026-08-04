@@ -1,3 +1,4 @@
+import { BurrowKind } from "@umnburrow/core/api"
 import { View, Pressable } from "react-native"
 import { Text } from "@components/core"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -9,7 +10,6 @@ import {
     FolderKanban
 } from "lucide-react-native"
 import ThemedIcon from "@components/core/ThemedIcon"
-import { BurrowKind } from "@features/burrows/burrows.types"
 
 /**
  * {@link BurrowTypeSelector}

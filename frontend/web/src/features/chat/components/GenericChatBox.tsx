@@ -1,9 +1,8 @@
+import type { ChatMember, ChatMessage } from "@umnburrow/core/api"
 import { useLayoutEffect, useRef, type ReactNode } from "react"
 import { MessageSquare } from "lucide-react"
 import Chat from "@features/chat/components/Chat.tsx"
 import ChatInput from "@features/chat/components/ChatInput.tsx"
-import type { ChatMember, ChatMessage } from "@features/chat/chat.types.ts"
-
 /**
  * Props for {@link GenericChatBox}
  */

@@ -7,7 +7,7 @@ import {
 } from "../../auth/admin.atom.ts"
 import { useEffect, useRef } from "react"
 import useAdmin from "../../auth/hooks/useAdmin.ts"
-import { refreshSession } from "../../auth/admin.api.ts"
+import { refreshAccessToken } from "@umnburrow/core/api"
 import type { NavSection } from "../layout.models.ts"
 import { SidebarSection } from "./SidebarSection.tsx"
 
@@ -41,7 +41,7 @@ function Layout() {
             if (!current) return
 
             try {
-                const result = await refreshSession(current)
+                const result = await refreshAccessToken(current)
 
                 setToken(result.token)
                 setRefreshToken(result.refreshToken)

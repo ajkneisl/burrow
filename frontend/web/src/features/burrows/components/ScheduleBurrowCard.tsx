@@ -1,10 +1,8 @@
+import { formatDateTime, humanDateLabel } from "@umnburrow/core/api"
+import type { ScheduleBurrowResponse } from "@umnburrow/core/api"
 import clsx from "clsx"
-import { formatDateTime, humanDateLabel } from "@api/util.ts"
 import { Card, Chip } from "@umnburrow/core"
-import {
-    BURROW_KIND_CONFIG,
-    type ScheduleBurrowResponse
-} from "@features/burrows/burrows.types.tsx"
+import { BURROW_KIND_CONFIG } from "@features/burrows/burrows.types.tsx"
 import { useNavigate } from "react-router"
 import { MessageSquare, Pin } from "lucide-react"
 

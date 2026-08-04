@@ -1,4 +1,5 @@
-import {createStore} from "jotai";
+import {createStore} from "jotai"
+;
 
 /**
  * main jotai store

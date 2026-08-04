@@ -1,9 +1,6 @@
+import { BURROW_REPORT_CATEGORIES, post } from "@umnburrow/core/api"
+import type { BurrowReportCategory } from "@umnburrow/core/api"
 import { useState, type FormEvent } from "react"
-import { post } from "@api/api.ts"
-import {
-    BURROW_REPORT_CATEGORIES,
-    type BurrowReportCategory
-} from "@features/report/report.types.ts"
 import { Button, TextArea, SelectInput, Modal } from "@umnburrow/core"
 import { useMutation } from "@tanstack/react-query"
 import toast from "react-hot-toast"
