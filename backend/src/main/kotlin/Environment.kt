@@ -1,5 +1,6 @@
 package app.burrow
 
+import java.util.Properties
 import kotlin.system.exitProcess
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
@@ -64,6 +65,16 @@ private val bwsEnv by lazy {
 
 /** Retrieve an environment variable from Bitwarden, fallback to System if it's not there. */
 fun env(name: String): String? = bwsEnv[name] ?: System.getenv(name)
+
+/** the version from build.gradle.kts, written into version.properties at build time. */
+private val burrowVersion by lazy {
+    object {}.javaClass.getResourceAsStream("/version.properties")?.use { stream ->
+        Properties().apply { load(stream) }.getProperty("version")
+    } ?: "unknown"
+}
+
+/** Retrieve the current version of Burrow. */
+fun getVersion(): String = burrowVersion
 
 val STAGE =
     try {
