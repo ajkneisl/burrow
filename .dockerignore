@@ -1,5 +1,11 @@
+**/node_modules
+**/dist
+**/.DS_Store
 backend/build
-frontend/dist
-frontend/node_modules
-admin/node_modules
-admin/dist
+backend/.gradle
+backend/.kotlin
+frontend/app
+.git
+.idea
+key
+Burrow.yml

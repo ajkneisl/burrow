@@ -38,49 +38,38 @@ function environmentFavicon(appEnv: AppEnv): Plugin {
     }
 }
 
-async function loadBitwardenSecrets() {
-    const accessToken = process.env.BWS_TOKEN
-    if (!accessToken) return
+/** Loads VITE_* values from AWS Parameter Store when PARAMETER_STORE_PATH is set. */
+async function loadParameterStore() {
+    const path = process.env.PARAMETER_STORE_PATH?.replace(/\/+$/, "")
+    if (!path) return
 
-    const organizationId = process.env.BWS_ORG_ID
-    if (!organizationId) {
-        throw new Error(
-            "BWS_ACCESS_TOKEN is set but BWS_ORG_ID is missing"
-        )
-    }
+    const { SSMClient, paginateGetParametersByPath } = await import(
+        "@aws-sdk/client-ssm"
+    )
 
-    const { BitwardenClient } = await import("@bitwarden/sdk-napi")
-
-    const client = new BitwardenClient()
-
-    try {
-        await client.auth().loginAccessToken(accessToken)
-    } catch (error) {
-        throw new Error(
-            "Bitwarden Secrets Manager login failed",
-            { cause: error }
-        )
-    }
-
-    const { secrets } = await client.secrets().sync(organizationId)
-    const projectId = process.env.BWS_PROJECT_ID
+    const client = new SSMClient({})
     let loaded = 0
 
-    for (const secret of secrets ?? []) {
-        if (projectId && secret.projectId !== projectId) continue
-        if (!secret.key.startsWith("VITE_")) continue
-        if (process.env[secret.key] !== undefined) continue
+    for await (const page of paginateGetParametersByPath(
+        { client },
+        { Path: path, Recursive: true, WithDecryption: true }
+    )) {
+        for (const parameter of page.Parameters ?? []) {
+            const key = parameter.Name!.slice(path.length + 1)
+            if (!key.startsWith("VITE_")) continue
+            if (process.env[key] !== undefined) continue
 
-        process.env[secret.key] = secret.value
-        loaded++
+            process.env[key] = parameter.Value
+            loaded++
+        }
     }
 
-    console.log(`[bws] loaded ${loaded} secret(s) from Bitwarden`)
+    console.log(`[ssm] loaded ${loaded} parameter(s) from Parameter Store`)
 }
 
 // https://vite.dev/config/
 export default defineConfig(async ({ command }) => {
-    await loadBitwardenSecrets()
+    await loadParameterStore()
 
     const appEnv = resolveAppEnv(command)
     console.log(`[env] building for ${appEnv}`)

@@ -1,9 +1,14 @@
 package app.burrow.api
 
 import app.burrow.env
+import io.r2dbc.pool.ConnectionPool
+import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
+import io.r2dbc.postgresql.client.SSLMode
 import io.r2dbc.spi.IsolationLevel
+import io.r2dbc.spi.ValidationDepth
+import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -40,6 +45,9 @@ suspend fun initDb() {
     val user = env("DB_USER") ?: throw IllegalStateException("Could not find DB username")
     val pass = env("DB_PASS") ?: throw IllegalStateException("Could not find DB password")
 
+    // RDS enforces TLS, so prod sets DB_SSL_MODE=require
+    val sslMode = env("DB_SSL_MODE")?.let { SSLMode.fromValue(it) } ?: SSLMode.PREFER
+
     LOGGER.debug("Connecting (R2DBC) to {}", jdbc)
 
     runCatching {
@@ -50,12 +58,35 @@ suspend fun initDb() {
                         .database("burrow")
                         .username(user)
                         .password(pass)
+                        .sslMode(sslMode)
                         .build()
                 )
 
+            // reuse connections, a new TLS handshake + auth for every transaction is expensive
+            val poolSize = env("DB_POOL_MAX")?.toIntOrNull() ?: 10
+            val pool =
+                ConnectionPool(
+                    ConnectionPoolConfiguration.builder(connectionFactory)
+                        .name("burrow")
+                        .initialSize(env("DB_POOL_MIN")?.toIntOrNull() ?: 2)
+                        .maxSize(poolSize)
+                        .maxIdleTime(Duration.ofMinutes(10))
+                        .maxLifeTime(Duration.ofMinutes(30))
+                        .maxAcquireTime(Duration.ofSeconds(10))
+                        // check with the server, so connections dropped by a restart or failover
+                        // aren't handed out
+                        .validationDepth(ValidationDepth.REMOTE)
+                        // after a restart every idle connection is dead, retry past all of them
+                        .acquireRetry(poolSize)
+                        .backgroundEvictionInterval(Duration.ofMinutes(1))
+                        .build()
+                )
+
+            Runtime.getRuntime().addShutdownHook(Thread { pool.dispose() })
+
             DB =
                 R2dbcDatabase.connect(
-                    connectionFactory = connectionFactory,
+                    connectionFactory = pool,
                     databaseConfig =
                         R2dbcDatabaseConfig {
                             defaultMaxAttempts = 1

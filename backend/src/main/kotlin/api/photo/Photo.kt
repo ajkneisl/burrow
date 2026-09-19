@@ -2,20 +2,47 @@ package app.burrow.api.photo
 
 import app.burrow.api.Error
 import app.burrow.env
-import io.minio.MinioClient
-import io.minio.PutObjectArgs
-import io.minio.RemoveObjectArgs
 import java.io.ByteArrayInputStream
+import java.net.URI
 import javax.imageio.ImageIO
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
+import software.amazon.awssdk.core.sync.RequestBody
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
+import software.amazon.awssdk.services.s3.model.PutObjectRequest
 
 // s3 information
-private val s3AccessKey = env("S3_ACCESS_KEY") ?: "minio"
-private val s3SecretKey = env("S3_SECRET_KEY") ?: "password"
-private val s3Endpoint = env("S3_ENDPOINT") ?: "http://localhost:9000"
-val s3PublicUrl = env("S3_PUBLIC_URL") ?: s3Endpoint
+val s3Bucket = env("S3_BUCKET") ?: "burrow"
+val s3PublicUrl = env("S3_PUBLIC_URL") ?: "http://localhost:9000/$s3Bucket"
 
-val minioClient: MinioClient =
-    MinioClient.builder().endpoint(s3Endpoint).credentials(s3AccessKey, s3SecretKey).build()
+/**
+ * The S3 client. On AWS this uses the default credential chain (the ECS task role).
+ *
+ * For local development against MinIO, set `S3_ENDPOINT`, `S3_ACCESS_KEY` and `S3_SECRET_KEY`.
+ */
+val s3Client: S3Client =
+    S3Client.builder()
+        .region(Region.of(env("AWS_REGION") ?: "us-east-1"))
+        .apply {
+            env("S3_ENDPOINT")?.let { endpoint ->
+                endpointOverride(URI.create(endpoint))
+                forcePathStyle(true)
+            }
+
+            val accessKey = env("S3_ACCESS_KEY")
+            val secretKey = env("S3_SECRET_KEY")
+
+            if (accessKey != null && secretKey != null) {
+                credentialsProvider(
+                    StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey))
+                )
+            }
+        }
+        .build()
+
+private const val CACHE_CONTROL = "public, max-age=300"
 
 private val VALID_CONTENT_TYPES = setOf("image/png", "image/jpeg", "image/gif", "image/webp")
 private const val MAX_IMAGE_SIZE = 16L * 1024 * 1024 // 16 MB
@@ -76,12 +103,12 @@ fun verifyPhoto(
 /**
  * Delete a photo.
  *
- * @param bucket The bucket the photo is in.
+ * @param folder The top-level folder in [s3Bucket] the photo is in.
  * @param key The key of the photo.
  */
-fun deletePhoto(bucket: String, key: String) {
+fun deletePhoto(folder: String, key: String) {
     try {
-        minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).`object`(key).build())
+        s3Client.deleteObject(DeleteObjectRequest.builder().bucket(s3Bucket).key("$folder/$key").build())
     } catch (ex: Exception) {
         throw Error(500, "Failed to delete photo: ${ex.message}")
     }
@@ -90,18 +117,19 @@ fun deletePhoto(bucket: String, key: String) {
 /**
  * Create a photo.
  *
- * @param bucket The bucket the photo should be created in.
+ * @param folder The top-level folder in [s3Bucket] the photo should be created in.
  * @param key The key of the photo.
  * @param photo The content of the photos.
  */
-fun createPhoto(bucket: String, key: String, photo: ByteArray) {
+fun createPhoto(folder: String, key: String, photo: ByteArray) {
     try {
-        minioClient.putObject(
-            PutObjectArgs.builder()
-                .bucket(bucket)
-                .`object`(key)
-                .stream(ByteArrayInputStream(photo), photo.size.toLong(), -1)
-                .build()
+        s3Client.putObject(
+            PutObjectRequest.builder()
+                .bucket(s3Bucket)
+                .key("$folder/$key")
+                .cacheControl(CACHE_CONTROL)
+                .build(),
+            RequestBody.fromBytes(photo),
         )
     } catch (ex: Exception) {
         throw Error(500, "Failed to create photo: ${ex.message}")

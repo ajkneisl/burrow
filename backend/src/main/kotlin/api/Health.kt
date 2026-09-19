@@ -1,6 +1,7 @@
 package app.burrow.api
 
-import app.burrow.api.photo.minioClient
+import app.burrow.api.photo.s3Bucket
+import app.burrow.api.photo.s3Client
 import app.burrow.getVersion
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -33,7 +34,7 @@ object Health {
                             DB?.dialectMetadata?.allTablesNames()?.isNotEmpty() == true
                         }
                 },
-            "s3" to { minioClient.listBuckets().isNotEmpty() },
+            "s3" to { s3Client.headBucket { it.bucket(s3Bucket) }.sdkHttpResponse().isSuccessful },
         )
 
     /** Perform [checks]. */

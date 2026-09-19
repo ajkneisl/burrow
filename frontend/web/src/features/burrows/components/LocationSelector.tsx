@@ -3,7 +3,7 @@ import {
     Input,
     type AutocompleteOption
 } from "@umnburrow/core"
-import { useMapsLibrary } from "@vis.gl/react-google-maps"
+import { APIProvider, useMapsLibrary } from "@vis.gl/react-google-maps"
 import { useState, useEffect, useCallback } from "react"
 
 /**
@@ -38,7 +38,7 @@ interface LocationSelectorProps {
  *
  * @author AJ Kneisl
  */
-export default function LocationSelector({
+function LocationSelectorInput({
     value,
     onChange,
     error = false,
@@ -153,5 +153,16 @@ export default function LocationSelector({
             error={error}
             noOptionsText="Find the perfect spot"
         />
+    )
+}
+
+/**
+ * A location selector, with its own Google Maps provider so the Maps API only loads when it's used.
+ */
+export default function LocationSelector(props: LocationSelectorProps) {
+    return (
+        <APIProvider apiKey={import.meta.env.VITE_GMAP_API_KEY}>
+            <LocationSelectorInput {...props} />
+        </APIProvider>
     )
 }

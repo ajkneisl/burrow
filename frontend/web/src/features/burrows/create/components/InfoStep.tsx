@@ -1,7 +1,12 @@
 import Field from "@features/burrows/create/components/Field.tsx"
 import { Input, TextArea } from "@umnburrow/core"
 import type { CreateStepProps } from "@features/burrows/create/create.types.ts"
-import LocationSelector from "@features/burrows/components/LocationSelector.tsx"
+import { lazy, Suspense } from "react"
+
+// pulls in Google Maps, so only load it once the form is open
+const LocationSelector = lazy(
+    () => import("@features/burrows/components/LocationSelector.tsx")
+)
 
 /**
  * {@link InfoStep}
@@ -29,7 +34,8 @@ const COPY: Record<"STUDY" | "EVENT", InfoStepCopy> = {
         capacityPlaceholder: "5",
         tagsPlaceholder: "PHYS, FINAL, etc.",
         descriptionLabel: "Description",
-        descriptionPlaceholder: "What are you studying? Who are you looking for?"
+        descriptionPlaceholder:
+            "What are you studying? Who are you looking for?"
     },
     EVENT: {
         heading: "Event Details",
@@ -82,15 +88,21 @@ export default function InfoStep({
                 </Field>
 
                 {/* location */}
-                <Field
-                    label="Location"
-                    className="md:col-span-2"
-                >
-                    <LocationSelector
-                        value={formState.location}
-                        onChange={(value) => updateField("location", value)}
-                        placeholder="Search for a location..."
-                    />
+                <Field label="Location" className="md:col-span-2">
+                    <Suspense
+                        fallback={
+                            <Input
+                                placeholder="Search for a location..."
+                                disabled
+                            />
+                        }
+                    >
+                        <LocationSelector
+                            value={formState.location}
+                            onChange={(value) => updateField("location", value)}
+                            placeholder="Search for a location..."
+                        />
+                    </Suspense>
                 </Field>
 
                 {/* capacity */}

@@ -27,6 +27,7 @@ import app.burrow.features.notifications.createNotification
 import app.burrow.features.report.REPORT_ROUTES
 import app.burrow.features.search
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
@@ -36,6 +37,7 @@ import io.ktor.server.http.content.react
 import io.ktor.server.http.content.singlePageApplication
 import io.ktor.server.http.content.staticFiles
 import io.ktor.server.request.uri
+import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
@@ -157,8 +159,12 @@ fun Application.configureRouting() {
             )
 
         // GET /assets/*
-        // frontend assets
-        staticFiles("/assets", File("$FRONTEND_DIR/assets"))
+        // frontend assets, file names are content hashed so they never change
+        staticFiles("/assets", File("$FRONTEND_DIR/assets")) {
+            modify { _, call ->
+                call.response.header(HttpHeaders.CacheControl, "public, max-age=31536000, immutable")
+            }
+        }
 
         // GET /image/*
         // frontend images

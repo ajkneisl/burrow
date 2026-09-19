@@ -6,7 +6,7 @@ import app.burrow.features.notifications.delivery.Delivery
 import app.burrow.features.notifications.delivery.DeliveryChannel
 import app.burrow.features.notifications.delivery.generateNotificationEmail
 import org.slf4j.LoggerFactory
-import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.ses.SesClient
 import software.amazon.awssdk.services.ses.model.Body
@@ -38,7 +38,7 @@ object Email : DeliveryChannel {
 
         val credentialsProvider =
             try {
-                EnvironmentVariableCredentialsProvider.create()
+                DefaultCredentialsProvider.builder().build()
             } catch (_: Exception) {
                 LOGGER.error(
                     "Failed to create AWS client. ALL notifications sent to email will fail."

@@ -26,8 +26,8 @@
         "tailwindcss": "4.3.3"
     },
     "devDependencies": {
+        "@aws-sdk/client-ssm": "^3.1136.0",
         "@babel/core": "^8.0.1",
-        "@bitwarden/sdk-napi": "^1.0.0",
         "@eslint/js": "^10.0.1",
         "@rolldown/plugin-babel": "^0.2.3",
         "@types/babel__core": "^7.20.5",

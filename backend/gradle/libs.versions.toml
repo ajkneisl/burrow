@@ -10,11 +10,11 @@ ktorRateLimiting = "2.3.0"
 kotlinxSerialization = "1.11.0"
 reflections = "0.10.2"
 jbcrypt = "0.4"
-minio = "9.0.3"
 googleApiClient = "2.9.0"
 awsSdk = "2.49.5"
 webPush = "5.1.2"
 expoServerSdk = "3.1.6"
+bouncycastle = "1.84"
 
 [libraries]
 # Ktor artifacts are versioned by the BOM the io.ktor.plugin applies.
@@ -47,12 +47,14 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
 jbcrypt = { module = "org.mindrot:jbcrypt", version.ref = "jbcrypt" }
-minio = { module = "io.minio:minio", version.ref = "minio" }
 
 google-api-client = { module = "com.google.api-client:google-api-client", version.ref = "googleApiClient" }
 aws-bom = { module = "software.amazon.awssdk:bom", version.ref = "awsSdk" }
 aws-ses = { module = "software.amazon.awssdk:ses" }
+aws-s3 = { module = "software.amazon.awssdk:s3" }
+aws-ssm = { module = "software.amazon.awssdk:ssm" }
 web-push = { module = "nl.martijndwars:web-push", version.ref = "webPush" }
+bouncycastle = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
 expo-server-sdk = { module = "io.github.hlspablo:expo-server-sdk-java", version.ref = "expoServerSdk" }
 
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }

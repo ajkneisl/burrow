@@ -2,69 +2,58 @@ package app.burrow
 
 import java.util.Properties
 import kotlin.system.exitProcess
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import software.amazon.awssdk.services.ssm.SsmClient
+import software.amazon.awssdk.services.ssm.model.GetParametersByPathRequest
 
 /**
- * secrets from Bitwarden Secret Manager.
+ * secrets from AWS Systems Manager Parameter Store.
  *
- * please refer to Bitwarden's docs on the secret manager cli for this :)
+ * every parameter under `PARAMETER_STORE_PATH` (ex: `/burrow/prod`) is loaded, keyed by its name
+ * relative to that path. credentials come from the default AWS provider chain.
  */
-private val bwsEnv by lazy {
+private val parameterStoreEnv by lazy {
     hashMapOf<String, String>().apply {
-        val accessToken = System.getenv("BWS_TOKEN") ?: System.getenv("BWS_ACCESS_TOKEN")
+        val path = System.getenv("PARAMETER_STORE_PATH")?.trimEnd('/')
 
-        if (accessToken.isNullOrBlank()) {
-            LOGGER.debug("BWS_TOKEN not set, skipping Bitwarden secrets")
+        if (path.isNullOrBlank()) {
+            LOGGER.debug("PARAMETER_STORE_PATH not set, skipping Parameter Store")
             return@apply
         }
 
-        LOGGER.debug("Loading BWS Secrets")
+        LOGGER.debug("Loading secrets from Parameter Store at {}", path)
 
         try {
-            val command = buildList {
-                add("bws")
-                add("secret")
-                add("list")
+            SsmClient.create().use { ssm ->
+                var nextToken: String? = null
 
-                // scope to a single project when one is configured
-                System.getenv("BWS_PROJECT_ID")?.let { add(it) }
+                do {
+                    val response =
+                        ssm.getParametersByPath(
+                            GetParametersByPathRequest.builder()
+                                .path(path)
+                                .recursive(true)
+                                .withDecryption(true)
+                                .nextToken(nextToken)
+                                .build()
+                        )
 
-                add("--output")
-                add("json")
-                add("--color")
-                add("no")
-                add("--access-token")
-                add(accessToken)
+                    response.parameters().forEach { parameter ->
+                        put(parameter.name().removePrefix("$path/"), parameter.value())
+                    }
+
+                    nextToken = response.nextToken()
+                } while (nextToken != null)
             }
 
-            val process = ProcessBuilder(command).start()
-            val stdout = process.inputStream.bufferedReader().readText()
-            val stderr = process.errorStream.bufferedReader().readText()
-
-            if (process.waitFor() != 0) {
-                LOGGER.error("bws exited with ${process.exitValue()}: ${stderr.trim()}")
-                return@apply
-            }
-
-            Json.parseToJsonElement(stdout).jsonArray.forEach { secret ->
-                val key = secret.jsonObject["key"]!!.jsonPrimitive.content
-                val value = secret.jsonObject["value"]!!.jsonPrimitive.content
-
-                put(key, value)
-            }
-
-            LOGGER.debug("loaded {} secret(s) from Bitwarden", size)
+            LOGGER.debug("loaded {} secret(s) from Parameter Store", size)
         } catch (ex: Exception) {
-            LOGGER.error("There was an issue loading secrets. Please check BWS.", ex)
+            LOGGER.error("There was an issue loading secrets. Please check Parameter Store.", ex)
         }
     }
 }
 
-/** Retrieve an environment variable from Bitwarden, fallback to System if it's not there. */
-fun env(name: String): String? = bwsEnv[name] ?: System.getenv(name)
+/** Retrieve an environment variable from Parameter Store, fallback to System if it's not there. */
+fun env(name: String): String? = parameterStoreEnv[name] ?: System.getenv(name)
 
 /** the version from build.gradle.kts, written into version.properties at build time. */
 private val burrowVersion by lazy {

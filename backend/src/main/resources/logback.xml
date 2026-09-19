@@ -29,4 +29,8 @@
     <logger name="reactor.core" level="INFO"/>
     <logger name="io.r2dbc.postgresql" level="INFO"/>
     <logger name="Exposed" level="INFO"/>
+    <!-- the AWS SDK logs signed request headers (session tokens included) at DEBUG -->
+    <logger name="software.amazon.awssdk" level="INFO"/>
+    <logger name="org.apache.hc" level="INFO"/>
+    <logger name="org.apache.http" level="INFO"/>
 </configuration>

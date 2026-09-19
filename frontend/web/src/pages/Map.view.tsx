@@ -1,7 +1,15 @@
-import { capitalizeFirstLetter, formatDateTime, getMap } from "@umnburrow/core/api"
+import {
+    capitalizeFirstLetter,
+    formatDateTime,
+    getMap
+} from "@umnburrow/core/api"
 import type { BurrowLocation } from "@umnburrow/core/api"
 import { useState } from "react"
-import { Map as GMap, AdvancedMarker } from "@vis.gl/react-google-maps"
+import {
+    APIProvider,
+    Map as GMap,
+    AdvancedMarker
+} from "@vis.gl/react-google-maps"
 import { useQuery } from "@tanstack/react-query"
 import { X, MapPin } from "lucide-react"
 import { Button } from "@umnburrow/core"
@@ -17,7 +25,7 @@ const UMN_CENTER = {
  *
  * @author AJ Kneisl
  */
-export default function MapView() {
+function MapViewContent() {
     const nav = useNavigate()
 
     const [selectedBurrow, setSelectedBurrow] = useState<BurrowLocation | null>(
@@ -132,5 +140,16 @@ export default function MapView() {
                 )}
             </div>
         </div>
+    )
+}
+
+/**
+ * The map page. Google Maps only loads on pages that use it.
+ */
+export default function MapView() {
+    return (
+        <APIProvider apiKey={import.meta.env.VITE_GMAP_API_KEY}>
+            <MapViewContent />
+        </APIProvider>
     )
 }

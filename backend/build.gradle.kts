@@ -28,11 +28,13 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.reflections)
     implementation(libs.jbcrypt)
-    implementation(libs.minio)
     implementation(libs.google.api.client)
     implementation(platform(libs.aws.bom))
     implementation(libs.aws.ses)
+    implementation(libs.aws.s3)
+    implementation(libs.aws.ssm)
     implementation(libs.web.push)
+    implementation(libs.bouncycastle)
     implementation(libs.expo.server.sdk)
 
     testImplementation(libs.bundles.kotest)
@@ -44,13 +46,6 @@ repositories {
     mavenCentral()
     maven("https://jitpack.io")
     maven("https://packages.confluent.io/maven/")
-    maven {
-        url = uri("https://maven.pkg.github.com/bitwarden/sdk-sm")
-        credentials {
-            username = System.getenv("GITHUB_ACTOR") ?: findProperty("gpr.user")?.toString() ?: ""
-            password = System.getenv("GITHUB_TOKEN") ?: findProperty("gpr.token")?.toString() ?: ""
-        }
-    }
 }
 
 val compileTestKotlin: KotlinCompile by tasks

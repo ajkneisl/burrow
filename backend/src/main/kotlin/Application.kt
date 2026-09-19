@@ -43,7 +43,13 @@ suspend fun main(args: Array<String>) {
 
     initDb()
     parseArgs(args)
-    scheduleWorkers()
+
+    // lets a second instance run against a copy of the data without double-sending notifications
+    if (env("WORKERS_ENABLED")?.toBooleanStrictOrNull() != false) {
+        scheduleWorkers()
+    } else {
+        LOGGER.warn("WORKERS_ENABLED=false, background workers are not running")
+    }
 
     embeddedServer(Netty, port = PORT, host = "0.0.0.0", module = Application::module)
         .start(wait = true)

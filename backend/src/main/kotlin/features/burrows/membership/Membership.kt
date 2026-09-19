@@ -46,6 +46,7 @@ import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.innerJoin
 import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
@@ -104,41 +105,60 @@ data class BurrowScheduleResponse(
 )
 
 /**
- * Get the latest chat message for a burrow.
+ * Get the latest chat message for several burrows at once.
  *
- * @param burrowID The ID of the burrow to get the latest message for.
- * @return The latest [ChatMessage], or null if there are no messages.
+ * @param burrowIDs The IDs of the burrows to get the latest message for.
+ * @return For each burrow, if the message is pinned and the pinned or latest [ChatMessage], or
+ *   null if there are no messages.
  */
-suspend fun getLatestChatMessage(burrowID: String): Pair<Boolean, ChatMessage?> = query {
-    // todo: cache this somewhere
-    val pinnedMessage =
-        BlockStates.selectAll()
-            .where { (BlockStates.burrowID eq burrowID) and (BlockStates.blockID eq "CHAT") }
-            .singleOrNull()
-            ?.getOrNull(BlockStates.data)
-            ?.let { json.decodeFromString<HashMap<String, String>>(it) }
-            ?.get(Chat.PINNED_MESSAGE)
+suspend fun getLatestChatMessages(burrowIDs: List<String>): Map<String, Pair<Boolean, ChatMessage?>> {
+    if (burrowIDs.isEmpty()) return emptyMap()
 
-    if (pinnedMessage != null) {
-        val chatMessage =
-            ChatMessages.selectAll()
-                .where {
-                    (ChatMessages.parentID eq burrowID) and
-                        (ChatMessages.id eq UUID.fromString(pinnedMessage))
+    return query {
+        // todo: cache this somewhere
+        val pinnedIDs =
+            BlockStates.selectAll()
+                .where { (BlockStates.burrowID inList burrowIDs) and (BlockStates.blockID eq "CHAT") }
+                .toList()
+                .mapNotNull { row ->
+                    val pinned =
+                        json.decodeFromString<HashMap<String, String>>(row[BlockStates.data])[
+                                Chat.PINNED_MESSAGE]
+                            ?: return@mapNotNull null
+
+                    row[BlockStates.burrowID] to UUID.fromString(pinned)
                 }
-                .map { row -> row.toEntity<ChatMessage>(ChatMessages) }
-                .firstOrNull()
+                .toMap()
 
-        return@query true to chatMessage
+        val pinnedMessages =
+            if (pinnedIDs.isEmpty()) emptyMap()
+            else
+                ChatMessages.selectAll()
+                    .where { ChatMessages.id inList pinnedIDs.values }
+                    .toList()
+                    .map { row -> row.toEntity<ChatMessage>(ChatMessages) }
+                    .associateBy { it.id }
+
+        // one row per burrow: DISTINCT ON keeps the first, which is the newest
+        val unpinnedIDs = burrowIDs.filterNot { it in pinnedIDs }
+        val latestMessages =
+            if (unpinnedIDs.isEmpty()) emptyMap()
+            else
+                ChatMessages.selectAll()
+                    .where { ChatMessages.parentID inList unpinnedIDs }
+                    .withDistinctOn(ChatMessages.parentID to SortOrder.ASC)
+                    .orderBy(ChatMessages.createdAt, SortOrder.DESC)
+                    .toList()
+                    .map { row -> row.toEntity<ChatMessage>(ChatMessages) }
+                    .associateBy { it.parentID }
+
+        burrowIDs.associateWith { burrowID ->
+            when (val pinnedID = pinnedIDs[burrowID]) {
+                null -> false to latestMessages[burrowID]
+                else -> true to pinnedMessages[pinnedID]?.takeIf { it.parentID == burrowID }
+            }
+        }
     }
-
-    false to
-        ChatMessages.selectAll()
-            .where { ChatMessages.parentID eq burrowID }
-            .orderBy(ChatMessages.createdAt, SortOrder.DESC)
-            .limit(1)
-            .firstOrNull()
-            ?.toEntity(ChatMessages)
 }
 
 /**
@@ -163,18 +183,6 @@ suspend fun getUserSchedule(user: String): List<BurrowScheduleResponse> {
                     .limit(5)
                     .toList()
             }
-            .map { row ->
-                val burrowID = row[Burrows.id]
-                val (isPinned, latestChatMessage) = getLatestChatMessage(burrowID)
-
-                BurrowScheduleResponse(
-                    burrow = row.toEntity(Burrows),
-                    burrowAuthor = row[Users.username],
-                    membership = row.toEntity(Memberships),
-                    isPinned = isPinned,
-                    latestChatMessage = latestChatMessage,
-                )
-            }
 
     // Get all active projects (not limited)
     val projectBurrows =
@@ -193,21 +201,22 @@ suspend fun getUserSchedule(user: String): List<BurrowScheduleResponse> {
                     .take(5)
                     .toList()
             }
-            .map { row ->
-                val burrowID = row[Burrows.id]
-                val (isPinned, latestChatMessage) = getLatestChatMessage(burrowID)
-
-                BurrowScheduleResponse(
-                    burrow = row.toEntity(Burrows),
-                    burrowAuthor = row[Users.username],
-                    membership = row.toEntity(Memberships),
-                    isPinned = isPinned,
-                    latestChatMessage = latestChatMessage,
-                )
-            }
 
     // Combine: projects first, then other burrows sorted by beginning time
-    return projectBurrows + nonProjectBurrows
+    val rows = projectBurrows + nonProjectBurrows
+    val latestChatMessages = getLatestChatMessages(rows.map { row -> row[Burrows.id] })
+
+    return rows.map { row ->
+        val (isPinned, latestChatMessage) = latestChatMessages.getValue(row[Burrows.id])
+
+        BurrowScheduleResponse(
+            burrow = row.toEntity(Burrows),
+            burrowAuthor = row[Users.username],
+            membership = row.toEntity(Memberships),
+            isPinned = isPinned,
+            latestChatMessage = latestChatMessage,
+        )
+    }
 }
 
 /**

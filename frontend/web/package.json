@@ -34,7 +34,7 @@
         "tailwindcss-react-aria-components": "^2.2.0"
     },
     "devDependencies": {
-        "@bitwarden/sdk-napi": "^1.0.0",
+        "@aws-sdk/client-ssm": "^3.1136.0",
         "@eslint/js": "^10.0.1",
         "@types/node": "^26.1.2",
         "@types/react": "^19.2.17",
