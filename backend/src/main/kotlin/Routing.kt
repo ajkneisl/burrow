@@ -1,6 +1,7 @@
 package app.burrow
 
 import app.burrow.admin.ADMIN_ROUTES
+import app.burrow.api.Health
 import app.burrow.api.MetaTags
 import app.burrow.api.NotFound
 import app.burrow.api.WELL_KNOWN_ANDROID
@@ -47,6 +48,10 @@ import java.io.File
 fun Application.configureRouting() {
     routing {
         route("/api") {
+            // ROUTE /api/health
+            // health of burrow
+            route("/health", Health.HEALTH_ROUTE)
+
             // ROUTE /api/admin
             // all admin functionality
             route("/admin", ADMIN_ROUTES)

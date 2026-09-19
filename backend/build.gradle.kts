@@ -8,7 +8,7 @@ plugins {
 
 group = "app.burrow"
 
-version = "0.6.0"
+version = "0.6.1"
 
 application { mainClass = "app.burrow.ApplicationKt" }
 
@@ -33,7 +33,6 @@ dependencies {
     implementation(platform(libs.aws.bom))
     implementation(libs.aws.ses)
     implementation(libs.web.push)
-    implementation(libs.khealth)
     implementation(libs.expo.server.sdk)
 
     testImplementation(libs.bundles.kotest)
@@ -45,27 +44,27 @@ repositories {
     mavenCentral()
     maven("https://jitpack.io")
     maven("https://packages.confluent.io/maven/")
-
-    // Bitwarden only publishes the Secrets Manager SDK to GitHub Packages,
-    // which requires authentication even for public artifacts
     maven {
         url = uri("https://maven.pkg.github.com/bitwarden/sdk-sm")
         credentials {
-            username =
-                System.getenv("GITHUB_ACTOR") ?: findProperty("gpr.user")?.toString() ?: ""
-            password =
-                System.getenv("GITHUB_TOKEN") ?: findProperty("gpr.token")?.toString() ?: ""
+            username = System.getenv("GITHUB_ACTOR") ?: findProperty("gpr.user")?.toString() ?: ""
+            password = System.getenv("GITHUB_TOKEN") ?: findProperty("gpr.token")?.toString() ?: ""
         }
     }
 }
 
-// nested type aliases are stable as of language version 2.4, so the opt-in flag is no longer needed
 val compileTestKotlin: KotlinCompile by tasks
 
 compileTestKotlin.compilerOptions { freeCompilerArgs.set(listOf("-Xskip-prerelease-check")) }
 
 ktor {
     development = false
+}
+
+// expose the project version to the application at runtime
+tasks.processResources {
+    inputs.property("version", project.version)
+    filesMatching("version.properties") { expand("version" to project.version) }
 }
 
 fun bumpVersion(type: String) {
@@ -75,17 +74,20 @@ fun bumpVersion(type: String) {
     val match = versionRegex.find(content) ?: error("Could not find version in build.gradle.kts")
 
     val (major, minor, patch) = match.destructured
-    val (newMajor, newMinor, newPatch) = when (type) {
-        "major" -> Triple(major.toInt() + 1, 0, 0)
-        "minor" -> Triple(major.toInt(), minor.toInt() + 1, 0)
-        "patch" -> Triple(major.toInt(), minor.toInt(), patch.toInt() + 1)
-        else -> error("Unknown bump type: $type. Use 'major', 'minor', or 'patch'")
-    }
+    val (newMajor, newMinor, newPatch) =
+        when (type) {
+            "major" -> Triple(major.toInt() + 1, 0, 0)
+            "minor" -> Triple(major.toInt(), minor.toInt() + 1, 0)
+            "patch" -> Triple(major.toInt(), minor.toInt(), patch.toInt() + 1)
+            else -> error("Unknown bump type: $type. Use 'major', 'minor', or 'patch'")
+        }
 
     val newVersion = "$newMajor.$newMinor.$newPatch"
     val newContent = content.replace(versionRegex, """version = "$newVersion"""")
     buildFile.writeText(newContent)
-    println("Version bumped: ${match.groupValues[0].substringAfter("\"").substringBefore("\"")} -> $newVersion")
+    println(
+        "Version bumped: ${match.groupValues[0].substringAfter("\"").substringBefore("\"")} -> $newVersion"
+    )
 }
 
 tasks.register("bumpPatch") {

@@ -8,7 +8,6 @@ import app.burrow.api.workers.scheduleWorkers
 import app.burrow.features.account.Authorization.configureAuthentication
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.LoggerContext
-import dev.hayden.KHealth
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
@@ -61,7 +60,6 @@ suspend fun Application.module() {
 
     install(SSE)
     install(DefaultHeaders) { header("X-Engine", "Burrow") }
-    install(KHealth)
     install(AutoHeadResponse)
     install(ContentNegotiation) { json(json) }
 

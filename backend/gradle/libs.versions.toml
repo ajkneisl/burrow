@@ -4,7 +4,6 @@ ktor = "3.5.1"
 exposed = "1.0.0-rc-2"
 logback = "1.6.1"
 kotest = "6.2.3"
-khealth = "3.0.2"
 r2dbcPool = "1.0.2.RELEASE"
 r2dbcPostgresql = "1.1.2.RELEASE"
 ktorRateLimiting = "2.3.0"
@@ -43,7 +42,6 @@ exposed-r2dbc = { module = "org.jetbrains.exposed:exposed-r2dbc", version.ref = 
 r2dbc-pool = { module = "io.r2dbc:r2dbc-pool", version.ref = "r2dbcPool" }
 r2dbc-postgresql = { module = "org.postgresql:r2dbc-postgresql", version.ref = "r2dbcPostgresql" }
 
-khealth = { module = "dev.hayden:khealth", version.ref = "khealth" }
 ktor-rate-limiting = { module = "io.github.flaxoos:ktor-server-rate-limiting", version.ref = "ktorRateLimiting" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
